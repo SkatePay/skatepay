@@ -10,11 +10,11 @@ import Foundation
 @Observable
 class ModelData {
     var landmarks: [Landmark] = load("landmarkData.json")
+    var users: [User] = load("userData.json")
 }
 
 func load<T: Decodable>(_ filename: String) -> T {
     let data: Data
-
 
     guard let file = Bundle.main.url(forResource: filename, withExtension: nil)
     else {

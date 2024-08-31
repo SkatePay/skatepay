@@ -1,5 +1,5 @@
 //
-//  Park.swift
+//  Landmark.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
