@@ -13,7 +13,9 @@ struct WalletApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView().environment(modelData)
+            ContentView()
+            .environment(modelData)
         }
     }
 }
+

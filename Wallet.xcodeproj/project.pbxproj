@@ -36,6 +36,9 @@
 		C6F26D972C82D21700F6407E /* ProfileHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D962C82D21700F6407E /* ProfileHost.swift */; };
 		C6F26D992C82D27400F6407E /* ProfileSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D982C82D27400F6407E /* ProfileSummary.swift */; };
 		C6F26D9D2C82D4A600F6407E /* ProfileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D9C2C82D4A600F6407E /* ProfileEditor.swift */; };
+		C6F26DA02C83A4A900F6407E /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6F26D9F2C83A4A900F6407E /* NostrSDK */; };
+		C6F26DA42C83A98800F6407E /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26DA32C83A98800F6407E /* Host.swift */; };
+		C6F26DA62C83ABF000F6407E /* HostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26DA52C83ABF000F6407E /* HostStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +91,8 @@
 		C6F26D962C82D21700F6407E /* ProfileHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHost.swift; sourceTree = "<group>"; };
 		C6F26D982C82D27400F6407E /* ProfileSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSummary.swift; sourceTree = "<group>"; };
 		C6F26D9C2C82D4A600F6407E /* ProfileEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditor.swift; sourceTree = "<group>"; };
+		C6F26DA32C83A98800F6407E /* Host.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
+		C6F26DA52C83ABF000F6407E /* HostStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +100,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C6F26DA02C83A4A900F6407E /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +182,8 @@
 				C693D19F2C82907D004A63A5 /* Landmark.swift */,
 				C693D1A32C82985F004A63A5 /* ModelData.swift */,
 				C6F26D932C82D1CE00F6407E /* Profile.swift */,
+				C6F26DA32C83A98800F6407E /* Host.swift */,
+				C6F26DA52C83ABF000F6407E /* HostStore.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -297,6 +305,9 @@
 			dependencies = (
 			);
 			name = Wallet;
+			packageProductDependencies = (
+				C6F26D9F2C83A4A900F6407E /* NostrSDK */,
+			);
 			productName = Wallet;
 			productReference = C6D722E62C825F0C00F44FF6 /* Wallet.app */;
 			productType = "com.apple.product-type.application";
@@ -369,6 +380,9 @@
 				Base,
 			);
 			mainGroup = C6D722DD2C825F0C00F44FF6;
+			packageReferences = (
+				C6F26D9E2C83A4A900F6407E /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
+			);
 			productRefGroup = C6D722E72C825F0C00F44FF6 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -414,9 +428,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				C6D722EC2C825F0C00F44FF6 /* ContentView.swift in Sources */,
+				C6F26DA42C83A98800F6407E /* Host.swift in Sources */,
 				C6D723162C826DD400F44FF6 /* MapView.swift in Sources */,
 				C6F26D992C82D27400F6407E /* ProfileSummary.swift in Sources */,
 				C6F26D8E2C82CF2C00F6407E /* ChatHome.swift in Sources */,
+				C6F26DA62C83ABF000F6407E /* HostStore.swift in Sources */,
 				C6F26D972C82D21700F6407E /* ProfileHost.swift in Sources */,
 				C6D722EA2C825F0C00F44FF6 /* WalletApp.swift in Sources */,
 				C64292A32C82B68F0073156A /* FavoriteButton.swift in Sources */,
@@ -768,6 +784,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C6F26D9E2C83A4A900F6407E /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nostr-sdk/nostr-sdk-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C6F26D9F2C83A4A900F6407E /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6F26D9E2C83A4A900F6407E /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
+			productName = NostrSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C6D722DE2C825F0C00F44FF6 /* Project object */;
 }

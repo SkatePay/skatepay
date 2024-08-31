@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var store = HostStore()
+
     @State private var selection: Tab = .lobby
 
     enum Tab {
@@ -37,13 +39,28 @@ struct ContentView: View {
                 .tabItem {
                     Label("Wallet", systemImage: "creditcard.and.123")
                 }
-                .tag(Tab.spots)
+                .tag(Tab.wallet)
             
-            SettingsHome()
+            SettingsHome(host: $store.host) {
+                    Task {
+                        do {
+                            try await store.save(host: store.host)
+                        } catch {
+                            fatalError(error.localizedDescription)
+                        }
+                    }
+                }
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
-                .tag(Tab.spots)
+                .tag(Tab.settings)
+                .task {
+                    do {
+                        try await store.load()
+                    } catch {
+//                        fatalError(error.localizedDescription)
+                    }
+                }
         }
     }
 }
