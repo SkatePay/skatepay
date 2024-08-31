@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct WalletApp: App {
+    @State private var modelData = ModelData()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environment(modelData)
         }
     }
 }
