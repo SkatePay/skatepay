@@ -11,6 +11,7 @@ import Foundation
 class ModelData {
     var landmarks: [Landmark] = load("landmarkData.json")
     var users: [User] = load("userData.json")
+    var profile = Profile.default
 }
 
 func load<T: Decodable>(_ filename: String) -> T {

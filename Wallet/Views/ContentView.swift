@@ -13,6 +13,9 @@ struct ContentView: View {
     enum Tab {
         case lobby
         case spots
+        case wallet
+        case chat
+        case settings
     }
     
     var body: some View {
@@ -27,6 +30,18 @@ struct ContentView: View {
             LandmarkList()
                 .tabItem {
                     Label("Spots", systemImage: "list.bullet")
+                }
+                .tag(Tab.spots)
+            
+            WalletHome()
+                .tabItem {
+                    Label("Wallet", systemImage: "creditcard.and.123")
+                }
+                .tag(Tab.spots)
+            
+            SettingsHome()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
                 }
                 .tag(Tab.spots)
         }
