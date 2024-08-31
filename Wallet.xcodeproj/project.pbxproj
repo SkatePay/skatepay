@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C6455DF82C82A10900DC64BD /* landmarkData.json in Resources */ = {isa = PBXBuildFile; fileRef = C6455DF72C82A10900DC64BD /* landmarkData.json */; };
+		C6455DFA2C82A54000DC64BD /* LandmarkList.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6455DF92C82A54000DC64BD /* LandmarkList.swift */; };
+		C6455DFC2C82A72D00DC64BD /* LandmarkDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */; };
+		C693D1A02C82907D004A63A5 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D19F2C82907D004A63A5 /* Landmark.swift */; };
+		C693D1A42C82985F004A63A5 /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A32C82985F004A63A5 /* ModelData.swift */; };
+		C693D1A92C829FE0004A63A5 /* LandmarkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */; };
 		C6D722EA2C825F0C00F44FF6 /* WalletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D722E92C825F0C00F44FF6 /* WalletApp.swift */; };
 		C6D722EC2C825F0C00F44FF6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D722EB2C825F0C00F44FF6 /* ContentView.swift */; };
 		C6D722EE2C825F0D00F44FF6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C6D722ED2C825F0D00F44FF6 /* Assets.xcassets */; };
@@ -36,6 +42,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C6455DF72C82A10900DC64BD /* landmarkData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = landmarkData.json; sourceTree = "<group>"; };
+		C6455DF92C82A54000DC64BD /* LandmarkList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkList.swift; sourceTree = "<group>"; };
+		C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkDetail.swift; sourceTree = "<group>"; };
+		C693D19F2C82907D004A63A5 /* Landmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Landmark.swift; sourceTree = "<group>"; };
+		C693D1A32C82985F004A63A5 /* ModelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelData.swift; sourceTree = "<group>"; };
+		C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkRow.swift; sourceTree = "<group>"; };
 		C6D722E62C825F0C00F44FF6 /* Wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6D722E92C825F0C00F44FF6 /* WalletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletApp.swift; sourceTree = "<group>"; };
 		C6D722EB2C825F0C00F44FF6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -75,6 +87,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C693D1A52C829DC3004A63A5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C6D723132C826C5400F44FF6 /* CircleImage.swift */,
+				C6D723152C826DD400F44FF6 /* MapView.swift */,
+				C6D722EB2C825F0C00F44FF6 /* ContentView.swift */,
+				C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */,
+				C6455DF92C82A54000DC64BD /* LandmarkList.swift */,
+				C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C693D1A62C829DDF004A63A5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C693D19F2C82907D004A63A5 /* Landmark.swift */,
+				C693D1A32C82985F004A63A5 /* ModelData.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C693D1A72C829E00004A63A5 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C6455DF72C82A10900DC64BD /* landmarkData.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		C6D722DD2C825F0C00F44FF6 = {
 			isa = PBXGroup;
 			children = (
@@ -98,12 +140,12 @@
 		C6D722E82C825F0C00F44FF6 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
-				C6D722E92C825F0C00F44FF6 /* WalletApp.swift */,
-				C6D722EB2C825F0C00F44FF6 /* ContentView.swift */,
 				C6D722ED2C825F0D00F44FF6 /* Assets.xcassets */,
+				C693D1A62C829DDF004A63A5 /* Model */,
 				C6D722EF2C825F0D00F44FF6 /* Preview Content */,
-				C6D723132C826C5400F44FF6 /* CircleImage.swift */,
-				C6D723152C826DD400F44FF6 /* MapView.swift */,
+				C693D1A72C829E00004A63A5 /* Resources */,
+				C693D1A52C829DC3004A63A5 /* Views */,
+				C6D722E92C825F0C00F44FF6 /* WalletApp.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -239,6 +281,7 @@
 			files = (
 				C6D722F12C825F0D00F44FF6 /* Preview Assets.xcassets in Resources */,
 				C6D722EE2C825F0D00F44FF6 /* Assets.xcassets in Resources */,
+				C6455DF82C82A10900DC64BD /* landmarkData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,7 +309,12 @@
 				C6D722EC2C825F0C00F44FF6 /* ContentView.swift in Sources */,
 				C6D723162C826DD400F44FF6 /* MapView.swift in Sources */,
 				C6D722EA2C825F0C00F44FF6 /* WalletApp.swift in Sources */,
+				C6455DFA2C82A54000DC64BD /* LandmarkList.swift in Sources */,
+				C6455DFC2C82A72D00DC64BD /* LandmarkDetail.swift in Sources */,
+				C693D1A02C82907D004A63A5 /* Landmark.swift in Sources */,
 				C6D723142C826C5400F44FF6 /* CircleImage.swift in Sources */,
+				C693D1A92C829FE0004A63A5 /* LandmarkRow.swift in Sources */,
+				C693D1A42C82985F004A63A5 /* ModelData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,6 +478,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Wallet/Preview Content\"";
+				DEVELOPMENT_TEAM = SJ92P833ND;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SkatePay;
@@ -462,6 +511,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Wallet/Preview Content\"";
+				DEVELOPMENT_TEAM = SJ92P833ND;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SkatePay;
