@@ -9,5 +9,11 @@ npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r
 ## Design
 - [Storyboard](https://www.figma.com/design/lqDGXZPk1snAz2jUFeYAXj/skatepay.chat?node-id=0-1&t=prSWSvVwsbe0B26W-1)
 
+## Requirements
+
+* iOS 16+
+* Xcode 14+
+
 ## Acknowledgements
 - [nostr-sdk-ios](https://github.com/nostr-sdk/nostr-sdk-ios) - [MIT License, Copyright (c) 2023 Nostr SDK](https://github.com/nostr-sdk/nostr-sdk-ios/blob/main/LICENSE)
+- [Chat](https://github.com/exyte/Chat) - [MIT License, Copyright (c) 2019 exyte <info@exyte.com>](https://github.com/exyte/Chat/blob/main/LICENSE)

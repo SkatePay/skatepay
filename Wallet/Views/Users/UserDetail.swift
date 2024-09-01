@@ -17,7 +17,7 @@ struct UserDetail: View {
     
     @StateObject private var store = HostStore()
     
-    @State var showingEditor = false
+    @State var showingConnector = false
     
     var user: User
     
@@ -59,20 +59,31 @@ struct UserDetail: View {
                     .font(.title2)
                 Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")" )
                 
-                
-                
                 Divider()
                 
+                // Connect
                 HStack {
                     Spacer()
                     
-                    Button("Send Message") {
-                        showingEditor.toggle()
+                    Button("Connect") {
+                        showingConnector.toggle()
                     }
-                    .sheet(isPresented: $showingEditor) {
+                    .sheet(isPresented: $showingConnector) {
                         print("Sheet dismissed!")
                     } content: {
                         DirectMessage(recipientPublicKey: user.npub, senderPrivateKey: hostStore.host.nsec)
+                    }
+                }
+                .padding(15)
+                
+                // Conversation
+                HStack {
+                    Spacer()
+                    
+                    NavigationLink {
+                        Chat(title: "1 on 1")
+                    } label: {
+                        Label("Conversation", systemImage: "folder")
                     }
                 }
                 .padding(15)

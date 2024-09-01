@@ -1,5 +1,5 @@
 //
-//  ChatHome.swift
+//  NostrFeed.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -9,7 +9,7 @@ import SwiftUI
 import NostrSDK
 import Combine
 
-struct ChatHome: View {
+struct NostrFeed: View {
 
     @EnvironmentObject var relayPool: RelayPool
 
@@ -126,5 +126,5 @@ struct ChatHome: View {
 }
 
 #Preview {
-    ChatHome()
+    NostrFeed()
 }
