@@ -14,7 +14,7 @@ struct Host: Hashable, Codable {
     var nsec: String = ""
     var npub: String = ""
     
-    var relayUrls: [String] = ["wss://relay.primal.net"]
+    var relayUrls: [String] = [Constants.RELAY_URL_PRIMAL]
     
     private var noValueString = "Must generate key"
     

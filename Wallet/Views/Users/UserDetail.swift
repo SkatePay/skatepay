@@ -48,14 +48,19 @@ struct UserDetail: View {
                 
                 Divider()
                 
-                Button("Send DM") {
-                    showingEditor.toggle()
+                HStack {
+                    Spacer()
+                    
+                    Button("Send Message") {
+                        showingEditor.toggle()
+                    }
+                    .sheet(isPresented: $showingEditor) {
+                        print("Sheet dismissed!")
+                    } content: {
+                        DirectMessage(recipientPublicKey: user.npub, senderPrivateKey: hostStore.host.nsec)
+                    }
                 }
-                .sheet(isPresented: $showingEditor) {
-                    print("Sheet dismissed!")
-                } content: {
-                    DirectMessage(recipientPublicKey: user.npub, senderPrivateKey: hostStore.host.nsec)
-                }
+                .padding(15)
             }
             .padding()
             

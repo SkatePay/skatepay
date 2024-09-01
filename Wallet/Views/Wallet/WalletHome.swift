@@ -12,7 +12,7 @@ struct WalletHome: View {
 
     var body: some View {
         Button {
-            if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics ") {
+            if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics") {
                 openURL(url)
             }
         } label: {

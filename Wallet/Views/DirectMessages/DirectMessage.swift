@@ -20,7 +20,9 @@ struct DirectMessage: View, EventCreating {
     @State private var message: String = ""
         
     var body: some View {
+        Text("Message").padding(15)
         Form {
+
             Section("Recipient") {
                 NostrKeyInput(key: $recipientPublicKey,
                                     isValid: $recipientPublicKeyIsValid,

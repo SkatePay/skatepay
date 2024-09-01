@@ -13,7 +13,7 @@ struct DemoHelper {
         Binding.constant("")
     }
     static var previewRelay: Binding<Relay?> {
-        let urlString = "wss://relay.primal.net"
+        let urlString = Constants.RELAY_URL_PRIMAL
 
         guard let url = URL(string: urlString) else {
             fatalError("Invalid URL: \(urlString)")

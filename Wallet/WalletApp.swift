@@ -8,13 +8,18 @@
 import NostrSDK
 import SwiftUI
 
+struct Constants {
+    static let RELAY_URL_DAMUS = "relay.damus.io"
+    static let RELAY_URL_PRIMAL = "wss://relay.primal.net"
+    // "wss://relay.snort.social"
+    // "wss://nos.lol"
+}
+
 @main
 struct WalletApp: App {
     @StateObject var relayPool = try! RelayPool(relayURLs: [
-//        URL(string: "wss://relay.damus.io")!,
-//        URL(string: "wss://relay.snort.social")!,
-//        URL(string: "wss://nos.lol")!
-        URL(string: "wss://relay.snort.social")!
+
+        URL(string: Constants.RELAY_URL_PRIMAL)!
     ])
     
     @State private var modelData = ModelData()
