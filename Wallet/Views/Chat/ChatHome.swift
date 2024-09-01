@@ -19,10 +19,13 @@ struct ChatHome: View {
     @State private var errorString: String?
     @State private var subscriptionId: String?
 
+    @AppStorage("filter") var filter: String = ""
+
     private let kindOptions = [
         0: "Set Metadata",
         1: "Text Note",
         3: "Follow List",
+        4: "Ecrypted Direct Message",
         6: "Repost",
         7: "Reaction",
         1984: "Report",
@@ -38,7 +41,7 @@ struct ChatHome: View {
             Section("Query Relays") {
 
                 TextField(text: $authorPubkey) {
-                    Text("Author Public Key (HEX)")
+                    Text("Author Public Key (nsub)")
                 }
 
                 Picker("Kind", selection: $selectedKind) {
@@ -75,11 +78,11 @@ struct ChatHome: View {
                 }
             }
         }
-        .onChange(of: authorPubkey) { _ in
+        .onChange(of: authorPubkey) {
             events = []
             updateSubscription()
         }
-        .onChange(of: selectedKind) { _ in
+        .onChange(of: selectedKind) {
             events = []
             updateSubscription()
         }
@@ -92,10 +95,13 @@ struct ChatHome: View {
     
     private var currentFilter: Filter {
         let authors: [String]?
+        
+        let author = PublicKey(npub: authorPubkey)?.hex ?? filter
+        
         if authorPubkey.isEmpty {
             authors = nil
         } else {
-            authors = [authorPubkey]
+            authors = [author]
         }
         return Filter(authors: authors, kinds: [selectedKind])!
     }
