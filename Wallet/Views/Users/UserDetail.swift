@@ -6,20 +6,26 @@
 //
 
 import SwiftUI
+import NostrSDK
+
 
 struct UserDetail: View {
     @Environment(ModelData.self) var modelData
     @EnvironmentObject var hostStore: HostStore
-
+    
+    @EnvironmentObject var relayPool: RelayPool
+    
     @StateObject private var store = HostStore()
-
+    
     @State var showingEditor = false
     
     var user: User
-
+    
     var userIndex: Int {
         modelData.users.firstIndex(where: { $0.id == user.id })!
     }
+    
+    var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     var body: some View {
         @Bindable var modelData = modelData
@@ -51,7 +57,9 @@ struct UserDetail: View {
                 
                 Text("Relay")
                     .font(.title2)
-                Text(user.relayUrl)
+                Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")" )
+                
+                
                 
                 Divider()
                 
