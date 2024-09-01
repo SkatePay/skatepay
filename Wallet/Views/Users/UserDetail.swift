@@ -9,7 +9,12 @@ import SwiftUI
 
 struct UserDetail: View {
     @Environment(ModelData.self) var modelData
+    @EnvironmentObject var hostStore: HostStore
 
+    @StateObject private var store = HostStore()
+
+    @State var showingEditor = false
+    
     var user: User
 
     var userIndex: Int {
@@ -31,7 +36,7 @@ struct UserDetail: View {
                      FavoriteButton(isSet: $modelData.users[userIndex].isFavorite)
                  }
                 
-                Text(user.pubKey)
+                Text(user.npub)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
@@ -40,6 +45,17 @@ struct UserDetail: View {
                 Text("Relay")
                     .font(.title2)
                 Text(user.relayUrl)
+                
+                Divider()
+                
+                Button("Send DM") {
+                    showingEditor.toggle()
+                }
+                .sheet(isPresented: $showingEditor) {
+                    print("Sheet dismissed!")
+                } content: {
+                    DirectMessage(recipientPublicKey: user.npub, senderPrivateKey: hostStore.host.nsec)
+                }
             }
             .padding()
             
@@ -53,5 +69,5 @@ struct UserDetail: View {
 #Preview {
     let modelData = ModelData()
     return UserDetail(user: modelData.users[0])
-        .environment(modelData)
+        .environment(modelData).environmentObject(HostStore())
 }

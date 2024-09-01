@@ -12,6 +12,9 @@ struct ContentView: View {
 
     @State private var selection: Tab = .lobby
 
+    @AppStorage("npub") var npub: String = ""
+    @AppStorage("nsec") var nsec: String = ""
+    
     enum Tab {
         case lobby
         case spots
@@ -54,14 +57,17 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gear")
                 }
                 .tag(Tab.settings)
-                .task {
-                    do {
-                        try await store.load()
-                    } catch {
-//                        fatalError(error.localizedDescription)
-                    }
-                }
         }
+        .task {
+            do {
+                try await store.load()
+                                
+                npub = store.host.npub
+                nsec = store.host.nsec
+            } catch {
+//                        fatalError(error.localizedDescription)
+            }
+        }.environmentObject(store)
     }
 }
 

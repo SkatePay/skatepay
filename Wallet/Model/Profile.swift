@@ -12,7 +12,7 @@ struct Profile {
     var username: String
     var prefersNotifications = true
     var seasonalPhoto = Season.winter
-    var goalDate = Date()
+    var birthday = Date()
 
     static let `default` = Profile(username: "prorobot")
 

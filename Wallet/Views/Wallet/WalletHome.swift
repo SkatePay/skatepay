@@ -8,8 +8,16 @@
 import SwiftUI
 
 struct WalletHome: View {
+    @Environment(\.openURL) private var openURL
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Button {
+            if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics ") {
+                openURL(url)
+            }
+        } label: {
+            Label("Get Help", systemImage: "person.fill.questionmark")
+        }
     }
 }
 

@@ -11,8 +11,8 @@ struct ProfileEditor: View {
     @Binding var profile: Profile
     
     var dateRange: ClosedRange<Date> {
-        let min = Calendar.current.date(byAdding: .year, value: -1, to: profile.goalDate)!
-        let max = Calendar.current.date(byAdding: .year, value: 1, to: profile.goalDate)!
+        let min = Calendar.current.date(byAdding: .year, value: -1, to: profile.birthday)!
+        let max = Calendar.current.date(byAdding: .year, value: 1, to: profile.birthday)!
         return min...max
     }
     
@@ -36,8 +36,8 @@ struct ProfileEditor: View {
                  }
             }
             
-            DatePicker(selection: $profile.goalDate, in: dateRange, displayedComponents: .date) {
-                  Text("Goal Date")
+            DatePicker(selection: $profile.birthday, in: dateRange, displayedComponents: .date) {
+                  Text("Birthday")
             }
         }
     }

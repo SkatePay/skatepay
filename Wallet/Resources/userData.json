@@ -1,24 +1,24 @@
 [
     {
         "id": 1001,
-        "name": "prorobot-1001",
-        "pubKey": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
+        "name": "prorobot",
+        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
         "relayUrl": "wss://relay.primal.net",
         "imageName": "user-prorobot",
         "isFavorite": true
     },
     {
         "id": 1002,
-        "name": "prorobot-1002",
-        "pubKey": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
-        "relayUrl": "wss://relay.primal.net",
+        "name": "skatepay",
+        "npub": "npub1hq5ae8m5vz3ys6rjg8c35z02xr80sfh9lyzqw69utrp5lryflvjqeqagjc",
+        "relayUrl": "wss://relay.damus.io",
         "imageName": "user-prorobot",
         "isFavorite": false
     },
     {
         "id": 1003,
         "name": "prorobot-1003",
-        "pubKey": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
+        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
         "relayUrl": "wss://relay.primal.net",
         "imageName": "user-prorobot",
         "isFavorite": false
@@ -26,7 +26,7 @@
     {
         "id": 1004,
         "name": "prorobot-1004",
-        "pubKey": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
+        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
         "relayUrl": "wss://relay.primal.net",
         "imageName": "user-prorobot",
         "isFavorite": false
@@ -34,7 +34,7 @@
     {
         "id": 1005,
         "name": "prorobot-1005",
-        "pubKey": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
+        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
         "relayUrl": "wss://relay.primal.net",
         "imageName": "user-prorobot",
         "isFavorite": false
@@ -42,7 +42,7 @@
     {
         "id": 1006,
         "name": "prorobot-1006",
-        "pubKey": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
+        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
         "relayUrl": "wss://relay.primal.net",
         "imageName": "user-prorobot",
         "isFavorite": false

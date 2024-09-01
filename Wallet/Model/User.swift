@@ -11,7 +11,7 @@ import SwiftUI
 struct User: Hashable, Codable, Identifiable {
     var id: Int
     var name: String
-    var pubKey: String
+    var npub: String
     var relayUrl: String
     var isFavorite: Bool
     
