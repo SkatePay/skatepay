@@ -44,6 +44,12 @@ struct ContentView: View {
                 }
                 .tag(Tab.wallet)
             
+            ChatHome()
+                .tabItem {
+                    Label("Chat", systemImage: "ellipsis.message")
+                }
+                .tag(Tab.chat)
+            
             SettingsHome(host: $store.host) {
                     Task {
                         do {

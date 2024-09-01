@@ -42,15 +42,43 @@ struct SettingsHome: View {
             }
             Section("Private Key") {
                 Text(privateKey ?? host.privateKey)
+                    .contextMenu {
+                        Button(action: {
+                            UIPasteboard.general.string = privateKey ?? host.privateKey
+                        }) {
+                            Text("Copy")
+                            }
+                        }
             }
             Section("Public Key") {
                 Text(publicKey ?? host.publicKey)
+                    .contextMenu {
+                        Button(action: {
+                            UIPasteboard.general.string = publicKey ?? host.publicKey
+                        }) {
+                            Text("Copy")
+                            }
+                        }
             }
             Section("nsec") {
                 Text(nsec ?? host.nsec)
+                    .contextMenu {
+                        Button(action: {
+                            UIPasteboard.general.string = nsec ?? host.nsec
+                        }) {
+                            Text("Copy")
+                            }
+                        }
             }
             Section("npub") {
                 Text(npub ?? host.npub)
+                    .contextMenu {
+                        Button(action: {
+                            UIPasteboard.general.string = npub ?? host.npub
+                        }) {
+                            Text("Copy")
+                            }
+                        }
             }
         }
     }

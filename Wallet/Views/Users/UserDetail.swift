@@ -39,6 +39,13 @@ struct UserDetail: View {
                 Text(user.npub)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .contextMenu {
+                        Button(action: {
+                            UIPasteboard.general.string = user.npub
+                        }) {
+                            Text("Copy")
+                            }
+                        }
                 
                 Divider()
                 
