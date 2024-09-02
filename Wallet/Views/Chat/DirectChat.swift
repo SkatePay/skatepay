@@ -92,23 +92,24 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     
     private var parseEvents: [Message] {
         let messages = events.compactMap {
-            let publicKey = PublicKey(hex: $0.pubkey)
-            let privateKey = PrivateKey(nsec: hostStore.host.nsec)
             
-            if (publicKey != nil && PrivateKey(nsec: hostStore.host.nsec) != nil) {
-                do {
-                    let text = try legacyDecrypt(encryptedContent: $0.content, privateKey: privateKey!, publicKey: publicKey!)
-                    return Message(
-                        id: $0.id,
-                        user: ExyteChat.User(id: $0.id, name: $0.pubkey, avatarURL: nil, isCurrentUser: false),
-                        createdAt: $0.createdDate,
-                        text: text
-                    )
-                } catch {
-                    return nil
-                }
+            var publicKey = PublicKey(hex: $0.pubkey)
+            
+            let isCurrentUser = publicKey != recipientPublicKey();
+            publicKey = isCurrentUser ? recipientPublicKey() : publicKey
+            
+            do {
+                let text = try legacyDecrypt(encryptedContent: $0.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
+                
+                return Message(
+                    id: $0.id,
+                    user: ExyteChat.User(id: $0.id, name: $0.pubkey, avatarURL: nil, isCurrentUser: isCurrentUser),
+                    createdAt: $0.createdDate,
+                    text: text
+                )
+            } catch {
+                return nil
             }
-            return nil
         }
         
         return messages
