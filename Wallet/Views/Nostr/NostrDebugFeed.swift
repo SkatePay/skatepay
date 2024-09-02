@@ -1,5 +1,5 @@
 //
-//  NostrFeed.swift
+//  NostrDebugFeed.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -9,8 +9,7 @@ import SwiftUI
 import NostrSDK
 import Combine
 
-struct NostrFeed: View {
-
+struct NostrDebugFeed: View {
     @EnvironmentObject var relayPool: RelayPool
 
     @State private var authorPubkey: String = ""
@@ -126,5 +125,5 @@ struct NostrFeed: View {
 }
 
 #Preview {
-    NostrFeed()
+    NostrDebugFeed()
 }

@@ -1,32 +1,34 @@
 //
-//  Chat.swift
+//  MockChat.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 9/1/24.
 //
 
+import SwiftUI
+
 import Foundation
 import SwiftUI
 import ExyteChat
 
-struct Chat: View {
+struct MockChat: View {
     @Environment(\.presentationMode) private var presentationMode
 
-    @StateObject private var viewModel: ChatExampleViewModel
+    @StateObject private var feed: MockFeed
     
     private let title: String
 
-    init(viewModel: ChatExampleViewModel = ChatExampleViewModel(), title: String) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+    init(feed: MockFeed = MockFeed(), title: String) {
+        _feed = StateObject(wrappedValue: feed)
         self.title = title
     }
     
     var body: some View {
-        ChatView(messages: viewModel.messages, chatType: .conversation) { draft in
-            viewModel.send(draft: draft)
+        ChatView(messages: feed.messages, chatType: .conversation) { draft in
+            feed.send(draft: draft)
         }
         .enableLoadMore(pageSize: 3) { message in
-            viewModel.loadMoreMessage(before: message)
+            feed.loadMoreMessage(before: message)
         }
         .messageUseMarkdown(messageUseMarkdown: true)
         .navigationBarBackButtonHidden()
@@ -39,7 +41,7 @@ struct Chat: View {
             
             ToolbarItem(placement: .principal) {
                 HStack {
-                    if let url = viewModel.chatCover {
+                    if let url = feed.chatCover {
                         CachedAsyncImage(url: url, urlCache: .shared) { phase in
                             switch phase {
                             case .success(let image):
@@ -55,11 +57,11 @@ struct Chat: View {
                     }
 
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(viewModel.chatTitle)
+                        Text(feed.chatTitle)
                             .fontWeight(.semibold)
                             .font(.headline)
                             .foregroundColor(.black)
-                        Text(viewModel.chatStatus)
+                        Text(feed.chatStatus)
                             .font(.footnote)
                             .foregroundColor(Color(hex: "AFB3B8"))
                     }
@@ -68,16 +70,11 @@ struct Chat: View {
                 .padding(.leading, 10)
             }
         }
-        .onAppear(perform: viewModel.onStart)
-        .onDisappear(perform: viewModel.onStop)
+        .onAppear(perform: feed.onStart)
+        .onDisappear(perform: feed.onStop)
     }
 }
 
-extension Color {
-    static var exampleBlue = Color(hex: "#4962FF")
-    static var examplePickerBg = Color(hex: "1F1F1F")
-}
-
 #Preview {
-    Chat(title: "Chat")
+    MockChat(title: "Chat")
 }

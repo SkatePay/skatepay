@@ -81,7 +81,7 @@ struct UserDetail: View {
                     Spacer()
                     
                     NavigationLink {
-                        Chat(title: "1 on 1")
+                        DirectChat(user: user)
                     } label: {
                         Label("Conversation", systemImage: "folder")
                     }

@@ -1,5 +1,5 @@
 //
-//  ChatExampleViewModel.swift
+//  MockFeed.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 9/1/24.
@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import ExyteChat
 
-final class ChatExampleViewModel: ObservableObject {
+final class MockFeed: ObservableObject {
     @Published var messages: [Message] = []
     
     var chatTitle: String {

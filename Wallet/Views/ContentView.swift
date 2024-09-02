@@ -44,7 +44,7 @@ struct ContentView: View {
                 }
                 .tag(Tab.wallet)
             
-            NostrFeed()
+            NostrDebugFeed()
                 .tabItem {
                     Label("Chat", systemImage: "ellipsis.message")
                 }
