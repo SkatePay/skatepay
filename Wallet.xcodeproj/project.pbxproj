@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C64292A32C82B68F0073156A /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64292A22C82B68F0073156A /* FavoriteButton.swift */; };
 		C644FD252C85609E00D13ED9 /* MockChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644FD242C85609E00D13ED9 /* MockChat.swift */; };
+		C644FD272C8635C600D13ED9 /* DirectMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644FD262C8635C600D13ED9 /* DirectMessage.swift */; };
 		C6455DF82C82A10900DC64BD /* landmarkData.json in Resources */ = {isa = PBXBuildFile; fileRef = C6455DF72C82A10900DC64BD /* landmarkData.json */; };
 		C6455DFA2C82A54000DC64BD /* LandmarkList.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6455DF92C82A54000DC64BD /* LandmarkList.swift */; };
 		C6455DFC2C82A72D00DC64BD /* LandmarkDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */; };
@@ -18,6 +19,7 @@
 		C64753792C82C1E9003966E8 /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64753782C82C1E9003966E8 /* UserRow.swift */; };
 		C647537B2C82C4A5003966E8 /* UserItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C647537A2C82C4A5003966E8 /* UserItem.swift */; };
 		C647537E2C82C72B003966E8 /* UserDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C647537D2C82C72B003966E8 /* UserDetail.swift */; };
+		C672CBE62C8756B700C887B6 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C672CBE52C8756B700C887B6 /* NostrSDK */; };
 		C6900C7D2C8558C6007AD155 /* NostrFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6900C7C2C8558C6007AD155 /* NostrFeed.swift */; };
 		C693D1A02C82907D004A63A5 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D19F2C82907D004A63A5 /* Landmark.swift */; };
 		C693D1A42C82985F004A63A5 /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A32C82985F004A63A5 /* ModelData.swift */; };
@@ -36,7 +38,6 @@
 		C6CACFC92C851C0600A164CE /* Color+hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFC52C851C0600A164CE /* Color+hex.swift */; };
 		C6CACFCA2C851C0600A164CE /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFC62C851C0600A164CE /* Date+Extensions.swift */; };
 		C6CACFCB2C851C0600A164CE /* Sequence+asyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFC72C851C0600A164CE /* Sequence+asyncMap.swift */; };
-		C6CDEDBF2C83E53700D4F0D4 /* DirectMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CDEDBE2C83E53700D4F0D4 /* DirectMessage.swift */; };
 		C6CDEDC22C83E61600D4F0D4 /* NostrKeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CDEDC12C83E61600D4F0D4 /* NostrKeyInput.swift */; };
 		C6CDEDC52C83E75E00D4F0D4 /* DemoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CDEDC42C83E75E00D4F0D4 /* DemoHelper.swift */; };
 		C6D722EA2C825F0C00F44FF6 /* WalletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D722E92C825F0C00F44FF6 /* WalletApp.swift */; };
@@ -55,7 +56,6 @@
 		C6F26D972C82D21700F6407E /* ProfileHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D962C82D21700F6407E /* ProfileHost.swift */; };
 		C6F26D992C82D27400F6407E /* ProfileSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D982C82D27400F6407E /* ProfileSummary.swift */; };
 		C6F26D9D2C82D4A600F6407E /* ProfileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D9C2C82D4A600F6407E /* ProfileEditor.swift */; };
-		C6F26DA02C83A4A900F6407E /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6F26D9F2C83A4A900F6407E /* NostrSDK */; };
 		C6F26DA42C83A98800F6407E /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26DA32C83A98800F6407E /* Host.swift */; };
 		C6F26DA62C83ABF000F6407E /* HostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26DA52C83ABF000F6407E /* HostStore.swift */; };
 /* End PBXBuildFile section */
@@ -80,6 +80,7 @@
 /* Begin PBXFileReference section */
 		C64292A22C82B68F0073156A /* FavoriteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
 		C644FD242C85609E00D13ED9 /* MockChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChat.swift; sourceTree = "<group>"; };
+		C644FD262C8635C600D13ED9 /* DirectMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectMessage.swift; sourceTree = "<group>"; };
 		C6455DF72C82A10900DC64BD /* landmarkData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = landmarkData.json; sourceTree = "<group>"; };
 		C6455DF92C82A54000DC64BD /* LandmarkList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkList.swift; sourceTree = "<group>"; };
 		C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkDetail.swift; sourceTree = "<group>"; };
@@ -106,7 +107,6 @@
 		C6CACFC52C851C0600A164CE /* Color+hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Color+hex.swift"; sourceTree = "<group>"; };
 		C6CACFC62C851C0600A164CE /* Date+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		C6CACFC72C851C0600A164CE /* Sequence+asyncMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+asyncMap.swift"; sourceTree = "<group>"; };
-		C6CDEDBE2C83E53700D4F0D4 /* DirectMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectMessage.swift; sourceTree = "<group>"; };
 		C6CDEDC12C83E61600D4F0D4 /* NostrKeyInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrKeyInput.swift; sourceTree = "<group>"; };
 		C6CDEDC42C83E75E00D4F0D4 /* DemoHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoHelper.swift; sourceTree = "<group>"; };
 		C6D722E62C825F0C00F44FF6 /* Wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -137,8 +137,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C672CBE62C8756B700C887B6 /* NostrSDK in Frameworks */,
 				C6CACFAD2C85184E00A164CE /* ExyteChat in Frameworks */,
-				C6F26DA02C83A4A900F6407E /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,14 +277,6 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		C6CDEDBD2C83E51E00D4F0D4 /* DirectMessages */ = {
-			isa = PBXGroup;
-			children = (
-				C6CDEDBE2C83E53700D4F0D4 /* DirectMessage.swift */,
-			);
-			path = DirectMessages;
-			sourceTree = "<group>";
-		};
 		C6CDEDC02C83E5E700D4F0D4 /* Nostr */ = {
 			isa = PBXGroup;
 			children = (
@@ -382,8 +374,8 @@
 			isa = PBXGroup;
 			children = (
 				C6CACFB02C85196100A164CE /* MockFeed.swift */,
+				C644FD262C8635C600D13ED9 /* DirectMessage.swift */,
 				C6CACFB22C8519BF00A164CE /* ChatInteractor */,
-				C6CDEDBD2C83E51E00D4F0D4 /* DirectMessages */,
 				C6CACFAE2C8518F700A164CE /* DirectChat.swift */,
 				C644FD242C85609E00D13ED9 /* MockChat.swift */,
 				C6900C7C2C8558C6007AD155 /* NostrFeed.swift */,
@@ -418,8 +410,8 @@
 			);
 			name = Wallet;
 			packageProductDependencies = (
-				C6F26D9F2C83A4A900F6407E /* NostrSDK */,
 				C6CACFAC2C85184E00A164CE /* ExyteChat */,
+				C672CBE52C8756B700C887B6 /* NostrSDK */,
 			);
 			productName = Wallet;
 			productReference = C6D722E62C825F0C00F44FF6 /* Wallet.app */;
@@ -494,8 +486,8 @@
 			);
 			mainGroup = C6D722DD2C825F0C00F44FF6;
 			packageReferences = (
-				C6F26D9E2C83A4A900F6407E /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 				C6CACFAB2C85184E00A164CE /* XCRemoteSwiftPackageReference "Chat" */,
+				C672CBE42C8756B700C887B6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 			);
 			productRefGroup = C6D722E72C825F0C00F44FF6 /* Products */;
 			projectDirPath = "";
@@ -543,11 +535,11 @@
 			files = (
 				C6CACFB12C85196100A164CE /* MockFeed.swift in Sources */,
 				C6CACFC42C851B3900A164CE /* MockChatData.swift in Sources */,
-				C6CDEDBF2C83E53700D4F0D4 /* DirectMessage.swift in Sources */,
 				C6CACFBE2C851AD100A164CE /* MockAttachment.swift in Sources */,
 				C6D722EC2C825F0C00F44FF6 /* ContentView.swift in Sources */,
 				C6F26DA42C83A98800F6407E /* Host.swift in Sources */,
 				C6CACFBF2C851AD100A164CE /* MockUser.swift in Sources */,
+				C644FD272C8635C600D13ED9 /* DirectMessage.swift in Sources */,
 				C6CACFC92C851C0600A164CE /* Color+hex.swift in Sources */,
 				C6D723162C826DD400F44FF6 /* MapView.swift in Sources */,
 				C6CACFAF2C8518F700A164CE /* DirectChat.swift in Sources */,
@@ -918,6 +910,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C672CBE42C8756B700C887B6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:nostr-sdk/nostr-sdk-ios.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		C6CACFAB2C85184E00A164CE /* XCRemoteSwiftPackageReference "Chat" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/Chat.git";
@@ -926,26 +926,18 @@
 				minimumVersion = 2.0.5;
 			};
 		};
-		C6F26D9E2C83A4A900F6407E /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nostr-sdk/nostr-sdk-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C672CBE52C8756B700C887B6 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C672CBE42C8756B700C887B6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
+			productName = NostrSDK;
+		};
 		C6CACFAC2C85184E00A164CE /* ExyteChat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C6CACFAB2C85184E00A164CE /* XCRemoteSwiftPackageReference "Chat" */;
 			productName = ExyteChat;
-		};
-		C6F26D9F2C83A4A900F6407E /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C6F26D9E2C83A4A900F6407E /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
-			productName = NostrSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

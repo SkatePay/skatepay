@@ -9,14 +9,25 @@ import SwiftUI
 
 struct LobbyHome: View {
     @Environment(ModelData.self) var modelData
+    
+    @EnvironmentObject var hostStore: HostStore
+    
     @State private var showingProfile = false
-
+    
     var body: some View {
         NavigationSplitView {
             List {
                 UserRow(users: modelData.users)
-            }        
-            .navigationTitle("Lobby")
+                
+                NavigationLink {
+                    DirectMessage(senderPrivateKey: hostStore.host.nsec).environment(modelData)
+                } label: {
+                    Text("Invite Skater 🤝")
+                }
+                
+                Spacer()
+            }
+            .navigationTitle("Virtual Skatepark")
             .toolbar {
                 Button {
                     showingProfile.toggle()
@@ -28,9 +39,13 @@ struct LobbyHome: View {
                 ProfileHost()
                     .environment(modelData)
             }
+            
+
+            
         } detail: {
             Text("Select a Landmark")
         }
+
     }
 }
 

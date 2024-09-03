@@ -15,7 +15,7 @@ struct UserItem: View {
             user.image
                 .renderingMode(.original)
                 .resizable()
-                .frame(width: 96, height: 96)
+                .frame(width: 84, height: 84)
                 .clipShape(Circle())
                 .overlay {
                     Circle().stroke(.white, lineWidth: 4)

@@ -24,7 +24,7 @@ struct SettingsHome: View {
 
     var body: some View {
         Form {
-            Button("Generate Key") {
+            Button("🔁 Cycle Keys") {
                 let keypair = Keypair()
                 privateKey = keypair?.privateKey.hex ?? noValueString
                 publicKey = keypair?.publicKey.hex ?? noValueString

@@ -18,9 +18,9 @@ struct DirectMessage: View, EventCreating {
     @State private var senderPrivateKeyIsValid: Bool = false
 
     @State private var message: String = ""
-        
+    
     var body: some View {
-        Text("Message").padding(15)
+        Text("Message")
         Form {
 
             Section("Recipient") {
@@ -33,7 +33,7 @@ struct DirectMessage: View, EventCreating {
                                     isValid: $senderPrivateKeyIsValid,
                                     type: .private)
             }
-            Section("Message") {
+            Section("Content") {
                 TextField("Enter a message.", text: $message)
             }
             Button("Send") {

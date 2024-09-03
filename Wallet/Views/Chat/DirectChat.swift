@@ -11,28 +11,47 @@ import NostrSDK
 import ExyteChat
 import Combine
 
+class ChatDelegate: ObservableObject, RelayDelegate {
+    @Published var fetchingStoredEvents = true
+    
+    func relayStateDidChange(_ relay: Relay, state: Relay.State) {
+    }
+    func relay(_ relay: Relay, didReceive event: RelayEvent) {
+    }
+    
+    func relay(_ relay: Relay, didReceive response: RelayResponse) {
+        DispatchQueue.main.async {
+            guard case .eose(_) = response else {
+                return
+            }
+            self.fetchingStoredEvents = false
+        }
+    }
+}
+
 struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var relayPool: RelayPool
     @EnvironmentObject var hostStore: HostStore
     
-    @State private var events: [NostrEvent] = []
+    @ObservedObject var chatDelegate = ChatDelegate()
+    
+    @State private var messages: [Message] = []
     @State private var eventsCancellable: AnyCancellable?
+    
     @State private var errorString: String?
     @State private var subscriptionId: String?
-    
-    @AppStorage("filter") var filter: String = ""
-    
+            
     private var user: User
-
+    
     var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
-
+    
     init(user: User) {
         self.user = user
     }
     
     var body: some View {
-        ChatView(messages: parseEvents, chatType: .conversation) { draft in
+        ChatView(messages: messages, chatType: .conversation) { draft in
             publishDraft(draft: draft)
         }
         .enableLoadMore(pageSize: 3) { message in
@@ -53,7 +72,7 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
                         .scaledToFill()
                         .frame(width: 35, height: 35)
                         .clipShape(Circle())
-
+                    
                     VStack(alignment: .leading, spacing: 0) {
                         Text(user.name)
                             .fontWeight(.semibold)
@@ -81,7 +100,7 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     private func myKeypair() -> Keypair? {
         return Keypair(hex: hostStore.host.privateKey)
     }
-
+    
     private func recipientPublicKey() -> PublicKey? {
         return PublicKey(npub: user.npub)
     }
@@ -90,29 +109,31 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         return myKeypair()?.publicKey
     }
     
-    private var parseEvents: [Message] {
-        let messages = events.compactMap {
-            
-            var publicKey = PublicKey(hex: $0.pubkey)
-            
-            let isCurrentUser = publicKey != recipientPublicKey();
-            publicKey = isCurrentUser ? recipientPublicKey() : publicKey
-            
-            do {
-                let text = try legacyDecrypt(encryptedContent: $0.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
-                
-                return Message(
-                    id: $0.id,
-                    user: ExyteChat.User(id: $0.id, name: $0.pubkey, avatarURL: nil, isCurrentUser: isCurrentUser),
-                    createdAt: $0.createdDate,
-                    text: text
-                )
-            } catch {
-                return nil
-            }
-        }
+    private func parseEvent(event: NostrEvent) -> Message? {
         
-        return messages
+        var publicKey = PublicKey(hex: event.pubkey)
+                
+        let isCurrentUser = publicKey != recipientPublicKey()
+        publicKey = isCurrentUser ? recipientPublicKey() : publicKey
+        
+        let tags = event.tags
+        
+        if (!tags.contains{ [myPublicKey()?.hex, recipientPublicKey()?.hex].contains($0.value) }) {
+            return nil
+        }
+
+        do {
+            let text = try legacyDecrypt(encryptedContent: event.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
+            
+            return Message(
+                id: event.id,
+                user: ExyteChat.User(id: String(event.createdAt), name: event.pubkey, avatarURL: nil, isCurrentUser: isCurrentUser),
+                createdAt: event.createdDate,
+                text: text
+            )
+        } catch {
+            return nil
+        }
     }
     
     private var currentFilter: Filter {
@@ -141,15 +162,23 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         }
         
         subscriptionId = relayPool.subscribe(with: currentFilter)
-        
+                
+        relayPool.delegate = self.chatDelegate
+                
         eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
             .map {
-                $0.event
+                return $0.event
             }
             .removeDuplicates()
             .sink { event in
-                events.insert(event, at: 0)
+                if let element = parseEvent(event: event) {
+                    if(self.chatDelegate.fetchingStoredEvents) {
+                        messages.insert(element, at: 0)
+                    } else {
+                        messages.append(element)
+                    }
+                }
             }
     }
 }

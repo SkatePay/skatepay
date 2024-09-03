@@ -61,32 +61,17 @@ struct UserDetail: View {
                 
                 Divider()
                 
-                // Connect
-                HStack {
-                    Spacer()
-                    
-                    Button("Connect") {
-                        showingConnector.toggle()
-                    }
-                    .sheet(isPresented: $showingConnector) {
-                        print("Sheet dismissed!")
-                    } content: {
-                        DirectMessage(recipientPublicKey: user.npub, senderPrivateKey: hostStore.host.nsec)
-                    }
-                }
-                .padding(15)
-                
-                // Conversation
                 HStack {
                     Spacer()
                     
                     NavigationLink {
                         DirectChat(user: user)
                     } label: {
-                        Label("Conversation", systemImage: "folder")
+                        Label("Chat", systemImage: "folder")
                     }
                 }
                 .padding(15)
+                
             }
             .padding()
             
