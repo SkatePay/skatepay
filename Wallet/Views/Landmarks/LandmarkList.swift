@@ -18,7 +18,7 @@ struct LandmarkList: View {
     }
     
     var body: some View {
-        NavigationSplitView {
+        NavigationStack {
             List {
                 Toggle(isOn: $showFavoritesOnly) {
                      Text("Favorites only")
@@ -33,8 +33,6 @@ struct LandmarkList: View {
             }
             .animation(.default, value: filteredLandmarks)
             .navigationTitle("Spots")
-        } detail: {
-            Text("Select a Landmark")
         }
     }
 }

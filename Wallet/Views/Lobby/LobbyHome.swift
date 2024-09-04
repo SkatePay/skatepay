@@ -17,7 +17,7 @@ struct LobbyHome: View {
     @State private var showingProfile = false
     
     var body: some View {
-        NavigationSplitView {
+        NavigationStack {
             List {
                 UserRow(users: modelData.users)
                 
@@ -59,10 +59,7 @@ struct LobbyHome: View {
                 ProfileHost()
                     .environment(modelData)
             }
-        } detail: {
-            Text("Select a Landmark")
         }
-        
     }
 }
 
