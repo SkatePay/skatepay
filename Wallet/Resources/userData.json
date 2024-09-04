@@ -14,37 +14,5 @@
         "relayUrl": "wss://relay.damus.io",
         "imageName": "user-skatepay",
         "isFavorite": false
-    },
-    {
-        "id": 1003,
-        "name": "prorobot-1003",
-        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
-        "relayUrl": "wss://relay.primal.net",
-        "imageName": "user-prorobot",
-        "isFavorite": false
-    },
-    {
-        "id": 1004,
-        "name": "prorobot-1004",
-        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
-        "relayUrl": "wss://relay.primal.net",
-        "imageName": "user-prorobot",
-        "isFavorite": false
-    },
-    {
-        "id": 1005,
-        "name": "prorobot-1005",
-        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
-        "relayUrl": "wss://relay.primal.net",
-        "imageName": "user-prorobot",
-        "isFavorite": false
-    },
-    {
-        "id": 1006,
-        "name": "prorobot-1006",
-        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
-        "relayUrl": "wss://relay.primal.net",
-        "imageName": "user-prorobot",
-        "isFavorite": false
     }
 ]

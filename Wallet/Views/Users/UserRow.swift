@@ -12,7 +12,7 @@ struct UserRow: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Favorites")
+            Text("Skaters of The Month")
                 .font(.headline)
                 .padding(.leading, 15)
                 .padding(.top, 5)

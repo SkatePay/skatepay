@@ -7,6 +7,7 @@
 
 import NostrSDK
 import SwiftUI
+import SwiftData
 
 struct Constants {
     static let RELAY_URL_DAMUS = "relay.damus.io"
@@ -26,8 +27,9 @@ struct WalletApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-            .environment(modelData)
-            .environmentObject(relayPool)
+                .modelContainer(for: Friend.self)
+                .environment(modelData)
+                .environmentObject(relayPool)
         }
     }
 }

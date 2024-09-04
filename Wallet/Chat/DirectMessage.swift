@@ -17,6 +17,8 @@ struct DirectMessage: View, EventCreating {
     @State var senderPrivateKey = ""
     @State private var senderPrivateKeyIsValid: Bool = false
 
+    @State private var showingAlert = false
+
     @State private var message: String = ""
     
     var body: some View {
@@ -46,9 +48,14 @@ struct DirectMessage: View, EventCreating {
                                                                          toRecipient: recipientPublicKey,
                                                                          signedBy: senderKeyPair)
                     relayPool.publishEvent(directMessage)
+                    
+                    showingAlert = true
                 } catch {
                     print(error.localizedDescription)
                 }
+            }
+            .alert("Message sent", isPresented: $showingAlert) {
+                Button("OK", role: .cancel) { }
             }
             .disabled(!readyToSend())
         }

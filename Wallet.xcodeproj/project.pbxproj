@@ -19,11 +19,13 @@
 		C64753792C82C1E9003966E8 /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64753782C82C1E9003966E8 /* UserRow.swift */; };
 		C647537B2C82C4A5003966E8 /* UserItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C647537A2C82C4A5003966E8 /* UserItem.swift */; };
 		C647537E2C82C72B003966E8 /* UserDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C647537D2C82C72B003966E8 /* UserDetail.swift */; };
+		C65BD6BA2C87DED100CC1658 /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65BD6B92C87DED100CC1658 /* Friend.swift */; };
 		C672CBE62C8756B700C887B6 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C672CBE52C8756B700C887B6 /* NostrSDK */; };
 		C6900C7D2C8558C6007AD155 /* NostrFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6900C7C2C8558C6007AD155 /* NostrFeed.swift */; };
 		C693D1A02C82907D004A63A5 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D19F2C82907D004A63A5 /* Landmark.swift */; };
 		C693D1A42C82985F004A63A5 /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A32C82985F004A63A5 /* ModelData.swift */; };
 		C693D1A92C829FE0004A63A5 /* LandmarkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */; };
+		C6BB33B02C87DD27000364B7 /* AddressBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BB33AF2C87DD27000364B7 /* AddressBook.swift */; };
 		C6CACFAD2C85184E00A164CE /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C6CACFAC2C85184E00A164CE /* ExyteChat */; };
 		C6CACFAF2C8518F700A164CE /* DirectChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFAE2C8518F700A164CE /* DirectChat.swift */; };
 		C6CACFB12C85196100A164CE /* MockFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFB02C85196100A164CE /* MockFeed.swift */; };
@@ -50,8 +52,7 @@
 		C6D723142C826C5400F44FF6 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D723132C826C5400F44FF6 /* CircleImage.swift */; };
 		C6D723162C826DD400F44FF6 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D723152C826DD400F44FF6 /* MapView.swift */; };
 		C6F26D8E2C82CF2C00F6407E /* NostrDebugFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D8D2C82CF2C00F6407E /* NostrDebugFeed.swift */; };
-		C6F26D902C82CF4000F6407E /* WalletHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D8F2C82CF4000F6407E /* WalletHome.swift */; };
-		C6F26D922C82CF5600F6407E /* SettingsHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D912C82CF5600F6407E /* SettingsHome.swift */; };
+		C6F26D922C82CF5600F6407E /* WalletHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D912C82CF5600F6407E /* WalletHome.swift */; };
 		C6F26D942C82D1CE00F6407E /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D932C82D1CE00F6407E /* Profile.swift */; };
 		C6F26D972C82D21700F6407E /* ProfileHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D962C82D21700F6407E /* ProfileHost.swift */; };
 		C6F26D992C82D27400F6407E /* ProfileSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D982C82D27400F6407E /* ProfileSummary.swift */; };
@@ -90,10 +91,12 @@
 		C64753782C82C1E9003966E8 /* UserRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRow.swift; sourceTree = "<group>"; };
 		C647537A2C82C4A5003966E8 /* UserItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserItem.swift; sourceTree = "<group>"; };
 		C647537D2C82C72B003966E8 /* UserDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDetail.swift; sourceTree = "<group>"; };
+		C65BD6B92C87DED100CC1658 /* Friend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
 		C6900C7C2C8558C6007AD155 /* NostrFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrFeed.swift; sourceTree = "<group>"; };
 		C693D19F2C82907D004A63A5 /* Landmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Landmark.swift; sourceTree = "<group>"; };
 		C693D1A32C82985F004A63A5 /* ModelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelData.swift; sourceTree = "<group>"; };
 		C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkRow.swift; sourceTree = "<group>"; };
+		C6BB33AF2C87DD27000364B7 /* AddressBook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBook.swift; sourceTree = "<group>"; };
 		C6CACFAE2C8518F700A164CE /* DirectChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectChat.swift; sourceTree = "<group>"; };
 		C6CACFB02C85196100A164CE /* MockFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFeed.swift; sourceTree = "<group>"; };
 		C6CACFB32C8519E200A164CE /* ConversationInteractorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationInteractorProtocol.swift; sourceTree = "<group>"; };
@@ -122,8 +125,7 @@
 		C6D723132C826C5400F44FF6 /* CircleImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 		C6D723152C826DD400F44FF6 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		C6F26D8D2C82CF2C00F6407E /* NostrDebugFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrDebugFeed.swift; sourceTree = "<group>"; };
-		C6F26D8F2C82CF4000F6407E /* WalletHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHome.swift; sourceTree = "<group>"; };
-		C6F26D912C82CF5600F6407E /* SettingsHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHome.swift; sourceTree = "<group>"; };
+		C6F26D912C82CF5600F6407E /* WalletHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHome.swift; sourceTree = "<group>"; };
 		C6F26D932C82D1CE00F6407E /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C6F26D962C82D21700F6407E /* ProfileHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHost.swift; sourceTree = "<group>"; };
 		C6F26D982C82D27400F6407E /* ProfileSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSummary.swift; sourceTree = "<group>"; };
@@ -202,12 +204,10 @@
 			children = (
 				C6CDEDC02C83E5E700D4F0D4 /* Nostr */,
 				C6F26D952C82D20000F6407E /* Profiles */,
-				C6F26D8C2C82CEDB00F6407E /* Chat */,
 				C6D722EB2C825F0C00F44FF6 /* ContentView.swift */,
 				C64292A52C82B75D0073156A /* Helper */,
 				C64292A42C82B7540073156A /* Landmarks */,
 				C64753712C82BCAC003966E8 /* Lobby */,
-				C6F26D8A2C82CE7800F6407E /* Settings */,
 				C647537C2C82C705003966E8 /* Users */,
 				C6F26D8B2C82CE9A00F6407E /* Wallet */,
 			);
@@ -225,6 +225,7 @@
 				C6F26D932C82D1CE00F6407E /* Profile.swift */,
 				C6F26DA32C83A98800F6407E /* Host.swift */,
 				C6F26DA52C83ABF000F6407E /* HostStore.swift */,
+				C65BD6B92C87DED100CC1658 /* Friend.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -317,6 +318,7 @@
 		C6D722E82C825F0C00F44FF6 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
+				C6F26D8C2C82CEDB00F6407E /* Chat */,
 				C6CACFC82C851C0600A164CE /* Extensions */,
 				C6D722ED2C825F0D00F44FF6 /* Assets.xcassets */,
 				C6CDEDC32C83E73100D4F0D4 /* Helpers */,
@@ -354,18 +356,10 @@
 			path = WalletUITests;
 			sourceTree = "<group>";
 		};
-		C6F26D8A2C82CE7800F6407E /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				C6F26D912C82CF5600F6407E /* SettingsHome.swift */,
-			);
-			path = Settings;
-			sourceTree = "<group>";
-		};
 		C6F26D8B2C82CE9A00F6407E /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
-				C6F26D8F2C82CF4000F6407E /* WalletHome.swift */,
+				C6F26D912C82CF5600F6407E /* WalletHome.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -379,6 +373,7 @@
 				C6CACFAE2C8518F700A164CE /* DirectChat.swift */,
 				C644FD242C85609E00D13ED9 /* MockChat.swift */,
 				C6900C7C2C8558C6007AD155 /* NostrFeed.swift */,
+				C6BB33AF2C87DD27000364B7 /* AddressBook.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -553,7 +548,7 @@
 				C6D722EA2C825F0C00F44FF6 /* WalletApp.swift in Sources */,
 				C64292A32C82B68F0073156A /* FavoriteButton.swift in Sources */,
 				C6CACFCB2C851C0600A164CE /* Sequence+asyncMap.swift in Sources */,
-				C6F26D922C82CF5600F6407E /* SettingsHome.swift in Sources */,
+				C6F26D922C82CF5600F6407E /* WalletHome.swift in Sources */,
 				C6455DFA2C82A54000DC64BD /* LandmarkList.swift in Sources */,
 				C64753792C82C1E9003966E8 /* UserRow.swift in Sources */,
 				C6455DFC2C82A72D00DC64BD /* LandmarkDetail.swift in Sources */,
@@ -573,8 +568,9 @@
 				C6CDEDC52C83E75E00D4F0D4 /* DemoHelper.swift in Sources */,
 				C6CDEDC22C83E61600D4F0D4 /* NostrKeyInput.swift in Sources */,
 				C6CACFBD2C851AD100A164CE /* ChatError.swift in Sources */,
-				C6F26D902C82CF4000F6407E /* WalletHome.swift in Sources */,
 				C64753732C82BCD8003966E8 /* LobbyHome.swift in Sources */,
+				C6BB33B02C87DD27000364B7 /* AddressBook.swift in Sources */,
+				C65BD6BA2C87DED100CC1658 /* Friend.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -803,6 +799,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MARKETING_VERSION = 1.0;
@@ -822,6 +819,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MARKETING_VERSION = 1.0;
@@ -840,6 +838,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.walletUITests;
@@ -857,6 +856,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.walletUITests;

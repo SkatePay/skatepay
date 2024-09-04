@@ -5,12 +5,14 @@
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
 
+import NostrSDK
 import SwiftUI
 
 struct LobbyHome: View {
     @Environment(ModelData.self) var modelData
     
     @EnvironmentObject var hostStore: HostStore
+    @EnvironmentObject var room: Room
     
     @State private var showingProfile = false
     
@@ -22,7 +24,25 @@ struct LobbyHome: View {
                 NavigationLink {
                     DirectMessage(senderPrivateKey: hostStore.host.nsec).environment(modelData)
                 } label: {
-                    Text("Invite Skater 🤝")
+                    Text("💌 Direct Message")
+                }
+                
+                NavigationLink {
+                    AddressBook()
+                } label: {
+                    Text("📕 Address Book")
+                }
+                
+                ForEach(Array(room.guests.keys), id: \.self) { key in
+                    Text("😎 \(key)")
+                        .font(.caption)
+                        .contextMenu {
+                            Button(action: {
+                                UIPasteboard.general.string = key
+                            }) {
+                                Text("Copy")
+                            }
+                        }
                 }
                 
                 Spacer()
@@ -39,13 +59,10 @@ struct LobbyHome: View {
                 ProfileHost()
                     .environment(modelData)
             }
-            
-
-            
         } detail: {
             Text("Select a Landmark")
         }
-
+        
     }
 }
 
