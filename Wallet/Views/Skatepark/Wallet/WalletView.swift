@@ -113,9 +113,22 @@ struct WalletView: View {
                     Text(accountStorage.account?.publicKey.base58EncodedString ?? "" )
                         .contextMenu {
                             Button(action: {
-                                UIPasteboard.general.string = publicKey
+                                UIPasteboard.general.string = accountStorage.account?.publicKey.base58EncodedString
                             }) {
-                                Text("Copy")
+                                Text("Copy public key")
+                            }
+                            
+                            Button(action: {
+                                let stringForCopyPaste: String
+                                if let bytes = accountStorage.account?.secretKey.bytes {
+                                    stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
+                                } else {
+                                    stringForCopyPaste = "[]"
+                                }
+                                
+                                UIPasteboard.general.string = stringForCopyPaste
+                            }) {
+                                Text("Copy secret key")
                             }
                         }
                 }
