@@ -91,7 +91,7 @@ struct ContentView: View {
 
     @StateObject private var store = HostStore()
 
-    @State private var selection: Tab = .lobby
+    @State private var selection: Tab = .wallet
     
     @State private var subscriptionId: String?
     
@@ -126,7 +126,7 @@ struct ContentView: View {
 //                }
 //                .tag(Tab.debug)
             
-            WalletHome(host: $store.host) {
+            WalletView(host: $store.host) {
                     Task {
                         do {
                             try await store.save(host: store.host)

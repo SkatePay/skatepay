@@ -40,7 +40,7 @@ struct Skatepark: View {
                 }
                 
                 ForEach(Array(room.guests.keys), id: \.self) { key in
-                    Text("😎 \(key)")
+                    Text("📦 \(key)")
                         .font(.caption)
                         .contextMenu {
                             Button(action: {
