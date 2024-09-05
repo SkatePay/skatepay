@@ -111,6 +111,18 @@ struct WalletView: View {
     
     let accountStorage = KeychainAccountStorage()
     
+    let solanaEndpoints: [APIEndPoint] = [
+        .init(
+            address: "https://api.mainnet-beta.solana.com",
+            network: .mainnetBeta
+        ),
+        .init(
+            address: "https://api.devnet.solana.com",
+            network: .devnet
+        ),
+    ]
+    
+    
     var body: some View {
         NavigationView {
             Form {
@@ -251,6 +263,10 @@ struct WalletView: View {
                     }
                 }
                 
+                Section("balance") {
+                    Text("\(formatNumber(balance)) SOL")
+                }
+                
                 Button("💁 Request Token Reward") {
                     Task {
                         print("Requesting...")
@@ -281,6 +297,39 @@ struct WalletView: View {
             return formattedNumber
         } else {
             return "Error formatting number"
+        }
+        .task {
+            fetch()
+        }
+    }
+    
+    func formatNumber(_ number: UInt64) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = ","
+        formatter.minimumFractionDigits = 3
+        formatter.maximumFractionDigits = 3
+        
+        if let formattedNumber = formatter.string(from: NSNumber(value: number/1000000000)) {
+            return formattedNumber
+        } else {
+            return "Error formatting number"
+        }
+    }
+    
+    
+    func fetch() {
+        Task {
+            let apiClient = JSONRPCAPIClient(endpoint: solanaEndpoints[1])
+            
+            blockHeight = try await apiClient.getBlockHeight()
+            
+            do {
+                let account = accountStorage.account?.publicKey.base58EncodedString ?? ""
+                balance = try await apiClient.getBalance(account: account, commitment: "recent")
+            } catch {
+                print(error)
+            }
         }
     }
 }
