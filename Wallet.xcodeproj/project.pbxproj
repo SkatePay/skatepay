@@ -29,6 +29,7 @@
 		C693D1A02C82907D004A63A5 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D19F2C82907D004A63A5 /* Landmark.swift */; };
 		C693D1A42C82985F004A63A5 /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A32C82985F004A63A5 /* ModelData.swift */; };
 		C693D1A92C829FE0004A63A5 /* LandmarkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */; };
+		C6A01AC02C8986540058CFC7 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6A01ABF2C8986540058CFC7 /* SolanaSwift */; };
 		C6BB33B02C87DD27000364B7 /* AddressBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BB33AF2C87DD27000364B7 /* AddressBook.swift */; };
 		C6CACFAD2C85184E00A164CE /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C6CACFAC2C85184E00A164CE /* ExyteChat */; };
 		C6CACFAF2C8518F700A164CE /* DirectChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFAE2C8518F700A164CE /* DirectChat.swift */; };
@@ -148,6 +149,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C6A01AC02C8986540058CFC7 /* SolanaSwift in Frameworks */,
 				C672CBE62C8756B700C887B6 /* NostrSDK in Frameworks */,
 				C6CACFAD2C85184E00A164CE /* ExyteChat in Frameworks */,
 			);
@@ -461,6 +463,7 @@
 			packageProductDependencies = (
 				C6CACFAC2C85184E00A164CE /* ExyteChat */,
 				C672CBE52C8756B700C887B6 /* NostrSDK */,
+				C6A01ABF2C8986540058CFC7 /* SolanaSwift */,
 			);
 			productName = Wallet;
 			productReference = C6D722E62C825F0C00F44FF6 /* Wallet.app */;
@@ -537,6 +540,7 @@
 			packageReferences = (
 				C6CACFAB2C85184E00A164CE /* XCRemoteSwiftPackageReference "Chat" */,
 				C672CBE42C8756B700C887B6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
+				C6A01ABE2C8986540058CFC7 /* XCRemoteSwiftPackageReference "solana-swift" */,
 			);
 			productRefGroup = C6D722E72C825F0C00F44FF6 /* Products */;
 			projectDirPath = "";
@@ -976,6 +980,14 @@
 				kind = branch;
 			};
 		};
+		C6A01ABE2C8986540058CFC7 /* XCRemoteSwiftPackageReference "solana-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SkatePay/solana-swift";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		C6CACFAB2C85184E00A164CE /* XCRemoteSwiftPackageReference "Chat" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/Chat.git";
@@ -991,6 +1003,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C672CBE42C8756B700C887B6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
 			productName = NostrSDK;
+		};
+		C6A01ABF2C8986540058CFC7 /* SolanaSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6A01ABE2C8986540058CFC7 /* XCRemoteSwiftPackageReference "solana-swift" */;
+			productName = SolanaSwift;
 		};
 		C6CACFAC2C85184E00A164CE /* ExyteChat */ = {
 			isa = XCSwiftPackageProductDependency;
