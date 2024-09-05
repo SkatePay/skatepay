@@ -1,5 +1,5 @@
 //
-//  LobbyHome.swift
+//  Skatepark.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -8,11 +8,11 @@
 import NostrSDK
 import SwiftUI
 
-struct LobbyHome: View {
+struct Skatepark: View {
     @Environment(ModelData.self) var modelData
     
     @EnvironmentObject var hostStore: HostStore
-    @EnvironmentObject var room: Room
+    @EnvironmentObject var room: Lobby
     
     @State private var showingProfile = false
     
@@ -22,15 +22,21 @@ struct LobbyHome: View {
                 UserRow(users: modelData.users)
                 
                 NavigationLink {
-                    DirectMessage(senderPrivateKey: hostStore.host.nsec).environment(modelData)
-                } label: {
-                    Text("💌 Direct Message")
-                }
-                
-                NavigationLink {
                     AddressBook()
                 } label: {
                     Text("📕 Address Book")
+                }
+                
+                NavigationLink {
+                    Contacts()
+                } label: {
+                    Text("☎️ Connections")
+                }
+                
+                NavigationLink {
+                    DirectMessage(senderPrivateKey: hostStore.host.nsec).environment(modelData)
+                } label: {
+                    Text("💌 Messages")
                 }
                 
                 ForEach(Array(room.guests.keys), id: \.self) { key in
@@ -64,5 +70,5 @@ struct LobbyHome: View {
 }
 
 #Preview {
-    LobbyHome().environment(ModelData())
+    Skatepark().environment(ModelData())
 }

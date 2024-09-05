@@ -11,9 +11,10 @@ import NostrSDK
 
 struct UserDetail: View {
     @Environment(ModelData.self) var modelData
+    
     @EnvironmentObject var hostStore: HostStore
     
-    @EnvironmentObject var relayPool: RelayPool
+    @EnvironmentObject var viewModel: ContentViewModel
     
     @StateObject private var store = HostStore()
     
@@ -25,7 +26,7 @@ struct UserDetail: View {
         modelData.users.firstIndex(where: { $0.id == user.id })!
     }
     
-    var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
+    var connected: Bool { viewModel.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     var body: some View {
         @Bindable var modelData = modelData

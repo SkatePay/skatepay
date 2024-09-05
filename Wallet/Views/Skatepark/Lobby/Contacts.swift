@@ -1,15 +1,15 @@
 //
-//  AddressBook.swift
+//  Contacts.swift
 //  Wallet
 //
-//  Created by Konstantin Yurchenko, Jr on 9/3/24.
+//  Created by Konstantin Yurchenko, Jr on 9/4/24.
 //
 
 import SwiftUI
 import SwiftData
 import NostrSDK
 
-struct AddressBook: View {
+struct Contacts: View {
     @Query(sort: \Friend.birthday) private var friends: [Friend]
     @Environment(\.modelContext) private var context
     
@@ -79,5 +79,5 @@ struct AddressBook: View {
 
 
 #Preview {
-    AddressBook().modelContainer(for: Friend.self, inMemory: true)
+    Contacts().modelContainer(for: Friend.self, inMemory: true)
 }

@@ -18,18 +18,13 @@ struct Constants {
 
 @main
 struct WalletApp: App {
-    @StateObject var relayPool = try! RelayPool(relayURLs: [
-        URL(string: Constants.RELAY_URL_PRIMAL)!
-    ])
-    
     @State private var modelData = ModelData()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .modelContainer(for: Friend.self)
+                .modelContainer(for: [Friend.self, Spot.self])
                 .environment(modelData)
-                .environmentObject(relayPool)
         }
     }
 }

@@ -20,7 +20,7 @@ struct WalletHome: View {
 
     @Environment(\.scenePhase) private var scenePhase
     
-    private let noValueString = "Must generate key"
+    private let noValueString = ""
 
     @Environment(\.openURL) private var openURL
 
@@ -50,6 +50,12 @@ struct WalletHome: View {
                         }) {
                             Text("Copy")
                             }
+                        
+                        Button(action: {
+                            UIPasteboard.general.string = publicKey ?? host.publicKey
+                        }) {
+                            Text("Copy Hex")
+                            }
                         }
             }
             
@@ -61,27 +67,11 @@ struct WalletHome: View {
                         }) {
                             Text("Copy")
                             }
-                        }
-            }
-            
-            Section("Public Key") {
-                Text(publicKey ?? host.publicKey)
-                    .contextMenu {
-                        Button(action: {
-                            UIPasteboard.general.string = publicKey ?? host.publicKey
-                        }) {
-                            Text("Copy")
-                            }
-                        }
-            }
-            
-            Section("Private Key") {
-                Text(privateKey ?? host.privateKey)
-                    .contextMenu {
+                        
                         Button(action: {
                             UIPasteboard.general.string = privateKey ?? host.privateKey
                         }) {
-                            Text("Copy")
+                            Text("Copy Hex")
                             }
                         }
             }

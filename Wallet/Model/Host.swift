@@ -16,7 +16,7 @@ struct Host: Hashable, Codable {
     
     var relayUrls: [String] = [Constants.RELAY_URL_PRIMAL]
     
-    private var noValueString = "Must generate key"
+    private var noValueString = ""
     
     init() {
         self.publicKey = noValueString
