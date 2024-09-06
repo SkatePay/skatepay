@@ -110,99 +110,6 @@ struct WalletView: View {
     var network: Network = .testnet
     
     let accountStorage = KeychainAccountStorage()
-    let solanaEndpoints: [APIEndPoint] = [
-        .init(
-            address: "https://api.mainnet-beta.solana.com",
-            network: .mainnetBeta
-        ),
-        .init(
-            address: "https://api.testnet.solana.com",
-            network: .testnet
-        ),
-        .init(
-            address: "https://api.devnet.solana.com",
-            network: .devnet
-        ),
-    ]
-    var apiClient: SolanaAPIClient!
-    
-    // Reponses
-    @Published var balance: UInt64 = 0
-    @Published var blockHeight: UInt64 = 0
-    @Published var accounts: [SolanaAccount] = []
-    
-    init() {
-        apiClient = JSONRPCAPIClient(endpoint: solanaEndpoints[1])
-        fetch()
-    }
-    
-    func fetch() {
-        Task {
-            blockHeight = try await apiClient.getBlockHeight()
-            
-            do {
-                let owner = accountStorage.account?.publicKey.base58EncodedString ?? ""
-                
-                //                let mint = "rabpv2nxTLxdVv2SqzoevxXmSD2zaAmZGE79htseeeq"
-                //                let programId = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-                
-                let tokenListUrl = "https://raw.githubusercontent.com/SkatePay/token/master/solana.tokenlist.json"
-                
-                let networkManager = URLSession.shared
-                let tokenRepository = SolanaTokenListRepository(tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager))
-                
-                
-                let (amount, (resolved, _)) = try await(
-                    apiClient.getBalance(account: owner, commitment: "recent"),
-                    apiClient.getAccountBalances(
-                        for: owner,
-                        withToken2022: true,
-                        tokensRepository: tokenRepository,
-                        commitment: "confirmed"
-                    )
-                )
-                
-                balance = amount
-                accounts = resolved
-                    .map { accountBalance in
-                        guard let pubKey = accountBalance.pubkey else {
-                            return nil
-                        }
-                        
-                        return SolanaAccount(
-                            address: pubKey,
-                            lamports: accountBalance.lamports ?? 0,
-                            token: accountBalance.token,
-                            minRentExemption: accountBalance.minimumBalanceForRentExemption,
-                            tokenProgramId: accountBalance.tokenProgramId
-                        )
-                    }
-                    .compactMap { $0 }
-            } catch {
-                print(error)
-            }
-        }
-    }
-}
-
-struct WalletView: View {
-    @Environment(\.scenePhase) private var scenePhase
-    @Binding var host: Host
-        
-    @StateObject private var solanaClient = SolanaClient()
-
-    // Nostr
-    @State private var keypair: Keypair?
-    @State private var nsec: String?
-    @State private var npub: String?
-    
-    let saveAction: ()->Void
-    
-    @Environment(\.openURL) private var openURL
-    
-    var network: Network = .testnet
-    
-    let accountStorage = KeychainAccountStorage()
     
     var body: some View {
         NavigationView {
@@ -273,11 +180,6 @@ struct WalletView: View {
                     } label: {
                         Text("💼 Wallet")
                     }
-                    NavigationLink {
-                        TransferToken()
-                    } label: {
-                        Text("🐟 Tokens")
-                    }
                 }
                 
                 Section("publicKey") {
@@ -323,7 +225,7 @@ struct WalletView: View {
                 Section("Asset Balance") {
                     Text("\(formatNumber(solanaClient.balance)) SOL")
                     ForEach(solanaClient.accounts) { account in
-                        Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                        Text("$\(account.symbol) - \(formatNumber(account.lamports))")
                             .contextMenu {
                                 Button(action: {
                                     if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(network)") {
@@ -358,25 +260,6 @@ struct WalletView: View {
                     }
                 }
             }
-        }
-    }
-    
-    func formatNumber(_ number: UInt64) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = ","
-        formatter.minimumFractionDigits = 3
-        formatter.maximumFractionDigits = 3
-        
-        let numberInBillions = Double(number) / 1_000_000_000.0
-        
-        if let formattedNumber = formatter.string(from: NSNumber(value: numberInBillions)) {
-            return formattedNumber
-        } else {
-            return "Error formatting number"
-        }
-        .task {
-            fetch()
         }
     }
     
