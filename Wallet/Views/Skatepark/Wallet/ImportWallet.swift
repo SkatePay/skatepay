@@ -14,7 +14,7 @@ struct ImportWallet: View, EventCreating {
     
     @State private var privateKey: String = ""
     
-    let network: Network = .devnet
+    let network: Network = .testnet
     @State private var account: SolanaSwift.KeyPair!
     
     let accountStorage = KeychainAccountStorage()
@@ -27,26 +27,36 @@ struct ImportWallet: View, EventCreating {
             }
             
             Button("Import Wallet") {
-                if (privateKey.isEmpty) {
-                    accountStorage.clear()
-                    return
-                }
-                
-                let cleanedString = privateKey.dropFirst().dropLast()
-                
-                let intArray: [Int] = cleanedString.split(separator: ",").compactMap { Int($0) }
-                
-                let data = Data(intArray.map { UInt8($0) })
-                
-                do {
-                    let account = try SolanaSwift.KeyPair(secretKey: data)
-                    print(account.publicKey)
+                Task {
+                    if (privateKey.isEmpty) {
+                        accountStorage.clear()
+                        return
+                    }
+                    var intArray: [Int] = []
+
+                    print(privateKey.count)
+
+                    if (privateKey.count == 88) {
+                        intArray = Base58.decode(privateKey).map { Int($0) }
+                    } else {
+                        let cleanedString = privateKey.dropFirst().dropLast()
+                        intArray = cleanedString.split(separator: ",").compactMap { Int($0) }
+                    }
                     
-                    try accountStorage.save(account)
-                    
-                    showingAlert = true
-                } catch {
-                    print(error)
+                    let data = Data(intArray.map { UInt8($0) })
+
+                    do {
+                        account = try SolanaSwift.KeyPair(secretKey: data)
+                    } catch {
+                        print(error)
+                    }
+                    do {
+                        print(account.publicKey)
+                        try accountStorage.save(account)
+                        showingAlert = true
+                    } catch {
+                        print(error)
+                    }
                 }
             }
             .alert("Wallet", isPresented: $showingAlert) {

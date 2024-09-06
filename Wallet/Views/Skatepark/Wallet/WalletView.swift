@@ -10,25 +10,26 @@ import NostrSDK
 import SolanaSwift
 
 struct WalletView: View {
+    @Environment(\.scenePhase) private var scenePhase
+
     @Binding var host: Host
     
+    // Nostr
     @State private var keypair: Keypair?
     @State private var nsec: String?
     @State private var npub: String?
     
+    // Solana
     @State private var publicKey: String?
-    
     @State private var balance: UInt64 = 0
     @State private var blockHeight: UInt64 = 0
-    
+
     let saveAction: ()->Void
-    
-    @Environment(\.scenePhase) private var scenePhase
-    
-    private let noValueString = ""
-    
+            
     @Environment(\.openURL) private var openURL
     
+    var network: Network = .testnet
+
     let accountStorage = KeychainAccountStorage()
     
     let solanaEndpoints: [APIEndPoint] = [
@@ -37,15 +38,17 @@ struct WalletView: View {
             network: .mainnetBeta
         ),
         .init(
+            address: "https://api.testnet.solana.com",
+            network: .testnet
+        ),
+        .init(
             address: "https://api.devnet.solana.com",
             network: .devnet
         ),
     ]
     
-    
     var body: some View {
         NavigationView {
-            
             Form {
                 Button {
                     if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics") {
@@ -62,8 +65,8 @@ struct WalletView: View {
                         nsec = keypair?.privateKey.nsec ?? ""
                         npub = keypair?.publicKey.npub ?? ""
                         
-                        host.privateKey = keypair?.privateKey.hex ?? noValueString
-                        host.publicKey = keypair?.publicKey.hex ?? noValueString
+                        host.privateKey = keypair?.privateKey.hex ?? ""
+                        host.publicKey = keypair?.publicKey.hex ?? ""
                         
                         host.nsec = keypair?.privateKey.nsec ?? ""
                         host.npub = keypair?.publicKey.npub ?? ""
@@ -101,11 +104,25 @@ struct WalletView: View {
                         }
                 }
                 
-                Section ("Solana") {
+                Section("Solana") {
+                    Text("\(network)")
+                        .contextMenu {
+                            Button(action: {
+                                if let url = URL(string: "https://explorer.solana.com/?cluster=\(network)") {
+                                    openURL(url)
+                                }
+                                
+                            }) {
+                                Text("Open explorer")
+                            }
+                        }
+                }
+                
+                Section ("Methods") {
                     NavigationLink {
                         ImportWallet()
                     } label: {
-                        Text("💼 Wallet Methods")
+                        Text("💼 Wallet")
                     }
                 }
                 
