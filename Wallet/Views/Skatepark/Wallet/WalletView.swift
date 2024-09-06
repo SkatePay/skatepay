@@ -130,6 +130,21 @@ struct WalletView: View {
                     Text(accountStorage.account?.publicKey.base58EncodedString ?? "" )
                         .contextMenu {
                             Button(action: {
+                                let address: String
+                                if let key = accountStorage.account?.publicKey.base58EncodedString {
+                                    address = key
+                                } else {
+                                    address = ""
+                                }
+                                                                
+                                if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(network)") {
+                                    openURL(url)
+                                }
+                            }) {
+                                Text("Open explorer")
+                            }
+                            
+                            Button(action: {
                                 UIPasteboard.general.string = accountStorage.account?.publicKey.base58EncodedString
                             }) {
                                 Text("Copy public key")
@@ -174,7 +189,9 @@ struct WalletView: View {
         formatter.minimumFractionDigits = 3
         formatter.maximumFractionDigits = 3
         
-        if let formattedNumber = formatter.string(from: NSNumber(value: number/1000000000)) {
+        let numberInBillions = Double(number) / 1_000_000_000.0
+        
+        if let formattedNumber = formatter.string(from: NSNumber(value: numberInBillions)) {
             return formattedNumber
         } else {
             return "Error formatting number"
