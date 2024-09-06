@@ -117,11 +117,14 @@ struct WalletView: View {
             network: .mainnetBeta
         ),
         .init(
+            address: "https://api.testnet.solana.com",
+            network: .testnet
+        ),
+        .init(
             address: "https://api.devnet.solana.com",
             network: .devnet
         ),
     ]
-    
     
     var body: some View {
         NavigationView {
