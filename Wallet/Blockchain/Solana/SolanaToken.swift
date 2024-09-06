@@ -42,5 +42,4 @@ extension SolanaToken: AnyToken {
     public var network: TokenNetwork {
         .solana
     }
-
-
+}

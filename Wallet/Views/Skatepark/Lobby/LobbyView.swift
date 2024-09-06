@@ -39,19 +39,19 @@ struct LobbyView: View {
                     Text("💌 Messages")
                 }
                 
-                ForEach(Array(room.guests.keys), id: \.self) { key in
-                    Text("📦 \(key)")
-                        .font(.caption)
-                        .contextMenu {
-                            Button(action: {
-                                UIPasteboard.general.string = key
-                            }) {
-                                Text("Copy")
+                Section("Activity") {
+                    ForEach(Array(room.guests.keys), id: \.self) { key in
+                        Text("📦 \(key)")
+                            .font(.caption)
+                            .contextMenu {
+                                Button(action: {
+                                    UIPasteboard.general.string = key
+                                }) {
+                                    Text("Copy")
+                                }
                             }
-                        }
+                    }
                 }
-                
-                Spacer()
             }
             .navigationTitle("Virtual Skatepark")
             .toolbar {

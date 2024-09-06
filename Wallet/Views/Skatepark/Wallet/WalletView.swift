@@ -180,6 +180,11 @@ struct WalletView: View {
                     } label: {
                         Text("💼 Wallet")
                     }
+                    NavigationLink {
+                        TransferToken()
+                    } label: {
+                        Text("🐟 Tokens")
+                    }
                 }
                 
                 Section("publicKey") {
@@ -225,7 +230,7 @@ struct WalletView: View {
                 Section("Asset Balance") {
                     Text("\(formatNumber(solanaClient.balance)) SOL")
                     ForEach(solanaClient.accounts) { account in
-                        Text("$\(account.symbol) - \(formatNumber(account.lamports))")
+                        Text("\(account.lamports) $\(account.symbol.prefix(3))")
                             .contextMenu {
                                 Button(action: {
                                     if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(network)") {

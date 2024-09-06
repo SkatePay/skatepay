@@ -37,6 +37,7 @@
 		C6A01AE12C8BB56D0058CFC7 /* SolanaToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AE02C8BB56D0058CFC7 /* SolanaToken.swift */; };
 		C6A01AE32C8BB58A0058CFC7 /* TokenPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AE22C8BB58A0058CFC7 /* TokenPrice.swift */; };
 		C6A01AE52C8BB5A30058CFC7 /* AnyToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AE42C8BB5A30058CFC7 /* AnyToken.swift */; };
+		C6A01AE72C8BBDDD0058CFC7 /* TransferToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AE62C8BBDDD0058CFC7 /* TransferToken.swift */; };
 		C6BB33B02C87DD27000364B7 /* AddressBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BB33AF2C87DD27000364B7 /* AddressBook.swift */; };
 		C6CACFAD2C85184E00A164CE /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C6CACFAC2C85184E00A164CE /* ExyteChat */; };
 		C6CACFAF2C8518F700A164CE /* DirectChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFAE2C8518F700A164CE /* DirectChat.swift */; };
@@ -119,6 +120,7 @@
 		C6A01AE02C8BB56D0058CFC7 /* SolanaToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaToken.swift; sourceTree = "<group>"; };
 		C6A01AE22C8BB58A0058CFC7 /* TokenPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenPrice.swift; sourceTree = "<group>"; };
 		C6A01AE42C8BB5A30058CFC7 /* AnyToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyToken.swift; sourceTree = "<group>"; };
+		C6A01AE62C8BBDDD0058CFC7 /* TransferToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferToken.swift; sourceTree = "<group>"; };
 		C6BB33AF2C87DD27000364B7 /* AddressBook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBook.swift; sourceTree = "<group>"; };
 		C6CACFAE2C8518F700A164CE /* DirectChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectChat.swift; sourceTree = "<group>"; };
 		C6CACFB02C85196100A164CE /* MockFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFeed.swift; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 				C6F26D912C82CF5600F6407E /* WalletView.swift */,
 				C6A01AC12C8A47720058CFC7 /* ImportWallet.swift */,
 				C6A01AC32C8A4C0B0058CFC7 /* KeychainAccountStorage.swift */,
+				C6A01AE62C8BBDDD0058CFC7 /* TransferToken.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -662,6 +665,7 @@
 				C6F26D942C82D1CE00F6407E /* Profile.swift in Sources */,
 				C6CACFBC2C851AD100A164CE /* MockMessage.swift in Sources */,
 				C6A01AC42C8A4C0B0058CFC7 /* KeychainAccountStorage.swift in Sources */,
+				C6A01AE72C8BBDDD0058CFC7 /* TransferToken.swift in Sources */,
 				C6CDEDC52C83E75E00D4F0D4 /* DemoHelper.swift in Sources */,
 				C6CDEDC22C83E61600D4F0D4 /* NostrKeyInput.swift in Sources */,
 				C6CACFBD2C851AD100A164CE /* ChatError.swift in Sources */,
