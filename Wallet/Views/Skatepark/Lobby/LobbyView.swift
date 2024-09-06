@@ -1,5 +1,5 @@
 //
-//  Skatepark.swift
+//  LobbyView.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -8,7 +8,7 @@
 import NostrSDK
 import SwiftUI
 
-struct Skatepark: View {
+struct LobbyView: View {
     @Environment(ModelData.self) var modelData
     
     @EnvironmentObject var hostStore: HostStore
@@ -70,5 +70,5 @@ struct Skatepark: View {
 }
 
 #Preview {
-    Skatepark().environment(ModelData())
+    LobbyView().environment(ModelData())
 }

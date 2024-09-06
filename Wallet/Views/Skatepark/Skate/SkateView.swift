@@ -1,5 +1,5 @@
 //
-//  Skate.swift
+//  SkateView.swift
 //  Wallet
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Skate: View {
+struct SkateView: View {
     @Environment(ModelData.self) var modelData
     @State private var showFavoritesOnly = false
     
@@ -38,5 +38,5 @@ struct Skate: View {
 }
 
 #Preview {
-    Skate().environment(ModelData())
+    SkateView().environment(ModelData())
 }

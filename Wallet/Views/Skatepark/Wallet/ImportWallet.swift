@@ -23,7 +23,7 @@ struct ImportWallet: View, EventCreating {
         Text("Import Wallet")
         Form {
             Section("Private Key") {
-                TextField("Enter key.", text: $privateKey)
+                TextField("Enter key", text: $privateKey)
             }
             
             Button("Import Wallet") {
@@ -33,8 +33,6 @@ struct ImportWallet: View, EventCreating {
                         return
                     }
                     var intArray: [Int] = []
-
-                    print(privateKey.count)
 
                     if (privateKey.count == 88) {
                         intArray = Base58.decode(privateKey).map { Int($0) }
@@ -51,7 +49,6 @@ struct ImportWallet: View, EventCreating {
                         print(error)
                     }
                     do {
-                        print(account.publicKey)
                         try accountStorage.save(account)
                         showingAlert = true
                     } catch {

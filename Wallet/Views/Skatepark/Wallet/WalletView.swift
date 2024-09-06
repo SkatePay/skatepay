@@ -8,30 +8,15 @@
 import SwiftUI
 import NostrSDK
 import SolanaSwift
+import Combine
 
-struct WalletView: View {
-    @Environment(\.scenePhase) private var scenePhase
-
-    @Binding var host: Host
+class SolanaClient: ObservableObject  {
+    @Published var network: Network = .testnet
     
-    // Nostr
-    @State private var keypair: Keypair?
-    @State private var nsec: String?
-    @State private var npub: String?
-    
-    // Solana
-    @State private var publicKey: String?
-    @State private var balance: UInt64 = 0
-    @State private var blockHeight: UInt64 = 0
+    @Published var publicKey: String?
 
-    let saveAction: ()->Void
-            
-    @Environment(\.openURL) private var openURL
-    
-    var network: Network = .testnet
-
+    // Configs
     let accountStorage = KeychainAccountStorage()
-    
     let solanaEndpoints: [APIEndPoint] = [
         .init(
             address: "https://api.mainnet-beta.solana.com",
@@ -46,18 +31,89 @@ struct WalletView: View {
             network: .devnet
         ),
     ]
+    var apiClient: SolanaAPIClient!
+    
+    // Reponses
+    @Published var balance: UInt64 = 0
+    @Published var blockHeight: UInt64 = 0
+    @Published var accounts: [SolanaAccount] = []
+    
+    init() {
+        apiClient = JSONRPCAPIClient(endpoint: solanaEndpoints[1])
+        fetch()
+    }
+    
+    func fetch() {
+        Task {
+            blockHeight = try await apiClient.getBlockHeight()
+            
+            do {
+                let owner = accountStorage.account?.publicKey.base58EncodedString ?? ""
+                
+                //                let mint = "rabpv2nxTLxdVv2SqzoevxXmSD2zaAmZGE79htseeeq"
+                //                let programId = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+                
+                let tokenListUrl = "https://raw.githubusercontent.com/SkatePay/token/master/solana.tokenlist.json"
+                
+                let networkManager = URLSession.shared
+                let tokenRepository = SolanaTokenListRepository(tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager))
+                
+                
+                let (amount, (resolved, _)) = try await(
+                    apiClient.getBalance(account: owner, commitment: "recent"),
+                    apiClient.getAccountBalances(
+                        for: owner,
+                        withToken2022: true,
+                        tokensRepository: tokenRepository,
+                        commitment: "confirmed"
+                    )
+                )
+                
+                balance = amount
+                accounts = resolved
+                    .map { accountBalance in
+                        guard let pubKey = accountBalance.pubkey else {
+                            return nil
+                        }
+                        
+                        return SolanaAccount(
+                            address: pubKey,
+                            lamports: accountBalance.lamports ?? 0,
+                            token: accountBalance.token,
+                            minRentExemption: accountBalance.minimumBalanceForRentExemption,
+                            tokenProgramId: accountBalance.tokenProgramId
+                        )
+                    }
+                    .compactMap { $0 }
+            } catch {
+                print(error)
+            }
+        }
+    }
+}
+
+struct WalletView: View {
+    @Environment(\.scenePhase) private var scenePhase
+    @Binding var host: Host
+        
+    @StateObject private var solanaClient = SolanaClient()
+
+    // Nostr
+    @State private var keypair: Keypair?
+    @State private var nsec: String?
+    @State private var npub: String?
+    
+    let saveAction: ()->Void
+    
+    @Environment(\.openURL) private var openURL
+    
+    var network: Network = .testnet
+    
+    let accountStorage = KeychainAccountStorage()
     
     var body: some View {
         NavigationView {
             Form {
-                Button {
-                    if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics") {
-                        openURL(url)
-                    }
-                } label: {
-                    Label("Get Help", systemImage: "person.fill.questionmark")
-                }
-                
                 Section ("NOSTR") {
                     Button("🔁 Cycle Keys") {
                         keypair = Keypair()
@@ -85,7 +141,7 @@ struct WalletView: View {
                             }
                             
                             Button(action: {
-                                UIPasteboard.general.string = publicKey ?? host.publicKey
+                                UIPasteboard.general.string = solanaClient.publicKey ?? host.publicKey
                             }) {
                                 Text("Copy phex")
                             }
@@ -105,7 +161,7 @@ struct WalletView: View {
                 }
                 
                 Section("Solana") {
-                    Text("\(network)")
+                    Text("🌐 \(network)")
                         .contextMenu {
                             Button(action: {
                                 if let url = URL(string: "https://explorer.solana.com/?cluster=\(network)") {
@@ -136,7 +192,7 @@ struct WalletView: View {
                                 } else {
                                     address = ""
                                 }
-                                                                
+                                
                                 if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(network)") {
                                     openURL(url)
                                 }
@@ -165,8 +221,29 @@ struct WalletView: View {
                         }
                 }
                 
-                Section("balance") {
-                    Text("\(formatNumber(balance)) SOL")
+                // Asset Balance
+                Section("Asset Balance") {
+                    Text("\(formatNumber(solanaClient.balance)) SOL")
+                    ForEach(solanaClient.accounts) { account in
+                        Text("$\(account.symbol) - \(formatNumber(account.lamports))")
+                            .contextMenu {
+                                Button(action: {
+                                    if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(network)") {
+                                        openURL(url)
+                                    }
+                                }) {
+                                    Text("🔎 Open Explorer")
+                                }
+                                Button(action: {
+                                    if let url = URL(string: "https://github.com/SkatePay/token") {
+                                        openURL(url)
+                                    }
+                                    
+                                }) {
+                                    Text("ℹ️ Open Information")
+                                }
+                            }
+                    }
                 }
                 
                 Button("💁 Request Token Reward") {
@@ -175,10 +252,14 @@ struct WalletView: View {
                     }
                 }
                 
+                Button("💁🏻‍♀️ Get Help") {
+                    Task {
+                        if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics") {
+                            openURL(url)
+                        }
+                    }
+                }
             }
-        }
-        .task {
-            fetch()
         }
     }
     
@@ -195,22 +276,6 @@ struct WalletView: View {
             return formattedNumber
         } else {
             return "Error formatting number"
-        }
-    }
-    
-    
-    func fetch() {
-        Task {
-            let apiClient = JSONRPCAPIClient(endpoint: solanaEndpoints[1])
-            
-            blockHeight = try await apiClient.getBlockHeight()
-            
-            do {
-                let account = accountStorage.account?.publicKey.base58EncodedString ?? ""
-                balance = try await apiClient.getBalance(account: account, commitment: "recent")
-            } catch {
-                print(error)
-            }
         }
     }
 }

@@ -66,11 +66,6 @@ struct Contacts: View {
                 .background(.bar)
             }
             .task {
-//                do {
-//                    try context.delete(model: Friend.self)
-//                } catch {
-//                    print("Failed to clear Friend.")
-//                }
                 context.insert(Friend(name: ModelData().users[0].name, birthday: Date(timeIntervalSince1970: 0), npub: ModelData().users[0].npub))
             }
         }
