@@ -62,6 +62,7 @@ struct UserDetail: View {
                 
                 Divider()
                 
+                
                 HStack {
                     Spacer()
                     

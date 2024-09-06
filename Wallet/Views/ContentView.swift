@@ -33,12 +33,10 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         connectRelays()
         relayPool.delegate = self
     }
-    
     func connectRelays() {
         relayPool.connect()
 
     }
-    
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         if (state == .connected) {
             updateSubscription()
@@ -46,7 +44,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     }
     func relay(_ relay: Relay, didReceive event: RelayEvent) {
     }
-    
     func relay(_ relay: Relay, didReceive response: RelayResponse) {
         DispatchQueue.main.async {
             guard case .eose(_) = response else {
@@ -55,13 +52,10 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             self.fetchingStoredEvents = false
         }
     }
-    
     private var currentFilter: Filter {
-        print(npub)
         let publicKey = PublicKey(npub: npub)!.hex
         return Filter(kinds: [4], tags: ["p" : [publicKey]])!
     }
-    
     private func updateSubscription() {
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
@@ -83,50 +77,38 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             }
     }
 }
+enum Tab {
+    case lobby
+    case spots
+    case wallet
+    case debug
+    case settings
+}
 
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
-    
-    @EnvironmentObject var relayPool: RelayPool
 
+    @EnvironmentObject var relayPool: RelayPool
     @StateObject private var store = HostStore()
 
-    @State private var selection: Tab = .lobby
-    
-    @State private var subscriptionId: String?
-    
-    @State private var eventsCancellable: AnyCancellable?
-
-    enum Tab {
-        case lobby
-        case spots
-        case wallet
-        case debug
-        case settings
-    }
-    
+    @State private var selection: Tab = .wallet
+        
     var body: some View {
         TabView(selection: $selection) {
-            Skatepark()
+            LobbyView()
                 .tabItem {
                     Label("Lobby", systemImage: "star")
                 }
                 .tag(Tab.lobby)
                 .environmentObject(viewModel.room)
 
-            Skate()
+            SkateView()
                 .tabItem {
                     Label("Skate", systemImage: "map")
                 }
                 .tag(Tab.spots)
             
-//            NostrDebugFeed()
-//                .tabItem {
-//                    Label("Debug", systemImage: "ellipsis.message")
-//                }
-//                .tag(Tab.debug)
-            
-            WalletHome(host: $store.host) {
+            WalletView(host: $store.host) {
                     Task {
                         do {
                             try await store.save(host: store.host)
@@ -141,7 +123,7 @@ struct ContentView: View {
                 .tag(Tab.wallet)
         }
         .task {
-            do {                
+            do {
                 try await store.load()
 
                 if (store.host.npub != "" || store.host.nsec != "") {

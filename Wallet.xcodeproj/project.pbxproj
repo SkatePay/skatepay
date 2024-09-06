@@ -14,9 +14,9 @@
 		C644FD252C85609E00D13ED9 /* MockChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644FD242C85609E00D13ED9 /* MockChat.swift */; };
 		C644FD272C8635C600D13ED9 /* DirectMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644FD262C8635C600D13ED9 /* DirectMessage.swift */; };
 		C6455DF82C82A10900DC64BD /* landmarkData.json in Resources */ = {isa = PBXBuildFile; fileRef = C6455DF72C82A10900DC64BD /* landmarkData.json */; };
-		C6455DFA2C82A54000DC64BD /* Skate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6455DF92C82A54000DC64BD /* Skate.swift */; };
+		C6455DFA2C82A54000DC64BD /* SkateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6455DF92C82A54000DC64BD /* SkateView.swift */; };
 		C6455DFC2C82A72D00DC64BD /* LandmarkDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */; };
-		C64753732C82BCD8003966E8 /* Skatepark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64753722C82BCD8003966E8 /* Skatepark.swift */; };
+		C64753732C82BCD8003966E8 /* LobbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64753722C82BCD8003966E8 /* LobbyView.swift */; };
 		C64753752C82BEA4003966E8 /* userData.json in Resources */ = {isa = PBXBuildFile; fileRef = C64753742C82BEA4003966E8 /* userData.json */; };
 		C64753772C82BFBE003966E8 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64753762C82BFBE003966E8 /* User.swift */; };
 		C64753792C82C1E9003966E8 /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64753782C82C1E9003966E8 /* UserRow.swift */; };
@@ -29,6 +29,14 @@
 		C693D1A02C82907D004A63A5 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D19F2C82907D004A63A5 /* Landmark.swift */; };
 		C693D1A42C82985F004A63A5 /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A32C82985F004A63A5 /* ModelData.swift */; };
 		C693D1A92C829FE0004A63A5 /* LandmarkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */; };
+		C6A01AC02C8986540058CFC7 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6A01ABF2C8986540058CFC7 /* SolanaSwift */; };
+		C6A01AC22C8A47720058CFC7 /* ImportWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AC12C8A47720058CFC7 /* ImportWallet.swift */; };
+		C6A01AC42C8A4C0B0058CFC7 /* KeychainAccountStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AC32C8A4C0B0058CFC7 /* KeychainAccountStorage.swift */; };
+		C6A01AC72C8A4C440058CFC7 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6A01AC62C8A4C440058CFC7 /* KeychainSwift */; };
+		C6A01ACF2C8AC3A00058CFC7 /* SolanaAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01ACE2C8AC3A00058CFC7 /* SolanaAccount.swift */; };
+		C6A01AE12C8BB56D0058CFC7 /* SolanaToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AE02C8BB56D0058CFC7 /* SolanaToken.swift */; };
+		C6A01AE32C8BB58A0058CFC7 /* TokenPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AE22C8BB58A0058CFC7 /* TokenPrice.swift */; };
+		C6A01AE52C8BB5A30058CFC7 /* AnyToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A01AE42C8BB5A30058CFC7 /* AnyToken.swift */; };
 		C6BB33B02C87DD27000364B7 /* AddressBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BB33AF2C87DD27000364B7 /* AddressBook.swift */; };
 		C6CACFAD2C85184E00A164CE /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C6CACFAC2C85184E00A164CE /* ExyteChat */; };
 		C6CACFAF2C8518F700A164CE /* DirectChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CACFAE2C8518F700A164CE /* DirectChat.swift */; };
@@ -56,7 +64,7 @@
 		C6D723142C826C5400F44FF6 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D723132C826C5400F44FF6 /* CircleImage.swift */; };
 		C6D723162C826DD400F44FF6 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D723152C826DD400F44FF6 /* MapView.swift */; };
 		C6F26D8E2C82CF2C00F6407E /* NostrDebugFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D8D2C82CF2C00F6407E /* NostrDebugFeed.swift */; };
-		C6F26D922C82CF5600F6407E /* WalletHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D912C82CF5600F6407E /* WalletHome.swift */; };
+		C6F26D922C82CF5600F6407E /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D912C82CF5600F6407E /* WalletView.swift */; };
 		C6F26D942C82D1CE00F6407E /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D932C82D1CE00F6407E /* Profile.swift */; };
 		C6F26D972C82D21700F6407E /* ProfileHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D962C82D21700F6407E /* ProfileHost.swift */; };
 		C6F26D992C82D27400F6407E /* ProfileSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F26D982C82D27400F6407E /* ProfileSummary.swift */; };
@@ -90,9 +98,9 @@
 		C644FD242C85609E00D13ED9 /* MockChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChat.swift; sourceTree = "<group>"; };
 		C644FD262C8635C600D13ED9 /* DirectMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectMessage.swift; sourceTree = "<group>"; };
 		C6455DF72C82A10900DC64BD /* landmarkData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = landmarkData.json; sourceTree = "<group>"; };
-		C6455DF92C82A54000DC64BD /* Skate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skate.swift; sourceTree = "<group>"; };
+		C6455DF92C82A54000DC64BD /* SkateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateView.swift; sourceTree = "<group>"; };
 		C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkDetail.swift; sourceTree = "<group>"; };
-		C64753722C82BCD8003966E8 /* Skatepark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skatepark.swift; sourceTree = "<group>"; };
+		C64753722C82BCD8003966E8 /* LobbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LobbyView.swift; sourceTree = "<group>"; };
 		C64753742C82BEA4003966E8 /* userData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = userData.json; sourceTree = "<group>"; };
 		C64753762C82BFBE003966E8 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C64753782C82C1E9003966E8 /* UserRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRow.swift; sourceTree = "<group>"; };
@@ -105,6 +113,12 @@
 		C693D19F2C82907D004A63A5 /* Landmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Landmark.swift; sourceTree = "<group>"; };
 		C693D1A32C82985F004A63A5 /* ModelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelData.swift; sourceTree = "<group>"; };
 		C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkRow.swift; sourceTree = "<group>"; };
+		C6A01AC12C8A47720058CFC7 /* ImportWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWallet.swift; sourceTree = "<group>"; };
+		C6A01AC32C8A4C0B0058CFC7 /* KeychainAccountStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAccountStorage.swift; sourceTree = "<group>"; };
+		C6A01ACE2C8AC3A00058CFC7 /* SolanaAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaAccount.swift; sourceTree = "<group>"; };
+		C6A01AE02C8BB56D0058CFC7 /* SolanaToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaToken.swift; sourceTree = "<group>"; };
+		C6A01AE22C8BB58A0058CFC7 /* TokenPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenPrice.swift; sourceTree = "<group>"; };
+		C6A01AE42C8BB5A30058CFC7 /* AnyToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyToken.swift; sourceTree = "<group>"; };
 		C6BB33AF2C87DD27000364B7 /* AddressBook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBook.swift; sourceTree = "<group>"; };
 		C6CACFAE2C8518F700A164CE /* DirectChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectChat.swift; sourceTree = "<group>"; };
 		C6CACFB02C85196100A164CE /* MockFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFeed.swift; sourceTree = "<group>"; };
@@ -134,7 +148,7 @@
 		C6D723132C826C5400F44FF6 /* CircleImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 		C6D723152C826DD400F44FF6 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		C6F26D8D2C82CF2C00F6407E /* NostrDebugFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrDebugFeed.swift; sourceTree = "<group>"; };
-		C6F26D912C82CF5600F6407E /* WalletHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHome.swift; sourceTree = "<group>"; };
+		C6F26D912C82CF5600F6407E /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		C6F26D932C82D1CE00F6407E /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C6F26D962C82D21700F6407E /* ProfileHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHost.swift; sourceTree = "<group>"; };
 		C6F26D982C82D27400F6407E /* ProfileSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSummary.swift; sourceTree = "<group>"; };
@@ -148,7 +162,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C6A01AC02C8986540058CFC7 /* SolanaSwift in Frameworks */,
 				C672CBE62C8756B700C887B6 /* NostrSDK in Frameworks */,
+				C6A01AC72C8A4C440058CFC7 /* KeychainSwift in Frameworks */,
 				C6CACFAD2C85184E00A164CE /* ExyteChat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,13 +192,6 @@
 				C6CDEDC02C83E5E700D4F0D4 /* Nostr */,
 			);
 			path = Debug;
-			sourceTree = "<group>";
-		};
-		C63B4BAA2C890BA10024BDF5 /* Landmarks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Landmarks;
 			sourceTree = "<group>";
 		};
 		C63B4BAB2C890BB40024BDF5 /* AddressBook */ = {
@@ -237,9 +246,8 @@
 		C68AE1022C89064300DF4663 /* Skate */ = {
 			isa = PBXGroup;
 			children = (
-				C63B4BAA2C890BA10024BDF5 /* Landmarks */,
 				C693D1A82C829FE0004A63A5 /* LandmarkRow.swift */,
-				C6455DF92C82A54000DC64BD /* Skate.swift */,
+				C6455DF92C82A54000DC64BD /* SkateView.swift */,
 				C6455DFB2C82A72D00DC64BD /* LandmarkDetail.swift */,
 			);
 			path = Skate;
@@ -250,7 +258,8 @@
 			children = (
 				C63B4BAB2C890BB40024BDF5 /* AddressBook */,
 				C63B4BA72C8907580024BDF5 /* Contacts.swift */,
-				C64753722C82BCD8003966E8 /* Skatepark.swift */,
+				C64753722C82BCD8003966E8 /* LobbyView.swift */,
+				C644FD262C8635C600D13ED9 /* DirectMessage.swift */,
 				C6F26D8C2C82CEDB00F6407E /* Chat */,
 				C6F26D952C82D20000F6407E /* Profile */,
 				C647537C2C82C705003966E8 /* Users */,
@@ -261,7 +270,9 @@
 		C68AE1042C89066200DF4663 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
-				C6F26D912C82CF5600F6407E /* WalletHome.swift */,
+				C6F26D912C82CF5600F6407E /* WalletView.swift */,
+				C6A01AC12C8A47720058CFC7 /* ImportWallet.swift */,
+				C6A01AC32C8A4C0B0058CFC7 /* KeychainAccountStorage.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -299,6 +310,25 @@
 				C6455DF72C82A10900DC64BD /* landmarkData.json */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		C6A01ACD2C8AC38C0058CFC7 /* Solana */ = {
+			isa = PBXGroup;
+			children = (
+				C6A01AE42C8BB5A30058CFC7 /* AnyToken.swift */,
+				C6A01AE22C8BB58A0058CFC7 /* TokenPrice.swift */,
+				C6A01AE02C8BB56D0058CFC7 /* SolanaToken.swift */,
+				C6A01ACE2C8AC3A00058CFC7 /* SolanaAccount.swift */,
+			);
+			path = Solana;
+			sourceTree = "<group>";
+		};
+		C6A01AD22C8AC4460058CFC7 /* Blockchain */ = {
+			isa = PBXGroup;
+			children = (
+				C6A01ACD2C8AC38C0058CFC7 /* Solana */,
+			);
+			path = Blockchain;
 			sourceTree = "<group>";
 		};
 		C6CACFB22C8519BF00A164CE /* ChatInteractor */ = {
@@ -382,14 +412,15 @@
 			isa = PBXGroup;
 			children = (
 				C68AE0FF2C89012400DF4663 /* Info.plist */,
-				C6CACFC82C851C0600A164CE /* Extensions */,
+				C6D722E92C825F0C00F44FF6 /* WalletApp.swift */,
 				C6D722ED2C825F0D00F44FF6 /* Assets.xcassets */,
+				C6CACFC82C851C0600A164CE /* Extensions */,
 				C6CDEDC32C83E73100D4F0D4 /* Helpers */,
 				C693D1A62C829DDF004A63A5 /* Model */,
 				C6D722EF2C825F0D00F44FF6 /* Preview Content */,
 				C693D1A72C829E00004A63A5 /* Resources */,
+				C6A01AD22C8AC4460058CFC7 /* Blockchain */,
 				C693D1A52C829DC3004A63A5 /* Views */,
-				C6D722E92C825F0C00F44FF6 /* WalletApp.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -423,7 +454,6 @@
 			isa = PBXGroup;
 			children = (
 				C6CACFB02C85196100A164CE /* MockFeed.swift */,
-				C644FD262C8635C600D13ED9 /* DirectMessage.swift */,
 				C6CACFB22C8519BF00A164CE /* ChatInteractor */,
 				C6CACFAE2C8518F700A164CE /* DirectChat.swift */,
 				C644FD242C85609E00D13ED9 /* MockChat.swift */,
@@ -461,6 +491,8 @@
 			packageProductDependencies = (
 				C6CACFAC2C85184E00A164CE /* ExyteChat */,
 				C672CBE52C8756B700C887B6 /* NostrSDK */,
+				C6A01ABF2C8986540058CFC7 /* SolanaSwift */,
+				C6A01AC62C8A4C440058CFC7 /* KeychainSwift */,
 			);
 			productName = Wallet;
 			productReference = C6D722E62C825F0C00F44FF6 /* Wallet.app */;
@@ -537,6 +569,8 @@
 			packageReferences = (
 				C6CACFAB2C85184E00A164CE /* XCRemoteSwiftPackageReference "Chat" */,
 				C672CBE42C8756B700C887B6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
+				C6A01ABE2C8986540058CFC7 /* XCRemoteSwiftPackageReference "solana-swift" */,
+				C6A01AC52C8A4C440058CFC7 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			productRefGroup = C6D722E72C825F0C00F44FF6 /* Products */;
 			projectDirPath = "";
@@ -583,6 +617,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C6CACFB12C85196100A164CE /* MockFeed.swift in Sources */,
+				C6A01ACF2C8AC3A00058CFC7 /* SolanaAccount.swift in Sources */,
 				C6CACFC42C851B3900A164CE /* MockChatData.swift in Sources */,
 				C6CACFBE2C851AD100A164CE /* MockAttachment.swift in Sources */,
 				C63B4BAF2C890BDF0024BDF5 /* SpotDetail.swift in Sources */,
@@ -599,14 +634,17 @@
 				C6CACFB62C851A1800A164CE /* MockChatInteractor.swift in Sources */,
 				C6F26DA62C83ABF000F6407E /* HostStore.swift in Sources */,
 				C644FD252C85609E00D13ED9 /* MockChat.swift in Sources */,
+				C6A01AE12C8BB56D0058CFC7 /* SolanaToken.swift in Sources */,
+				C6A01AC22C8A47720058CFC7 /* ImportWallet.swift in Sources */,
 				C6F26D972C82D21700F6407E /* ProfileHost.swift in Sources */,
 				C6D722EA2C825F0C00F44FF6 /* WalletApp.swift in Sources */,
 				C64292A32C82B68F0073156A /* FavoriteButton.swift in Sources */,
 				C68AE1012C89034E00DF4663 /* Spot.swift in Sources */,
+				C6A01AE52C8BB5A30058CFC7 /* AnyToken.swift in Sources */,
 				C63B4BAD2C890BCF0024BDF5 /* SpotRow.swift in Sources */,
 				C6CACFCB2C851C0600A164CE /* Sequence+asyncMap.swift in Sources */,
-				C6F26D922C82CF5600F6407E /* WalletHome.swift in Sources */,
-				C6455DFA2C82A54000DC64BD /* Skate.swift in Sources */,
+				C6F26D922C82CF5600F6407E /* WalletView.swift in Sources */,
+				C6455DFA2C82A54000DC64BD /* SkateView.swift in Sources */,
 				C64753792C82C1E9003966E8 /* UserRow.swift in Sources */,
 				C6455DFC2C82A72D00DC64BD /* LandmarkDetail.swift in Sources */,
 				C693D1A02C82907D004A63A5 /* Landmark.swift in Sources */,
@@ -623,12 +661,14 @@
 				C6F26D9D2C82D4A600F6407E /* ProfileEditor.swift in Sources */,
 				C6F26D942C82D1CE00F6407E /* Profile.swift in Sources */,
 				C6CACFBC2C851AD100A164CE /* MockMessage.swift in Sources */,
+				C6A01AC42C8A4C0B0058CFC7 /* KeychainAccountStorage.swift in Sources */,
 				C6CDEDC52C83E75E00D4F0D4 /* DemoHelper.swift in Sources */,
 				C6CDEDC22C83E61600D4F0D4 /* NostrKeyInput.swift in Sources */,
 				C6CACFBD2C851AD100A164CE /* ChatError.swift in Sources */,
-				C64753732C82BCD8003966E8 /* Skatepark.swift in Sources */,
+				C64753732C82BCD8003966E8 /* LobbyView.swift in Sources */,
 				C6BB33B02C87DD27000364B7 /* AddressBook.swift in Sources */,
 				C65BD6BA2C87DED100CC1658 /* Friend.swift in Sources */,
+				C6A01AE32C8BB58A0058CFC7 /* TokenPrice.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -976,6 +1016,22 @@
 				kind = branch;
 			};
 		};
+		C6A01ABE2C8986540058CFC7 /* XCRemoteSwiftPackageReference "solana-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SkatePay/solana-swift";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		C6A01AC52C8A4C440058CFC7 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
 		C6CACFAB2C85184E00A164CE /* XCRemoteSwiftPackageReference "Chat" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/Chat.git";
@@ -991,6 +1047,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C672CBE42C8756B700C887B6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
 			productName = NostrSDK;
+		};
+		C6A01ABF2C8986540058CFC7 /* SolanaSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6A01ABE2C8986540058CFC7 /* XCRemoteSwiftPackageReference "solana-swift" */;
+			productName = SolanaSwift;
+		};
+		C6A01AC62C8A4C440058CFC7 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6A01AC52C8A4C440058CFC7 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
 		};
 		C6CACFAC2C85184E00A164CE /* ExyteChat */ = {
 			isa = XCSwiftPackageProductDependency;
