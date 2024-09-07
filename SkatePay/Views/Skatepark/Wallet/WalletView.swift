@@ -177,53 +177,16 @@ struct WalletView: View {
                                 Text("Open explorer")
                             }
                         }
-                }
-                
-                Section ("Methods") {
                     NavigationLink {
                         ImportWallet()
                     } label: {
                         Text("💼 Wallet")
                     }
-                }
-                
-                Section("publicKey") {
-                    Text(keychainForSolana.account?.publicKey.base58EncodedString ?? "" )
-                        .contextMenu {
-                            Button(action: {
-                                let address: String
-                                if let key = keychainForSolana.account?.publicKey.base58EncodedString {
-                                    address = key
-                                } else {
-                                    address = ""
-                                }
-                                
-                                if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(network)") {
-                                    openURL(url)
-                                }
-                            }) {
-                                Text("Open explorer")
-                            }
-                            
-                            Button(action: {
-                                UIPasteboard.general.string = keychainForSolana.account?.publicKey.base58EncodedString
-                            }) {
-                                Text("Copy public key")
-                            }
-                            
-                            Button(action: {
-                                let stringForCopyPaste: String
-                                if let bytes = keychainForSolana.account?.secretKey.bytes {
-                                    stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
-                                } else {
-                                    stringForCopyPaste = "[]"
-                                }
-                                
-                                UIPasteboard.general.string = stringForCopyPaste
-                            }) {
-                                Text("Copy secret key")
-                            }
-                        }
+                    NavigationLink {
+                        TransferToken()
+                    } label: {
+                        Text("💾 Actions")
+                    }
                 }
                 
                 // Asset Balance
