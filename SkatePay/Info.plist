@@ -7,5 +7,11 @@
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>SkatePay uses the camera to scan QR codes for quick payments and to enhance user experience with AR features.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SkatePay uses the microphone for voice commands to facilitate hands-free payments and to improve user interaction with our AI assistant feature.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SkatePay uses the photo library to allow users to upload profile pictures or payment receipts for verification.</string>
 </dict>
 </plist>
