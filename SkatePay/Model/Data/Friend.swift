@@ -1,6 +1,6 @@
 //
 //  Friend.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/3/24.
 //
@@ -13,11 +13,13 @@ class Friend {
     @Attribute(.unique) let name: String
     let birthday: Date
     let npub: String
-    
-    init(name: String, birthday: Date, npub: String) {
+    let note: String
+     
+    init(npub: String, name: String, birthday: Date, note: String) {
+        self.npub = npub
         self.name = name
         self.birthday = birthday
-        self.npub = npub
+        self.note = note
     }
     
     var isBirthdayToday: Bool {

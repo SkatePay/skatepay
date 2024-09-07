@@ -49,7 +49,7 @@
 		C605173F2C8BDCBA006F61A1 /* LandmarkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605171C2C8BDCBA006F61A1 /* LandmarkRow.swift */; };
 		C60517402C8BDCBA006F61A1 /* SkateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605171D2C8BDCBA006F61A1 /* SkateView.swift */; };
 		C60517412C8BDCBA006F61A1 /* ImportWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605171F2C8BDCBA006F61A1 /* ImportWallet.swift */; };
-		C60517422C8BDCBA006F61A1 /* KeychainAccountStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517202C8BDCBA006F61A1 /* KeychainAccountStorage.swift */; };
+		C60517422C8BDCBA006F61A1 /* SolanaKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517202C8BDCBA006F61A1 /* SolanaKeychainStorage.swift */; };
 		C60517432C8BDCBA006F61A1 /* TransferToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517212C8BDCBA006F61A1 /* TransferToken.swift */; };
 		C60517442C8BDCBA006F61A1 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517222C8BDCBA006F61A1 /* WalletView.swift */; };
 		C60517652C8BDEFA006F61A1 /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517532C8BDEFA006F61A1 /* Lorem.swift */; };
@@ -72,6 +72,7 @@
 		C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C605177A2C8BE0C5006F61A1 /* KeychainSwift */; };
 		C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C605177C2C8BE0D6006F61A1 /* ExyteChat */; };
 		C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E838F52C8BE2B20061BC39 /* ContentView.swift */; };
+		C6F6E4622C8C038C00A05F48 /* NostrKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -137,7 +138,7 @@
 		C605171C2C8BDCBA006F61A1 /* LandmarkRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandmarkRow.swift; sourceTree = "<group>"; };
 		C605171D2C8BDCBA006F61A1 /* SkateView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkateView.swift; sourceTree = "<group>"; };
 		C605171F2C8BDCBA006F61A1 /* ImportWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWallet.swift; sourceTree = "<group>"; };
-		C60517202C8BDCBA006F61A1 /* KeychainAccountStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainAccountStorage.swift; sourceTree = "<group>"; };
+		C60517202C8BDCBA006F61A1 /* SolanaKeychainStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaKeychainStorage.swift; sourceTree = "<group>"; };
 		C60517212C8BDCBA006F61A1 /* TransferToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferToken.swift; sourceTree = "<group>"; };
 		C60517222C8BDCBA006F61A1 /* WalletView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		C60517522C8BDDDA006F61A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -157,6 +158,7 @@
 		C60517632C8BDEFA006F61A1 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C60517732C8BE049006F61A1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C6E838F52C8BE2B20061BC39 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrKeychainStorage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -393,8 +395,8 @@
 		C60517232C8BDCBA006F61A1 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
+				C6F6E4632C8C060A00A05F48 /* Keychain */,
 				C605171F2C8BDCBA006F61A1 /* ImportWallet.swift */,
-				C60517202C8BDCBA006F61A1 /* KeychainAccountStorage.swift */,
 				C60517212C8BDCBA006F61A1 /* TransferToken.swift */,
 				C60517222C8BDCBA006F61A1 /* WalletView.swift */,
 			);
@@ -473,6 +475,15 @@
 				C60517732C8BE049006F61A1 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C6F6E4632C8C060A00A05F48 /* Keychain */ = {
+			isa = PBXGroup;
+			children = (
+				C60517202C8BDCBA006F61A1 /* SolanaKeychainStorage.swift */,
+				C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */,
+			);
+			path = Keychain;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -659,13 +670,14 @@
 				C60517352C8BDCBA006F61A1 /* ProfileEditor.swift in Sources */,
 				C605172B2C8BDCBA006F61A1 /* MapView.swift in Sources */,
 				C60517282C8BDCBA006F61A1 /* NostrKeyInput.swift in Sources */,
+				C6F6E4622C8C038C00A05F48 /* NostrKeychainStorage.swift in Sources */,
 				C60517322C8BDCBA006F61A1 /* MockChat.swift in Sources */,
 				C60517432C8BDCBA006F61A1 /* TransferToken.swift in Sources */,
 				C60516642C8BDC2E006F61A1 /* DemoHelper.swift in Sources */,
 				C60516EB2C8BDC76006F61A1 /* SolanaAccount.swift in Sources */,
 				C60517272C8BDCBA006F61A1 /* NostrDebugFeed.swift in Sources */,
 				C60517412C8BDCBA006F61A1 /* ImportWallet.swift in Sources */,
-				C60517422C8BDCBA006F61A1 /* KeychainAccountStorage.swift in Sources */,
+				C60517422C8BDCBA006F61A1 /* SolanaKeychainStorage.swift in Sources */,
 				C60516602C8BDC26006F61A1 /* Date+Extensions.swift in Sources */,
 				C60517342C8BDCBA006F61A1 /* NostrFeed.swift in Sources */,
 				C605176C2C8BDEFA006F61A1 /* Spot.swift in Sources */,

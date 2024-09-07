@@ -1,6 +1,6 @@
 //
 //  AddressBook.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/3/24.
 //
@@ -53,7 +53,7 @@ struct AddressBook: View {
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Add") {
-                        let newFriend = Friend(name: newName, birthday: newDate, npub: newNPub)
+                        let newFriend = Friend(npub: newNPub, name: newName, birthday: newDate, note: "")
                         context.insert(newFriend)
                     }
                     .bold()

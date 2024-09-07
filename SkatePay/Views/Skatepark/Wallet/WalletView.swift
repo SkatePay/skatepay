@@ -1,6 +1,6 @@
 //
-//  WalletView.swift
-//  Wallet
+//  SkatePayView.swift
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
@@ -15,8 +15,8 @@ class SolanaClient: ObservableObject  {
     
     @Published var publicKey: String?
     
-    // Configs
-    let accountStorage = KeychainAccountStorage()
+    let keychainForSolana = SolanaKeychainStorage()
+    
     let solanaEndpoints: [APIEndPoint] = [
         .init(
             address: "https://api.mainnet-beta.solana.com",
@@ -48,7 +48,7 @@ class SolanaClient: ObservableObject  {
             blockHeight = try await apiClient.getBlockHeight()
             
             do {
-                let owner = accountStorage.account?.publicKey.base58EncodedString ?? ""
+                let owner = keychainForSolana.account?.publicKey.base58EncodedString ?? ""
                 
                 //                let mint = "rabpv2nxTLxdVv2SqzoevxXmSD2zaAmZGE79htseeeq"
                 //                let programId = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
@@ -109,53 +109,58 @@ struct WalletView: View {
     
     var network: Network = .testnet
     
-    let accountStorage = KeychainAccountStorage()
+    let keychainForSolana = SolanaKeychainStorage()
+    let keychainForNostr = NostrKeychainStorage()
     
     var body: some View {
         NavigationView {
             Form {
                 Section ("NOSTR") {
                     Button("🔁 Cycle Keys") {
-                        keypair = Keypair()
-                        
-                        nsec = keypair?.privateKey.nsec ?? ""
-                        npub = keypair?.publicKey.npub ?? ""
-                        
-                        host.privateKey = keypair?.privateKey.hex ?? ""
-                        host.publicKey = keypair?.publicKey.hex ?? ""
-                        
-                        host.nsec = keypair?.privateKey.nsec ?? ""
-                        host.npub = keypair?.publicKey.npub ?? ""
-                        
-                        saveAction()
+                        Task {
+                            keypair = Keypair()
+                            
+                            let keypair = Keypair()!
+                            try keychainForNostr.save(keypair)
+                            
+                            saveAction()
+                        }
                     }
                 }
                 
-                Section("npub") {
-                    Text(npub ?? host.npub)
+                Section("npub") {                    
+                    Text(keychainForNostr.account?.publicKey.npub ?? "No npub available")
                         .contextMenu {
-                            Button(action: {
-                                UIPasteboard.general.string = npub ?? host.npub
-                            }) {
-                                Text("Copy npub")
+                            if let npub = keychainForNostr.account?.publicKey.npub {
+                                Button(action: {
+                                    UIPasteboard.general.string = npub
+                                }) {
+                                    Text("Copy npub")
+                                }
                             }
                             
-                            Button(action: {
-                                UIPasteboard.general.string = solanaClient.publicKey ?? host.publicKey
-                            }) {
-                                Text("Copy phex")
+                            if let phex = keychainForNostr.account?.publicKey.hex {
+                                Button(action: {
+                                    UIPasteboard.general.string = phex
+                                }) {
+                                    Text("Copy phex")
+                                }
                             }
                             
-                            Button(action: {
-                                UIPasteboard.general.string = nsec ?? host.nsec
-                            }) {
-                                Text("Copy nsec")
+                            if let nsec = keychainForNostr.account?.privateKey.nsec {
+                                Button(action: {
+                                    UIPasteboard.general.string = nsec
+                                }) {
+                                    Text("Copy nsec")
+                                }
                             }
                             
-                            Button(action: {
-                                UIPasteboard.general.string = keypair?.publicKey.hex ?? host.privateKey
-                            }) {
-                                Text("Copy shex")
+                            if let shex = keychainForNostr.account?.privateKey.hex {
+                                Button(action: {
+                                    UIPasteboard.general.string = shex
+                                }) {
+                                    Text("Copy shex")
+                                }
                             }
                         }
                 }
@@ -183,11 +188,11 @@ struct WalletView: View {
                 }
                 
                 Section("publicKey") {
-                    Text(accountStorage.account?.publicKey.base58EncodedString ?? "" )
+                    Text(keychainForSolana.account?.publicKey.base58EncodedString ?? "" )
                         .contextMenu {
                             Button(action: {
                                 let address: String
-                                if let key = accountStorage.account?.publicKey.base58EncodedString {
+                                if let key = keychainForSolana.account?.publicKey.base58EncodedString {
                                     address = key
                                 } else {
                                     address = ""
@@ -201,14 +206,14 @@ struct WalletView: View {
                             }
                             
                             Button(action: {
-                                UIPasteboard.general.string = accountStorage.account?.publicKey.base58EncodedString
+                                UIPasteboard.general.string = keychainForSolana.account?.publicKey.base58EncodedString
                             }) {
                                 Text("Copy public key")
                             }
                             
                             Button(action: {
                                 let stringForCopyPaste: String
-                                if let bytes = accountStorage.account?.secretKey.bytes {
+                                if let bytes = keychainForSolana.account?.secretKey.bytes {
                                     stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
                                 } else {
                                     stringForCopyPaste = "[]"

@@ -1,6 +1,6 @@
 //
 //  DirectMessage.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/31/24.
 //
@@ -29,11 +29,6 @@ struct DirectMessage: View, EventCreating {
                 NostrKeyInput(key: $recipientPublicKey,
                                     isValid: $recipientPublicKeyIsValid,
                                     type: .public)
-            }
-            Section("Sender") {
-                NostrKeyInput(key: $senderPrivateKey,
-                                    isValid: $senderPrivateKeyIsValid,
-                                    type: .private)
             }
             Section("Content") {
                 TextField("Enter a message.", text: $message)

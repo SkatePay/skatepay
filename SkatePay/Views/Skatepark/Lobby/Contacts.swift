@@ -1,6 +1,6 @@
 //
 //  Contacts.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/4/24.
 //
@@ -31,7 +31,12 @@ struct Contacts: View {
                             Button(action: {
                                 UIPasteboard.general.string = friend.npub
                             }) {
-                                Text("Copy")
+                                Text("Copy Friend's npub")
+                            }
+                            Button(action: {
+                                UIPasteboard.general.string = friend.npub
+                            }) {
+                                Text("Add note")
                             }
                             Button(action: {
                                 context.delete(friend)
@@ -57,7 +62,7 @@ struct Contacts: View {
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Save") {
-                        let newFriend = Friend(name: newName, birthday: newDate, npub: newNPub)
+                        let newFriend = Friend(npub: newNPub, name: newName, birthday: newDate, note: "")
                         context.insert(newFriend)
                     }
                     .bold()
@@ -66,7 +71,7 @@ struct Contacts: View {
                 .background(.bar)
             }
             .task {
-                context.insert(Friend(name: ModelData().users[0].name, birthday: Date(timeIntervalSince1970: 0), npub: ModelData().users[0].npub))
+                context.insert(Friend(npub: ModelData().users[0].npub, name: ModelData().users[0].name, birthday: Date(timeIntervalSince1970: 0), note: "🐝💤💤💤"))
             }
         }
     }

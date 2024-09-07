@@ -1,6 +1,6 @@
 //
 //  ImportWallet.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/5/24.
 //
@@ -17,7 +17,7 @@ struct ImportWallet: View, EventCreating {
     let network: Network = .testnet
     @State private var account: SolanaSwift.KeyPair!
     
-    let accountStorage = KeychainAccountStorage()
+    let keychainForSolana = SolanaKeychainStorage()
     
     var body: some View {
         Text("Import Wallet")
@@ -29,7 +29,7 @@ struct ImportWallet: View, EventCreating {
             Button("Import Wallet") {
                 Task {
                     if (privateKey.isEmpty) {
-                        accountStorage.clear()
+                        keychainForSolana.clear()
                         return
                     }
                     var intArray: [Int] = []
@@ -49,7 +49,7 @@ struct ImportWallet: View, EventCreating {
                         print(error)
                     }
                     do {
-                        try accountStorage.save(account)
+                        try keychainForSolana.save(account)
                         showingAlert = true
                     } catch {
                         print(error)
@@ -64,7 +64,7 @@ struct ImportWallet: View, EventCreating {
                 Task {
                     account = try await KeyPair(network: network)
                     do {
-                        try accountStorage.save(account)
+                        try keychainForSolana.save(account)
                         showingAlert = true
                     } catch {
                         print(error)

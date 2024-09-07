@@ -1,6 +1,6 @@
 //
 //  UserItem.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //

@@ -1,6 +1,6 @@
 //
 //  DirectChat.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/1/24.
 //
@@ -32,8 +32,8 @@ class ChatDelegate: ObservableObject, RelayDelegate {
 struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var viewModel: ContentViewModel
-    
-    @EnvironmentObject var hostStore: HostStore
+        
+    let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var chatDelegate = ChatDelegate()
     
@@ -99,7 +99,7 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     }
     
     private func myKeypair() -> Keypair? {
-        return Keypair(hex: hostStore.host.privateKey)
+        return Keypair(hex: (keychainForNostr.account?.privateKey.hex)!)
     }
     
     private func recipientPublicKey() -> PublicKey? {

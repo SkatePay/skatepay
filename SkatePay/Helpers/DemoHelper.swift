@@ -1,6 +1,6 @@
 //
 //  DemoHelper.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/31/24.
 //

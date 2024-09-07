@@ -1,6 +1,6 @@
 //
-//  KeychainAccountStorage.swift
-//  Wallet
+//  SolanaKeychainStorage.swift
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/5/24.
 //
@@ -9,7 +9,7 @@ import SolanaSwift
 import KeychainSwift
 import Foundation
 
-struct KeychainAccountStorage: SolanaAccountStorage {
+struct SolanaKeychainStorage: SolanaAccountStorage {
     let tokenKey = "SOLANA_KEYPAIR"
     let keychain = KeychainSwift()
 

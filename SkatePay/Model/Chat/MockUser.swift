@@ -1,6 +1,6 @@
 //
 //  MockUser.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/1/24.
 //

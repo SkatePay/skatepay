@@ -1,6 +1,6 @@
 //
 //  TransferToken.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/6/24.
 //

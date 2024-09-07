@@ -6,6 +6,8 @@
 	<dict>
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<true/>
+		<key>UIImageName</key>
+		<string>skate-pay</string>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>SkatePay uses the camera to scan QR codes for quick payments and to enhance user experience with AR features.</string>

@@ -1,6 +1,6 @@
 //
 //  SolanaAccount.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/5/24.
 //

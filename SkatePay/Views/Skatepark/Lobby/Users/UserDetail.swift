@@ -1,6 +1,6 @@
 //
 //  UserDetail.swift
-//  Wallet
+//  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
@@ -11,13 +11,9 @@ import NostrSDK
 
 struct UserDetail: View {
     @Environment(ModelData.self) var modelData
-    
-    @EnvironmentObject var hostStore: HostStore
-    
+        
     @EnvironmentObject var viewModel: ContentViewModel
-    
-    @StateObject private var store = HostStore()
-    
+        
     @State var showingConnector = false
     
     var user: User
