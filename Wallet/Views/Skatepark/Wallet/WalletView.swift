@@ -14,7 +14,7 @@ class SolanaClient: ObservableObject  {
     @Published var network: Network = .testnet
     
     @Published var publicKey: String?
-
+    
     // Configs
     let accountStorage = KeychainAccountStorage()
     let solanaEndpoints: [APIEndPoint] = [
@@ -95,9 +95,9 @@ class SolanaClient: ObservableObject  {
 struct WalletView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Binding var host: Host
-        
+    
     @StateObject private var solanaClient = SolanaClient()
-
+    
     // Nostr
     @State private var keypair: Keypair?
     @State private var nsec: String?
@@ -225,7 +225,7 @@ struct WalletView: View {
                 Section("Asset Balance") {
                     Text("\(formatNumber(solanaClient.balance)) SOL")
                     ForEach(solanaClient.accounts) { account in
-                        Text("$\(account.symbol) - \(formatNumber(account.lamports))")
+                        Text("\(account.lamports) $\(account.symbol.prefix(3))")
                             .contextMenu {
                                 Button(action: {
                                     if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(network)") {
@@ -241,6 +241,11 @@ struct WalletView: View {
                                     
                                 }) {
                                     Text("ℹ️ Open Information")
+                                }
+                                NavigationLink {
+                                    TransferToken()
+                                } label: {
+                                    Text("💾 Methods")
                                 }
                             }
                     }
