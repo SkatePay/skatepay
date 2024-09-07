@@ -4,8 +4,6 @@
 <dict>
 	<key>UILaunchScreen</key>
 	<dict>
-		<key>UIImageName</key>
-		<string>skate-pay</string>
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<true/>
 	</dict>

@@ -17,7 +17,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     @Published var isConnected: Bool = false
     @Published var fetchingStoredEvents: Bool = true
     
-    @AppStorage("npub") var npub: String = ""
+    @AppStorage("npub") var npub: String?
     @AppStorage("nsec") var nsec: String = ""
     
     var relayPool = try! RelayPool(relayURLs: [
@@ -43,25 +43,43 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         }
     }
     func relay(_ relay: Relay, didReceive event: RelayEvent) {
+        print(event)
     }
-    func relay(_ relay: Relay, didReceive response: RelayResponse) {
-        DispatchQueue.main.async {
-            guard case .eose(_) = response else {
-                return
-            }
-            self.fetchingStoredEvents = false
+//    func relay(_ relay: Relay, didReceive response: RelayResponse) {
+//        DispatchQueue.main.async {
+//            guard case .eose(_) = response else {
+//                return
+//            }
+//            self.fetchingStoredEvents = false
+//        }
+//    }
+    private var currentFilter: Filter? {
+        guard let npub = npub else {
+            print("Error: npub is nil")
+            return nil
         }
+        
+        guard let publicKey = PublicKey(npub: npub) else {
+            print("Error: Failed to create PublicKey from npub")
+            return nil
+        }
+        
+        let filter = Filter(kinds: [4], tags: ["p" : [publicKey.hex]])
+        
+        guard let validFilter = filter else {
+            print("Error: Failed to create Filter")
+            return nil
+        }
+        
+        return validFilter
     }
-    private var currentFilter: Filter {
-        let publicKey = PublicKey(npub: npub)!.hex
-        return Filter(kinds: [4], tags: ["p" : [publicKey]])!
-    }
+    
     private func updateSubscription() {
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
         }
         
-        subscriptionId = relayPool.subscribe(with: currentFilter)
+        subscriptionId = relayPool.subscribe(with: currentFilter!)
                 
         relayPool.delegate = self
         

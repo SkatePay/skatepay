@@ -1,13 +1,13 @@
 //
-//  WalletUITests.swift
-//  WalletUITests
+//  SkatePayUITests.swift
+//  SkatePayUITests
 //
-//  Created by Konstantin Yurchenko, Jr on 8/30/24.
+//  Created by Konstantin Yurchenko, Jr on 9/6/24.
 //
 
 import XCTest
 
-final class WalletUITests: XCTestCase {
+final class SkatePayUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

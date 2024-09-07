@@ -1,13 +1,13 @@
 //
-//  WalletUITestsLaunchTests.swift
-//  WalletUITests
+//  SkatePayUITestsLaunchTests.swift
+//  SkatePayUITests
 //
-//  Created by Konstantin Yurchenko, Jr on 8/30/24.
+//  Created by Konstantin Yurchenko, Jr on 9/6/24.
 //
 
 import XCTest
 
-final class WalletUITestsLaunchTests: XCTestCase {
+final class SkatePayUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

@@ -1,8 +1,8 @@
 //
-//  WalletApp.swift
-//  Wallet
+//  SkatePayApp.swift
+//  SkatePay
 //
-//  Created by Konstantin Yurchenko, Jr on 8/30/24.
+//  Created by Konstantin Yurchenko, Jr on 9/6/24.
 //
 
 import NostrSDK
@@ -17,7 +17,7 @@ struct Constants {
 }
 
 @main
-struct WalletApp: App {
+struct SkatePayApp: App {
     @State private var modelData = ModelData()
     
     var body: some Scene {
@@ -28,4 +28,3 @@ struct WalletApp: App {
         }
     }
 }
-

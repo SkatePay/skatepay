@@ -19,14 +19,14 @@ class ChatDelegate: ObservableObject, RelayDelegate {
     func relay(_ relay: Relay, didReceive event: RelayEvent) {
     }
     
-    func relay(_ relay: Relay, didReceive response: RelayResponse) {
-        DispatchQueue.main.async {
-            guard case .eose(_) = response else {
-                return
-            }
-            self.fetchingStoredEvents = false
-        }
-    }
+//    func relay(_ relay: Relay, didReceive response: RelayResponse) {
+//        DispatchQueue.main.async {
+//            guard case .eose(_) = response else {
+//                return
+//            }
+//            self.fetchingStoredEvents = false
+//        }
+//    }
 }
 
 struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
@@ -119,9 +119,9 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         
         let tags = event.tags
         
-        if (!tags.contains{ [myPublicKey()?.hex, recipientPublicKey()?.hex].contains($0.value) }) {
-            return nil
-        }
+//        if (!tags.contains{ [myPublicKey()?.hex, recipientPublicKey()?.hex].contains($0.value) }) {
+//            return nil
+//        }
 
         do {
             let text = try legacyDecrypt(encryptedContent: event.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
