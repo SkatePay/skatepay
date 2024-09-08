@@ -17,6 +17,8 @@ struct Contacts: View {
     @State private var newDate = Date.now
     @State private var newNPub = ""
     
+    @State private var solanaAddress = ""
+    
     var body: some View {
         NavigationStack {
             List(friends) { friend in
@@ -31,7 +33,7 @@ struct Contacts: View {
                             Button(action: {
                                 UIPasteboard.general.string = friend.npub
                             }) {
-                                Text("Copy Friend's npub")
+                                Text("Copy npub")
                             }
                             Button(action: {
                                 UIPasteboard.general.string = friend.npub
@@ -55,14 +57,17 @@ struct Contacts: View {
                     Text("New Friend")
                         .font(.headline)
                     DatePicker(selection: $newDate, in: Date.distantPast...Date.now, displayedComponents: .date) {
-                        TextField("Name", text: $newName)
+                        TextField("name", text: $newName)
                             .textFieldStyle(.roundedBorder)
                     }
                     TextField("npub", text: $newNPub)
                         .textFieldStyle(.roundedBorder)
                     
+                    TextField("solana account", text: $solanaAddress)
+                        .textFieldStyle(.roundedBorder)
+                    
                     Button("Save") {
-                        let newFriend = Friend(npub: newNPub, name: newName, birthday: newDate, note: "")
+                        let newFriend = Friend(name: newName, birthday: newDate, npub: newNPub, solanaAddress: solanaAddress, note: "")
                         context.insert(newFriend)
                     }
                     .bold()
@@ -71,7 +76,7 @@ struct Contacts: View {
                 .background(.bar)
             }
             .task {
-                context.insert(Friend(npub: ModelData().users[0].npub, name: ModelData().users[0].name, birthday: Date(timeIntervalSince1970: 0), note: "🐝💤💤💤"))
+                context.insert(Friend(name: ModelData().users[0].name, birthday: Date(timeIntervalSince1970: 0), npub: ModelData().users[0].npub, solanaAddress: ModelData().users[0].solanaAddress,  note: "🐝💤💤💤"))
             }
         }
     }

@@ -12,6 +12,7 @@ struct User: Hashable, Codable, Identifiable {
     var id: Int
     var name: String
     var npub: String
+    var solanaAddress: String
     var relayUrl: String
     var isFavorite: Bool
     

@@ -17,8 +17,7 @@ struct AddressBook: View {
     
     @State private var newName = ""
     @State private var newDate = Date.now
-    @State private var newNPub = ""
-    
+    @State private var newStreet = ""
     
     var filteredSpots: [Spot] {
         spots.filter { spot in
@@ -49,12 +48,10 @@ struct AddressBook: View {
                         TextField("Name", text: $newName)
                             .textFieldStyle(.roundedBorder)
                     }
-                    TextField("Street", text: $newNPub)
+                    TextField("Street", text: $newStreet)
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Add") {
-                        let newFriend = Friend(npub: newNPub, name: newName, birthday: newDate, note: "")
-                        context.insert(newFriend)
                     }
                     .bold()
                 }

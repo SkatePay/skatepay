@@ -9,40 +9,40 @@ import SwiftUI
 import NostrSDK
 
 struct DirectMessage: View, EventCreating {
-    @EnvironmentObject var relayPool: RelayPool
+    @EnvironmentObject var viewModel: ContentViewModel
+
     
-    @State var recipientPublicKey = ""
+    @State var recipientPublicKey = "npub1n249de0mua33kzj9sha5nczhg6gzmpt02z9skkunl58zfpdp7fysk4se3x"
     @State private var recipientPublicKeyIsValid: Bool = false
-
-    @State var senderPrivateKey = ""
-    @State private var senderPrivateKeyIsValid: Bool = false
-
+    
+    let keychainForNostr = NostrKeychainStorage()
+    
     @State private var showingAlert = false
-
+    
     @State private var message: String = ""
     
     var body: some View {
         Text("Message")
         Form {
-
+            
             Section("Recipient") {
                 NostrKeyInput(key: $recipientPublicKey,
-                                    isValid: $recipientPublicKeyIsValid,
-                                    type: .public)
+                              isValid: $recipientPublicKeyIsValid,
+                              type: .public)
             }
             Section("Content") {
                 TextField("Enter a message.", text: $message)
             }
             Button("Send") {
                 guard let recipientPublicKey = publicKey(),
-                      let senderKeyPair = keypair() else {
+                      let senderKeyPair = myKeypair() else {
                     return
                 }
                 do {
                     let directMessage = try legacyEncryptedDirectMessage(withContent: message,
                                                                          toRecipient: recipientPublicKey,
                                                                          signedBy: senderKeyPair)
-                    relayPool.publishEvent(directMessage)
+                    viewModel.relayPool.publishEvent(directMessage)
                     
                     showingAlert = true
                 } catch {
@@ -55,15 +55,11 @@ struct DirectMessage: View, EventCreating {
             .disabled(!readyToSend())
         }
     }
-
-    private func keypair() -> Keypair? {
-        if senderPrivateKey.contains("nsec") {
-            return Keypair(nsec: senderPrivateKey)
-        } else {
-            return Keypair(hex: senderPrivateKey)
-        }
+    
+    private func myKeypair() -> Keypair? {
+        return Keypair(hex: (keychainForNostr.account?.privateKey.hex)!)
     }
-
+    
     private func publicKey() -> PublicKey? {
         if recipientPublicKey.contains("npub") {
             return PublicKey(npub: recipientPublicKey)
@@ -71,11 +67,10 @@ struct DirectMessage: View, EventCreating {
             return PublicKey(hex: recipientPublicKey)
         }
     }
-
+    
     private func readyToSend() -> Bool {
         !message.isEmpty &&
-        recipientPublicKeyIsValid &&
-        senderPrivateKeyIsValid
+        recipientPublicKeyIsValid
     }
 }
 

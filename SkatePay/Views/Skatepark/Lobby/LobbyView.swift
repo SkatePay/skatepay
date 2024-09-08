@@ -34,7 +34,7 @@ struct LobbyView: View {
                 }
                 
                 NavigationLink {
-                    DirectMessage(senderPrivateKey: hostStore.host.nsec).environment(modelData)
+                    DirectMessage().environment(modelData)
                 } label: {
                     Text("💌 Messages")
                 }

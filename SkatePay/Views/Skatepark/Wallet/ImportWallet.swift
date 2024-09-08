@@ -102,8 +102,8 @@ struct ImportWallet: View, EventCreating {
                     }
                 }
             }
-            .alert("Wallet", isPresented: $showingAlert) {
-                Button("OK", role: .cancel) { }
+            .alert("Wallet Created.", isPresented: $showingAlert) {
+                Button("Ok", role: .cancel) { }
             }
             
             Button("Create Wallet") {

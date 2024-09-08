@@ -10,42 +10,61 @@ import NostrSDK
 import SolanaSwift
 import Combine
 
-class SolanaClient: ObservableObject  {
+class WalletManager: ObservableObject  {
     @Published var network: Network = .testnet
     
     @Published var publicKey: String?
     
     let keychainForSolana = SolanaKeychainStorage()
     
-    let solanaEndpoints: [APIEndPoint] = [
-        .init(
-            address: "https://api.mainnet-beta.solana.com",
-            network: .mainnetBeta
-        ),
-        .init(
-            address: "https://api.testnet.solana.com",
-            network: .testnet
-        ),
-        .init(
-            address: "https://api.devnet.solana.com",
-            network: .devnet
-        ),
-    ]
-    var apiClient: SolanaAPIClient!
+    var solanaApiClient: SolanaAPIClient!
+    var blockchainClient: BlockchainClient!
     
-    // Reponses
     @Published var balance: UInt64 = 0
     @Published var blockHeight: UInt64 = 0
     @Published var accounts: [SolanaAccount] = []
     
     init() {
-        apiClient = JSONRPCAPIClient(endpoint: solanaEndpoints[1])
+        let solanaEndpoints: [APIEndPoint] = [
+            .init(
+                address: "https://api.mainnet-beta.solana.com",
+                network: .mainnetBeta
+            ),
+            .init(
+                address: "https://api.testnet.solana.com",
+                network: .testnet
+            ),
+            .init(
+                address: "https://api.devnet.solana.com",
+                network: .devnet
+            ),
+        ]
+        
+        solanaApiClient = JSONRPCAPIClient(endpoint: solanaEndpoints[1])
         fetch()
+        
+        blockchainClient = BlockchainClient(apiClient: solanaApiClient)
+    }
+    
+    static func formatNumber(_ number: UInt64) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = ","
+        formatter.minimumFractionDigits = 3
+        formatter.maximumFractionDigits = 3
+        
+        let numberInBillions = Double(number) / 1_000_000_000.0
+        
+        if let formattedNumber = formatter.string(from: NSNumber(value: numberInBillions)) {
+            return formattedNumber
+        } else {
+            return "Error formatting number"
+        }
     }
     
     func fetch() {
         Task {
-            blockHeight = try await apiClient.getBlockHeight()
+            blockHeight = try await solanaApiClient.getBlockHeight()
             
             do {
                 let owner = keychainForSolana.account?.publicKey.base58EncodedString ?? ""
@@ -60,8 +79,8 @@ class SolanaClient: ObservableObject  {
                 
                 
                 let (amount, (resolved, _)) = try await(
-                    apiClient.getBalance(account: owner, commitment: "recent"),
-                    apiClient.getAccountBalances(
+                    solanaApiClient.getBalance(account: owner, commitment: "recent"),
+                    solanaApiClient.getAccountBalances(
                         for: owner,
                         withToken2022: true,
                         tokensRepository: tokenRepository,
@@ -96,9 +115,8 @@ struct WalletView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Binding var host: Host
     
-    @StateObject private var solanaClient = SolanaClient()
+    @StateObject private var walletManager = WalletManager()
     
-    // Nostr
     @State private var keypair: Keypair?
     @State private var nsec: String?
     @State private var npub: String?
@@ -106,11 +124,35 @@ struct WalletView: View {
     let saveAction: ()->Void
     
     @Environment(\.openURL) private var openURL
-    
-    var network: Network = .testnet
-    
+        
     let keychainForSolana = SolanaKeychainStorage()
     let keychainForNostr = NostrKeychainStorage()
+    
+    var assetBalance: some View {
+        Section("Asset Balance") {
+            Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
+            ForEach(walletManager.accounts) { account in
+                Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                    .contextMenu {
+                        Button(action: {
+                            if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(walletManager.network)") {
+                                openURL(url)
+                            }
+                        }) {
+                            Text("🔎 Open Explorer")
+                        }
+                        Button(action: {
+                            if let url = URL(string: "https://github.com/SkatePay/token") {
+                                openURL(url)
+                            }
+                            
+                        }) {
+                            Text("ℹ️ Open Information")
+                        }
+                    }
+            }
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -166,10 +208,10 @@ struct WalletView: View {
                 }
                 
                 Section("Solana") {
-                    Text("🌐 \(network)")
+                    Text("🌐 \(walletManager.network)")
                         .contextMenu {
                             Button(action: {
-                                if let url = URL(string: "https://explorer.solana.com/?cluster=\(network)") {
+                                if let url = URL(string: "https://explorer.solana.com/?cluster=\(walletManager.network)") {
                                     openURL(url)
                                 }
                                 
@@ -183,41 +225,13 @@ struct WalletView: View {
                         Text("💼 Wallet")
                     }
                     NavigationLink {
-                        TransferToken()
+                        TransferToken(manager: WalletManager())
                     } label: {
-                        Text("💾 Actions")
+                        Text("💾 Methods")
                     }
                 }
                 
-                // Asset Balance
-                Section("Asset Balance") {
-                    Text("\(formatNumber(solanaClient.balance)) SOL")
-                    ForEach(solanaClient.accounts) { account in
-                        Text("\(account.lamports) $\(account.symbol.prefix(3))")
-                            .contextMenu {
-                                Button(action: {
-                                    if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(network)") {
-                                        openURL(url)
-                                    }
-                                }) {
-                                    Text("🔎 Open Explorer")
-                                }
-                                Button(action: {
-                                    if let url = URL(string: "https://github.com/SkatePay/token") {
-                                        openURL(url)
-                                    }
-                                    
-                                }) {
-                                    Text("ℹ️ Open Information")
-                                }
-                                NavigationLink {
-                                    TransferToken()
-                                } label: {
-                                    Text("💾 Methods")
-                                }
-                            }
-                    }
-                }
+                assetBalance
                 
                 Button("💁 Request Token Reward") {
                     Task {
@@ -233,22 +247,6 @@ struct WalletView: View {
                     }
                 }
             }
-        }
-    }
-    
-    func formatNumber(_ number: UInt64) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = ","
-        formatter.minimumFractionDigits = 3
-        formatter.maximumFractionDigits = 3
-        
-        let numberInBillions = Double(number) / 1_000_000_000.0
-        
-        if let formattedNumber = formatter.string(from: NSNumber(value: numberInBillions)) {
-            return formattedNumber
-        } else {
-            return "Error formatting number"
         }
     }
 }

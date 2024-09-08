@@ -9,6 +9,14 @@ import Combine
 import NostrSDK
 import SwiftUI
 
+enum Tab {
+    case lobby
+    case spots
+    case wallet
+    case debug
+    case settings
+}
+
 class Lobby: ObservableObject {
     @Published var guests: [String: Date] = [:]
 }
@@ -96,21 +104,12 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     }
 }
 
-enum Tab {
-    case lobby
-    case spots
-    case wallet
-    case debug
-    case settings
-}
-
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
 
-    @EnvironmentObject var relayPool: RelayPool
     @StateObject private var store = HostStore()
 
-    @State private var selection: Tab = .wallet
+    @State private var selection: Tab = .lobby
     
     let keychainForNostr = NostrKeychainStorage()
         
@@ -156,10 +155,6 @@ struct ContentView: View {
                         nsec: keypair.privateKey.nsec
                     )
                     try await store.save(host: host)
-
-//                    viewModel.npub = host.npub
-//                    viewModel.nsec = host.nsec
-                    
                 }
             } catch {
                 fatalError(error.localizedDescription)

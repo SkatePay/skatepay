@@ -13,12 +13,14 @@ class Friend {
     @Attribute(.unique) let name: String
     let birthday: Date
     let npub: String
+    let solanaAddress: String
     let note: String
      
-    init(npub: String, name: String, birthday: Date, note: String) {
-        self.npub = npub
+    init(name: String, birthday: Date, npub: String = "", solanaAddress: String = "", note: String = "") {
         self.name = name
         self.birthday = birthday
+        self.npub = npub
+        self.solanaAddress = npub
         self.note = note
     }
     
