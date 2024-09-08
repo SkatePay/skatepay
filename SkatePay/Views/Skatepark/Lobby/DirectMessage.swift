@@ -10,9 +10,8 @@ import NostrSDK
 
 struct DirectMessage: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
-
     
-    @State var recipientPublicKey = "npub1n249de0mua33kzj9sha5nczhg6gzmpt02z9skkunl58zfpdp7fysk4se3x"
+    @State var recipientPublicKey = ""
     @State private var recipientPublicKeyIsValid: Bool = false
     
     let keychainForNostr = NostrKeychainStorage()

@@ -30,7 +30,7 @@ struct LobbyView: View {
                 NavigationLink {
                     Contacts()
                 } label: {
-                    Text("☎️ Connections")
+                    Text("☎️ Contacts")
                 }
                 
                 NavigationLink {

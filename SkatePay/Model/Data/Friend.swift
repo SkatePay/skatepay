@@ -20,7 +20,7 @@ class Friend {
         self.name = name
         self.birthday = birthday
         self.npub = npub
-        self.solanaAddress = npub
+        self.solanaAddress = solanaAddress
         self.note = note
     }
     

@@ -68,11 +68,11 @@
 		C60517722C8BDEFA006F61A1 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517632C8BDEFA006F61A1 /* User.swift */; };
 		C60517752C8BE049006F61A1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C60517732C8BE049006F61A1 /* Preview Assets.xcassets */; };
 		C60517772C8BE09C006F61A1 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C60517762C8BE09C006F61A1 /* NostrSDK */; };
-		C60517792C8BE0AB006F61A1 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C60517782C8BE0AB006F61A1 /* SolanaSwift */; };
 		C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C605177A2C8BE0C5006F61A1 /* KeychainSwift */; };
 		C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C605177C2C8BE0D6006F61A1 /* ExyteChat */; };
 		C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E838F52C8BE2B20061BC39 /* ContentView.swift */; };
 		C6F6E4622C8C038C00A05F48 /* NostrKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */; };
+		C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6F6E4652C8E418000A05F48 /* SolanaSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -168,7 +168,7 @@
 			files = (
 				C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */,
 				C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */,
-				C60517792C8BE0AB006F61A1 /* SolanaSwift in Frameworks */,
+				C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */,
 				C60517772C8BE09C006F61A1 /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -504,9 +504,9 @@
 			name = SkatePay;
 			packageProductDependencies = (
 				C60517762C8BE09C006F61A1 /* NostrSDK */,
-				C60517782C8BE0AB006F61A1 /* SolanaSwift */,
 				C605177A2C8BE0C5006F61A1 /* KeychainSwift */,
 				C605177C2C8BE0D6006F61A1 /* ExyteChat */,
+				C6F6E4652C8E418000A05F48 /* SolanaSwift */,
 			);
 			productName = SkatePay;
 			productReference = C605162C2C8BDBB3006F61A1 /* SkatePay.app */;
@@ -582,9 +582,9 @@
 			mainGroup = C60516232C8BDBB3006F61A1;
 			packageReferences = (
 				C60517462C8BDD1B006F61A1 /* XCRemoteSwiftPackageReference "keychain-swift" */,
-				C60517492C8BDD2B006F61A1 /* XCRemoteSwiftPackageReference "solana-swift" */,
 				C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */,
 				C605174F2C8BDD50006F61A1 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
+				C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */,
 			);
 			productRefGroup = C605162D2C8BDBB3006F61A1 /* Products */;
 			projectDirPath = "";
@@ -1040,14 +1040,6 @@
 				minimumVersion = 24.0.0;
 			};
 		};
-		C60517492C8BDD2B006F61A1 /* XCRemoteSwiftPackageReference "solana-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SkatePay/solana-swift";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/Chat.git";
@@ -1064,6 +1056,14 @@
 				minimumVersion = 0.1.1;
 			};
 		};
+		C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SkatePay/solana-swift";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1071,11 +1071,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C605174F2C8BDD50006F61A1 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
 			productName = NostrSDK;
-		};
-		C60517782C8BE0AB006F61A1 /* SolanaSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C60517492C8BDD2B006F61A1 /* XCRemoteSwiftPackageReference "solana-swift" */;
-			productName = SolanaSwift;
 		};
 		C605177A2C8BE0C5006F61A1 /* KeychainSwift */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1086,6 +1081,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */;
 			productName = ExyteChat;
+		};
+		C6F6E4652C8E418000A05F48 /* SolanaSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */;
+			productName = SolanaSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

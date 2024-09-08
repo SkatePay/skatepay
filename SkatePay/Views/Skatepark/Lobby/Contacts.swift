@@ -36,6 +36,11 @@ struct Contacts: View {
                                 Text("Copy npub")
                             }
                             Button(action: {
+                                UIPasteboard.general.string = friend.solanaAddress
+                            }) {
+                                Text("Copy solana address")
+                            }
+                            Button(action: {
                                 UIPasteboard.general.string = friend.npub
                             }) {
                                 Text("Add note")
