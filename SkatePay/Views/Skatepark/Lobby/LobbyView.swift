@@ -22,19 +22,19 @@ struct LobbyView: View {
                 UserRow(users: modelData.users)
                 
                 NavigationLink {
-                    AddressBook()
-                } label: {
-                    Text("📕 Address Book")
-                }
-                
-                NavigationLink {
                     Contacts()
                 } label: {
-                    Text("☎️ Connections")
+                    Text("🤝 Connections")
+                }
+
+                NavigationLink {
+                    AddressBook()
+                } label: {
+                    Text("📘 Address Book")
                 }
                 
                 NavigationLink {
-                    DirectMessage(senderPrivateKey: hostStore.host.nsec).environment(modelData)
+                    DirectMessage().environment(modelData)
                 } label: {
                     Text("💌 Messages")
                 }

@@ -15,5 +15,9 @@
 	<string>SkatePay uses the microphone for voice commands to facilitate hands-free payments and to improve user interaction with our AI assistant feature.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>SkatePay uses the photo library to allow users to upload profile pictures or payment receipts for verification.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SkatePay uses your location to provide location-based services, such as finding nearby payment locations or enhancing our AR features with real-world positioning.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>SkatePay uses your location even when the app is in the background to offer continuous location-based services, like tracking your journey or providing real-time updates on nearby payment options.</string>
 </dict>
 </plist>

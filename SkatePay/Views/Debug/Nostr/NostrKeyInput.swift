@@ -13,8 +13,8 @@ enum KeyType {
     case `private`
     var label: String {
         switch self {
-        case .public: return "Public Key"
-        case .private: return "Private Key"
+        case .public: return "npub"
+        case .private: return "nsec"
         }
     }
 }

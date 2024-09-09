@@ -1,5 +1,5 @@
 {
-  "originHash" : "1e0249dbbb44dab177f24fb7703d5a5b0d594553ee778751e51faab38bb6f49f",
+  "originHash" : "ce6c3352b633d2b6f20c930d02e0754489e3f2b70f99be5b0cdc2b1eeed78603",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -79,7 +79,7 @@
       "location" : "https://github.com/SkatePay/solana-swift",
       "state" : {
         "branch" : "main",
-        "revision" : "7dccf6e0c23b41220a0c0855c11f32c8deaa4123"
+        "revision" : "fe74c67dd909ff639c0d28839931c54980a179e7"
       }
     },
     {
