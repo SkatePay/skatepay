@@ -23,7 +23,7 @@ struct ImportWallet: View, EventCreating {
     
     var interfaceForPublicKey: some View {
         Form {
-            Section("publicKey") {
+            Section("SOLANA ADDRESS") {
                 Text(keychainForSolana.account?.publicKey.base58EncodedString ?? "" )
                     .contextMenu {
                         Button(action: {

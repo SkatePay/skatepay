@@ -6,10 +6,14 @@
 //
 
 import SolanaSwift
+import SwiftData
 import SwiftUI
 
 struct TransferToken: View {
-    @State private var solanaAddress: String = "Ben8gD6wtxharLvNBWJFE3QZsyy9zuDRFNNzCVF79ENT"
+    @Query(filter: #Predicate<Friend> { $0.solanaAddress != ""  }, sort: \Friend.name)
+    private var friends: [Friend]
+    
+    @State private var solanaAddress: String = ""
     @State private var amount = 1
     @State private var showingAlert = false
     
@@ -23,15 +27,29 @@ struct TransferToken: View {
     
     let keychainForSolana = SolanaKeychainStorage()
     
+    @State private var selectedOption = 0
+    
     var body: some View {
         List {
-            Text("Transfer")
+            Text("Transfer Token")
             
-            Section("Receiver") {
+            /// RECEIVER
+            Section("Friend") {
+                if (friends.count > 0) {
+                    Picker("Friend", selection: $selectedOption) {
+                        ForEach(Array(friends.enumerated()), id: \.element.id) { idx, friend in
+                            Text(friend.name).tag(idx)
+                        }
+                    }
+                } else {
+                    Text("Add Friends in Lobby")
+                }
                 TextField("Address", text: $solanaAddress)
             }
             
-            Section("Asset Balance \(walletManager.accounts.count)") {
+            /// BALANCE
+            VStack {
+                Text("Token Balance")
                 ForEach(walletManager.accounts) { tokenAccount in
                     Text("\(tokenAccount.lamports) $\(tokenAccount.symbol.prefix(3))")
                         .contextMenu {
@@ -58,13 +76,18 @@ struct TransferToken: View {
                             }
                         }
                     
-                    Section("Amount") {
-                        TextField("Amount", value: $amount, format: .number)
-                    }
+                    TextField("Amount", value: $amount, format: .number)
+                        .multilineTextAlignment(.center)
                     
                     Button("Send") {
-                        Task {
-                            if (!solanaAddress.isEmpty) {
+                        var address = solanaAddress
+                        if (amount <= 0) {
+                            print("amount is not valid")
+                        } else if (solanaAddress.isEmpty) {
+                            let friend = friends[selectedOption]
+                            address = friend.solanaAddress
+                            
+                            Task {
                                 do {
                                     if let account = keychainForSolana.account {
                                         let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
@@ -73,30 +96,31 @@ struct TransferToken: View {
                                             tokenProgramId: PublicKey(string: WalletManager.SOLANA_TOKEN_PROGRAM_ID),
                                             decimals: 9,
                                             from: tokenAccount.address,
-                                            to: solanaAddress,
+                                            to: address,
                                             amount: UInt64(amount),
                                             lamportsPerSignature: 5000,
                                             minRentExemption: 0
                                         ).preparedTransaction
                                         
-//                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
-//                                        print(result)
-//                                        print()
+                                        //                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
+                                        //                                        print(result)
+                                        //                                        print()
                                         
                                         let transactionId: TransactionID = try await walletManager.blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
                                         print(transactionId)
+                                        showingAlert = true
                                     }
                                     
                                 } catch {
                                     print(error)
                                 }
                             }
-                            showingAlert = true
                         }
                     }
-                    .alert("Transfer Submitted.", isPresented: $showingAlert) {
+                    .alert("Transaction Submitted.", isPresented: $showingAlert) {
                         Button("Ok", role: .cancel) {
-//                            walletManager.fetch()
+                            //                            walletManager.fetch()
+                            print("A")
                         }
                     }
                 }

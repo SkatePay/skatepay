@@ -10,7 +10,7 @@ import SwiftData
 import NostrSDK
 
 struct Contacts: View {
-    @Query(sort: \Friend.birthday) private var friends: [Friend]
+    @Query(sort: \Friend.name) private var friends: [Friend]
     @Environment(\.modelContext) private var context
     
     @State private var newName = ""
