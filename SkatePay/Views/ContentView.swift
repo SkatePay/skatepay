@@ -31,7 +31,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     @Published var isConnected: Bool = false
     @Published var fetchingStoredEvents: Bool = true
     
-    let keychainForSolana = NostrKeychainStorage()
+    let keychainForNostr = NostrKeychainStorage()
     
     var relayPool = try! RelayPool(relayURLs: [
         URL(string: SkatePayApp.RELAY_URL_PRIMAL)!
@@ -58,15 +58,8 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     func relay(_ relay: Relay, didReceive event: RelayEvent) {        
         let publicKey = PublicKey(hex: event.event.pubkey)
         let kind = event.event.kind
-        let tags = event.event.tags
         
         let npub = publicKey!.npub
-        
-        print()
-        print(publicKey!.npub)
-        print(kind)
-        print(tags)
-        print()
         
         DispatchQueue.main.async {
             if (kind == EventKind.legacyEncryptedDirectMessage) {
@@ -85,7 +78,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     }
     
     private var currentFilter: Filter? {
-        guard let account = keychainForSolana.account else {
+        guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
             return nil
         }

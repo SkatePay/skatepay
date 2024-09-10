@@ -11,14 +11,14 @@ import SwiftUI
 
 struct TransferToken: View {
     @Environment(\.openURL) private var openURL
-
+    
     @Query(filter: #Predicate<Friend> { $0.solanaAddress != ""  }, sort: \Friend.name)
     private var friends: [Friend]
     
     let keychainForSolana = SolanaKeychainStorage()
-
+    
     @State private var showingAlert = false
-
+    
     @State private var solanaAddress: String = ""
     @State private var selectedOption = 0
     
@@ -123,6 +123,14 @@ struct TransferToken: View {
                             //                            walletManager.fetch()
                             print("A")
                         }
+                    }
+                }
+            }
+            
+            Section {
+                Button("💁🏻‍♀️ Request Tokens") {
+                    Task {
+                        print("Requesting...")
                     }
                 }
             }

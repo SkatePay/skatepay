@@ -106,22 +106,11 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         return PublicKey(npub: user.npub)
     }
     
-    private func myPublicKey() -> PublicKey? {
-        return myKeypair()?.publicKey
-    }
-    
     private func parseEvent(event: NostrEvent) -> Message? {
-        
         var publicKey = PublicKey(hex: event.pubkey)
                 
         let isCurrentUser = publicKey != recipientPublicKey()
         publicKey = isCurrentUser ? recipientPublicKey() : publicKey
-        
-        let tags = event.tags
-        
-//        if (!tags.contains{ [myPublicKey()?.hex, recipientPublicKey()?.hex].contains($0.value) }) {
-//            return nil
-//        }
 
         do {
             let text = try legacyDecrypt(encryptedContent: event.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
@@ -137,10 +126,29 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         }
     }
     
-    private var currentFilter: Filter {
-        let authors = [recipientPublicKey()?.hex ?? nil, myPublicKey()?.hex ?? nil]
+//    private var currentFilter: Filter {
+//        let authors = [recipientPublicKey()?.hex ?? nil, myPublicKey()?.hex ?? nil]
+//        
+//        print(authors)
+//        return Filter(authors: authors.compactMap{ $0 }, kinds: [4])!
+//    }
+    
+    private var currentFilter: Filter? {
+        guard let account = keychainForNostr.account else {
+            print("Error: Failed to create Filter")
+            return nil
+        }
         
-        return Filter(authors: authors.compactMap{ $0 }, kinds: [4])!
+        guard let hex = recipientPublicKey()?.hex else {
+            print("Error: Failed to create Filter")
+            return nil
+        }
+        
+        let authors = [hex, account.publicKey.hex]
+                
+        let filter = Filter(authors: authors.compactMap{ $0 }, kinds: [4], tags: ["p" : [account.publicKey.hex, hex]])
+        
+        return filter
     }
     
     private func publishDraft(draft: DraftMessage) {
@@ -162,8 +170,12 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
             viewModel.relayPool.closeSubscription(with: subscriptionId)
         }
         
-        subscriptionId = viewModel.relayPool.subscribe(with: currentFilter)
-                
+        if let unwrappedFilter = currentFilter {
+            subscriptionId = viewModel.relayPool.subscribe(with: unwrappedFilter)
+        } else {
+            // Handle the case where currentFilter is nil
+            print("currentFilter is nil, unable to subscribe")
+        }
         viewModel.relayPool.delegate = self.chatDelegate
                 
         eventsCancellable = viewModel.relayPool.events

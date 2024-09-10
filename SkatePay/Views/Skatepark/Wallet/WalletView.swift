@@ -1,5 +1,5 @@
 //
-//  SkatePayView.swift
+//  WalletView.swift
 //  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -150,7 +150,7 @@ struct WalletView: View {
     
     var body: some View {
         NavigationView {
-            Form {
+            List {
                 Section ("NOSTR") {
                     Text(keychainForNostr.account?.publicKey.npub ?? "No npub available")
                         .contextMenu {
@@ -225,13 +225,7 @@ struct WalletView: View {
                 
                 assetBalance
                 
-                Button("💁 Request Token Reward") {
-                    Task {
-                        print("Requesting...")
-                    }
-                }
-                
-                Button("💁🏻‍♀️ Get Help") {
+                Button("💁 Get Help") {
                     Task {
                         if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics") {
                             openURL(url)
@@ -239,6 +233,7 @@ struct WalletView: View {
                     }
                 }
             }
+            .navigationTitle("Wallet")
         }
     }
 }

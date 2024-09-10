@@ -11,7 +11,7 @@ import SwiftUI
 
 class FriendsViewModel: ObservableObject {
     @Query(sort: \Friend.name) private var friends: [Friend]
-
+    
     func findFriendBySolanaAddress(_ address: String) -> Friend? {
         print(address)
         return friends.first { $0.solanaAddress == address }
@@ -26,6 +26,8 @@ struct LobbyView: View {
     @EnvironmentObject var room: Lobby
     
     @State private var showingProfile = false
+    @State private var showChatView = false
+    @State private var npub = ""
     
     var activity: some View {
         Section("Activity") {
@@ -33,6 +35,15 @@ struct LobbyView: View {
                 Text("✉️ Incoming message from \(event.npub.prefix(4))...\(event.npub.suffix(4))")
                     .font(.caption)
                     .contextMenu {
+                        Button(action: {
+                            showChatView = true
+                            DispatchQueue.main.async {
+                                npub = event.npub
+                            }
+                        }) {
+                            Text("Open")
+                        }
+                        
                         Button(action: {
                             UIPasteboard.general.string = event.npub
                         }) {
@@ -79,6 +90,25 @@ struct LobbyView: View {
             .sheet(isPresented: $showingProfile) {
                 ProfileHost()
                     .environment(modelData)
+            }
+        }
+        .fullScreenCover(isPresented: $showChatView) {
+            let jsonData = """
+            {
+                "id": 1,
+                "name": "ghost",
+                "npub": "\(npub)",
+                "solanaAddress": "",
+                "relayUrl": "\(SkatePayApp.RELAY_URL_PRIMAL)",
+                "isFavorite": false,
+                "imageName": "user-ghost"
+            }
+            """.data(using: .utf8)!
+
+            let user = try? JSONDecoder().decode(User.self, from: jsonData)
+        
+            NavigationView {
+                DirectChat(user: user!)
             }
         }
     }
