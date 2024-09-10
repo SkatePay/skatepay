@@ -1,8 +1,8 @@
 //
-//  DirectChat.swift
+//  SpotFeed.swift
 //  SkatePay
 //
-//  Created by Konstantin Yurchenko, Jr on 9/1/24.
+//  Created by Konstantin Yurchenko, Jr on 9/9/24.
 //
 
 import Foundation
@@ -11,8 +11,8 @@ import NostrSDK
 import ExyteChat
 import Combine
 
-class ChatDelegate: ObservableObject, RelayDelegate {
-    @Published var fetchingStoredEvents = true
+class FeedDelegate: ObservableObject, RelayDelegate {
+    @Published var fetchingStoredEvents = false
     
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
     }
@@ -29,13 +29,13 @@ class ChatDelegate: ObservableObject, RelayDelegate {
     }
 }
 
-struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
+struct SpotFeed: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var viewModel: ContentViewModel
         
     let keychainForNostr = NostrKeychainStorage()
     
-    @ObservedObject var chatDelegate = ChatDelegate()
+    @ObservedObject var chatDelegate = FeedDelegate()
     
     @State private var messages: [Message] = []
     @State private var eventsCancellable: AnyCancellable?
@@ -43,12 +43,19 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var errorString: String?
     @State private var subscriptionId: String?
             
-    private var user: User
+    private var npub = ""
+    private var landmark: Landmark?
+    private var connected = true
     
-    var connected: Bool { viewModel.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
+    var landmarks: [Landmark] = SkatePayData().landmarks
     
-    init(user: User) {
-        self.user = user
+    func findLandmark(byNpub npub: String) -> Landmark? {
+        return landmarks.first { $0.npub == npub }
+    }
+    
+    init(npub: String) {
+        self.npub = npub
+        self.landmark = findLandmark(byNpub: npub)
     }
     
     var body: some View {
@@ -59,35 +66,38 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         }
         .messageUseMarkdown(messageUseMarkdown: true)
         .navigationBarBackButtonHidden()
-        .toolbar{
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button { presentationMode.wrappedValue.dismiss() } label: {
-                    Image("backArrow", bundle: .current)
-                }
-            }
-            
-            ToolbarItem(placement: .principal) {
-                HStack {
-                    user.image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 35, height: 35)
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(user.name)
-                            .fontWeight(.semibold)
-                            .font(.headline)
-                            .foregroundColor(.black)
-                        Text(connected ? "online" : "offline")
-                            .font(.footnote)
-                            .foregroundColor(Color(hex: "AFB3B8"))
-                    }
-                    Spacer()
-                }
-                .padding(.leading, 10)
-            }
-        }
+//        .toolbar{
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                Button { presentationMode.wrappedValue.dismiss() } label: {
+//                    Image("backArrow", bundle: .current)
+//                }
+//            }
+//            
+//            ToolbarItem(placement: .principal) {
+//                HStack {
+//                    if let image = landmark?.image {
+//                       image
+//                        .resizable()
+//                        .scaledToFill()
+//                        .frame(width: 35, height: 35)
+//                        .clipShape(Circle())
+//                    }
+//                    if let name = landmark?.name {
+//                        VStack(alignment: .leading, spacing: 0) {
+//                            Text(name)
+//                                .fontWeight(.semibold)
+//                                .font(.headline)
+//                                .foregroundColor(.black)
+//                            Text(connected ? "online" : "offline")
+//                                .font(.footnote)
+//                                .foregroundColor(Color(hex: "AFB3B8"))
+//                        }
+//                    }
+//                    Spacer()
+//                }
+//                .padding(.leading, 10)
+//            }
+//        }
         .onAppear{
             updateSubscription()
         }
@@ -103,7 +113,7 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     }
     
     private func recipientPublicKey() -> PublicKey? {
-        return PublicKey(npub: user.npub)
+        return PublicKey(npub: npub)
     }
     
     private func myPublicKey() -> PublicKey? {
@@ -111,13 +121,12 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     }
     
     private func parseEvent(event: NostrEvent) -> Message? {
-        
         var publicKey = PublicKey(hex: event.pubkey)
                 
         let isCurrentUser = publicKey != recipientPublicKey()
         publicKey = isCurrentUser ? recipientPublicKey() : publicKey
         
-        let tags = event.tags
+//        let tags = event.tags
         
 //        if (!tags.contains{ [myPublicKey()?.hex, recipientPublicKey()?.hex].contains($0.value) }) {
 //            return nil
@@ -185,5 +194,5 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
 }
 
 #Preview {
-    DirectChat(user: SkatePayData().users[0])
+    SpotFeed(npub: SkatePayApp.npub)
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LandmarkDetail: View {
-    @Environment(ModelData.self) var modelData
+    @Environment(SkatePayData.self) var modelData
 
     var landmark: Landmark
 
@@ -58,7 +58,7 @@ struct LandmarkDetail: View {
 }
 
 #Preview {
-    let modelData = ModelData()
+    let modelData = SkatePayData()
     return LandmarkDetail(landmark: modelData.landmarks[0])
         .environment(modelData)
 }

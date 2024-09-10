@@ -10,12 +10,7 @@ import NostrSDK
 import SolanaSwift
 import Combine
 
-
 class WalletManager: ObservableObject  {
-    public static let SOLANA_MINT_ADDRESS = "rabpv2nxTLxdVv2SqzoevxXmSD2zaAmZGE79htseeeq"
-    public static let SOLANA_TOKEN_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-    public static let SOLANA_TOKEN_LIST_URL = "https://raw.githubusercontent.com/SkatePay/token/master/solana.tokenlist.json"
-
     @Published var network: Network = .testnet
     
     @Published var publicKey: String?
@@ -28,7 +23,7 @@ class WalletManager: ObservableObject  {
     @Published var balance: UInt64 = 0
     @Published var blockHeight: UInt64 = 0
     @Published var accounts: [SolanaAccount] = []
-        
+    
     init() {
         let solanaEndpoints: [APIEndPoint] = [
             .init(
@@ -73,7 +68,7 @@ class WalletManager: ObservableObject  {
                 let height = try await solanaApiClient.getBlockHeight()
                 
                 let owner = keychainForSolana.account?.publicKey.base58EncodedString ?? ""
-                let tokenListUrl = WalletManager.SOLANA_TOKEN_LIST_URL
+                let tokenListUrl = SkatePayApp.SOLANA_TOKEN_LIST_URL
                 let networkManager = URLSession.shared
                 let tokenRepository = SolanaTokenListRepository(tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager))
                 
@@ -123,7 +118,7 @@ struct WalletView: View {
     let saveAction: ()->Void
     
     @Environment(\.openURL) private var openURL
-        
+    
     let keychainForSolana = SolanaKeychainStorage()
     let keychainForNostr = NostrKeychainStorage()
     
@@ -157,19 +152,6 @@ struct WalletView: View {
         NavigationView {
             Form {
                 Section ("NOSTR") {
-                    Button("🔁 Cycle Keys") {
-                        Task {
-                            keypair = Keypair()
-                            
-                            let keypair = Keypair()!
-                            try keychainForNostr.save(keypair)
-                            
-                            saveAction()
-                        }
-                    }
-                }
-                
-                Section("npub") {                    
                     Text(keychainForNostr.account?.publicKey.npub ?? "No npub available")
                         .contextMenu {
                             if let npub = keychainForNostr.account?.publicKey.npub {
@@ -204,10 +186,21 @@ struct WalletView: View {
                                 }
                             }
                         }
+                    
+                    NavigationLink {
+                        ImportIdentity()
+                    } label: {
+                        Text("🔑 Keys")
+                    }
+                    NavigationLink {
+                        ConnectRelay()
+                    } label: {
+                        Text("📡 Relays")
+                    }
                 }
                 
                 Section("Solana") {
-                    Text("🌐 \(walletManager.network)")
+                    Text("⛓️ \(walletManager.network)")
                         .contextMenu {
                             Button(action: {
                                 if let url = URL(string: "https://explorer.solana.com/?cluster=\(walletManager.network)") {
@@ -221,12 +214,12 @@ struct WalletView: View {
                     NavigationLink {
                         ImportWallet()
                     } label: {
-                        Text("💼 Wallet")
+                        Text("🔑 Keys")
                     }
                     NavigationLink {
                         TransferToken(manager: WalletManager())
                     } label: {
-                        Text("💾 Methods")
+                        Text("💾 Transfer")
                     }
                 }
                 

@@ -59,7 +59,7 @@ struct AddressBook: View {
                 .background(.bar)
             }
             .task {
-                let spots = ModelData().landmarks
+                let spots = SkatePayData().landmarks
                 context.insert(Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, note: spots[0].description, isFavorite: true,  latitude: spots[0].locationCoordinate.latitude, longitude: spots[0].locationCoordinate.longitude, imageName: "venice-skate-park"))
                 context.insert(Spot(name: spots[1].name, address: spots[1].address, state: spots[1].state, note: spots[1].description, latitude: spots[1].locationCoordinate.latitude, longitude: spots[1].locationCoordinate.longitude, imageName: "inglewood-pumptrack"))
                 context.insert(Spot(name: spots[2].name, address: spots[2].address, state: spots[2].state, note: spots[0].description, latitude: spots[2].locationCoordinate.latitude, longitude: spots[2].locationCoordinate.longitude, imageName: "channel-street-skatepark"))

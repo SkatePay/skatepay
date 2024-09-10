@@ -19,6 +19,12 @@ enum Tab {
 
 class Lobby: ObservableObject {
     @Published var guests: [String: Date] = [:]
+    @Published var nostrEvents: [ActivityEvent] = []
+}
+
+struct ActivityEvent {
+    var id: String
+    var npub: String
 }
 
 class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncrypting, EventCreating {
@@ -28,7 +34,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     let keychainForSolana = NostrKeychainStorage()
     
     var relayPool = try! RelayPool(relayURLs: [
-        URL(string: Constants.RELAY_URL_PRIMAL)!
+        URL(string: SkatePayApp.RELAY_URL_PRIMAL)!
     ])
         
     private var subscriptionId: String?
@@ -49,18 +55,34 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             updateSubscription()
         }
     }
-    func relay(_ relay: Relay, didReceive event: RelayEvent) {
-        print(event)
+    func relay(_ relay: Relay, didReceive event: RelayEvent) {        
+        let publicKey = PublicKey(hex: event.event.pubkey)
+        let kind = event.event.kind
+        let tags = event.event.tags
+        
+        let npub = publicKey!.npub
+        
+        print()
+        print(publicKey!.npub)
+        print(kind)
+        print(tags)
+        print()
+        
+        DispatchQueue.main.async {
+            if (kind == EventKind.legacyEncryptedDirectMessage) {
+                self.room.nostrEvents.append(ActivityEvent(id: event.event.id, npub: npub))
+            }
+        }
     }
     
-//    func relay(_ relay: Relay, didReceive response: RelayResponse) {
-//        DispatchQueue.main.async {
-//            guard case .eose(_) = response else {
-//                return
-//            }
-//            self.fetchingStoredEvents = false
-//        }
-//    }
+    func relay(_ relay: Relay, didReceive response: RelayResponse) {
+        DispatchQueue.main.async {
+            guard case .eose(_) = response else {
+                return
+            }
+            self.fetchingStoredEvents = false
+        }
+    }
     
     private var currentFilter: Filter? {
         guard let account = keychainForSolana.account else {
@@ -166,5 +188,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView().environment(ModelData())
+    ContentView().environment(SkatePayData())
 }

@@ -10,7 +10,7 @@ import NostrSDK
 
 
 struct UserDetail: View {
-    @Environment(ModelData.self) var modelData
+    @Environment(SkatePayData.self) var modelData
         
     @EnvironmentObject var viewModel: ContentViewModel
         
@@ -81,7 +81,7 @@ struct UserDetail: View {
 }
 
 #Preview {
-    let modelData = ModelData()
+    let modelData = SkatePayData()
     return UserDetail(user: modelData.users[0])
         .environment(modelData).environmentObject(HostStore())
 }

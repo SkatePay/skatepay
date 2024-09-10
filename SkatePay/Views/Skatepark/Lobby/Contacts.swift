@@ -81,7 +81,7 @@ struct Contacts: View {
                 .background(.bar)
             }
             .task {
-                context.insert(Friend(name: ModelData().users[0].name, birthday: Date(timeIntervalSince1970: 0), npub: ModelData().users[0].npub, solanaAddress: ModelData().users[0].solanaAddress,  note: "🐝💤💤💤"))
+                context.insert(Friend(name: SkatePayData().users[0].name, birthday: Date(timeIntervalSince1970: 0), npub: SkatePayData().users[0].npub, solanaAddress: SkatePayData().users[0].solanaAddress,  note: "🐝💤💤💤"))
             }
         }
     }

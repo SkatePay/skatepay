@@ -28,7 +28,7 @@ struct SpotRow: View {
 }
 
 #Preview {
-    let spots = ModelData().landmarks;
+    let spots = SkatePayData().landmarks;
         
     return Group {
         SpotRow(spot: Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, note: "", imageName: "venice-skate-park"))

@@ -1,5 +1,5 @@
 //
-//  ModelData.swift
+//  SkatePayData.swift
 //  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -8,7 +8,7 @@
 import Foundation
 
 @Observable
-class ModelData {
+class SkatePayData {
     var landmarks: [Landmark] = load("landmarkData.json")
     var users: [User] = load("userData.json")
     var profile = Profile.default

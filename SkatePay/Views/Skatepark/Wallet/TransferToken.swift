@@ -10,14 +10,19 @@ import SwiftData
 import SwiftUI
 
 struct TransferToken: View {
+    @Environment(\.openURL) private var openURL
+
     @Query(filter: #Predicate<Friend> { $0.solanaAddress != ""  }, sort: \Friend.name)
     private var friends: [Friend]
     
-    @State private var solanaAddress: String = ""
-    @State private var amount = 1
+    let keychainForSolana = SolanaKeychainStorage()
+
     @State private var showingAlert = false
+
+    @State private var solanaAddress: String = ""
+    @State private var selectedOption = 0
     
-    @Environment(\.openURL) private var openURL
+    @State private var amount = 1
     
     private var walletManager: WalletManager
     
@@ -25,16 +30,12 @@ struct TransferToken: View {
         self.walletManager = manager
     }
     
-    let keychainForSolana = SolanaKeychainStorage()
-    
-    @State private var selectedOption = 0
-    
     var body: some View {
         List {
             Text("Transfer Token")
             
             /// RECEIVER
-            Section("Friend") {
+            Section("Recipient") {
                 if (friends.count > 0) {
                     Picker("Friend", selection: $selectedOption) {
                         ForEach(Array(friends.enumerated()), id: \.element.id) { idx, friend in
@@ -92,8 +93,8 @@ struct TransferToken: View {
                                     if let account = keychainForSolana.account {
                                         let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
                                             account: account,
-                                            mintAddress: WalletManager.SOLANA_MINT_ADDRESS,
-                                            tokenProgramId: PublicKey(string: WalletManager.SOLANA_TOKEN_PROGRAM_ID),
+                                            mintAddress: SkatePayApp.SOLANA_MINT_ADDRESS,
+                                            tokenProgramId: PublicKey(string: SkatePayApp.SOLANA_TOKEN_PROGRAM_ID),
                                             decimals: 9,
                                             from: tokenAccount.address,
                                             to: address,
