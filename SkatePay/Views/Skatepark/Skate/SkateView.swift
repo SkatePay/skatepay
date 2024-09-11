@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import MapKit
 
 struct Mark: Identifiable {
@@ -25,15 +26,21 @@ final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
     
     @Published var marks: [Mark] = []
     @Published var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: SkatePayData().landmarks[0].locationCoordinate)]
-
+    
     @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: SkatePayData().landmarks[0].locationCoordinate.latitude, longitude: SkatePayData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
     
-    var binding: Binding<MKCoordinateRegion> {
-        Binding {
-            self.mapRegion
-        } set: { newRegion in
-            self.mapRegion = newRegion
-        }
+    @Published var mapPosition = MapCameraPosition.region(
+        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: SkatePayData().landmarks[0].locationCoordinate.latitude, longitude: SkatePayData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
+    )
+    
+    func updateMapRegion(with coordinate: CLLocationCoordinate2D) {
+        mapRegion = MKCoordinateRegion(
+            center: coordinate,
+            latitudinalMeters: 64,
+            longitudinalMeters: 64
+        )
+        
+        mapPosition = MapCameraPosition.region(mapRegion)
     }
     
     func checkIfLocationIsEnabled() {
@@ -68,7 +75,11 @@ final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
             print("Location permission denied.")
         case .authorizedAlways, .authorizedWhenInUse:
             if let location = location.location {
-                mapRegion = MKCoordinateRegion(center: location.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))
+                mapRegion = MKCoordinateRegion(
+                    center: location.coordinate,
+                    latitudinalMeters: 64,
+                    longitudinalMeters: 64
+                )
             }
             
         default:
@@ -77,98 +88,24 @@ final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
     }
 }
 
-struct ChatOptionsView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var npub: String?
-    
-    @State private var showChatView = false
-    
-    var landmarks: [Landmark] = SkatePayData().landmarks
-    
-    func getLandmark() -> Landmark? {
-        return landmarks.first { $0.npub == npub }
-    }
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Chat Options")
-                .font(.title2)
-                .padding()
-            
-            Button(action: {
-                print("Joining park chat")
-                showChatView = true
-            }) {
-                Text("Join Active Chat")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-            
-            Button(action: {
-                print("Starting new chat")
-                dismiss()
-            }) {
-                Text("Start New Chat")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-            
-            Button(action: {
-                print("Adding spot to bookmarks")
-                dismiss()
-            }) {
-                Text("Add to Address Book")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-        }
-        .fullScreenCover(isPresented: $showChatView) {
-            let landmark = getLandmark()
-            NavigationView {
-                SpotFeed(npub: npub ?? "")
-                    .navigationBarTitle("\(npub ?? "")")
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        showChatView = false
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            
-                            if let image = landmark?.image {
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 35, height: 35)
-                                    .clipShape(Circle())
-                            }
-                            if let name = landmark?.name {
-                                VStack(alignment: .leading, spacing: 0) {
-                                    Text(name)
-                                        .fontWeight(.semibold)
-                                        .font(.headline)
-                                        .foregroundColor(.black)
-                                }
-                            }
-                            Spacer()
-                        }
-                    }
-                    )
-            }
-        }
-        .padding()
+extension Notification.Name {
+    static let didDismissToContentView = Notification.Name("didDismissToContentView")
+}
+class NavigationManager: ObservableObject {
+    @Published var path = NavigationPath()
+    @Published var landmark: Landmark?
+ 
+    func dismissToContentView() {
+        path = NavigationPath()
+        NotificationCenter.default.post(name: .didDismissToContentView, object: nil)
     }
 }
 
 struct SkateView: View {
+    @StateObject private var navManager = NavigationManager()
+
+    @Query private var spots: [Spot]
+
     @StateObject var viewModel = SkateViewModel()
     
     @State private var showingAlert = false
@@ -178,6 +115,8 @@ struct SkateView: View {
     
     @State private var longPressActive: [String: Bool] = [:]
     @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: SkatePayData().landmarks[0].locationCoordinate)]
+    
+    @State private var showDirectory = false
 
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
@@ -197,52 +136,74 @@ struct SkateView: View {
             self.longPressActive[lead.name] = false
         }
     }
-
+    
     var body: some View {
-        VStack {
-            MapReader { proxy in
-                Map(initialPosition: .region(viewModel.mapRegion)) {
-//                    UserAnnotation()
-                    // Marks
-                    ForEach(viewModel.marks) { mark in
-                        Marker(mark.name, coordinate: mark.coordinate)
-                            .tint(.orange)
+        NavigationStack(path: $navManager.path) {
+            VStack {
+                MapReader { proxy in
+                    Map(position: $viewModel.mapPosition) {
+                        //                    UserAnnotation()
+                        // Marks
+                        ForEach(viewModel.marks) { mark in
+                            Marker(mark.name, coordinate: mark.coordinate)
+                                .tint(.orange)
+                        }
+                        //                    // Leads
+                        //                    ForEach(leads) { lead in
+                        //                        if let name = lead.name {
+                        //                            LeadAnnotationView(lead: lead, isPressed: binding(for: lead.name))
+                        //                        }
+                        //                    }
                     }
-//                    // Leads
-//                    ForEach(leads) { lead in
-//                        if let name = lead.name {
-//                            LeadAnnotationView(lead: lead, isPressed: binding(for: lead.name))
-//                        }
-//                    }
+                    .onAppear{
+                        viewModel.checkIfLocationIsEnabled()
+                    }
+                    .onTapGesture { position in
+                        if let coordinate = proxy.convert(position, from: .local) {
+                            print("Tapped at \(coordinate)")
+                            viewModel.marks = []
+                            
+                            addMarker(at: coordinate)
+                        }
+                    }
                 }
-                .onAppear{
-                    viewModel.checkIfLocationIsEnabled()
-                }
-                .onTapGesture { position in
-                    if let coordinate = proxy.convert(position, from: .local) {
-                        print("Tapped at \(coordinate)")
+                
+                HStack {
+                    Button("Directory") {
+                        navManager.path.append("LandmarkDirectory")
+                    }
+                    .padding(32)
+                    .alert("Spot marked.", isPresented: $showingAlert) {
+                        Button("Ok", role: .cancel) { }
+                    }
+                    
+                    Button("Clear mark") {
                         viewModel.marks = []
-                        
-                        addMarker(at: coordinate)
+                    }
+                    .padding(32)
+                    .alert("Spot marked.", isPresented: $showingAlert) {
+                        Button("Ok", role: .cancel) { }
                     }
                 }
             }
-            
-            Button("Clear Spots") {
-                viewModel.marks = []
+            .sheet(isPresented: $isShowingSheet) {
+                MarkerOptions(npub: npub, marks: viewModel.marks)
             }
-            .padding(32)
-            .alert("Spot marked.", isPresented: $showingAlert) {
-                Button("Ok", role: .cancel) { }
+            .navigationDestination(for: String.self) { route in
+                if route == "LandmarkDirectory" {
+                    LandmarkDirectory(navManager: navManager)
+                }
             }
-        }
-        .sheet(isPresented: $isShowingSheet) {
-            ChatOptionsView(npub: $npub)
+            .onReceive(NotificationCenter.default.publisher(for: .didDismissToContentView)) { _ in
+                if  let locationCoordinate = navManager.landmark?.locationCoordinate {                    
+                    viewModel.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                }
+             }
         }
     }
     
     func addMarker(at coordinate: CLLocationCoordinate2D) {
-        let mark = Mark(name: "Marker \(viewModel.marks.count + 1)", coordinate: coordinate)
+        let mark = Mark(name: "Marker \(spots.count + 1)", coordinate: coordinate)
         viewModel.marks.append(mark)
         
         let nearbyLandmarks = getNearbyLandmarks(for: coordinate)

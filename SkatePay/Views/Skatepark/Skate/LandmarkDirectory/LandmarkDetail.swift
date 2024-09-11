@@ -10,6 +10,8 @@ import SwiftUI
 struct LandmarkDetail: View {
     @Environment(SkatePayData.self) var modelData
 
+    @ObservedObject var navManager: NavigationManager
+
     var landmark: Landmark
 
     var landmarkIndex: Int {
@@ -42,6 +44,13 @@ struct LandmarkDetail: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 
+                Button(action: {
+                    print("visit")
+                    navManager.landmark = landmark
+                    navManager.dismissToContentView()
+                }) {
+                    Text("Visit")
+                }
                 Divider()
                 
                 Text("About")
@@ -59,6 +68,6 @@ struct LandmarkDetail: View {
 
 #Preview {
     let modelData = SkatePayData()
-    return LandmarkDetail(landmark: modelData.landmarks[0])
+    return LandmarkDetail(navManager: NavigationManager(), landmark: modelData.landmarks[0])
         .environment(modelData)
 }

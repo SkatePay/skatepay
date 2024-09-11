@@ -22,7 +22,7 @@ struct TransferToken: View {
     @State private var solanaAddress: String = ""
     @State private var selectedOption = 0
     
-    @State private var amount = 1
+    @State private var amount = 0
     
     private var walletManager: WalletManager
     
@@ -77,7 +77,7 @@ struct TransferToken: View {
                             }
                         }
                     
-                    TextField("Amount", value: $amount, format: .number)
+                    TextField("Amount", value: $amount, formatter: Formatter.clearForZero)
                         .multilineTextAlignment(.center)
                     
                     Button("Send") {
@@ -118,6 +118,7 @@ struct TransferToken: View {
                             }
                         }
                     }
+                    .padding()
                     .alert("Transaction Submitted.", isPresented: $showingAlert) {
                         Button("Ok", role: .cancel) {
                             //                            walletManager.fetch()

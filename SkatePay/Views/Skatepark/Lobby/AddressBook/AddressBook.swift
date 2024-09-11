@@ -9,15 +9,25 @@ import SwiftUI
 import SwiftData
 import NostrSDK
 
+extension Formatter {
+    static let clearForZero: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .none
+        formatter.zeroSymbol  = ""
+        return formatter
+    }()
+}
+
 struct AddressBook: View {
+    @Environment(\.modelContext) private var context
+
     @Query private var spots: [Spot]
     @State private var showFavoritesOnly = false
-    
-    @Environment(\.modelContext) private var context
-    
-    @State private var newName = ""
-    @State private var newDate = Date.now
-    @State private var newStreet = ""
+        
+    @State private var name = ""
+    @State private var date = Date.now
+    @State private var latitude = 0.0
+    @State private var longitude = 0.0
     
     var filteredSpots: [Spot] {
         spots.filter { spot in
@@ -32,11 +42,15 @@ struct AddressBook: View {
                      Text("Favorites only")
                  }
                 ForEach(filteredSpots) { spot in
-                    NavigationLink {
-                        SpotDetail(spot: spot)
-                    } label: {
-                        SpotRow(spot: spot)
-                    }
+                    
+                    Text(spot.name)
+                        .contextMenu {
+                            Button(action: {
+                                context.delete(spot)
+                            }) {
+                                Text("Delete")
+                            }
+                        }
                 }
             }
             .navigationTitle("Spots")
@@ -44,26 +58,34 @@ struct AddressBook: View {
                 VStack(alignment: .center, spacing: 20) {
                     Text("New Spot")
                         .font(.headline)
-                    DatePicker(selection: $newDate, in: Date.distantPast...Date.now, displayedComponents: .date) {
-                        TextField("Name", text: $newName)
+                    DatePicker(selection: $date, in: Date.distantPast...Date.now, displayedComponents: .date) {
+                        TextField("name", text: $name)
                             .textFieldStyle(.roundedBorder)
                     }
-                    TextField("Street", text: $newStreet)
+                    TextField("latitude", value: $latitude, formatter: Formatter.clearForZero)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    TextField("longitude", value: $longitude, formatter: Formatter.clearForZero)
+                        .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Add") {
+                        let spot = Spot(name: name, address: "", state: "", note: "", latitude: latitude, longitude: longitude)
+                        context.insert(spot)
                     }
                     .bold()
                 }
                 .padding()
                 .background(.bar)
             }
-            .task {
-                let spots = SkatePayData().landmarks
-                context.insert(Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, note: spots[0].description, isFavorite: true,  latitude: spots[0].locationCoordinate.latitude, longitude: spots[0].locationCoordinate.longitude, imageName: "venice-skate-park"))
-                context.insert(Spot(name: spots[1].name, address: spots[1].address, state: spots[1].state, note: spots[1].description, latitude: spots[1].locationCoordinate.latitude, longitude: spots[1].locationCoordinate.longitude, imageName: "inglewood-pumptrack"))
-                context.insert(Spot(name: spots[2].name, address: spots[2].address, state: spots[2].state, note: spots[0].description, latitude: spots[2].locationCoordinate.latitude, longitude: spots[2].locationCoordinate.longitude, imageName: "channel-street-skatepark"))
-            }
+//            .task {
+//                do {
+//                    try context.delete(model: Spot.self)
+//                } catch {
+//                    print("Failed to delete all spots.")
+//                }
+//            }
         }
     }
 }

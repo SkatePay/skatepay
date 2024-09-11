@@ -194,5 +194,5 @@ struct SpotFeed: View, LegacyDirectMessageEncrypting, EventCreating {
 }
 
 #Preview {
-    SpotFeed(npub: SkatePayApp.npub)
+    SpotFeed(npub: SkatePayApp.SPOT_FEED_VB_NPUB)
 }
