@@ -45,7 +45,6 @@ struct LandmarkDetail: View {
                 .foregroundStyle(.secondary)
                 
                 Button(action: {
-                    print("visit")
                     navManager.landmark = landmark
                     navManager.dismissToContentView()
                 }) {

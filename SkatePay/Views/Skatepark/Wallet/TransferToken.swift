@@ -22,6 +22,8 @@ struct TransferToken: View {
     @State private var solanaAddress: String = ""
     @State private var selectedOption = 0
     
+    @State private var transactionId: String = ""
+    
     @State private var amount = 0
     
     private var walletManager: WalletManager
@@ -103,13 +105,16 @@ struct TransferToken: View {
                                             minRentExemption: 0
                                         ).preparedTransaction
                                         
-                                        //                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
-                                        //                                        print(result)
-                                        //                                        print()
+//                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
+//                                        print(result)
+//                                        print()
                                         
                                         let transactionId: TransactionID = try await walletManager.blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
-                                        print(transactionId)
-                                        showingAlert = true
+                                        
+                                        DispatchQueue.main.async {
+                                            self.showingAlert = true
+                                            self.transactionId = transactionId
+                                        }
                                     }
                                     
                                 } catch {
@@ -119,10 +124,8 @@ struct TransferToken: View {
                         }
                     }
                     .padding()
-                    .alert("Transaction Submitted.", isPresented: $showingAlert) {
+                    .alert("Transaction \(self.transactionId.prefix(8)) Submitted.", isPresented: $showingAlert) {
                         Button("Ok", role: .cancel) {
-                            //                            walletManager.fetch()
-                            print("A")
                         }
                     }
                 }
