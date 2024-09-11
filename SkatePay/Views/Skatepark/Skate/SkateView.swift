@@ -99,10 +99,12 @@ extension Notification.Name {
 class NavigationManager: ObservableObject {
     @Published var path = NavigationPath()
     @Published var landmark: Landmark?
+    @Published var showDirectoryView = false
     
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .didDismissToContentView, object: nil)
+        showDirectoryView = false
     }
 }
 
@@ -121,6 +123,7 @@ struct SkateView: View {
     
     @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: SkatePayData().landmarks[0].locationCoordinate)]
     @State var leadIndex = 0
+    
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
@@ -183,11 +186,7 @@ struct SkateView: View {
                 
                 HStack {
                     Button("Directory") {
-                        navManager.path.append("LandmarkDirectory")
-                    }
-                    .padding(32)
-                    .alert("Spot marked.", isPresented: $showingAlert) {
-                        Button("Ok", role: .cancel) { }
+                        navManager.showDirectoryView = true
                     }
                     
                     Button("Clear mark") {
@@ -205,9 +204,20 @@ struct SkateView: View {
             .sheet(isPresented: $isShowingLeadOptions) {
                 LeadOptions()
             }
-            .navigationDestination(for: String.self) { route in
-                if route == "LandmarkDirectory" {
+            .fullScreenCover(isPresented: $navManager.showDirectoryView) {
+                NavigationView {
                     LandmarkDirectory(navManager: navManager)
+                        .navigationBarTitle("Landmarks")
+                        .navigationBarItems(leading:
+                                                Button(action: {
+                            navManager.showDirectoryView = false
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.left")
+                                Text("🗺️ Map")
+                                Spacer()
+                            }
+                        })
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .didDismissToContentView)) { _ in

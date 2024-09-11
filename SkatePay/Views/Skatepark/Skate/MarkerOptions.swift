@@ -10,7 +10,7 @@ import SwiftUI
 struct MarkerOptions: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-
+    
     var npub: String?
     var marks: [Mark]
     
@@ -50,7 +50,7 @@ struct MarkerOptions: View {
                     .cornerRadius(10)
             }
             
-            Button(action: {                
+            Button(action: {
                 for mark in marks {
                     let spot = Spot(name: mark.name, address: "", state: "", note: "", latitude: mark.coordinate.latitude, longitude: mark.coordinate.longitude)
                     context.insert(spot)

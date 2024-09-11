@@ -11,7 +11,7 @@ import SwiftUI
 
 enum Tab {
     case lobby
-    case spots
+    case map
     case wallet
     case debug
     case settings
@@ -124,7 +124,7 @@ struct ContentView: View {
 
     @StateObject private var store = HostStore()
 
-    @State private var selection: Tab = .lobby
+    @State private var selection: Tab = .map
     
     let keychainForNostr = NostrKeychainStorage()
         
@@ -141,7 +141,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Skate", systemImage: "map")
                 }
-                .tag(Tab.spots)
+                .tag(Tab.map)
             
             WalletView(host: $store.host) {
                     Task {
