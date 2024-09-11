@@ -32,5 +32,5 @@ struct UserItem: View {
 
 
 #Preview {
-    UserItem(user: ModelData().users[0])
+    UserItem(user: SkatePayData().users[0])
 }

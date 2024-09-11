@@ -10,14 +10,21 @@ import SwiftData
 import SwiftUI
 
 struct TransferToken: View {
+    @Environment(\.openURL) private var openURL
+    
     @Query(filter: #Predicate<Friend> { $0.solanaAddress != ""  }, sort: \Friend.name)
     private var friends: [Friend]
     
-    @State private var solanaAddress: String = ""
-    @State private var amount = 1
+    let keychainForSolana = SolanaKeychainStorage()
+    
     @State private var showingAlert = false
     
-    @Environment(\.openURL) private var openURL
+    @State private var solanaAddress: String = ""
+    @State private var selectedOption = 0
+    
+    @State private var transactionId: String = ""
+    
+    @State private var amount = 0
     
     private var walletManager: WalletManager
     
@@ -25,16 +32,12 @@ struct TransferToken: View {
         self.walletManager = manager
     }
     
-    let keychainForSolana = SolanaKeychainStorage()
-    
-    @State private var selectedOption = 0
-    
     var body: some View {
         List {
             Text("Transfer Token")
             
             /// RECEIVER
-            Section("Friend") {
+            Section("Recipient") {
                 if (friends.count > 0) {
                     Picker("Friend", selection: $selectedOption) {
                         ForEach(Array(friends.enumerated()), id: \.element.id) { idx, friend in
@@ -76,7 +79,7 @@ struct TransferToken: View {
                             }
                         }
                     
-                    TextField("Amount", value: $amount, format: .number)
+                    TextField("Amount", value: $amount, formatter: Formatter.clearForZero)
                         .multilineTextAlignment(.center)
                     
                     Button("Send") {
@@ -92,8 +95,8 @@ struct TransferToken: View {
                                     if let account = keychainForSolana.account {
                                         let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
                                             account: account,
-                                            mintAddress: WalletManager.SOLANA_MINT_ADDRESS,
-                                            tokenProgramId: PublicKey(string: WalletManager.SOLANA_TOKEN_PROGRAM_ID),
+                                            mintAddress: SkatePayApp.SOLANA_MINT_ADDRESS,
+                                            tokenProgramId: PublicKey(string: SkatePayApp.SOLANA_TOKEN_PROGRAM_ID),
                                             decimals: 9,
                                             from: tokenAccount.address,
                                             to: address,
@@ -102,13 +105,16 @@ struct TransferToken: View {
                                             minRentExemption: 0
                                         ).preparedTransaction
                                         
-                                        //                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
-                                        //                                        print(result)
-                                        //                                        print()
+//                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
+//                                        print(result)
+//                                        print()
                                         
                                         let transactionId: TransactionID = try await walletManager.blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
-                                        print(transactionId)
-                                        showingAlert = true
+                                        
+                                        DispatchQueue.main.async {
+                                            self.showingAlert = true
+                                            self.transactionId = transactionId
+                                        }
                                     }
                                     
                                 } catch {
@@ -117,11 +123,18 @@ struct TransferToken: View {
                             }
                         }
                     }
-                    .alert("Transaction Submitted.", isPresented: $showingAlert) {
+                    .padding()
+                    .alert("Transaction \(self.transactionId.prefix(8)) Submitted.", isPresented: $showingAlert) {
                         Button("Ok", role: .cancel) {
-                            //                            walletManager.fetch()
-                            print("A")
                         }
+                    }
+                }
+            }
+            
+            Section {
+                Button("💁🏻‍♀️ Request Tokens") {
+                    Task {
+                        print("Requesting...")
                     }
                 }
             }

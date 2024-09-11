@@ -34,7 +34,7 @@ struct UserRow: View {
 }
 
 #Preview {
-    let users = ModelData().users
+    let users = SkatePayData().users
     return UserRow(
         users: Array(users.prefix(6))
     )

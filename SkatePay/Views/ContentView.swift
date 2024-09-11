@@ -11,7 +11,7 @@ import SwiftUI
 
 enum Tab {
     case lobby
-    case spots
+    case map
     case wallet
     case debug
     case settings
@@ -19,16 +19,22 @@ enum Tab {
 
 class Lobby: ObservableObject {
     @Published var guests: [String: Date] = [:]
+    @Published var nostrEvents: [ActivityEvent] = []
+}
+
+struct ActivityEvent {
+    var id: String
+    var npub: String
 }
 
 class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncrypting, EventCreating {
     @Published var isConnected: Bool = false
     @Published var fetchingStoredEvents: Bool = true
     
-    let keychainForSolana = NostrKeychainStorage()
+    let keychainForNostr = NostrKeychainStorage()
     
     var relayPool = try! RelayPool(relayURLs: [
-        URL(string: Constants.RELAY_URL_PRIMAL)!
+        URL(string: SkatePayApp.RELAY_URL_PRIMAL)!
     ])
         
     private var subscriptionId: String?
@@ -49,21 +55,30 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             updateSubscription()
         }
     }
-    func relay(_ relay: Relay, didReceive event: RelayEvent) {
-        print(event)
+    func relay(_ relay: Relay, didReceive event: RelayEvent) {        
+        let publicKey = PublicKey(hex: event.event.pubkey)
+        let kind = event.event.kind
+        
+        let npub = publicKey!.npub
+        
+        DispatchQueue.main.async {
+            if (kind == EventKind.legacyEncryptedDirectMessage) {
+                self.room.nostrEvents.append(ActivityEvent(id: event.event.id, npub: npub))
+            }
+        }
     }
     
-//    func relay(_ relay: Relay, didReceive response: RelayResponse) {
-//        DispatchQueue.main.async {
-//            guard case .eose(_) = response else {
-//                return
-//            }
-//            self.fetchingStoredEvents = false
-//        }
-//    }
+    func relay(_ relay: Relay, didReceive response: RelayResponse) {
+        DispatchQueue.main.async {
+            guard case .eose(_) = response else {
+                return
+            }
+            self.fetchingStoredEvents = false
+        }
+    }
     
     private var currentFilter: Filter? {
-        guard let account = keychainForSolana.account else {
+        guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
             return nil
         }
@@ -109,7 +124,7 @@ struct ContentView: View {
 
     @StateObject private var store = HostStore()
 
-    @State private var selection: Tab = .lobby
+    @State private var selection: Tab = .map
     
     let keychainForNostr = NostrKeychainStorage()
         
@@ -126,7 +141,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Skate", systemImage: "map")
                 }
-                .tag(Tab.spots)
+                .tag(Tab.map)
             
             WalletView(host: $store.host) {
                     Task {
@@ -147,14 +162,6 @@ struct ContentView: View {
                 if ((keychainForNostr.account) == nil) {
                     let keypair = Keypair()!
                     try keychainForNostr.save(keypair)
-                    
-                    let host = Host(
-                        publicKey: keypair.publicKey.hex,
-                        privateKey: keypair.privateKey.hex,
-                        npub: keypair.publicKey.npub,
-                        nsec: keypair.privateKey.nsec
-                    )
-                    try await store.save(host: host)
                 }
             } catch {
                 fatalError(error.localizedDescription)
@@ -166,5 +173,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView().environment(ModelData())
+    ContentView().environment(SkatePayData())
 }

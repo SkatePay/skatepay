@@ -1,43 +1,41 @@
 //
-//  LandmarkDetail.swift
+//  SpotDetail.swift
 //  SkatePay
 //
-//  Created by Konstantin Yurchenko, Jr on 8/30/24.
+//  Created by Konstantin Yurchenko, Jr on 9/4/24.
 //
 
 import SwiftUI
+import SwiftData
 
-struct LandmarkDetail: View {
-    @Environment(ModelData.self) var modelData
-
-    var landmark: Landmark
-
-    var landmarkIndex: Int {
-        modelData.landmarks.firstIndex(where: { $0.id == landmark.id })!
-    }
+struct SpotDetail: View {
+    @Environment(SkatePayData.self) var modelData
+    @Query private var spots: [Spot]
+    
+    var spot: Spot
     
     var body: some View {
         @Bindable var modelData = modelData
 
         ScrollView {
-            MapView(coordinate: landmark.locationCoordinate)
+            MapView(coordinate: spot.locationCoordinate)
                 .frame(height: 300)
             
-            CircleImage(image: landmark.image)
+            CircleImage(image: spot.image)
                 .offset(y: -130)
                 .padding(.bottom, -130)
             
             VStack(alignment: .leading) {
                 HStack {
-                     Text(landmark.name)
+                     Text(spot.name)
                          .font(.title)
-                     FavoriteButton(isSet: $modelData.landmarks[landmarkIndex].isFavorite)
+                     // FavoriteButton(isSet: $modelData.landmarks[landmarkIndex].isFavorite)
                  }
                 
                 HStack {
-                    Text(landmark.address)
+                    Text(spot.address)
                     Spacer()
-                    Text(landmark.state)
+                    Text(spot.state)
                 }
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -46,19 +44,21 @@ struct LandmarkDetail: View {
                 
                 Text("About")
                     .font(.title2)
-                Text(landmark.description)
+                Text(spot.note)
             }
             .padding()
             
             Spacer()
         }
-        .navigationTitle(landmark.name)
+        .navigationTitle(spot.name)
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    let modelData = ModelData()
-    return LandmarkDetail(landmark: modelData.landmarks[0])
-        .environment(modelData)
+    let data = SkatePayData()
+    let spots = SkatePayData().landmarks;
+
+    return SpotDetail(spot: Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, note: ""))
+        .environment(data)
 }

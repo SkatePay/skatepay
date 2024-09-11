@@ -1,5 +1,5 @@
 //
-//  SkatePayView.swift
+//  WalletView.swift
 //  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -10,12 +10,7 @@ import NostrSDK
 import SolanaSwift
 import Combine
 
-
 class WalletManager: ObservableObject  {
-    public static let SOLANA_MINT_ADDRESS = "rabpv2nxTLxdVv2SqzoevxXmSD2zaAmZGE79htseeeq"
-    public static let SOLANA_TOKEN_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-    public static let SOLANA_TOKEN_LIST_URL = "https://raw.githubusercontent.com/SkatePay/token/master/solana.tokenlist.json"
-
     @Published var network: Network = .testnet
     
     @Published var publicKey: String?
@@ -28,7 +23,7 @@ class WalletManager: ObservableObject  {
     @Published var balance: UInt64 = 0
     @Published var blockHeight: UInt64 = 0
     @Published var accounts: [SolanaAccount] = []
-        
+    
     init() {
         let solanaEndpoints: [APIEndPoint] = [
             .init(
@@ -73,7 +68,7 @@ class WalletManager: ObservableObject  {
                 let height = try await solanaApiClient.getBlockHeight()
                 
                 let owner = keychainForSolana.account?.publicKey.base58EncodedString ?? ""
-                let tokenListUrl = WalletManager.SOLANA_TOKEN_LIST_URL
+                let tokenListUrl = SkatePayApp.SOLANA_TOKEN_LIST_URL
                 let networkManager = URLSession.shared
                 let tokenRepository = SolanaTokenListRepository(tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager))
                 
@@ -123,7 +118,7 @@ struct WalletView: View {
     let saveAction: ()->Void
     
     @Environment(\.openURL) private var openURL
-        
+    
     let keychainForSolana = SolanaKeychainStorage()
     let keychainForNostr = NostrKeychainStorage()
     
@@ -155,99 +150,130 @@ struct WalletView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section ("NOSTR") {
-                    Button("🔁 Cycle Keys") {
-                        Task {
-                            keypair = Keypair()
-                            
-                            let keypair = Keypair()!
-                            try keychainForNostr.save(keypair)
-                            
-                            saveAction()
-                        }
-                    }
-                }
-                
-                Section("npub") {                    
-                    Text(keychainForNostr.account?.publicKey.npub ?? "No npub available")
-                        .contextMenu {
-                            if let npub = keychainForNostr.account?.publicKey.npub {
+            List {
+                Section("Solana (\(walletManager.network))") {
+                    
+                    if let address = keychainForSolana.account?.publicKey.base58EncodedString {
+                        Text("\(address.prefix(8))...\(address.suffix(8))")
+                            .contextMenu {
                                 Button(action: {
-                                    UIPasteboard.general.string = npub
+                                    if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(walletManager.network)") {
+                                        openURL(url)
+                                    }
                                 }) {
-                                    Text("Copy npub")
-                                }
-                            }
-                            
-                            if let phex = keychainForNostr.account?.publicKey.hex {
-                                Button(action: {
-                                    UIPasteboard.general.string = phex
-                                }) {
-                                    Text("Copy phex")
-                                }
-                            }
-                            
-                            if let nsec = keychainForNostr.account?.privateKey.nsec {
-                                Button(action: {
-                                    UIPasteboard.general.string = nsec
-                                }) {
-                                    Text("Copy nsec")
-                                }
-                            }
-                            
-                            if let shex = keychainForNostr.account?.privateKey.hex {
-                                Button(action: {
-                                    UIPasteboard.general.string = shex
-                                }) {
-                                    Text("Copy shex")
-                                }
-                            }
-                        }
-                }
-                
-                Section("Solana") {
-                    Text("🌐 \(walletManager.network)")
-                        .contextMenu {
-                            Button(action: {
-                                if let url = URL(string: "https://explorer.solana.com/?cluster=\(walletManager.network)") {
-                                    openURL(url)
+                                    Text("🔎 Open Explorer")
                                 }
                                 
-                            }) {
-                                Text("Open explorer")
+                                
+                                Button(action: {
+                                    UIPasteboard.general.string = address
+                                }) {
+                                    Text("Copy public key")
+                                }
+                                
+                                Button(action: {
+                                    let stringForCopyPaste: String
+                                    if let bytes = keychainForSolana.account?.secretKey.bytes {
+                                        stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
+                                    } else {
+                                        stringForCopyPaste = "[]"
+                                    }
+                                    
+                                    UIPasteboard.general.string = stringForCopyPaste
+                                }) {
+                                    Text("Copy secret key")
+                                }
                             }
-                        }
+                    } else {
+                        Text("Select [🔑 Keys] to start")
+                    }
+                    
                     NavigationLink {
                         ImportWallet()
                     } label: {
-                        Text("💼 Wallet")
+                        Text("🔑 Keys")
                     }
                     NavigationLink {
                         TransferToken(manager: WalletManager())
                     } label: {
-                        Text("💾 Methods")
+                        Text("💾 Transfer")
                     }
                 }
                 
                 assetBalance
                 
-                Button("💁 Request Token Reward") {
-                    Task {
-                        print("Requesting...")
+                Section ("NOSTR") {
+                    if let publicKey = keychainForNostr.account?.publicKey.npub {
+                        Text("\(publicKey.prefix(8))...\(publicKey.suffix(8))")
+                            .contextMenu {
+                                if let npub = keychainForNostr.account?.publicKey.npub {
+                                    Button(action: {
+                                        UIPasteboard.general.string = npub
+                                    }) {
+                                        Text("Copy npub")
+                                    }
+                                }
+                                
+                                if let nsec = keychainForNostr.account?.privateKey.nsec {
+                                    Button(action: {
+                                        UIPasteboard.general.string = nsec
+                                    }) {
+                                        Text("Copy nsec")
+                                    }
+                                }
+                                
+                                if let phex = keychainForNostr.account?.publicKey.hex {
+                                    Button(action: {
+                                        UIPasteboard.general.string = phex
+                                    }) {
+                                        Text("Copy phex")
+                                    }
+                                }
+                                
+                                if let shex = keychainForNostr.account?.privateKey.hex {
+                                    Button(action: {
+                                        UIPasteboard.general.string = shex
+                                    }) {
+                                        Text("Copy shex")
+                                    }
+                                }
+                            }
+                    } else {
+                        Text("Create new keys")
+                    }
+                    
+                    NavigationLink {
+                        ImportIdentity()
+                    } label: {
+                        Text("🔑 Keys")
+                    }
+                    NavigationLink {
+                        ConnectRelay()
+                    } label: {
+                        Text("📡 Relays")
                     }
                 }
                 
-                Button("💁🏻‍♀️ Get Help") {
+                Button("💁 Get Help") {
                     Task {
                         if let url = URL(string: "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics") {
                             openURL(url)
                         }
                     }
                 }
+                
+                Button("Reset App") {
+                    Task {
+                        keychainForNostr.clear()
+                        keychainForSolana.clear()
+                    }
+                }
             }
+            .navigationTitle("Wallet")
         }
     }
+    
+    
 }
 
 #Preview {

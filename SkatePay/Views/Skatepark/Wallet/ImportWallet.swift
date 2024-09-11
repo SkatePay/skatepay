@@ -11,7 +11,7 @@ import SolanaSwift
 
 struct ImportWallet: View, EventCreating {
     @Environment(\.openURL) private var openURL
-
+    
     @State private var showingAlert = false
     
     @State private var privateKey: String = ""
@@ -38,7 +38,7 @@ struct ImportWallet: View, EventCreating {
                                 openURL(url)
                             }
                         }) {
-                            Text("Open explorer")
+                            Text("🔎 Open explorer")
                         }
                         
                         Button(action: {
@@ -62,12 +62,12 @@ struct ImportWallet: View, EventCreating {
                     }
             }
         }
-      }
+    }
     
     var interfaceForWalletCreation: some View {
         Form {
             Text("New Wallet")
-
+            
             Section("Private Key") {
                 TextField("Enter key", text: $privateKey)
             }
@@ -122,7 +122,9 @@ struct ImportWallet: View, EventCreating {
     }
     
     var body: some View {
-        interfaceForPublicKey
+        if (keychainForSolana.account != nil) {
+            interfaceForPublicKey
+        }
         interfaceForWalletCreation
     }
 }

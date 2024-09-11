@@ -5,7 +5,6 @@
 //  Created by Konstantin Yurchenko, Jr on 9/6/24.
 //
 
-import SolanaSwift
 import NostrSDK
 import KeychainSwift
 import Foundation

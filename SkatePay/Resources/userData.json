@@ -1,7 +1,7 @@
 [
     {
         "id": 1001,
-        "name": "hq",
+        "name": "HQ",
         "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
         "solanaAddress": "",
         "relayUrl": "wss://relay.primal.net",
@@ -10,7 +10,7 @@
     },
     {
         "id": 1002,
-        "name": "prorobot",
+        "name": "Support",
         "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
         "solanaAddress": "",
         "relayUrl": "wss://relay.primal.net",
