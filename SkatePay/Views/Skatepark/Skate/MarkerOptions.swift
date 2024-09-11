@@ -24,12 +24,11 @@ struct MarkerOptions: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Chat Options")
+            Text("Marker Options")
                 .font(.title2)
                 .padding()
             
             Button(action: {
-                print("Joining park chat")
                 showChatView = true
             }) {
                 Text("Join Active Chat")
@@ -41,7 +40,6 @@ struct MarkerOptions: View {
             }
             
             Button(action: {
-                print("Starting new chat")
                 dismiss()
             }) {
                 Text("Start New Chat")
@@ -52,9 +50,7 @@ struct MarkerOptions: View {
                     .cornerRadius(10)
             }
             
-            Button(action: {
-                print("Adding spot to bookmarks")
-                
+            Button(action: {                
                 for mark in marks {
                     let spot = Spot(name: mark.name, address: "", state: "", note: "", latitude: mark.coordinate.latitude, longitude: mark.coordinate.longitude)
                     context.insert(spot)

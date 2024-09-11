@@ -74,8 +74,8 @@
 		C626DEB62C90C5CC00BB1B85 /* ConnectRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEB52C90C5CC00BB1B85 /* ConnectRelay.swift */; };
 		C626DEB92C90FD3100BB1B85 /* LandmarkDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEB82C90FD3100BB1B85 /* LandmarkDirectory.swift */; };
 		C626DEBB2C910B3E00BB1B85 /* MarkerOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */; };
+		C626DEBD2C9133E900BB1B85 /* LeadOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */; };
 		C6E65BE42C8F87D0002E6587 /* SpotFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E65BE32C8F87D0002E6587 /* SpotFeed.swift */; };
-		C6E65BE62C8F9BC3002E6587 /* LeadAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E65BE52C8F9BC3002E6587 /* LeadAnnotationView.swift */; };
 		C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E838F52C8BE2B20061BC39 /* ContentView.swift */; };
 		C6F6E4622C8C038C00A05F48 /* NostrKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */; };
 		C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6F6E4652C8E418000A05F48 /* SolanaSwift */; };
@@ -167,8 +167,8 @@
 		C626DEB52C90C5CC00BB1B85 /* ConnectRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectRelay.swift; sourceTree = "<group>"; };
 		C626DEB82C90FD3100BB1B85 /* LandmarkDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkDirectory.swift; sourceTree = "<group>"; };
 		C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerOptions.swift; sourceTree = "<group>"; };
+		C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeadOptions.swift; sourceTree = "<group>"; };
 		C6E65BE32C8F87D0002E6587 /* SpotFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotFeed.swift; sourceTree = "<group>"; };
-		C6E65BE52C8F9BC3002E6587 /* LeadAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeadAnnotationView.swift; sourceTree = "<group>"; };
 		C6E838F52C8BE2B20061BC39 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrKeychainStorage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -399,8 +399,8 @@
 			children = (
 				C626DEB72C90FD1F00BB1B85 /* LandmarkDirectory */,
 				C605171D2C8BDCBA006F61A1 /* SkateView.swift */,
-				C6E65BE52C8F9BC3002E6587 /* LeadAnnotationView.swift */,
 				C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */,
+				C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */,
 			);
 			path = Skate;
 			sourceTree = "<group>";
@@ -694,7 +694,6 @@
 				C60517312C8BDCBA006F61A1 /* DirectChat.swift in Sources */,
 				C605173A2C8BDCBA006F61A1 /* UserRow.swift in Sources */,
 				C605173B2C8BDCBA006F61A1 /* Contacts.swift in Sources */,
-				C6E65BE62C8F9BC3002E6587 /* LeadAnnotationView.swift in Sources */,
 				C60517372C8BDCBA006F61A1 /* ProfileSummary.swift in Sources */,
 				C605173F2C8BDCBA006F61A1 /* LandmarkRow.swift in Sources */,
 				C60517292C8BDCBA006F61A1 /* CircleImage.swift in Sources */,
@@ -719,6 +718,7 @@
 				C60517422C8BDCBA006F61A1 /* SolanaKeychainStorage.swift in Sources */,
 				C60516602C8BDC26006F61A1 /* Date+Extensions.swift in Sources */,
 				C60517342C8BDCBA006F61A1 /* NostrFeed.swift in Sources */,
+				C626DEBD2C9133E900BB1B85 /* LeadOptions.swift in Sources */,
 				C605176C2C8BDEFA006F61A1 /* Spot.swift in Sources */,
 				C60517402C8BDCBA006F61A1 /* SkateView.swift in Sources */,
 				C605173D2C8BDCBA006F61A1 /* LobbyView.swift in Sources */,

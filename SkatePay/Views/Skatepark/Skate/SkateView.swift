@@ -15,7 +15,11 @@ struct Mark: Identifiable {
     let coordinate: CLLocationCoordinate2D
 }
 
-struct Lead: Identifiable {
+struct Lead: Identifiable, Equatable {
+    static func == (lhs: Lead, rhs: Lead) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
     let id = UUID()
     let name: String
     let coordinate: CLLocationCoordinate2D
@@ -91,10 +95,11 @@ final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
 extension Notification.Name {
     static let didDismissToContentView = Notification.Name("didDismissToContentView")
 }
+
 class NavigationManager: ObservableObject {
     @Published var path = NavigationPath()
     @Published var landmark: Landmark?
- 
+    
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .didDismissToContentView, object: nil)
@@ -103,36 +108,22 @@ class NavigationManager: ObservableObject {
 
 struct SkateView: View {
     @StateObject private var navManager = NavigationManager()
-
+    
     @Query private var spots: [Spot]
-
+    
     @StateObject var viewModel = SkateViewModel()
     
     @State private var showingAlert = false
+    @State private var isShowingMarkerOptions = false
+    @State private var isShowingLeadOptions = false
     
     @State private var npub: String?
-    @State private var isShowingSheet = false
     
-    @State private var longPressActive: [String: Bool] = [:]
     @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: SkatePayData().landmarks[0].locationCoordinate)]
+    @State var leadIndex = 0
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
-        // Add your logic here for what should happen when a lead is long-pressed
-        // For example, show a sheet with more details, start a chat, etc.
-    }
-    
-    func binding(for key: String) -> Binding<Bool> {
-        return Binding<Bool>(
-            get: { longPressActive[key] ?? false },
-            set: { longPressActive[key] = $0 }
-        )
-    }
-    
-    init() {
-        self.leads.forEach { lead in
-            self.longPressActive[lead.name] = false
-        }
     }
     
     var body: some View {
@@ -140,18 +131,42 @@ struct SkateView: View {
             VStack {
                 MapReader { proxy in
                     Map(position: $viewModel.mapPosition) {
-                        //                    UserAnnotation()
+                        //                        UserAnnotation()
                         // Marks
                         ForEach(viewModel.marks) { mark in
                             Marker(mark.name, coordinate: mark.coordinate)
                                 .tint(.orange)
                         }
-                        //                    // Leads
-                        //                    ForEach(leads) { lead in
-                        //                        if let name = lead.name {
-                        //                            LeadAnnotationView(lead: lead, isPressed: binding(for: lead.name))
-                        //                        }
-                        //                    }
+                        // Leads
+                        ForEach(leads) { lead in
+                            Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
+                                ZStack {
+                                    Circle()
+                                        .foregroundStyle(.indigo.opacity(0.5))
+                                        .frame(width: 80, height: 80)
+                                    
+                                    Text("🧹")
+                                        .font(.system(size: 24))
+                                        .symbolEffect(.variableColor)
+                                        .padding()
+                                        .foregroundStyle(.white)
+                                        .background(Color.indigo)
+                                        .clipShape(Circle())
+                                }
+                                .gesture(
+                                    LongPressGesture(minimumDuration: 1.0)
+                                        .onEnded { _ in
+                                            //                                            handleLongPress(lead: lead)
+                                        }
+                                        .onChanged { state in
+                                            if let index = leads.firstIndex(where: { $0 == lead }) {
+                                                isShowingLeadOptions = true
+                                                leadIndex = index
+                                            }
+                                        }
+                                )
+                            }
+                        }
                     }
                     .onAppear{
                         viewModel.checkIfLocationIsEnabled()
@@ -179,13 +194,16 @@ struct SkateView: View {
                         viewModel.marks = []
                     }
                     .padding(32)
-                    .alert("Spot marked.", isPresented: $showingAlert) {
+                    .alert("Mark cleared.", isPresented: $showingAlert) {
                         Button("Ok", role: .cancel) { }
                     }
                 }
             }
-            .sheet(isPresented: $isShowingSheet) {
+            .sheet(isPresented: $isShowingMarkerOptions) {
                 MarkerOptions(npub: npub, marks: viewModel.marks)
+            }
+            .sheet(isPresented: $isShowingLeadOptions) {
+                LeadOptions()
             }
             .navigationDestination(for: String.self) { route in
                 if route == "LandmarkDirectory" {
@@ -196,7 +214,7 @@ struct SkateView: View {
                 if  let locationCoordinate = navManager.landmark?.locationCoordinate {
                     viewModel.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
-             }
+            }
         }
     }
     
@@ -211,7 +229,7 @@ struct SkateView: View {
             let spot = nearbyLandmarks[0]
             npub = spot.npub
             
-            isShowingSheet = true
+            isShowingMarkerOptions = true
         } else {
             print("No nearby landmarks")
         }
