@@ -162,14 +162,6 @@ struct ContentView: View {
                 if ((keychainForNostr.account) == nil) {
                     let keypair = Keypair()!
                     try keychainForNostr.save(keypair)
-                    
-                    let host = Host(
-                        publicKey: keypair.publicKey.hex,
-                        privateKey: keypair.privateKey.hex,
-                        npub: keypair.publicKey.npub,
-                        nsec: keypair.privateKey.nsec
-                    )
-                    try await store.save(host: host)
                 }
             } catch {
                 fatalError(error.localizedDescription)

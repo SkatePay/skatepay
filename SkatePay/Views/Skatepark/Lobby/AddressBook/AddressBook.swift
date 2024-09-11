@@ -20,10 +20,10 @@ extension Formatter {
 
 struct AddressBook: View {
     @Environment(\.modelContext) private var context
-
+    
     @Query private var spots: [Spot]
     @State private var showFavoritesOnly = false
-        
+    
     @State private var name = ""
     @State private var date = Date.now
     @State private var latitude = 0.0
@@ -39,8 +39,8 @@ struct AddressBook: View {
         NavigationStack {
             List{
                 Toggle(isOn: $showFavoritesOnly) {
-                     Text("Favorites only")
-                 }
+                    Text("Favorites only")
+                }
                 ForEach(filteredSpots) { spot in
                     
                     Text(spot.name)
@@ -79,13 +79,13 @@ struct AddressBook: View {
                 .padding()
                 .background(.bar)
             }
-//            .task {
-//                do {
-//                    try context.delete(model: Spot.self)
-//                } catch {
-//                    print("Failed to delete all spots.")
-//                }
-//            }
+            //            .task {
+            //                do {
+            //                    try context.delete(model: Spot.self)
+            //                } catch {
+            //                    print("Failed to delete all spots.")
+            //                }
+            //            }
         }
     }
 }

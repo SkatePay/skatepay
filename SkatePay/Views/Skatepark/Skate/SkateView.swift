@@ -116,8 +116,6 @@ struct SkateView: View {
     @State private var longPressActive: [String: Bool] = [:]
     @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: SkatePayData().landmarks[0].locationCoordinate)]
     
-    @State private var showDirectory = false
-
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
         // Add your logic here for what should happen when a lead is long-pressed
@@ -195,7 +193,7 @@ struct SkateView: View {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .didDismissToContentView)) { _ in
-                if  let locationCoordinate = navManager.landmark?.locationCoordinate {                    
+                if  let locationCoordinate = navManager.landmark?.locationCoordinate {
                     viewModel.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
              }
