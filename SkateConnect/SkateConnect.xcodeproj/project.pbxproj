@@ -1,0 +1,635 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; };
+		C624DDCB2C939F920073F30F /* ConnectFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */; };
+		C6DDD7262C936DAE000BE2A4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7252C936DAE000BE2A4 /* ContentView.swift */; };
+		C6DDD7282C936DAE000BE2A4 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7272C936DAE000BE2A4 /* Item.swift */; };
+		C6DDD72A2C936DAF000BE2A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C6DDD7292C936DAF000BE2A4 /* Assets.xcassets */; };
+		C6DDD72D2C936DAF000BE2A4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C6DDD72C2C936DAF000BE2A4 /* Preview Assets.xcassets */; };
+		C6DDD7372C936DAF000BE2A4 /* SkateConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7362C936DAF000BE2A4 /* SkateConnectTests.swift */; };
+		C6DDD7412C936DAF000BE2A4 /* SkateConnectUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */; };
+		C6DDD7432C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C6DDD7332C936DAF000BE2A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C6DDD7182C936DAE000BE2A4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C6DDD71F2C936DAE000BE2A4;
+			remoteInfo = SkateConnect;
+		};
+		C6DDD73D2C936DAF000BE2A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C6DDD7182C936DAE000BE2A4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C6DDD71F2C936DAE000BE2A4;
+			remoteInfo = SkateConnect;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C624DDC82C939F820073F30F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C624DDCB2C939F920073F30F /* ConnectFramework.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C624DDC92C939F920073F30F /* ConnectFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ConnectFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkateConnect.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectApp.swift; sourceTree = "<group>"; };
+		C6DDD7252C936DAE000BE2A4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C6DDD7272C936DAE000BE2A4 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		C6DDD7292C936DAF000BE2A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C6DDD72C2C936DAF000BE2A4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C6DDD7322C936DAF000BE2A4 /* SkateConnectTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkateConnectTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6DDD7362C936DAF000BE2A4 /* SkateConnectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectTests.swift; sourceTree = "<group>"; };
+		C6DDD73C2C936DAF000BE2A4 /* SkateConnectUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkateConnectUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITests.swift; sourceTree = "<group>"; };
+		C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C6DDD71D2C936DAE000BE2A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6DDD72F2C936DAF000BE2A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6DDD7392C936DAF000BE2A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C6DDD7172C936DAE000BE2A4 = {
+			isa = PBXGroup;
+			children = (
+				C6DDD7222C936DAE000BE2A4 /* SkateConnect */,
+				C6DDD7352C936DAF000BE2A4 /* SkateConnectTests */,
+				C6DDD73F2C936DAF000BE2A4 /* SkateConnectUITests */,
+				C6DDD7212C936DAE000BE2A4 /* Products */,
+				C6F2F2D12C939E3500C3CDBA /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C6DDD7212C936DAE000BE2A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */,
+				C6DDD7322C936DAF000BE2A4 /* SkateConnectTests.xctest */,
+				C6DDD73C2C936DAF000BE2A4 /* SkateConnectUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C6DDD7222C936DAE000BE2A4 /* SkateConnect */ = {
+			isa = PBXGroup;
+			children = (
+				C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */,
+				C6DDD7252C936DAE000BE2A4 /* ContentView.swift */,
+				C6DDD7272C936DAE000BE2A4 /* Item.swift */,
+				C6DDD7292C936DAF000BE2A4 /* Assets.xcassets */,
+				C6DDD72B2C936DAF000BE2A4 /* Preview Content */,
+			);
+			path = SkateConnect;
+			sourceTree = "<group>";
+		};
+		C6DDD72B2C936DAF000BE2A4 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C6DDD72C2C936DAF000BE2A4 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C6DDD7352C936DAF000BE2A4 /* SkateConnectTests */ = {
+			isa = PBXGroup;
+			children = (
+				C6DDD7362C936DAF000BE2A4 /* SkateConnectTests.swift */,
+			);
+			path = SkateConnectTests;
+			sourceTree = "<group>";
+		};
+		C6DDD73F2C936DAF000BE2A4 /* SkateConnectUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */,
+				C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */,
+			);
+			path = SkateConnectUITests;
+			sourceTree = "<group>";
+		};
+		C6F2F2D12C939E3500C3CDBA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C624DDC92C939F920073F30F /* ConnectFramework.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C6DDD71F2C936DAE000BE2A4 /* SkateConnect */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C6DDD7462C936DAF000BE2A4 /* Build configuration list for PBXNativeTarget "SkateConnect" */;
+			buildPhases = (
+				C6DDD71C2C936DAE000BE2A4 /* Sources */,
+				C6DDD71D2C936DAE000BE2A4 /* Frameworks */,
+				C6DDD71E2C936DAE000BE2A4 /* Resources */,
+				C624DDC82C939F820073F30F /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SkateConnect;
+			productName = SkateConnect;
+			productReference = C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C6DDD7312C936DAF000BE2A4 /* SkateConnectTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C6DDD7492C936DAF000BE2A4 /* Build configuration list for PBXNativeTarget "SkateConnectTests" */;
+			buildPhases = (
+				C6DDD72E2C936DAF000BE2A4 /* Sources */,
+				C6DDD72F2C936DAF000BE2A4 /* Frameworks */,
+				C6DDD7302C936DAF000BE2A4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C6DDD7342C936DAF000BE2A4 /* PBXTargetDependency */,
+			);
+			name = SkateConnectTests;
+			productName = SkateConnectTests;
+			productReference = C6DDD7322C936DAF000BE2A4 /* SkateConnectTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C6DDD73B2C936DAF000BE2A4 /* SkateConnectUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C6DDD74C2C936DAF000BE2A4 /* Build configuration list for PBXNativeTarget "SkateConnectUITests" */;
+			buildPhases = (
+				C6DDD7382C936DAF000BE2A4 /* Sources */,
+				C6DDD7392C936DAF000BE2A4 /* Frameworks */,
+				C6DDD73A2C936DAF000BE2A4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C6DDD73E2C936DAF000BE2A4 /* PBXTargetDependency */,
+			);
+			name = SkateConnectUITests;
+			productName = SkateConnectUITests;
+			productReference = C6DDD73C2C936DAF000BE2A4 /* SkateConnectUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C6DDD7182C936DAE000BE2A4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					C6DDD71F2C936DAE000BE2A4 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					C6DDD7312C936DAF000BE2A4 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = C6DDD71F2C936DAE000BE2A4;
+					};
+					C6DDD73B2C936DAF000BE2A4 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = C6DDD71F2C936DAE000BE2A4;
+					};
+				};
+			};
+			buildConfigurationList = C6DDD71B2C936DAE000BE2A4 /* Build configuration list for PBXProject "SkateConnect" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C6DDD7172C936DAE000BE2A4;
+			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C6DDD71F2C936DAE000BE2A4 /* SkateConnect */,
+				C6DDD7312C936DAF000BE2A4 /* SkateConnectTests */,
+				C6DDD73B2C936DAF000BE2A4 /* SkateConnectUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C6DDD71E2C936DAE000BE2A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6DDD72D2C936DAF000BE2A4 /* Preview Assets.xcassets in Resources */,
+				C6DDD72A2C936DAF000BE2A4 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6DDD7302C936DAF000BE2A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6DDD73A2C936DAF000BE2A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C6DDD71C2C936DAE000BE2A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6DDD7262C936DAE000BE2A4 /* ContentView.swift in Sources */,
+				C6DDD7282C936DAE000BE2A4 /* Item.swift in Sources */,
+				C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6DDD72E2C936DAF000BE2A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6DDD7372C936DAF000BE2A4 /* SkateConnectTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6DDD7382C936DAF000BE2A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6DDD7432C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift in Sources */,
+				C6DDD7412C936DAF000BE2A4 /* SkateConnectUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C6DDD7342C936DAF000BE2A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C6DDD71F2C936DAE000BE2A4 /* SkateConnect */;
+			targetProxy = C6DDD7332C936DAF000BE2A4 /* PBXContainerItemProxy */;
+		};
+		C6DDD73E2C936DAF000BE2A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C6DDD71F2C936DAE000BE2A4 /* SkateConnect */;
+			targetProxy = C6DDD73D2C936DAF000BE2A4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C6DDD7442C936DAF000BE2A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C6DDD7452C936DAF000BE2A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C6DDD7472C936DAF000BE2A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SkateConnect/Preview Content\"";
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		C6DDD7482C936DAF000BE2A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SkateConnect/Preview Content\"";
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C6DDD74A2C936DAF000BE2A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnectTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SkateConnect.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SkateConnect";
+			};
+			name = Debug;
+		};
+		C6DDD74B2C936DAF000BE2A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnectTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SkateConnect.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SkateConnect";
+			};
+			name = Release;
+		};
+		C6DDD74D2C936DAF000BE2A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnectUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SkateConnect;
+			};
+			name = Debug;
+		};
+		C6DDD74E2C936DAF000BE2A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnectUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SkateConnect;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C6DDD71B2C936DAE000BE2A4 /* Build configuration list for PBXProject "SkateConnect" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C6DDD7442C936DAF000BE2A4 /* Debug */,
+				C6DDD7452C936DAF000BE2A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C6DDD7462C936DAF000BE2A4 /* Build configuration list for PBXNativeTarget "SkateConnect" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C6DDD7472C936DAF000BE2A4 /* Debug */,
+				C6DDD7482C936DAF000BE2A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C6DDD7492C936DAF000BE2A4 /* Build configuration list for PBXNativeTarget "SkateConnectTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C6DDD74A2C936DAF000BE2A4 /* Debug */,
+				C6DDD74B2C936DAF000BE2A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C6DDD74C2C936DAF000BE2A4 /* Build configuration list for PBXNativeTarget "SkateConnectUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C6DDD74D2C936DAF000BE2A4 /* Debug */,
+				C6DDD74E2C936DAF000BE2A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C6DDD7182C936DAE000BE2A4 /* Project object */;
+}
