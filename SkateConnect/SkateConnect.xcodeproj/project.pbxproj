@@ -20,6 +20,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C6A56C2B2C93A9510090D3E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C6F2F2AD2C939C8D00C3CDBA;
+			remoteInfo = ConnectFramework;
+		};
+		C6A56C2D2C93A9510090D3E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C6F2F2B72C939C8D00C3CDBA;
+			remoteInfo = ConnectFrameworkTests;
+		};
 		C6DDD7332C936DAF000BE2A4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C6DDD7182C936DAE000BE2A4 /* Project object */;
@@ -52,6 +66,7 @@
 
 /* Begin PBXFileReference section */
 		C624DDC92C939F920073F30F /* ConnectFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ConnectFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
 		C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkateConnect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectApp.swift; sourceTree = "<group>"; };
 		C6DDD7252C936DAE000BE2A4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -91,6 +106,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C6A56C272C93A9510090D3E2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C6A56C2C2C93A9510090D3E2 /* ConnectFramework.framework */,
+				C6A56C2E2C93A9510090D3E2 /* ConnectFrameworkTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		C6DDD7172C936DAE000BE2A4 = {
 			isa = PBXGroup;
 			children = (
@@ -115,6 +139,7 @@
 		C6DDD7222C936DAE000BE2A4 /* SkateConnect */ = {
 			isa = PBXGroup;
 			children = (
+				C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */,
 				C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */,
 				C6DDD7252C936DAE000BE2A4 /* ContentView.swift */,
 				C6DDD7272C936DAE000BE2A4 /* Item.swift */,
@@ -248,6 +273,12 @@
 			mainGroup = C6DDD7172C936DAE000BE2A4;
 			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = C6A56C272C93A9510090D3E2 /* Products */;
+					ProjectRef = C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				C6DDD71F2C936DAE000BE2A4 /* SkateConnect */,
@@ -256,6 +287,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		C6A56C2C2C93A9510090D3E2 /* ConnectFramework.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ConnectFramework.framework;
+			remoteRef = C6A56C2B2C93A9510090D3E2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C6A56C2E2C93A9510090D3E2 /* ConnectFrameworkTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ConnectFrameworkTests.xctest;
+			remoteRef = C6A56C2D2C93A9510090D3E2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		C6DDD71E2C936DAE000BE2A4 /* Resources */ = {
