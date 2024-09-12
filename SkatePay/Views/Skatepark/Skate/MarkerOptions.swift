@@ -18,7 +18,7 @@ struct MarkerOptions: View {
     @State private var showCreateChannel = false
     @State private var showChannelView = false
     
-    var landmarks: [Landmark] = SkatePayData().landmarks
+    var landmarks: [Landmark] = AppData().landmarks
     
     func getLandmark() -> Landmark? {
         return landmarks.first { $0.npub == npub }

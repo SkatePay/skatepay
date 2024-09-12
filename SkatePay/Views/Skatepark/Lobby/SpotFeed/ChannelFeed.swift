@@ -46,7 +46,7 @@ struct ChannelFeed: View, LegacyDirectMessageEncrypting, EventCreating {
     private var eventId = ""
     private var connected = true
     
-    var landmarks: [Landmark] = SkatePayData().landmarks
+    var landmarks: [Landmark] = AppData().landmarks
     
     func findLandmark(byNpub npub: String) -> Landmark? {
         return landmarks.first { $0.npub == npub }
@@ -126,7 +126,7 @@ struct ChannelFeed: View, LegacyDirectMessageEncrypting, EventCreating {
         if let account = keychainForNostr.account {
             do {
                 
-                let event = try createChannelMessageEvent(withContent: draft.text, eventId: eventId, relayUrl: SkatePayApp.RELAY_URL_PRIMAL, signedBy: account)
+                let event = try createChannelMessageEvent(withContent: draft.text, eventId: eventId, relayUrl: AppConstants.RELAY_URL_PRIMAL, signedBy: account)
                 viewModel.relayPool.publishEvent(event)
             } catch {
                 print(error.localizedDescription)
@@ -162,5 +162,5 @@ struct ChannelFeed: View, LegacyDirectMessageEncrypting, EventCreating {
 }
 
 #Preview {
-    ChannelFeed(eventId: SkatePayApp.NCHANNEL_ID)
+    ChannelFeed(eventId: AppConstants.NCHANNEL_ID)
 }

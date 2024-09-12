@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LandmarkDetail: View {
-    @Environment(SkatePayData.self) var modelData
+    @Environment(AppData.self) var modelData
 
     @ObservedObject var navManager: NavigationManager
 
@@ -66,7 +66,7 @@ struct LandmarkDetail: View {
 }
 
 #Preview {
-    let modelData = SkatePayData()
+    let modelData = AppData()
     return LandmarkDetail(navManager: NavigationManager(), landmark: modelData.landmarks[0])
         .environment(modelData)
 }

@@ -19,7 +19,7 @@ class FriendsViewModel: ObservableObject {
 }
 
 struct LobbyView: View {
-    @Environment(SkatePayData.self) var modelData
+    @Environment(AppData.self) var modelData
     @StateObject private var viewModel = FriendsViewModel()
     
     @EnvironmentObject var hostStore: HostStore
@@ -99,7 +99,7 @@ struct LobbyView: View {
                 "name": "ghost",
                 "npub": "\(npub)",
                 "solanaAddress": "",
-                "relayUrl": "\(SkatePayApp.RELAY_URL_PRIMAL)",
+                "relayUrl": "\(AppConstants.RELAY_URL_PRIMAL)",
                 "isFavorite": false,
                 "imageName": "user-ghost"
             }
@@ -115,5 +115,5 @@ struct LobbyView: View {
 }
 
 #Preview {
-    LobbyView().environment(SkatePayData())
+    LobbyView().environment(AppData())
 }

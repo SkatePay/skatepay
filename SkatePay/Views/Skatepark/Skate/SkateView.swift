@@ -29,12 +29,12 @@ final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
     var locationManager: CLLocationManager?
     
     @Published var marks: [Mark] = []
-    @Published var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: SkatePayData().landmarks[0].locationCoordinate)]
+    @Published var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: AppData().landmarks[0].locationCoordinate)]
     
-    @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: SkatePayData().landmarks[0].locationCoordinate.latitude, longitude: SkatePayData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
+    @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
     
     @Published var mapPosition = MapCameraPosition.region(
-        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: SkatePayData().landmarks[0].locationCoordinate.latitude, longitude: SkatePayData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
+        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
     )
     
     func updateMapRegion(with coordinate: CLLocationCoordinate2D) {
@@ -121,7 +121,7 @@ struct SkateView: View {
     
     @State private var npub: String?
     
-    @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: SkatePayData().landmarks[0].locationCoordinate)]
+    @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: AppData().landmarks[0].locationCoordinate)]
     @State var leadIndex = 0
     
     
@@ -247,7 +247,7 @@ struct SkateView: View {
     
     func getNearbyLandmarks(for coordinate: CLLocationCoordinate2D) -> [Landmark] {
         let markerLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let landmarks = SkatePayData().landmarks
+        let landmarks = AppData().landmarks
         
         return landmarks.filter { landmark in
             let landmarkLocation = CLLocation(latitude: landmark.locationCoordinate.latitude, longitude: landmark.locationCoordinate.longitude)
@@ -267,5 +267,5 @@ struct SkateView: View {
 }
 
 #Preview {
-    SkateView().environment(SkatePayData())
+    SkateView().environment(AppData())
 }

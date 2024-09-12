@@ -35,7 +35,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     let keychainForNostr = NostrKeychainStorage()
     
     var relayPool = try! RelayPool(relayURLs: [
-        URL(string: SkatePayApp.RELAY_URL_PRIMAL)!
+        URL(string: AppConstants.RELAY_URL_PRIMAL)!
     ])
         
     private var subscriptionForGroup, subscriptionForDirect: String?
@@ -200,5 +200,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView().environment(SkatePayData())
+    ContentView().environment(AppData())
 }

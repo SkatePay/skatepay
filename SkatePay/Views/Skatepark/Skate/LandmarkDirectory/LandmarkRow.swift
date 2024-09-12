@@ -28,7 +28,7 @@ struct LandmarkRow: View {
 }
 
 #Preview {
-    let landmarks = SkatePayData().landmarks;
+    let landmarks = AppData().landmarks;
     
     return Group {
         LandmarkRow(landmark: landmarks[0])
