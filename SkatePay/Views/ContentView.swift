@@ -19,6 +19,7 @@ enum Tab {
 
 class Lobby: ObservableObject {
     @Published var guests: [String: Date] = [:]
+    @Published var channels: [String] = []
     @Published var nostrEvents: [ActivityEvent] = []
 }
 
@@ -37,8 +38,8 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         URL(string: SkatePayApp.RELAY_URL_PRIMAL)!
     ])
         
-    private var subscriptionId: String?
-    private var eventsCancellable: AnyCancellable?
+    private var subscriptionForGroup, subscriptionForDirect: String?
+    private var eventsCancellableForGroup, eventsCancellableForDirect: AnyCancellable?
     
     @Published var room: Lobby = Lobby()
     
@@ -46,16 +47,18 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         connectRelays()
         relayPool.delegate = self
     }
+    
     func connectRelays() {
         relayPool.connect()
-
     }
+    
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         if (state == .connected) {
-            updateSubscription()
+            updateSubscriptions()
         }
     }
-    func relay(_ relay: Relay, didReceive event: RelayEvent) {        
+    
+    func relay(_ relay: Relay, didReceive event: RelayEvent) {
         let publicKey = PublicKey(hex: event.event.pubkey)
         let kind = event.event.kind
         
@@ -76,33 +79,45 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             self.fetchingStoredEvents = false
         }
     }
-    
-    private var currentFilter: Filter? {
+
+    private var filterForGroupMessages: Filter? {
         guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
             return nil
         }
-        
-        let filter = Filter(kinds: [4], tags: ["p" : [account.publicKey.hex]])
-        
+        let filter = Filter(authors: [account.publicKey.hex], kinds: [EventKind.channelCreation.rawValue])
         return filter
     }
     
-    private func updateSubscription() {
-        if let subscriptionId {
-            relayPool.closeSubscription(with: subscriptionId)
+    private var filterForDirectMessages: Filter? {
+        guard let account = keychainForNostr.account else {
+            print("Error: Failed to create Filter")
+            return nil
+        }
+        let filter = Filter(kinds: [EventKind.legacyEncryptedDirectMessage.rawValue, EventKind.channelCreation.rawValue], tags: ["p" : [account.publicKey.hex]])
+        return filter
+    }
+    
+    private func updateSubscriptions() {
+        if let subscriptionForGroup {
+            relayPool.closeSubscription(with: subscriptionForGroup)
         }
         
-        if let unwrappedFilter = currentFilter {
-            subscriptionId = relayPool.subscribe(with: unwrappedFilter)
-        } else {
-            // Handle the case where currentFilter is nil
-            print("currentFilter is nil, unable to subscribe")
+        if let subscriptionForDirect {
+            relayPool.closeSubscription(with: subscriptionForDirect)
+        }
+        
+        if let unwrappedFilter = filterForGroupMessages {
+            subscriptionForGroup = relayPool.subscribe(with: unwrappedFilter)
+        }
+        
+        if let unwrappedFilter = filterForDirectMessages {
+            subscriptionForDirect = relayPool.subscribe(with: unwrappedFilter)
         }
         
         relayPool.delegate = self
         
-        eventsCancellable = relayPool.events
+        eventsCancellableForDirect = relayPool.events
             .receive(on: DispatchQueue.main)
             .map {
                 return $0.event
@@ -114,6 +129,18 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                     self.room.guests[key] = event.createdDate
                 } else {
                     print("Failed to create PublicKey from pubkey: \(event.pubkey)")
+                }
+            }
+        
+        eventsCancellableForGroup = relayPool.events
+            .receive(on: DispatchQueue.main)
+            .map {
+                return $0.event
+            }
+            .removeDuplicates()
+            .sink { event in
+                if(event.kind == EventKind.channelCreation) {
+                    self.room.channels.append(event.id)
                 }
             }
     }

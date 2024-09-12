@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -67,7 +67,6 @@
 		C60517712C8BDEFA006F61A1 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517622C8BDEFA006F61A1 /* Profile.swift */; };
 		C60517722C8BDEFA006F61A1 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517632C8BDEFA006F61A1 /* User.swift */; };
 		C60517752C8BE049006F61A1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C60517732C8BE049006F61A1 /* Preview Assets.xcassets */; };
-		C60517772C8BE09C006F61A1 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C60517762C8BE09C006F61A1 /* NostrSDK */; };
 		C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C605177A2C8BE0C5006F61A1 /* KeychainSwift */; };
 		C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C605177C2C8BE0D6006F61A1 /* ExyteChat */; };
 		C626DEB42C8FE4F300BB1B85 /* ImportIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEB32C8FE4F300BB1B85 /* ImportIdentity.swift */; };
@@ -75,7 +74,12 @@
 		C626DEB92C90FD3100BB1B85 /* LandmarkDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEB82C90FD3100BB1B85 /* LandmarkDirectory.swift */; };
 		C626DEBB2C910B3E00BB1B85 /* MarkerOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */; };
 		C626DEBD2C9133E900BB1B85 /* LeadOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */; };
-		C6E65BE42C8F87D0002E6587 /* SpotFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E65BE32C8F87D0002E6587 /* SpotFeed.swift */; };
+		C6DDD6982C92766E000BE2A4 /* CreateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD6972C92766E000BE2A4 /* CreateChannel.swift */; };
+		C6DDD69D2C9292D7000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD69C2C9292D7000BE2A4 /* NostrSDK */; };
+		C6DDD6A02C929F21000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD69F2C929F21000BE2A4 /* NostrSDK */; };
+		C6DDD6A32C92AA79000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD6A22C92AA79000BE2A4 /* NostrSDK */; };
+		C6DDD6A62C92AB23000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD6A52C92AB23000BE2A4 /* NostrSDK */; };
+		C6E65BE42C8F87D0002E6587 /* ChannelFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E65BE32C8F87D0002E6587 /* ChannelFeed.swift */; };
 		C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E838F52C8BE2B20061BC39 /* ContentView.swift */; };
 		C6F6E4622C8C038C00A05F48 /* NostrKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */; };
 		C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6F6E4652C8E418000A05F48 /* SolanaSwift */; };
@@ -168,7 +172,8 @@
 		C626DEB82C90FD3100BB1B85 /* LandmarkDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkDirectory.swift; sourceTree = "<group>"; };
 		C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerOptions.swift; sourceTree = "<group>"; };
 		C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeadOptions.swift; sourceTree = "<group>"; };
-		C6E65BE32C8F87D0002E6587 /* SpotFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotFeed.swift; sourceTree = "<group>"; };
+		C6DDD6972C92766E000BE2A4 /* CreateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateChannel.swift; sourceTree = "<group>"; };
+		C6E65BE32C8F87D0002E6587 /* ChannelFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelFeed.swift; sourceTree = "<group>"; };
 		C6E838F52C8BE2B20061BC39 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrKeychainStorage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,10 +183,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C6DDD69D2C9292D7000BE2A4 /* NostrSDK in Frameworks */,
 				C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */,
+				C6DDD6A32C92AA79000BE2A4 /* NostrSDK in Frameworks */,
 				C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */,
 				C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */,
-				C60517772C8BE09C006F61A1 /* NostrSDK in Frameworks */,
+				C6DDD6A62C92AB23000BE2A4 /* NostrSDK in Frameworks */,
+				C6DDD6A02C929F21000BE2A4 /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,6 +363,7 @@
 				C605170B2C8BDCBA006F61A1 /* MockChat.swift */,
 				C605170C2C8BDCBA006F61A1 /* MockFeed.swift */,
 				C605170D2C8BDCBA006F61A1 /* NostrFeed.swift */,
+				C6DDD6972C92766E000BE2A4 /* CreateChannel.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -384,7 +393,6 @@
 			children = (
 				C6E65BE22C8F87A8002E6587 /* SpotFeed */,
 				C60517062C8BDCBA006F61A1 /* AddressBook */,
-				C605170E2C8BDCBA006F61A1 /* Chat */,
 				C60517122C8BDCBA006F61A1 /* Profile */,
 				C60517162C8BDCBA006F61A1 /* Users */,
 				C60517172C8BDCBA006F61A1 /* Contacts.swift */,
@@ -421,6 +429,7 @@
 		C60517242C8BDCBA006F61A1 /* Skatepark */ = {
 			isa = PBXGroup;
 			children = (
+				C605170E2C8BDCBA006F61A1 /* Chat */,
 				C605171A2C8BDCBA006F61A1 /* Lobby */,
 				C605171E2C8BDCBA006F61A1 /* Skate */,
 				C60517232C8BDCBA006F61A1 /* Wallet */,
@@ -506,7 +515,7 @@
 			isa = PBXGroup;
 			children = (
 				C60517042C8BDCBA006F61A1 /* SpotDetail.swift */,
-				C6E65BE32C8F87D0002E6587 /* SpotFeed.swift */,
+				C6E65BE32C8F87D0002E6587 /* ChannelFeed.swift */,
 			);
 			path = SpotFeed;
 			sourceTree = "<group>";
@@ -537,10 +546,13 @@
 			);
 			name = SkatePay;
 			packageProductDependencies = (
-				C60517762C8BE09C006F61A1 /* NostrSDK */,
 				C605177A2C8BE0C5006F61A1 /* KeychainSwift */,
 				C605177C2C8BE0D6006F61A1 /* ExyteChat */,
 				C6F6E4652C8E418000A05F48 /* SolanaSwift */,
+				C6DDD69C2C9292D7000BE2A4 /* NostrSDK */,
+				C6DDD69F2C929F21000BE2A4 /* NostrSDK */,
+				C6DDD6A22C92AA79000BE2A4 /* NostrSDK */,
+				C6DDD6A52C92AB23000BE2A4 /* NostrSDK */,
 			);
 			productName = SkatePay;
 			productReference = C605162C2C8BDBB3006F61A1 /* SkatePay.app */;
@@ -617,8 +629,8 @@
 			packageReferences = (
 				C60517462C8BDD1B006F61A1 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */,
-				C605174F2C8BDD50006F61A1 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 				C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */,
+				C6DDD6A42C92AB23000BE2A4 /* XCLocalSwiftPackageReference "../nostr-sdk-ios" */,
 			);
 			productRefGroup = C605162D2C8BDBB3006F61A1 /* Products */;
 			projectDirPath = "";
@@ -681,6 +693,7 @@
 				C60517682C8BDEFA006F61A1 /* MockAttachment.swift in Sources */,
 				C605176E2C8BDEFA006F61A1 /* HostStore.swift in Sources */,
 				C626DEB92C90FD3100BB1B85 /* LandmarkDirectory.swift in Sources */,
+				C6DDD6982C92766E000BE2A4 /* CreateChannel.swift in Sources */,
 				C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */,
 				C605176F2C8BDEFA006F61A1 /* Landmark.swift in Sources */,
 				C60517302C8BDCBA006F61A1 /* MockChatInteractor.swift in Sources */,
@@ -702,7 +715,7 @@
 				C60517362C8BDCBA006F61A1 /* ProfileHost.swift in Sources */,
 				C60517722C8BDEFA006F61A1 /* User.swift in Sources */,
 				C60516612C8BDC26006F61A1 /* Sequence+asyncMap.swift in Sources */,
-				C6E65BE42C8F87D0002E6587 /* SpotFeed.swift in Sources */,
+				C6E65BE42C8F87D0002E6587 /* ChannelFeed.swift in Sources */,
 				C60517672C8BDEFA006F61A1 /* ChatError.swift in Sources */,
 				C605176B2C8BDEFA006F61A1 /* Friend.swift in Sources */,
 				C60517352C8BDCBA006F61A1 /* ProfileEditor.swift in Sources */,
@@ -1071,6 +1084,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		C6DDD6A42C92AB23000BE2A4 /* XCLocalSwiftPackageReference "../nostr-sdk-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../nostr-sdk-ios";
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		C60517462C8BDD1B006F61A1 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1088,14 +1108,6 @@
 				minimumVersion = 2.0.5;
 			};
 		};
-		C605174F2C8BDD50006F61A1 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:nostr-sdk/nostr-sdk-ios.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SkatePay/solana-swift";
@@ -1107,11 +1119,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C60517762C8BE09C006F61A1 /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C605174F2C8BDD50006F61A1 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
-			productName = NostrSDK;
-		};
 		C605177A2C8BE0C5006F61A1 /* KeychainSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C60517462C8BDD1B006F61A1 /* XCRemoteSwiftPackageReference "keychain-swift" */;
@@ -1121,6 +1128,22 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */;
 			productName = ExyteChat;
+		};
+		C6DDD69C2C9292D7000BE2A4 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C6DDD69F2C929F21000BE2A4 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C6DDD6A22C92AA79000BE2A4 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C6DDD6A52C92AB23000BE2A4 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
 		};
 		C6F6E4652C8E418000A05F48 /* SolanaSwift */ = {
 			isa = XCSwiftPackageProductDependency;

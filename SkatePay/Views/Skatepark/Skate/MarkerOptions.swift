@@ -10,11 +10,13 @@ import SwiftUI
 struct MarkerOptions: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+    @EnvironmentObject var viewModel: ContentViewModel
     
     var npub: String?
     var marks: [Mark]
     
-    @State private var showChatView = false
+    @State private var showCreateChannel = false
+    @State private var showChannelView = false
     
     var landmarks: [Landmark] = SkatePayData().landmarks
     
@@ -29,9 +31,9 @@ struct MarkerOptions: View {
                 .padding()
             
             Button(action: {
-                showChatView = true
+                showChannelView = true
             }) {
-                Text("Join Active Chat")
+                Text("Join Official Chat")
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.blue)
@@ -40,7 +42,7 @@ struct MarkerOptions: View {
             }
             
             Button(action: {
-                dismiss()
+                showCreateChannel = true
             }) {
                 Text("Start New Chat")
                     .frame(maxWidth: .infinity)
@@ -66,37 +68,52 @@ struct MarkerOptions: View {
                     .cornerRadius(10)
             }
         }
-        .fullScreenCover(isPresented: $showChatView) {
+        .fullScreenCover(isPresented: $showChannelView) {
             let landmark = getLandmark()
-            NavigationView {
-                SpotFeed(npub: npub ?? "")
-                    .navigationBarTitle("\(npub ?? "")")
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        showChatView = false
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            
-                            if let image = landmark?.image {
-                                image
+            
+            if let landmark = getLandmark() {
+                NavigationView {
+                    ChannelFeed(eventId: landmark.eventId)
+                        .navigationBarTitle("\(npub ?? "")")
+                        .navigationBarItems(leading:
+                                                Button(action: {
+                            showChannelView = false
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.left")
+                                
+                                landmark.image
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 35, height: 35)
                                     .clipShape(Circle())
-                            }
-                            if let name = landmark?.name {
+                                
                                 VStack(alignment: .leading, spacing: 0) {
-                                    Text(name)
+                                    Text("\(landmark.name) \(landmark.eventId.prefix(4))...\(landmark.eventId.suffix(4))")
                                         .fontWeight(.semibold)
                                         .font(.headline)
                                         .foregroundColor(.black)
+                                    
                                 }
+                                Spacer()
                             }
+                        }
+                        )
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showCreateChannel) {
+            NavigationView {
+                CreateChannel()
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        showCreateChannel = false
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.left")
                             Spacer()
                         }
-                    }
-                    )
+                    })
             }
         }
         .padding()

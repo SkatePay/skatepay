@@ -140,36 +140,36 @@ struct SkateView: View {
                             Marker(mark.name, coordinate: mark.coordinate)
                                 .tint(.orange)
                         }
-//                        // Leads
-//                        ForEach(leads) { lead in
-//                            Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
-//                                ZStack {
-//                                    Circle()
-//                                        .foregroundStyle(.indigo.opacity(0.5))
-//                                        .frame(width: 80, height: 80)
-//                                    
-//                                    Text("🧹")
-//                                        .font(.system(size: 24))
-//                                        .symbolEffect(.variableColor)
-//                                        .padding()
-//                                        .foregroundStyle(.white)
-//                                        .background(Color.indigo)
-//                                        .clipShape(Circle())
-//                                }
-//                                .gesture(
-//                                    LongPressGesture(minimumDuration: 1.0)
-//                                        .onEnded { _ in
-////                                                                                        handleLongPress(lead: lead)
-//                                        }
-//                                        .onChanged { state in
-//                                            if let index = leads.firstIndex(where: { $0 == lead }) {
-//                                                isShowingLeadOptions = true
-//                                                leadIndex = index
-//                                            }
-//                                        }
-//                                )
-//                            }
-//                        }
+                       // Leads
+                       ForEach(leads) { lead in
+                           Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
+                               ZStack {
+                                   Circle()
+                                       .foregroundStyle(.indigo.opacity(0.5))
+                                       .frame(width: 80, height: 80)
+                                   
+                                   Text("🧹")
+                                       .font(.system(size: 24))
+                                       .symbolEffect(.variableColor)
+                                       .padding()
+                                       .foregroundStyle(.white)
+                                       .background(Color.indigo)
+                                       .clipShape(Circle())
+                               }
+                               .gesture(
+                                   LongPressGesture(minimumDuration: 1.0)
+                                       .onEnded { _ in
+//                                                                                        handleLongPress(lead: lead)
+                                       }
+                                       .onChanged { state in
+                                           if let index = leads.firstIndex(where: { $0 == lead }) {
+                                               isShowingLeadOptions = true
+                                               leadIndex = index
+                                           }
+                                       }
+                               )
+                           }
+                       }
                     }
                     .onAppear{
                         viewModel.checkIfLocationIsEnabled()
