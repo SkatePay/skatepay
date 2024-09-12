@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct SpotDetail: View {
-    @Environment(SkatePayData.self) var modelData
+    @Environment(AppData.self) var modelData
     @Query private var spots: [Spot]
     
     var spot: Spot
@@ -56,8 +56,8 @@ struct SpotDetail: View {
 }
 
 #Preview {
-    let data = SkatePayData()
-    let spots = SkatePayData().landmarks;
+    let data = AppData()
+    let spots = AppData().landmarks;
 
     return SpotDetail(spot: Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, note: ""))
         .environment(data)

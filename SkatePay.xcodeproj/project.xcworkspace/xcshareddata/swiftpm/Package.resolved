@@ -1,5 +1,5 @@
 {
-  "originHash" : "ce6c3352b633d2b6f20c930d02e0754489e3f2b70f99be5b0cdc2b1eeed78603",
+  "originHash" : "75c7943fb16bfab6b0841ee05b71c8e2992f3e4473fc559456c384f9ad50075c",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -53,15 +53,6 @@
       "state" : {
         "revision" : "88769b1b69c2b5e5fa5b65522c08bc7b667a6cb8",
         "version" : "2.2.3"
-      }
-    },
-    {
-      "identity" : "nostr-sdk-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:nostr-sdk/nostr-sdk-ios.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "8b40eb98a4268255b8980bddddf40125b0d32637"
       }
     },
     {

@@ -197,5 +197,5 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
 }
 
 #Preview {
-    DirectChat(user: SkatePayData().users[0])
+    DirectChat(user: AppData().users[0])
 }

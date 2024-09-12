@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct LandmarkDirectory: View {
-    @Environment(SkatePayData.self) var modelData
+    @Environment(AppData.self) var modelData
     
     @ObservedObject var navManager: NavigationManager
     

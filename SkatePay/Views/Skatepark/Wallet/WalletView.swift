@@ -68,7 +68,7 @@ class WalletManager: ObservableObject  {
                 let height = try await solanaApiClient.getBlockHeight()
                 
                 let owner = keychainForSolana.account?.publicKey.base58EncodedString ?? ""
-                let tokenListUrl = SkatePayApp.SOLANA_TOKEN_LIST_URL
+                let tokenListUrl = AppConstants.SOLANA_TOKEN_LIST_URL
                 let networkManager = URLSession.shared
                 let tokenRepository = SolanaTokenListRepository(tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager))
                 

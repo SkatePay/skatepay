@@ -17,7 +17,8 @@
         },
         "description": "The Venice Beach Skatepark is a public skatepark located in Venice, Los Angeles. It opened in late 2009. It is also officially known as the Dennis \"Polar Bear\" Agnew Memorial Skatepark, named after famed Z-Boy skater Dennis Agnew. The 16,000 square foot park is located near Windward Avenue and Ocean Front Walk street. The skate park features steps, rails, and bowls that resemble empty swimming pools. The park cost $3.4 million to build, and the funds came from the sale of surplus city property in Venice.",
         "imageName": "venice-skate-park",
-        "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v"
+        "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
+        "eventId": "c51b2372cfb6fd3142fd5c63aa0c23c33877bff57f0de8f140688eef55a93758"
     },
     {
         "name": "Inglewood Pumptrack",
@@ -37,7 +38,8 @@
         },
         "description": "The very first pumptrack in Los Angeles.",
         "imageName": "inglewood-pumptrack",
-        "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v"
+        "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
+        "eventId": "c51b2372cfb6fd3142fd5c63aa0c23c33877bff57f0de8f140688eef55a93758"
     },
     {
         "name": "Channel Street Skatepark",
@@ -57,6 +59,7 @@
         },
         "description": "After it was forcibly shut down in 2014 by expansion to the 110 Freeway, the popular San Pedro Channel Street Skatepark is set to reopen nearly 10 years later. The skatepark, located at 600-620 W. Channel St., was built by a group of skateboarders in the early 2000s, though was never permitted for operation. Regardless, the park became a well-known destination amongst the skateboarding community, often being featured in skating videos of renowned professional skaters and locals alike.",
         "imageName": "channel-street-skatepark",
-        "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v"
+        "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
+        "eventId": "c51b2372cfb6fd3142fd5c63aa0c23c33877bff57f0de8f140688eef55a93758"
     }
 ]

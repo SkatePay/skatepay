@@ -95,8 +95,8 @@ struct TransferToken: View {
                                     if let account = keychainForSolana.account {
                                         let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
                                             account: account,
-                                            mintAddress: SkatePayApp.SOLANA_MINT_ADDRESS,
-                                            tokenProgramId: PublicKey(string: SkatePayApp.SOLANA_TOKEN_PROGRAM_ID),
+                                            mintAddress: AppConstants.SOLANA_MINT_ADDRESS,
+                                            tokenProgramId: PublicKey(string: AppConstants.SOLANA_TOKEN_PROGRAM_ID),
                                             decimals: 9,
                                             from: tokenAccount.address,
                                             to: address,

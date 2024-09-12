@@ -92,5 +92,5 @@ struct CreateMessage: View, EventCreating {
 }
 
 #Preview {
-    CreateMessage(npub: SkatePayData().users[0].npub)
+    CreateMessage(npub: AppData().users[0].npub)
 }

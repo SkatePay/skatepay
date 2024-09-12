@@ -14,7 +14,7 @@ struct Host: Hashable, Codable {
     var nsec: String = ""
     var npub: String = ""
     
-    var relayUrls: [String] = [SkatePayApp.RELAY_URL_PRIMAL]
+    var relayUrls: [String] = [AppConstants.RELAY_URL_PRIMAL]
     
     private var noValueString = ""
     
