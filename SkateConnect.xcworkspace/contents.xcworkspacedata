@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:SkateConnect/SkateConnect.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:SkatePay/SkatePay.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:ConnectFramework/ConnectFramework.xcodeproj">
+   </FileRef>
+</Workspace>

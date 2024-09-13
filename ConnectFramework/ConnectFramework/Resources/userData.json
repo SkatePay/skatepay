@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1001,
+        "name": "Tech Support",
+        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
+        "solanaAddress": "",
+        "relayUrl": "wss://relay.primal.net",
+        "imageName": "user-prorobot",
+        "isFavorite": true,
+        "note": "This is official support account. I am here to help you address your app related questions."
+    },
+    {
+        "id": 1002,
+        "name": "HQ",
+        "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
+        "solanaAddress": "",
+        "relayUrl": "wss://relay.primal.net",
+        "imageName": "user-hub",
+        "isFavorite": false,
+        "note": ""
+    },
+    {
+        "id": 1003,
+        "name": "dogtown",
+        "npub": "npub1hq5ae8m5vz3ys6rjg8c35z02xr80sfh9lyzqw69utrp5lryflvjqeqagjc",
+        "solanaAddress": "",
+        "relayUrl": "wss://relay.damus.io",
+        "imageName": "user-skatepay",
+        "isFavorite": false,
+        "note": ""
+    }
+]

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIImageRespectsSafeAreaInsets</key>
+		<true/>
+		<key>UIImageName</key>
+		<string>skate-connect</string>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>SkateConnect uses the camera to scan QR codes to enhance user experience with AR features.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SkateConnect uses the microphone for voice commands to facilitate user interaction with our AI assistant feature.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SkateConnect uses the photo library to allow users to upload profile pictures.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SkateConnect uses your location to provide location-based services, such as finding nearby locations.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>SkateConnect uses your location even when the app is in the background to offer continuous location-based services, like tracking your journey.</string>
+</dict>
+</plist>

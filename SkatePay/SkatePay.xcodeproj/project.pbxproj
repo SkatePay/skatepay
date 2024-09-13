@@ -1,0 +1,1189 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C60516302C8BDBB3006F61A1 /* SkatePayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605162F2C8BDBB3006F61A1 /* SkatePayApp.swift */; };
+		C60516342C8BDBB4006F61A1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C60516332C8BDBB4006F61A1 /* Assets.xcassets */; };
+		C60516412C8BDBB4006F61A1 /* SkatePayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516402C8BDBB4006F61A1 /* SkatePayTests.swift */; };
+		C605164B2C8BDBB4006F61A1 /* SkatePayUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605164A2C8BDBB4006F61A1 /* SkatePayUITests.swift */; };
+		C605164D2C8BDBB4006F61A1 /* SkatePayUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605164C2C8BDBB4006F61A1 /* SkatePayUITestsLaunchTests.swift */; };
+		C605165F2C8BDC26006F61A1 /* Color+hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605165B2C8BDC26006F61A1 /* Color+hex.swift */; };
+		C60516602C8BDC26006F61A1 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605165C2C8BDC26006F61A1 /* Date+Extensions.swift */; };
+		C60516612C8BDC26006F61A1 /* Sequence+asyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605165D2C8BDC26006F61A1 /* Sequence+asyncMap.swift */; };
+		C60516642C8BDC2E006F61A1 /* DemoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516622C8BDC2E006F61A1 /* DemoHelper.swift */; };
+		C60516EA2C8BDC76006F61A1 /* AnyToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516E42C8BDC76006F61A1 /* AnyToken.swift */; };
+		C60516EB2C8BDC76006F61A1 /* SolanaAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516E52C8BDC76006F61A1 /* SolanaAccount.swift */; };
+		C60516EC2C8BDC76006F61A1 /* SolanaToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516E62C8BDC76006F61A1 /* SolanaToken.swift */; };
+		C60516ED2C8BDC76006F61A1 /* TokenPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516E72C8BDC76006F61A1 /* TokenPrice.swift */; };
+		C60517282C8BDCBA006F61A1 /* NostrKeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516FC2C8BDCBA006F61A1 /* NostrKeyInput.swift */; };
+		C60517292C8BDCBA006F61A1 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516FF2C8BDCBA006F61A1 /* CircleImage.swift */; };
+		C605172A2C8BDCBA006F61A1 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517002C8BDCBA006F61A1 /* FavoriteButton.swift */; };
+		C605172B2C8BDCBA006F61A1 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517012C8BDCBA006F61A1 /* MapView.swift */; };
+		C605172C2C8BDCBA006F61A1 /* AddressBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517032C8BDCBA006F61A1 /* AddressBook.swift */; };
+		C605172D2C8BDCBA006F61A1 /* SpotDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517042C8BDCBA006F61A1 /* SpotDetail.swift */; };
+		C605172E2C8BDCBA006F61A1 /* SpotRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517052C8BDCBA006F61A1 /* SpotRow.swift */; };
+		C605172F2C8BDCBA006F61A1 /* ConversationInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517072C8BDCBA006F61A1 /* ConversationInteractorProtocol.swift */; };
+		C60517302C8BDCBA006F61A1 /* MockChatInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517082C8BDCBA006F61A1 /* MockChatInteractor.swift */; };
+		C60517312C8BDCBA006F61A1 /* DirectChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605170A2C8BDCBA006F61A1 /* DirectChat.swift */; };
+		C60517322C8BDCBA006F61A1 /* MockChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605170B2C8BDCBA006F61A1 /* MockChat.swift */; };
+		C60517332C8BDCBA006F61A1 /* MockFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605170C2C8BDCBA006F61A1 /* MockFeed.swift */; };
+		C60517342C8BDCBA006F61A1 /* NostrFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605170D2C8BDCBA006F61A1 /* NostrFeed.swift */; };
+		C60517352C8BDCBA006F61A1 /* ProfileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605170F2C8BDCBA006F61A1 /* ProfileEditor.swift */; };
+		C60517362C8BDCBA006F61A1 /* ProfileHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517102C8BDCBA006F61A1 /* ProfileHost.swift */; };
+		C60517372C8BDCBA006F61A1 /* ProfileSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517112C8BDCBA006F61A1 /* ProfileSummary.swift */; };
+		C60517382C8BDCBA006F61A1 /* UserDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517132C8BDCBA006F61A1 /* UserDetail.swift */; };
+		C60517392C8BDCBA006F61A1 /* UserItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517142C8BDCBA006F61A1 /* UserItem.swift */; };
+		C605173A2C8BDCBA006F61A1 /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517152C8BDCBA006F61A1 /* UserRow.swift */; };
+		C605173B2C8BDCBA006F61A1 /* Contacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517172C8BDCBA006F61A1 /* Contacts.swift */; };
+		C605173C2C8BDCBA006F61A1 /* CreateMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517182C8BDCBA006F61A1 /* CreateMessage.swift */; };
+		C605173D2C8BDCBA006F61A1 /* LobbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517192C8BDCBA006F61A1 /* LobbyView.swift */; };
+		C605173E2C8BDCBA006F61A1 /* LandmarkDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605171B2C8BDCBA006F61A1 /* LandmarkDetail.swift */; };
+		C605173F2C8BDCBA006F61A1 /* LandmarkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605171C2C8BDCBA006F61A1 /* LandmarkRow.swift */; };
+		C60517402C8BDCBA006F61A1 /* SkateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605171D2C8BDCBA006F61A1 /* SkateView.swift */; };
+		C60517412C8BDCBA006F61A1 /* ImportWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605171F2C8BDCBA006F61A1 /* ImportWallet.swift */; };
+		C60517422C8BDCBA006F61A1 /* SolanaKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517202C8BDCBA006F61A1 /* SolanaKeychainStorage.swift */; };
+		C60517432C8BDCBA006F61A1 /* TransferToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517212C8BDCBA006F61A1 /* TransferToken.swift */; };
+		C60517442C8BDCBA006F61A1 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517222C8BDCBA006F61A1 /* WalletView.swift */; };
+		C60517652C8BDEFA006F61A1 /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517532C8BDEFA006F61A1 /* Lorem.swift */; };
+		C60517662C8BDEFA006F61A1 /* MockChatData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517542C8BDEFA006F61A1 /* MockChatData.swift */; };
+		C60517672C8BDEFA006F61A1 /* ChatError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517562C8BDEFA006F61A1 /* ChatError.swift */; };
+		C60517682C8BDEFA006F61A1 /* MockAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517572C8BDEFA006F61A1 /* MockAttachment.swift */; };
+		C60517692C8BDEFA006F61A1 /* MockMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517582C8BDEFA006F61A1 /* MockMessage.swift */; };
+		C605176A2C8BDEFA006F61A1 /* MockUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517592C8BDEFA006F61A1 /* MockUser.swift */; };
+		C605176B2C8BDEFA006F61A1 /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605175B2C8BDEFA006F61A1 /* Friend.swift */; };
+		C605176C2C8BDEFA006F61A1 /* Spot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605175C2C8BDEFA006F61A1 /* Spot.swift */; };
+		C605176D2C8BDEFA006F61A1 /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605175E2C8BDEFA006F61A1 /* Host.swift */; };
+		C605176E2C8BDEFA006F61A1 /* HostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C605175F2C8BDEFA006F61A1 /* HostStore.swift */; };
+		C605176F2C8BDEFA006F61A1 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517602C8BDEFA006F61A1 /* Landmark.swift */; };
+		C60517712C8BDEFA006F61A1 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517622C8BDEFA006F61A1 /* Profile.swift */; };
+		C60517722C8BDEFA006F61A1 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517632C8BDEFA006F61A1 /* User.swift */; };
+		C60517752C8BE049006F61A1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C60517732C8BE049006F61A1 /* Preview Assets.xcassets */; };
+		C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C605177A2C8BE0C5006F61A1 /* KeychainSwift */; };
+		C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C605177C2C8BE0D6006F61A1 /* ExyteChat */; };
+		C624DDC42C939F2B0073F30F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C624DDC32C939F2B0073F30F /* NostrSDK */; };
+		C624DDCD2C93A0230073F30F /* ConnectFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6F2F2CD2C939C8D00C3CDBA /* ConnectFramework.framework */; };
+		C624DDCE2C93A0230073F30F /* ConnectFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C6F2F2CD2C939C8D00C3CDBA /* ConnectFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C626DEB42C8FE4F300BB1B85 /* ImportIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEB32C8FE4F300BB1B85 /* ImportIdentity.swift */; };
+		C626DEB62C90C5CC00BB1B85 /* ConnectRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEB52C90C5CC00BB1B85 /* ConnectRelay.swift */; };
+		C626DEB92C90FD3100BB1B85 /* LandmarkDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEB82C90FD3100BB1B85 /* LandmarkDirectory.swift */; };
+		C626DEBB2C910B3E00BB1B85 /* MarkerOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */; };
+		C626DEBD2C9133E900BB1B85 /* LeadOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */; };
+		C6DDD6982C92766E000BE2A4 /* CreateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD6972C92766E000BE2A4 /* CreateChannel.swift */; };
+		C6E65BE42C8F87D0002E6587 /* ChannelFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E65BE32C8F87D0002E6587 /* ChannelFeed.swift */; };
+		C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E838F52C8BE2B20061BC39 /* ContentView.swift */; };
+		C6F2F2A22C9399CC00C3CDBA /* AppData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F2F2A12C9399CC00C3CDBA /* AppData.swift */; };
+		C6F6E4622C8C038C00A05F48 /* NostrKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */; };
+		C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6F6E4652C8E418000A05F48 /* SolanaSwift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C605163D2C8BDBB4006F61A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C60516242C8BDBB3006F61A1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C605162B2C8BDBB3006F61A1;
+			remoteInfo = SkatePay;
+		};
+		C60516472C8BDBB4006F61A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C60516242C8BDBB3006F61A1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C605162B2C8BDBB3006F61A1;
+			remoteInfo = SkatePay;
+		};
+		C6F2F2CC2C939C8D00C3CDBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C6F2F2C72C939C8D00C3CDBA /* ConnectFramework.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C6F2F2AD2C939C8D00C3CDBA;
+			remoteInfo = ConnectFramework;
+		};
+		C6F2F2CE2C939C8D00C3CDBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C6F2F2C72C939C8D00C3CDBA /* ConnectFramework.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C6F2F2B72C939C8D00C3CDBA;
+			remoteInfo = ConnectFrameworkTests;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C624DDCF2C93A0230073F30F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C624DDCE2C93A0230073F30F /* ConnectFramework.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C605162C2C8BDBB3006F61A1 /* SkatePay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkatePay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C605162F2C8BDBB3006F61A1 /* SkatePayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkatePayApp.swift; sourceTree = "<group>"; };
+		C60516332C8BDBB4006F61A1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C605163C2C8BDBB4006F61A1 /* SkatePayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkatePayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C60516402C8BDBB4006F61A1 /* SkatePayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkatePayTests.swift; sourceTree = "<group>"; };
+		C60516462C8BDBB4006F61A1 /* SkatePayUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkatePayUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C605164A2C8BDBB4006F61A1 /* SkatePayUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkatePayUITests.swift; sourceTree = "<group>"; };
+		C605164C2C8BDBB4006F61A1 /* SkatePayUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkatePayUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C605165B2C8BDC26006F61A1 /* Color+hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Color+hex.swift"; sourceTree = "<group>"; };
+		C605165C2C8BDC26006F61A1 /* Date+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
+		C605165D2C8BDC26006F61A1 /* Sequence+asyncMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+asyncMap.swift"; sourceTree = "<group>"; };
+		C60516622C8BDC2E006F61A1 /* DemoHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoHelper.swift; sourceTree = "<group>"; };
+		C60516E42C8BDC76006F61A1 /* AnyToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyToken.swift; sourceTree = "<group>"; };
+		C60516E52C8BDC76006F61A1 /* SolanaAccount.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaAccount.swift; sourceTree = "<group>"; };
+		C60516E62C8BDC76006F61A1 /* SolanaToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaToken.swift; sourceTree = "<group>"; };
+		C60516E72C8BDC76006F61A1 /* TokenPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenPrice.swift; sourceTree = "<group>"; };
+		C60516FC2C8BDCBA006F61A1 /* NostrKeyInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrKeyInput.swift; sourceTree = "<group>"; };
+		C60516FF2C8BDCBA006F61A1 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
+		C60517002C8BDCBA006F61A1 /* FavoriteButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
+		C60517012C8BDCBA006F61A1 /* MapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		C60517032C8BDCBA006F61A1 /* AddressBook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressBook.swift; sourceTree = "<group>"; };
+		C60517042C8BDCBA006F61A1 /* SpotDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotDetail.swift; sourceTree = "<group>"; };
+		C60517052C8BDCBA006F61A1 /* SpotRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotRow.swift; sourceTree = "<group>"; };
+		C60517072C8BDCBA006F61A1 /* ConversationInteractorProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationInteractorProtocol.swift; sourceTree = "<group>"; };
+		C60517082C8BDCBA006F61A1 /* MockChatInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockChatInteractor.swift; sourceTree = "<group>"; };
+		C605170A2C8BDCBA006F61A1 /* DirectChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectChat.swift; sourceTree = "<group>"; };
+		C605170B2C8BDCBA006F61A1 /* MockChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockChat.swift; sourceTree = "<group>"; };
+		C605170C2C8BDCBA006F61A1 /* MockFeed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockFeed.swift; sourceTree = "<group>"; };
+		C605170D2C8BDCBA006F61A1 /* NostrFeed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrFeed.swift; sourceTree = "<group>"; };
+		C605170F2C8BDCBA006F61A1 /* ProfileEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileEditor.swift; sourceTree = "<group>"; };
+		C60517102C8BDCBA006F61A1 /* ProfileHost.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileHost.swift; sourceTree = "<group>"; };
+		C60517112C8BDCBA006F61A1 /* ProfileSummary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSummary.swift; sourceTree = "<group>"; };
+		C60517132C8BDCBA006F61A1 /* UserDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDetail.swift; sourceTree = "<group>"; };
+		C60517142C8BDCBA006F61A1 /* UserItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserItem.swift; sourceTree = "<group>"; };
+		C60517152C8BDCBA006F61A1 /* UserRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRow.swift; sourceTree = "<group>"; };
+		C60517172C8BDCBA006F61A1 /* Contacts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Contacts.swift; sourceTree = "<group>"; };
+		C60517182C8BDCBA006F61A1 /* CreateMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateMessage.swift; sourceTree = "<group>"; };
+		C60517192C8BDCBA006F61A1 /* LobbyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LobbyView.swift; sourceTree = "<group>"; };
+		C605171B2C8BDCBA006F61A1 /* LandmarkDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandmarkDetail.swift; sourceTree = "<group>"; };
+		C605171C2C8BDCBA006F61A1 /* LandmarkRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandmarkRow.swift; sourceTree = "<group>"; };
+		C605171D2C8BDCBA006F61A1 /* SkateView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkateView.swift; sourceTree = "<group>"; };
+		C605171F2C8BDCBA006F61A1 /* ImportWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWallet.swift; sourceTree = "<group>"; };
+		C60517202C8BDCBA006F61A1 /* SolanaKeychainStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaKeychainStorage.swift; sourceTree = "<group>"; };
+		C60517212C8BDCBA006F61A1 /* TransferToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferToken.swift; sourceTree = "<group>"; };
+		C60517222C8BDCBA006F61A1 /* WalletView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
+		C60517522C8BDDDA006F61A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C60517532C8BDEFA006F61A1 /* Lorem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lorem.swift; sourceTree = "<group>"; };
+		C60517542C8BDEFA006F61A1 /* MockChatData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockChatData.swift; sourceTree = "<group>"; };
+		C60517562C8BDEFA006F61A1 /* ChatError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatError.swift; sourceTree = "<group>"; };
+		C60517572C8BDEFA006F61A1 /* MockAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockAttachment.swift; sourceTree = "<group>"; };
+		C60517582C8BDEFA006F61A1 /* MockMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockMessage.swift; sourceTree = "<group>"; };
+		C60517592C8BDEFA006F61A1 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
+		C605175B2C8BDEFA006F61A1 /* Friend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
+		C605175C2C8BDEFA006F61A1 /* Spot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spot.swift; sourceTree = "<group>"; };
+		C605175E2C8BDEFA006F61A1 /* Host.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
+		C605175F2C8BDEFA006F61A1 /* HostStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostStore.swift; sourceTree = "<group>"; };
+		C60517602C8BDEFA006F61A1 /* Landmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Landmark.swift; sourceTree = "<group>"; };
+		C60517622C8BDEFA006F61A1 /* Profile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		C60517632C8BDEFA006F61A1 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		C60517732C8BE049006F61A1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C626DEB32C8FE4F300BB1B85 /* ImportIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportIdentity.swift; sourceTree = "<group>"; };
+		C626DEB52C90C5CC00BB1B85 /* ConnectRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectRelay.swift; sourceTree = "<group>"; };
+		C626DEB82C90FD3100BB1B85 /* LandmarkDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkDirectory.swift; sourceTree = "<group>"; };
+		C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerOptions.swift; sourceTree = "<group>"; };
+		C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeadOptions.swift; sourceTree = "<group>"; };
+		C6DDD6972C92766E000BE2A4 /* CreateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateChannel.swift; sourceTree = "<group>"; };
+		C6E65BE32C8F87D0002E6587 /* ChannelFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelFeed.swift; sourceTree = "<group>"; };
+		C6E838F52C8BE2B20061BC39 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C6F2F2A12C9399CC00C3CDBA /* AppData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppData.swift; sourceTree = "<group>"; };
+		C6F2F2C72C939C8D00C3CDBA /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
+		C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrKeychainStorage.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C60516292C8BDBB3006F61A1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C624DDC42C939F2B0073F30F /* NostrSDK in Frameworks */,
+				C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */,
+				C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */,
+				C624DDCD2C93A0230073F30F /* ConnectFramework.framework in Frameworks */,
+				C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C60516392C8BDBB4006F61A1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C60516432C8BDBB4006F61A1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C60516232C8BDBB3006F61A1 = {
+			isa = PBXGroup;
+			children = (
+				C6F2F2C72C939C8D00C3CDBA /* ConnectFramework.xcodeproj */,
+				C605162E2C8BDBB3006F61A1 /* SkatePay */,
+				C605163F2C8BDBB4006F61A1 /* SkatePayTests */,
+				C60516492C8BDBB4006F61A1 /* SkatePayUITests */,
+				C605162D2C8BDBB3006F61A1 /* Products */,
+				C624DDCC2C93A0230073F30F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C605162D2C8BDBB3006F61A1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C605162C2C8BDBB3006F61A1 /* SkatePay.app */,
+				C605163C2C8BDBB4006F61A1 /* SkatePayTests.xctest */,
+				C60516462C8BDBB4006F61A1 /* SkatePayUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C605162E2C8BDBB3006F61A1 /* SkatePay */ = {
+			isa = PBXGroup;
+			children = (
+				C6F2F2A12C9399CC00C3CDBA /* AppData.swift */,
+				C60516332C8BDBB4006F61A1 /* Assets.xcassets */,
+				C60516E92C8BDC76006F61A1 /* Blockchain */,
+				C605165E2C8BDC26006F61A1 /* Extensions */,
+				C60516632C8BDC2E006F61A1 /* Helpers */,
+				C60517522C8BDDDA006F61A1 /* Info.plist */,
+				C60517642C8BDEFA006F61A1 /* Model */,
+				C60517742C8BE049006F61A1 /* Preview Content */,
+				C605162F2C8BDBB3006F61A1 /* SkatePayApp.swift */,
+				C60517262C8BDCBA006F61A1 /* Views */,
+			);
+			path = SkatePay;
+			sourceTree = "<group>";
+		};
+		C605163F2C8BDBB4006F61A1 /* SkatePayTests */ = {
+			isa = PBXGroup;
+			children = (
+				C60516402C8BDBB4006F61A1 /* SkatePayTests.swift */,
+			);
+			path = SkatePayTests;
+			sourceTree = "<group>";
+		};
+		C60516492C8BDBB4006F61A1 /* SkatePayUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C605164A2C8BDBB4006F61A1 /* SkatePayUITests.swift */,
+				C605164C2C8BDBB4006F61A1 /* SkatePayUITestsLaunchTests.swift */,
+			);
+			path = SkatePayUITests;
+			sourceTree = "<group>";
+		};
+		C605165E2C8BDC26006F61A1 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				C605165B2C8BDC26006F61A1 /* Color+hex.swift */,
+				C605165C2C8BDC26006F61A1 /* Date+Extensions.swift */,
+				C605165D2C8BDC26006F61A1 /* Sequence+asyncMap.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		C60516632C8BDC2E006F61A1 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C60516622C8BDC2E006F61A1 /* DemoHelper.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		C60516E82C8BDC76006F61A1 /* Solana */ = {
+			isa = PBXGroup;
+			children = (
+				C60516E42C8BDC76006F61A1 /* AnyToken.swift */,
+				C60516E52C8BDC76006F61A1 /* SolanaAccount.swift */,
+				C60516E62C8BDC76006F61A1 /* SolanaToken.swift */,
+				C60516E72C8BDC76006F61A1 /* TokenPrice.swift */,
+			);
+			path = Solana;
+			sourceTree = "<group>";
+		};
+		C60516E92C8BDC76006F61A1 /* Blockchain */ = {
+			isa = PBXGroup;
+			children = (
+				C60516E82C8BDC76006F61A1 /* Solana */,
+			);
+			path = Blockchain;
+			sourceTree = "<group>";
+		};
+		C60516FD2C8BDCBA006F61A1 /* Nostr */ = {
+			isa = PBXGroup;
+			children = (
+				C60516FC2C8BDCBA006F61A1 /* NostrKeyInput.swift */,
+			);
+			path = Nostr;
+			sourceTree = "<group>";
+		};
+		C60516FE2C8BDCBA006F61A1 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				C60516FD2C8BDCBA006F61A1 /* Nostr */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
+		C60517022C8BDCBA006F61A1 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				C60516FF2C8BDCBA006F61A1 /* CircleImage.swift */,
+				C60517002C8BDCBA006F61A1 /* FavoriteButton.swift */,
+				C60517012C8BDCBA006F61A1 /* MapView.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		C60517062C8BDCBA006F61A1 /* AddressBook */ = {
+			isa = PBXGroup;
+			children = (
+				C60517032C8BDCBA006F61A1 /* AddressBook.swift */,
+				C60517052C8BDCBA006F61A1 /* SpotRow.swift */,
+			);
+			path = AddressBook;
+			sourceTree = "<group>";
+		};
+		C60517092C8BDCBA006F61A1 /* ChatInteractor */ = {
+			isa = PBXGroup;
+			children = (
+				C60517072C8BDCBA006F61A1 /* ConversationInteractorProtocol.swift */,
+				C60517082C8BDCBA006F61A1 /* MockChatInteractor.swift */,
+			);
+			path = ChatInteractor;
+			sourceTree = "<group>";
+		};
+		C605170E2C8BDCBA006F61A1 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				C60517092C8BDCBA006F61A1 /* ChatInteractor */,
+				C605170A2C8BDCBA006F61A1 /* DirectChat.swift */,
+				C605170B2C8BDCBA006F61A1 /* MockChat.swift */,
+				C605170C2C8BDCBA006F61A1 /* MockFeed.swift */,
+				C605170D2C8BDCBA006F61A1 /* NostrFeed.swift */,
+				C6DDD6972C92766E000BE2A4 /* CreateChannel.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		C60517122C8BDCBA006F61A1 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				C605170F2C8BDCBA006F61A1 /* ProfileEditor.swift */,
+				C60517102C8BDCBA006F61A1 /* ProfileHost.swift */,
+				C60517112C8BDCBA006F61A1 /* ProfileSummary.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		C60517162C8BDCBA006F61A1 /* Users */ = {
+			isa = PBXGroup;
+			children = (
+				C60517132C8BDCBA006F61A1 /* UserDetail.swift */,
+				C60517142C8BDCBA006F61A1 /* UserItem.swift */,
+				C60517152C8BDCBA006F61A1 /* UserRow.swift */,
+			);
+			path = Users;
+			sourceTree = "<group>";
+		};
+		C605171A2C8BDCBA006F61A1 /* Lobby */ = {
+			isa = PBXGroup;
+			children = (
+				C6E65BE22C8F87A8002E6587 /* SpotFeed */,
+				C60517062C8BDCBA006F61A1 /* AddressBook */,
+				C60517122C8BDCBA006F61A1 /* Profile */,
+				C60517162C8BDCBA006F61A1 /* Users */,
+				C60517172C8BDCBA006F61A1 /* Contacts.swift */,
+				C60517182C8BDCBA006F61A1 /* CreateMessage.swift */,
+				C60517192C8BDCBA006F61A1 /* LobbyView.swift */,
+			);
+			path = Lobby;
+			sourceTree = "<group>";
+		};
+		C605171E2C8BDCBA006F61A1 /* Skate */ = {
+			isa = PBXGroup;
+			children = (
+				C626DEB72C90FD1F00BB1B85 /* LandmarkDirectory */,
+				C605171D2C8BDCBA006F61A1 /* SkateView.swift */,
+				C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */,
+				C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */,
+			);
+			path = Skate;
+			sourceTree = "<group>";
+		};
+		C60517232C8BDCBA006F61A1 /* Wallet */ = {
+			isa = PBXGroup;
+			children = (
+				C6F6E4632C8C060A00A05F48 /* Keychain */,
+				C605171F2C8BDCBA006F61A1 /* ImportWallet.swift */,
+				C60517212C8BDCBA006F61A1 /* TransferToken.swift */,
+				C60517222C8BDCBA006F61A1 /* WalletView.swift */,
+				C626DEB32C8FE4F300BB1B85 /* ImportIdentity.swift */,
+				C626DEB52C90C5CC00BB1B85 /* ConnectRelay.swift */,
+			);
+			path = Wallet;
+			sourceTree = "<group>";
+		};
+		C60517242C8BDCBA006F61A1 /* Skatepark */ = {
+			isa = PBXGroup;
+			children = (
+				C605170E2C8BDCBA006F61A1 /* Chat */,
+				C605171A2C8BDCBA006F61A1 /* Lobby */,
+				C605171E2C8BDCBA006F61A1 /* Skate */,
+				C60517232C8BDCBA006F61A1 /* Wallet */,
+			);
+			path = Skatepark;
+			sourceTree = "<group>";
+		};
+		C60517262C8BDCBA006F61A1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C6E838F52C8BE2B20061BC39 /* ContentView.swift */,
+				C60516FE2C8BDCBA006F61A1 /* Debug */,
+				C60517022C8BDCBA006F61A1 /* Helper */,
+				C60517242C8BDCBA006F61A1 /* Skatepark */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C60517552C8BDEFA006F61A1 /* DataGeneration */ = {
+			isa = PBXGroup;
+			children = (
+				C60517532C8BDEFA006F61A1 /* Lorem.swift */,
+				C60517542C8BDEFA006F61A1 /* MockChatData.swift */,
+			);
+			path = DataGeneration;
+			sourceTree = "<group>";
+		};
+		C605175A2C8BDEFA006F61A1 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				C60517552C8BDEFA006F61A1 /* DataGeneration */,
+				C60517562C8BDEFA006F61A1 /* ChatError.swift */,
+				C60517572C8BDEFA006F61A1 /* MockAttachment.swift */,
+				C60517582C8BDEFA006F61A1 /* MockMessage.swift */,
+				C60517592C8BDEFA006F61A1 /* MockUser.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		C605175D2C8BDEFA006F61A1 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				C605175B2C8BDEFA006F61A1 /* Friend.swift */,
+				C605175C2C8BDEFA006F61A1 /* Spot.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		C60517642C8BDEFA006F61A1 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C605175A2C8BDEFA006F61A1 /* Chat */,
+				C605175D2C8BDEFA006F61A1 /* Data */,
+				C605175E2C8BDEFA006F61A1 /* Host.swift */,
+				C605175F2C8BDEFA006F61A1 /* HostStore.swift */,
+				C60517602C8BDEFA006F61A1 /* Landmark.swift */,
+				C60517622C8BDEFA006F61A1 /* Profile.swift */,
+				C60517632C8BDEFA006F61A1 /* User.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C60517742C8BE049006F61A1 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C60517732C8BE049006F61A1 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C624DDCC2C93A0230073F30F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C626DEB72C90FD1F00BB1B85 /* LandmarkDirectory */ = {
+			isa = PBXGroup;
+			children = (
+				C605171B2C8BDCBA006F61A1 /* LandmarkDetail.swift */,
+				C605171C2C8BDCBA006F61A1 /* LandmarkRow.swift */,
+				C626DEB82C90FD3100BB1B85 /* LandmarkDirectory.swift */,
+			);
+			path = LandmarkDirectory;
+			sourceTree = "<group>";
+		};
+		C6E65BE22C8F87A8002E6587 /* SpotFeed */ = {
+			isa = PBXGroup;
+			children = (
+				C60517042C8BDCBA006F61A1 /* SpotDetail.swift */,
+				C6E65BE32C8F87D0002E6587 /* ChannelFeed.swift */,
+			);
+			path = SpotFeed;
+			sourceTree = "<group>";
+		};
+		C6F2F2C82C939C8D00C3CDBA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C6F2F2CD2C939C8D00C3CDBA /* ConnectFramework.framework */,
+				C6F2F2CF2C939C8D00C3CDBA /* ConnectFrameworkTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C6F6E4632C8C060A00A05F48 /* Keychain */ = {
+			isa = PBXGroup;
+			children = (
+				C60517202C8BDCBA006F61A1 /* SolanaKeychainStorage.swift */,
+				C6F6E4612C8C038C00A05F48 /* NostrKeychainStorage.swift */,
+			);
+			path = Keychain;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C605162B2C8BDBB3006F61A1 /* SkatePay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C60516502C8BDBB4006F61A1 /* Build configuration list for PBXNativeTarget "SkatePay" */;
+			buildPhases = (
+				C60516282C8BDBB3006F61A1 /* Sources */,
+				C60516292C8BDBB3006F61A1 /* Frameworks */,
+				C605162A2C8BDBB3006F61A1 /* Resources */,
+				C624DDCF2C93A0230073F30F /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SkatePay;
+			packageProductDependencies = (
+				C605177A2C8BE0C5006F61A1 /* KeychainSwift */,
+				C605177C2C8BE0D6006F61A1 /* ExyteChat */,
+				C6F6E4652C8E418000A05F48 /* SolanaSwift */,
+				C624DDC32C939F2B0073F30F /* NostrSDK */,
+			);
+			productName = SkatePay;
+			productReference = C605162C2C8BDBB3006F61A1 /* SkatePay.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C605163B2C8BDBB4006F61A1 /* SkatePayTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C60516532C8BDBB4006F61A1 /* Build configuration list for PBXNativeTarget "SkatePayTests" */;
+			buildPhases = (
+				C60516382C8BDBB4006F61A1 /* Sources */,
+				C60516392C8BDBB4006F61A1 /* Frameworks */,
+				C605163A2C8BDBB4006F61A1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C605163E2C8BDBB4006F61A1 /* PBXTargetDependency */,
+			);
+			name = SkatePayTests;
+			productName = SkatePayTests;
+			productReference = C605163C2C8BDBB4006F61A1 /* SkatePayTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C60516452C8BDBB4006F61A1 /* SkatePayUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C60516562C8BDBB4006F61A1 /* Build configuration list for PBXNativeTarget "SkatePayUITests" */;
+			buildPhases = (
+				C60516422C8BDBB4006F61A1 /* Sources */,
+				C60516432C8BDBB4006F61A1 /* Frameworks */,
+				C60516442C8BDBB4006F61A1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C60516482C8BDBB4006F61A1 /* PBXTargetDependency */,
+			);
+			name = SkatePayUITests;
+			productName = SkatePayUITests;
+			productReference = C60516462C8BDBB4006F61A1 /* SkatePayUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C60516242C8BDBB3006F61A1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					C605162B2C8BDBB3006F61A1 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					C605163B2C8BDBB4006F61A1 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = C605162B2C8BDBB3006F61A1;
+					};
+					C60516452C8BDBB4006F61A1 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = C605162B2C8BDBB3006F61A1;
+					};
+				};
+			};
+			buildConfigurationList = C60516272C8BDBB3006F61A1 /* Build configuration list for PBXProject "SkatePay" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C60516232C8BDBB3006F61A1;
+			packageReferences = (
+				C60517462C8BDD1B006F61A1 /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */,
+				C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */,
+				C624DDC22C939F2B0073F30F /* XCLocalSwiftPackageReference "../../nostr-sdk-ios" */,
+			);
+			productRefGroup = C605162D2C8BDBB3006F61A1 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = C6F2F2C82C939C8D00C3CDBA /* Products */;
+					ProjectRef = C6F2F2C72C939C8D00C3CDBA /* ConnectFramework.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				C605162B2C8BDBB3006F61A1 /* SkatePay */,
+				C605163B2C8BDBB4006F61A1 /* SkatePayTests */,
+				C60516452C8BDBB4006F61A1 /* SkatePayUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		C6F2F2CD2C939C8D00C3CDBA /* ConnectFramework.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ConnectFramework.framework;
+			remoteRef = C6F2F2CC2C939C8D00C3CDBA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C6F2F2CF2C939C8D00C3CDBA /* ConnectFrameworkTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ConnectFrameworkTests.xctest;
+			remoteRef = C6F2F2CE2C939C8D00C3CDBA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C605162A2C8BDBB3006F61A1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C60517752C8BE049006F61A1 /* Preview Assets.xcassets in Resources */,
+				C60516342C8BDBB4006F61A1 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C605163A2C8BDBB4006F61A1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C60516442C8BDBB4006F61A1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C60516282C8BDBB3006F61A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C60516302C8BDBB3006F61A1 /* SkatePayApp.swift in Sources */,
+				C626DEB62C90C5CC00BB1B85 /* ConnectRelay.swift in Sources */,
+				C605172F2C8BDCBA006F61A1 /* ConversationInteractorProtocol.swift in Sources */,
+				C605176A2C8BDEFA006F61A1 /* MockUser.swift in Sources */,
+				C605173C2C8BDCBA006F61A1 /* CreateMessage.swift in Sources */,
+				C605165F2C8BDC26006F61A1 /* Color+hex.swift in Sources */,
+				C605172E2C8BDCBA006F61A1 /* SpotRow.swift in Sources */,
+				C60516EA2C8BDC76006F61A1 /* AnyToken.swift in Sources */,
+				C60517692C8BDEFA006F61A1 /* MockMessage.swift in Sources */,
+				C605172C2C8BDCBA006F61A1 /* AddressBook.swift in Sources */,
+				C605172D2C8BDCBA006F61A1 /* SpotDetail.swift in Sources */,
+				C626DEB42C8FE4F300BB1B85 /* ImportIdentity.swift in Sources */,
+				C60517332C8BDCBA006F61A1 /* MockFeed.swift in Sources */,
+				C60517662C8BDEFA006F61A1 /* MockChatData.swift in Sources */,
+				C60517682C8BDEFA006F61A1 /* MockAttachment.swift in Sources */,
+				C605176E2C8BDEFA006F61A1 /* HostStore.swift in Sources */,
+				C626DEB92C90FD3100BB1B85 /* LandmarkDirectory.swift in Sources */,
+				C6DDD6982C92766E000BE2A4 /* CreateChannel.swift in Sources */,
+				C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */,
+				C605176F2C8BDEFA006F61A1 /* Landmark.swift in Sources */,
+				C60517302C8BDCBA006F61A1 /* MockChatInteractor.swift in Sources */,
+				C605173E2C8BDCBA006F61A1 /* LandmarkDetail.swift in Sources */,
+				C60516EC2C8BDC76006F61A1 /* SolanaToken.swift in Sources */,
+				C605176D2C8BDEFA006F61A1 /* Host.swift in Sources */,
+				C60516ED2C8BDC76006F61A1 /* TokenPrice.swift in Sources */,
+				C60517652C8BDEFA006F61A1 /* Lorem.swift in Sources */,
+				C60517392C8BDCBA006F61A1 /* UserItem.swift in Sources */,
+				C60517442C8BDCBA006F61A1 /* WalletView.swift in Sources */,
+				C60517312C8BDCBA006F61A1 /* DirectChat.swift in Sources */,
+				C605173A2C8BDCBA006F61A1 /* UserRow.swift in Sources */,
+				C605173B2C8BDCBA006F61A1 /* Contacts.swift in Sources */,
+				C60517372C8BDCBA006F61A1 /* ProfileSummary.swift in Sources */,
+				C605173F2C8BDCBA006F61A1 /* LandmarkRow.swift in Sources */,
+				C60517292C8BDCBA006F61A1 /* CircleImage.swift in Sources */,
+				C60517712C8BDEFA006F61A1 /* Profile.swift in Sources */,
+				C60517362C8BDCBA006F61A1 /* ProfileHost.swift in Sources */,
+				C60517722C8BDEFA006F61A1 /* User.swift in Sources */,
+				C60516612C8BDC26006F61A1 /* Sequence+asyncMap.swift in Sources */,
+				C6E65BE42C8F87D0002E6587 /* ChannelFeed.swift in Sources */,
+				C60517672C8BDEFA006F61A1 /* ChatError.swift in Sources */,
+				C605176B2C8BDEFA006F61A1 /* Friend.swift in Sources */,
+				C60517352C8BDCBA006F61A1 /* ProfileEditor.swift in Sources */,
+				C605172B2C8BDCBA006F61A1 /* MapView.swift in Sources */,
+				C60517282C8BDCBA006F61A1 /* NostrKeyInput.swift in Sources */,
+				C6F6E4622C8C038C00A05F48 /* NostrKeychainStorage.swift in Sources */,
+				C6F2F2A22C9399CC00C3CDBA /* AppData.swift in Sources */,
+				C60517322C8BDCBA006F61A1 /* MockChat.swift in Sources */,
+				C60517432C8BDCBA006F61A1 /* TransferToken.swift in Sources */,
+				C60516642C8BDC2E006F61A1 /* DemoHelper.swift in Sources */,
+				C60516EB2C8BDC76006F61A1 /* SolanaAccount.swift in Sources */,
+				C60517412C8BDCBA006F61A1 /* ImportWallet.swift in Sources */,
+				C60517422C8BDCBA006F61A1 /* SolanaKeychainStorage.swift in Sources */,
+				C60516602C8BDC26006F61A1 /* Date+Extensions.swift in Sources */,
+				C60517342C8BDCBA006F61A1 /* NostrFeed.swift in Sources */,
+				C626DEBD2C9133E900BB1B85 /* LeadOptions.swift in Sources */,
+				C605176C2C8BDEFA006F61A1 /* Spot.swift in Sources */,
+				C60517402C8BDCBA006F61A1 /* SkateView.swift in Sources */,
+				C605173D2C8BDCBA006F61A1 /* LobbyView.swift in Sources */,
+				C60517382C8BDCBA006F61A1 /* UserDetail.swift in Sources */,
+				C626DEBB2C910B3E00BB1B85 /* MarkerOptions.swift in Sources */,
+				C605172A2C8BDCBA006F61A1 /* FavoriteButton.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C60516382C8BDBB4006F61A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C60516412C8BDBB4006F61A1 /* SkatePayTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C60516422C8BDBB4006F61A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C605164D2C8BDBB4006F61A1 /* SkatePayUITestsLaunchTests.swift in Sources */,
+				C605164B2C8BDBB4006F61A1 /* SkatePayUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C605163E2C8BDBB4006F61A1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C605162B2C8BDBB3006F61A1 /* SkatePay */;
+			targetProxy = C605163D2C8BDBB4006F61A1 /* PBXContainerItemProxy */;
+		};
+		C60516482C8BDBB4006F61A1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C605162B2C8BDBB3006F61A1 /* SkatePay */;
+			targetProxy = C60516472C8BDBB4006F61A1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C605164E2C8BDBB4006F61A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C605164F2C8BDBB4006F61A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C60516512C8BDBB4006F61A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SkatePay/Preview Content\"";
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SkatePay/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SkatePay;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.SkatePay;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		C60516522C8BDBB4006F61A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SkatePay/Preview Content\"";
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SkatePay/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SkatePay;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.SkatePay;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C60516542C8BDBB4006F61A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.SkatePayTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SkatePay.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SkatePay";
+			};
+			name = Debug;
+		};
+		C60516552C8BDBB4006F61A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.SkatePayTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SkatePay.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SkatePay";
+			};
+			name = Release;
+		};
+		C60516572C8BDBB4006F61A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.SkatePayUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SkatePay;
+			};
+			name = Debug;
+		};
+		C60516582C8BDBB4006F61A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SJ92P833ND;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chat.skatepay.SkatePayUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SkatePay;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C60516272C8BDBB3006F61A1 /* Build configuration list for PBXProject "SkatePay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C605164E2C8BDBB4006F61A1 /* Debug */,
+				C605164F2C8BDBB4006F61A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C60516502C8BDBB4006F61A1 /* Build configuration list for PBXNativeTarget "SkatePay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C60516512C8BDBB4006F61A1 /* Debug */,
+				C60516522C8BDBB4006F61A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C60516532C8BDBB4006F61A1 /* Build configuration list for PBXNativeTarget "SkatePayTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C60516542C8BDBB4006F61A1 /* Debug */,
+				C60516552C8BDBB4006F61A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C60516562C8BDBB4006F61A1 /* Build configuration list for PBXNativeTarget "SkatePayUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C60516572C8BDBB4006F61A1 /* Debug */,
+				C60516582C8BDBB4006F61A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		C624DDC22C939F2B0073F30F /* XCLocalSwiftPackageReference "../../nostr-sdk-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../nostr-sdk-ios";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C60517462C8BDD1B006F61A1 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
+		C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/Chat.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.5;
+			};
+		};
+		C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SkatePay/solana-swift";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C605177A2C8BE0C5006F61A1 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C60517462C8BDD1B006F61A1 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
+		};
+		C605177C2C8BE0D6006F61A1 /* ExyteChat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C605174C2C8BDD39006F61A1 /* XCRemoteSwiftPackageReference "Chat" */;
+			productName = ExyteChat;
+		};
+		C624DDC32C939F2B0073F30F /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C6F6E4652C8E418000A05F48 /* SolanaSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6F6E4642C8E418000A05F48 /* XCRemoteSwiftPackageReference "solana-swift" */;
+			productName = SolanaSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C60516242C8BDBB3006F61A1 /* Project object */;
+}
