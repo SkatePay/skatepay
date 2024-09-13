@@ -47,8 +47,8 @@ struct UserRow: View {
         }
         .fullScreenCover(isPresented: $isShowingBlackList) {
             NavigationView {
-                Blacklist()
-                    .navigationBarTitle("Blacklist")
+                Filters()
+                    .navigationBarTitle("Filters")
                     .navigationBarItems(leading:
                                             Button(action: {
                         isShowingBlackList = false

@@ -153,7 +153,7 @@ struct ContentView: View {
     
     @StateObject private var store = HostStore()
     
-    @State private var selection: Tab = .lobby
+    @State private var selection: Tab = .map
     
     let keychainForNostr = NostrKeychainStorage()
     
