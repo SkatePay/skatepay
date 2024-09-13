@@ -77,10 +77,6 @@
 		C626DEBB2C910B3E00BB1B85 /* MarkerOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBA2C910B3E00BB1B85 /* MarkerOptions.swift */; };
 		C626DEBD2C9133E900BB1B85 /* LeadOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C626DEBC2C9133E900BB1B85 /* LeadOptions.swift */; };
 		C6DDD6982C92766E000BE2A4 /* CreateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD6972C92766E000BE2A4 /* CreateChannel.swift */; };
-		C6DDD69D2C9292D7000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD69C2C9292D7000BE2A4 /* NostrSDK */; };
-		C6DDD6A02C929F21000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD69F2C929F21000BE2A4 /* NostrSDK */; };
-		C6DDD6A32C92AA79000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD6A22C92AA79000BE2A4 /* NostrSDK */; };
-		C6DDD6A62C92AB23000BE2A4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DDD6A52C92AB23000BE2A4 /* NostrSDK */; };
 		C6E65BE42C8F87D0002E6587 /* ChannelFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E65BE32C8F87D0002E6587 /* ChannelFeed.swift */; };
 		C6E838F62C8BE2B20061BC39 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E838F52C8BE2B20061BC39 /* ContentView.swift */; };
 		C6F2F2A22C9399CC00C3CDBA /* AppData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F2F2A12C9399CC00C3CDBA /* AppData.swift */; };
@@ -216,14 +212,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				C624DDC42C939F2B0073F30F /* NostrSDK in Frameworks */,
-				C6DDD69D2C9292D7000BE2A4 /* NostrSDK in Frameworks */,
 				C605177D2C8BE0D6006F61A1 /* ExyteChat in Frameworks */,
-				C6DDD6A32C92AA79000BE2A4 /* NostrSDK in Frameworks */,
 				C605177B2C8BE0C5006F61A1 /* KeychainSwift in Frameworks */,
 				C624DDCD2C93A0230073F30F /* ConnectFramework.framework in Frameworks */,
 				C6F6E4662C8E418000A05F48 /* SolanaSwift in Frameworks */,
-				C6DDD6A62C92AB23000BE2A4 /* NostrSDK in Frameworks */,
-				C6DDD6A02C929F21000BE2A4 /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,17 +261,17 @@
 		C605162E2C8BDBB3006F61A1 /* SkatePay */ = {
 			isa = PBXGroup;
 			children = (
-				C60517522C8BDDDA006F61A1 /* Info.plist */,
-				C605162F2C8BDBB3006F61A1 /* SkatePayApp.swift */,
+				C6F2F2A12C9399CC00C3CDBA /* AppData.swift */,
 				C60516332C8BDBB4006F61A1 /* Assets.xcassets */,
 				C60516E92C8BDC76006F61A1 /* Blockchain */,
 				C605165E2C8BDC26006F61A1 /* Extensions */,
 				C60516632C8BDC2E006F61A1 /* Helpers */,
+				C60517522C8BDDDA006F61A1 /* Info.plist */,
 				C60517642C8BDEFA006F61A1 /* Model */,
 				C60517742C8BE049006F61A1 /* Preview Content */,
 				C60516F82C8BDCB5006F61A1 /* Resources */,
+				C605162F2C8BDBB3006F61A1 /* SkatePayApp.swift */,
 				C60517262C8BDCBA006F61A1 /* Views */,
-				C6F2F2A12C9399CC00C3CDBA /* AppData.swift */,
 			);
 			path = SkatePay;
 			sourceTree = "<group>";
@@ -602,10 +594,6 @@
 				C605177A2C8BE0C5006F61A1 /* KeychainSwift */,
 				C605177C2C8BE0D6006F61A1 /* ExyteChat */,
 				C6F6E4652C8E418000A05F48 /* SolanaSwift */,
-				C6DDD69C2C9292D7000BE2A4 /* NostrSDK */,
-				C6DDD69F2C929F21000BE2A4 /* NostrSDK */,
-				C6DDD6A22C92AA79000BE2A4 /* NostrSDK */,
-				C6DDD6A52C92AB23000BE2A4 /* NostrSDK */,
 				C624DDC32C939F2B0073F30F /* NostrSDK */,
 			);
 			productName = SkatePay;
@@ -1207,22 +1195,6 @@
 			productName = ExyteChat;
 		};
 		C624DDC32C939F2B0073F30F /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = NostrSDK;
-		};
-		C6DDD69C2C9292D7000BE2A4 /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = NostrSDK;
-		};
-		C6DDD69F2C929F21000BE2A4 /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = NostrSDK;
-		};
-		C6DDD6A22C92AA79000BE2A4 /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = NostrSDK;
-		};
-		C6DDD6A52C92AB23000BE2A4 /* NostrSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NostrSDK;
 		};
