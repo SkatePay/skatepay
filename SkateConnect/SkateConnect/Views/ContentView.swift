@@ -171,19 +171,21 @@ struct ContentView: View {
                 }
                 .tag(Tab.map)
             
-            WalletView(host: $store.host) {
-                    Task {
-                        do {
-                            try await store.save(host: store.host)
-                        } catch {
-                            fatalError(error.localizedDescription)
+            if (hasWallet()) {
+                WalletView(host: $store.host) {
+                        Task {
+                            do {
+                                try await store.save(host: store.host)
+                            } catch {
+                                fatalError(error.localizedDescription)
+                            }
                         }
                     }
-                }
-                .tabItem {
-                    Label("Wallet", systemImage: "creditcard.and.123")
-                }
-                .tag(Tab.wallet)
+                    .tabItem {
+                        Label("Wallet", systemImage: "creditcard.and.123")
+                    }
+                    .tag(Tab.wallet)
+            }
         }
         .task {
             do {

@@ -5,9 +5,10 @@
 //  Created by Konstantin Yurchenko, Jr on 9/4/24.
 //
 
+import ConnectFramework
+import NostrSDK
 import SwiftUI
 import SwiftData
-import NostrSDK
 
 struct Contacts: View {
     @Query(sort: \Friend.name) private var friends: [Friend]
@@ -35,11 +36,15 @@ struct Contacts: View {
                             }) {
                                 Text("Copy npub")
                             }
-                            Button(action: {
-                                UIPasteboard.general.string = friend.solanaAddress
-                            }) {
-                                Text("Copy solana address")
+                            
+                            if (hasWallet()) {
+                                Button(action: {
+                                    UIPasteboard.general.string = friend.solanaAddress
+                                }) {
+                                    Text("Copy solana address")
+                                }
                             }
+
                             Button(action: {
                                 UIPasteboard.general.string = friend.npub
                             }) {
@@ -68,9 +73,11 @@ struct Contacts: View {
                     TextField("npub", text: $newNPub)
                         .textFieldStyle(.roundedBorder)
                     
-                    TextField("solana account", text: $solanaAddress)
-                        .textFieldStyle(.roundedBorder)
-                    
+                    if (hasWallet()) {
+                        TextField("solana account", text: $solanaAddress)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
                     Button("Save") {
                         let newFriend = Friend(name: newName, birthday: newDate, npub: newNPub, solanaAddress: solanaAddress, note: "")
                         context.insert(newFriend)

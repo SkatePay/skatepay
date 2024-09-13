@@ -16,3 +16,13 @@ public struct Constants {
     public static let NPUB_HUB = "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v"
     public static let NCHANNEL_ID = "daa690d701274549da87efbc969bb6b64a5367dbcbef26e116776053696e72ee"
 }
+
+public func hasWallet() -> Bool {
+    if let bundleID = Bundle.main.bundleIdentifier {
+        print(bundleID)
+        if (bundleID == "chat.skatepay.SkatePay") {
+            return true
+        }
+    }
+    return false
+}
