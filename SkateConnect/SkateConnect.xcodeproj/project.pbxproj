@@ -18,11 +18,7 @@
 		C62500E52C93C1250026C334 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500E12C93C1250026C334 /* Date+Extensions.swift */; };
 		C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500E22C93C1250026C334 /* Sequence+asyncMap.swift */; };
 		C62500E92C93C12A0026C334 /* DemoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500E72C93C12A0026C334 /* DemoHelper.swift */; };
-		C62501372C93C1340026C334 /* landmarkData.json in Resources */ = {isa = PBXBuildFile; fileRef = C62500EA2C93C1340026C334 /* landmarkData.json */; };
-		C62501382C93C1340026C334 /* userData.json in Resources */ = {isa = PBXBuildFile; fileRef = C62500EB2C93C1340026C334 /* userData.json */; };
-		C62501392C93C1340026C334 /* NostrDebugFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500ED2C93C1340026C334 /* NostrDebugFeed.swift */; };
 		C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500EE2C93C1340026C334 /* NostrKeyInput.swift */; };
-		C625013B2C93C1340026C334 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F12C93C1340026C334 /* CircleImage.swift */; };
 		C625013C2C93C1340026C334 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F22C93C1340026C334 /* FavoriteButton.swift */; };
 		C625013D2C93C1340026C334 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F32C93C1340026C334 /* MapView.swift */; };
 		C625013E2C93C1340026C334 /* ConversationInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F52C93C1340026C334 /* ConversationInteractorProtocol.swift */; };
@@ -82,6 +78,7 @@
 		C6DDD7372C936DAF000BE2A4 /* SkateConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7362C936DAF000BE2A4 /* SkateConnectTests.swift */; };
 		C6DDD7412C936DAF000BE2A4 /* SkateConnectUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */; };
 		C6DDD7432C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */; };
+		C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959B2C93CF350006FBF0 /* CircleImage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -140,11 +137,7 @@
 		C62500E12C93C1250026C334 /* Date+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		C62500E22C93C1250026C334 /* Sequence+asyncMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+asyncMap.swift"; sourceTree = "<group>"; };
 		C62500E72C93C12A0026C334 /* DemoHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoHelper.swift; sourceTree = "<group>"; };
-		C62500EA2C93C1340026C334 /* landmarkData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = landmarkData.json; sourceTree = "<group>"; };
-		C62500EB2C93C1340026C334 /* userData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = userData.json; sourceTree = "<group>"; };
-		C62500ED2C93C1340026C334 /* NostrDebugFeed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrDebugFeed.swift; sourceTree = "<group>"; };
 		C62500EE2C93C1340026C334 /* NostrKeyInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrKeyInput.swift; sourceTree = "<group>"; };
-		C62500F12C93C1340026C334 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 		C62500F22C93C1340026C334 /* FavoriteButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
 		C62500F32C93C1340026C334 /* MapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		C62500F52C93C1340026C334 /* ConversationInteractorProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationInteractorProtocol.swift; sourceTree = "<group>"; };
@@ -205,6 +198,7 @@
 		C6DDD73C2C936DAF000BE2A4 /* SkateConnectUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkateConnectUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITests.swift; sourceTree = "<group>"; };
 		C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C6F4959B2C93CF350006FBF0 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -274,19 +268,9 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
-		C62500EC2C93C1340026C334 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				C62500EA2C93C1340026C334 /* landmarkData.json */,
-				C62500EB2C93C1340026C334 /* userData.json */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		C62500EF2C93C1340026C334 /* Nostr */ = {
 			isa = PBXGroup;
 			children = (
-				C62500ED2C93C1340026C334 /* NostrDebugFeed.swift */,
 				C62500EE2C93C1340026C334 /* NostrKeyInput.swift */,
 			);
 			path = Nostr;
@@ -303,7 +287,7 @@
 		C62500F42C93C1340026C334 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
-				C62500F12C93C1340026C334 /* CircleImage.swift */,
+				C6F4959B2C93CF350006FBF0 /* CircleImage.swift */,
 				C62500F22C93C1340026C334 /* FavoriteButton.swift */,
 				C62500F32C93C1340026C334 /* MapView.swift */,
 			);
@@ -535,7 +519,6 @@
 				C62501242C93C1340026C334 /* Info.plist */,
 				C62501362C93C1340026C334 /* Model */,
 				C6DDD72B2C936DAF000BE2A4 /* Preview Content */,
-				C62500EC2C93C1340026C334 /* Resources */,
 				C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */,
 				C62501232C93C1340026C334 /* Views */,
 			);
@@ -717,8 +700,6 @@
 			files = (
 				C6DDD72D2C936DAF000BE2A4 /* Preview Assets.xcassets in Resources */,
 				C6DDD72A2C936DAF000BE2A4 /* Assets.xcassets in Resources */,
-				C62501382C93C1340026C334 /* userData.json in Resources */,
-				C62501372C93C1340026C334 /* landmarkData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -748,7 +729,6 @@
 				C62501642C93C1340026C334 /* MockAttachment.swift in Sources */,
 				C62501542C93C1340026C334 /* LandmarkRow.swift in Sources */,
 				C62501592C93C1340026C334 /* SolanaKeychainStorage.swift in Sources */,
-				C62501392C93C1340026C334 /* NostrDebugFeed.swift in Sources */,
 				C625016C2C93C1340026C334 /* Landmark.swift in Sources */,
 				C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */,
 				C62501472C93C1340026C334 /* ProfileEditor.swift in Sources */,
@@ -769,7 +749,6 @@
 				C62501632C93C1340026C334 /* ChatError.swift in Sources */,
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
-				C625013B2C93C1340026C334 /* CircleImage.swift in Sources */,
 				C62501432C93C1340026C334 /* MockFeed.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
@@ -804,6 +783,7 @@
 				C62501462C93C1340026C334 /* SpotRow.swift in Sources */,
 				C62500E42C93C1250026C334 /* Color+hex.swift in Sources */,
 				C625014E2C93C1340026C334 /* UserRow.swift in Sources */,
+				C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */,
 				C625015E2C93C1340026C334 /* WalletView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

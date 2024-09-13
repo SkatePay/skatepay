@@ -20,9 +20,6 @@
 		C60516EB2C8BDC76006F61A1 /* SolanaAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516E52C8BDC76006F61A1 /* SolanaAccount.swift */; };
 		C60516EC2C8BDC76006F61A1 /* SolanaToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516E62C8BDC76006F61A1 /* SolanaToken.swift */; };
 		C60516ED2C8BDC76006F61A1 /* TokenPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516E72C8BDC76006F61A1 /* TokenPrice.swift */; };
-		C60516F92C8BDCB5006F61A1 /* landmarkData.json in Resources */ = {isa = PBXBuildFile; fileRef = C60516F62C8BDCB5006F61A1 /* landmarkData.json */; };
-		C60516FA2C8BDCB5006F61A1 /* userData.json in Resources */ = {isa = PBXBuildFile; fileRef = C60516F72C8BDCB5006F61A1 /* userData.json */; };
-		C60517272C8BDCBA006F61A1 /* NostrDebugFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516FB2C8BDCBA006F61A1 /* NostrDebugFeed.swift */; };
 		C60517282C8BDCBA006F61A1 /* NostrKeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516FC2C8BDCBA006F61A1 /* NostrKeyInput.swift */; };
 		C60517292C8BDCBA006F61A1 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60516FF2C8BDCBA006F61A1 /* CircleImage.swift */; };
 		C605172A2C8BDCBA006F61A1 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60517002C8BDCBA006F61A1 /* FavoriteButton.swift */; };
@@ -146,9 +143,6 @@
 		C60516E52C8BDC76006F61A1 /* SolanaAccount.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaAccount.swift; sourceTree = "<group>"; };
 		C60516E62C8BDC76006F61A1 /* SolanaToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaToken.swift; sourceTree = "<group>"; };
 		C60516E72C8BDC76006F61A1 /* TokenPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenPrice.swift; sourceTree = "<group>"; };
-		C60516F62C8BDCB5006F61A1 /* landmarkData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = landmarkData.json; sourceTree = "<group>"; };
-		C60516F72C8BDCB5006F61A1 /* userData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = userData.json; sourceTree = "<group>"; };
-		C60516FB2C8BDCBA006F61A1 /* NostrDebugFeed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrDebugFeed.swift; sourceTree = "<group>"; };
 		C60516FC2C8BDCBA006F61A1 /* NostrKeyInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrKeyInput.swift; sourceTree = "<group>"; };
 		C60516FF2C8BDCBA006F61A1 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 		C60517002C8BDCBA006F61A1 /* FavoriteButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
@@ -269,7 +263,6 @@
 				C60517522C8BDDDA006F61A1 /* Info.plist */,
 				C60517642C8BDEFA006F61A1 /* Model */,
 				C60517742C8BE049006F61A1 /* Preview Content */,
-				C60516F82C8BDCB5006F61A1 /* Resources */,
 				C605162F2C8BDBB3006F61A1 /* SkatePayApp.swift */,
 				C60517262C8BDCBA006F61A1 /* Views */,
 			);
@@ -330,19 +323,9 @@
 			path = Blockchain;
 			sourceTree = "<group>";
 		};
-		C60516F82C8BDCB5006F61A1 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				C60516F62C8BDCB5006F61A1 /* landmarkData.json */,
-				C60516F72C8BDCB5006F61A1 /* userData.json */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		C60516FD2C8BDCBA006F61A1 /* Nostr */ = {
 			isa = PBXGroup;
 			children = (
-				C60516FB2C8BDCBA006F61A1 /* NostrDebugFeed.swift */,
 				C60516FC2C8BDCBA006F61A1 /* NostrKeyInput.swift */,
 			);
 			path = Nostr;
@@ -715,8 +698,6 @@
 			files = (
 				C60517752C8BE049006F61A1 /* Preview Assets.xcassets in Resources */,
 				C60516342C8BDBB4006F61A1 /* Assets.xcassets in Resources */,
-				C60516FA2C8BDCB5006F61A1 /* userData.json in Resources */,
-				C60516F92C8BDCB5006F61A1 /* landmarkData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -791,7 +772,6 @@
 				C60517432C8BDCBA006F61A1 /* TransferToken.swift in Sources */,
 				C60516642C8BDC2E006F61A1 /* DemoHelper.swift in Sources */,
 				C60516EB2C8BDC76006F61A1 /* SolanaAccount.swift in Sources */,
-				C60517272C8BDCBA006F61A1 /* NostrDebugFeed.swift in Sources */,
 				C60517412C8BDCBA006F61A1 /* ImportWallet.swift in Sources */,
 				C60517422C8BDCBA006F61A1 /* SolanaKeychainStorage.swift in Sources */,
 				C60516602C8BDC26006F61A1 /* Date+Extensions.swift in Sources */,

@@ -8,7 +8,6 @@
 import SwiftUI
 import NostrSDK
 
-
 struct UserDetail: View {
     @Environment(AppData.self) var modelData
         

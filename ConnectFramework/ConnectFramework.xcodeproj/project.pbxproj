@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		C624DDD12C93A06E0073F30F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C624DDD02C93A06E0073F30F /* Constants.swift */; };
+		C62501852C93C8860026C334 /* landmarkData.json in Resources */ = {isa = PBXBuildFile; fileRef = C62501822C93C8860026C334 /* landmarkData.json */; };
+		C62501862C93C8860026C334 /* userData.json in Resources */ = {isa = PBXBuildFile; fileRef = C62501832C93C8860026C334 /* userData.json */; };
+		C62501882C93C8DF0026C334 /* DataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501872C93C8DF0026C334 /* DataHelper.swift */; };
+		C62501892C93C9CA0026C334 /* landmarkData.json in Resources */ = {isa = PBXBuildFile; fileRef = C62501822C93C8860026C334 /* landmarkData.json */; };
+		C625018A2C93C9CA0026C334 /* userData.json in Resources */ = {isa = PBXBuildFile; fileRef = C62501832C93C8860026C334 /* userData.json */; };
 		C6F2F2B22C939C8D00C3CDBA /* ConnectFramework.docc in Sources */ = {isa = PBXBuildFile; fileRef = C6F2F2B12C939C8D00C3CDBA /* ConnectFramework.docc */; };
 		C6F2F2B82C939C8D00C3CDBA /* ConnectFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6F2F2AD2C939C8D00C3CDBA /* ConnectFramework.framework */; };
 		C6F2F2BD2C939C8D00C3CDBA /* ConnectFrameworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F2F2BC2C939C8D00C3CDBA /* ConnectFrameworkTests.swift */; };
@@ -26,6 +31,9 @@
 
 /* Begin PBXFileReference section */
 		C624DDD02C93A06E0073F30F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C62501822C93C8860026C334 /* landmarkData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = landmarkData.json; sourceTree = "<group>"; };
+		C62501832C93C8860026C334 /* userData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = userData.json; sourceTree = "<group>"; };
+		C62501872C93C8DF0026C334 /* DataHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHelper.swift; sourceTree = "<group>"; };
 		C6F2F2AD2C939C8D00C3CDBA /* ConnectFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ConnectFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6F2F2B02C939C8D00C3CDBA /* ConnectFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConnectFramework.h; sourceTree = "<group>"; };
 		C6F2F2B12C939C8D00C3CDBA /* ConnectFramework.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = ConnectFramework.docc; sourceTree = "<group>"; };
@@ -52,6 +60,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C62501842C93C8860026C334 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C62501822C93C8860026C334 /* landmarkData.json */,
+				C62501832C93C8860026C334 /* userData.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		C6F2F2A32C939C8D00C3CDBA = {
 			isa = PBXGroup;
 			children = (
@@ -73,9 +90,11 @@
 		C6F2F2AF2C939C8D00C3CDBA /* ConnectFramework */ = {
 			isa = PBXGroup;
 			children = (
+				C6F495942C93CCAA0006FBF0 /* Helpers */,
 				C6F2F2B02C939C8D00C3CDBA /* ConnectFramework.h */,
 				C6F2F2B12C939C8D00C3CDBA /* ConnectFramework.docc */,
 				C624DDD02C93A06E0073F30F /* Constants.swift */,
+				C62501842C93C8860026C334 /* Resources */,
 			);
 			path = ConnectFramework;
 			sourceTree = "<group>";
@@ -86,6 +105,14 @@
 				C6F2F2BC2C939C8D00C3CDBA /* ConnectFrameworkTests.swift */,
 			);
 			path = ConnectFrameworkTests;
+			sourceTree = "<group>";
+		};
+		C6F495942C93CCAA0006FBF0 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C62501872C93C8DF0026C334 /* DataHelper.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -180,6 +207,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C62501862C93C8860026C334 /* userData.json in Resources */,
+				C62501852C93C8860026C334 /* landmarkData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +216,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C62501892C93C9CA0026C334 /* landmarkData.json in Resources */,
+				C625018A2C93C9CA0026C334 /* userData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,6 +228,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C62501882C93C8DF0026C334 /* DataHelper.swift in Sources */,
 				C6F2F2B22C939C8D00C3CDBA /* ConnectFramework.docc in Sources */,
 				C624DDD12C93A06E0073F30F /* Constants.swift in Sources */,
 			);

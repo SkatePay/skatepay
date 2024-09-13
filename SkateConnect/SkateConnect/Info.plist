@@ -7,7 +7,7 @@
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<true/>
 		<key>UIImageName</key>
-		<string>skate-pay</string>
+		<string>skate-connect</string>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>SkateConnect uses the camera to scan QR codes to enhance user experience with AR features.</string>
