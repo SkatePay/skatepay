@@ -194,7 +194,6 @@
 		C605175E2C8BDEFA006F61A1 /* Host.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
 		C605175F2C8BDEFA006F61A1 /* HostStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostStore.swift; sourceTree = "<group>"; };
 		C60517602C8BDEFA006F61A1 /* Landmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Landmark.swift; sourceTree = "<group>"; };
-		C60517612C8BDEFA006F61A1 /* SkatePayData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkatePayData.swift; sourceTree = "<group>"; };
 		C60517622C8BDEFA006F61A1 /* Profile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C60517632C8BDEFA006F61A1 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C60517732C8BE049006F61A1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -524,7 +523,6 @@
 				C605175E2C8BDEFA006F61A1 /* Host.swift */,
 				C605175F2C8BDEFA006F61A1 /* HostStore.swift */,
 				C60517602C8BDEFA006F61A1 /* Landmark.swift */,
-				C60517612C8BDEFA006F61A1 /* SkatePayData.swift */,
 				C60517622C8BDEFA006F61A1 /* Profile.swift */,
 				C60517632C8BDEFA006F61A1 /* User.swift */,
 			);
