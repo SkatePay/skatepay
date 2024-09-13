@@ -126,13 +126,6 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         }
     }
     
-//    private var currentFilter: Filter {
-//        let authors = [recipientPublicKey()?.hex ?? nil, myPublicKey()?.hex ?? nil]
-//        
-//        print(authors)
-//        return Filter(authors: authors.compactMap{ $0 }, kinds: [4])!
-//    }
-    
     private var currentFilter: Filter? {
         guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
@@ -173,7 +166,6 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         if let unwrappedFilter = currentFilter {
             subscriptionId = viewModel.relayPool.subscribe(with: unwrappedFilter)
         } else {
-            // Handle the case where currentFilter is nil
             print("currentFilter is nil, unable to subscribe")
         }
         viewModel.relayPool.delegate = self.chatDelegate

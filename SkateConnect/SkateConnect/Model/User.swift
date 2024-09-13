@@ -15,6 +15,7 @@ struct User: Hashable, Codable, Identifiable {
     var solanaAddress: String
     var relayUrl: String
     var isFavorite: Bool
+    var note: String
     
     private var imageName: String
     var image: Image {

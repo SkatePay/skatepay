@@ -1,21 +1,23 @@
 [
     {
         "id": 1001,
+        "name": "Tech Support",
+        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
+        "solanaAddress": "",
+        "relayUrl": "wss://relay.primal.net",
+        "imageName": "user-prorobot",
+        "isFavorite": true,
+        "note": "This is official support account. I am here to help you address your app related questions."
+    },
+    {
+        "id": 1002,
         "name": "HQ",
         "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
         "solanaAddress": "",
         "relayUrl": "wss://relay.primal.net",
         "imageName": "user-hub",
-        "isFavorite": true
-    },
-    {
-        "id": 1002,
-        "name": "Support",
-        "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
-        "solanaAddress": "",
-        "relayUrl": "wss://relay.primal.net",
-        "imageName": "user-prorobot",
-        "isFavorite": false
+        "isFavorite": false,
+        "note": ""
     },
     {
         "id": 1003,
@@ -24,6 +26,7 @@
         "solanaAddress": "",
         "relayUrl": "wss://relay.damus.io",
         "imageName": "user-skatepay",
-        "isFavorite": false
+        "isFavorite": false,
+        "note": ""
     }
 ]

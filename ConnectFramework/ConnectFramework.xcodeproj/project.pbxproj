@@ -90,10 +90,10 @@
 		C6F2F2AF2C939C8D00C3CDBA /* ConnectFramework */ = {
 			isa = PBXGroup;
 			children = (
-				C6F495942C93CCAA0006FBF0 /* Helpers */,
-				C6F2F2B02C939C8D00C3CDBA /* ConnectFramework.h */,
 				C6F2F2B12C939C8D00C3CDBA /* ConnectFramework.docc */,
+				C6F2F2B02C939C8D00C3CDBA /* ConnectFramework.h */,
 				C624DDD02C93A06E0073F30F /* Constants.swift */,
+				C6F495942C93CCAA0006FBF0 /* Helpers */,
 				C62501842C93C8860026C334 /* Resources */,
 			);
 			path = ConnectFramework;
@@ -143,6 +143,8 @@
 			dependencies = (
 			);
 			name = ConnectFramework;
+			packageProductDependencies = (
+			);
 			productName = ConnectFramework;
 			productReference = C6F2F2AD2C939C8D00C3CDBA /* ConnectFramework.framework */;
 			productType = "com.apple.product-type.framework";
@@ -192,6 +194,8 @@
 				Base,
 			);
 			mainGroup = C6F2F2A32C939C8D00C3CDBA;
+			packageReferences = (
+			);
 			productRefGroup = C6F2F2AE2C939C8D00C3CDBA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

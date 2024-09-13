@@ -69,19 +69,21 @@ struct MarkerOptions: View {
             }
         }
         .fullScreenCover(isPresented: $showChannelView) {
-            let landmark = getLandmark()
-            
             if let landmark = getLandmark() {
                 NavigationView {
                     ChannelFeed(eventId: landmark.eventId)
                         .navigationBarTitle("\(npub ?? "")")
                         .navigationBarItems(leading:
-                                                Button(action: {
-                            showChannelView = false
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.left")
+                                                HStack {
+                            Button(action: {
+                                showChannelView = false
+                            }) {
                                 
+                                Image(systemName: "arrow.left")
+                            }
+                            Button(action: { 
+                                print("A")
+                            }) {
                                 landmark.image
                                     .resizable()
                                     .scaledToFill()
@@ -95,10 +97,9 @@ struct MarkerOptions: View {
                                         .foregroundColor(.black)
                                     
                                 }
-                                Spacer()
                             }
-                        }
-                        )
+                            Spacer()
+                        })
                 }
             }
         }

@@ -16,7 +16,7 @@ struct SkateConnectApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .modelContainer(for: [Friend.self, Spot.self])
+                .modelContainer(for: [Friend.self, Foe.self, Spot.self])
                 .environment(modelData)
         }
     }

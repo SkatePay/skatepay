@@ -51,12 +51,26 @@ struct UserDetail: View {
                 
                 Divider()
                 
+                Text("Info")
+                    .font(.title2)
+                
+                Text(user.note)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding()
+                    .contextMenu {
+                        Button(action: {
+                            UIPasteboard.general.string = user.npub
+                        }) {
+                            Text("Copy")
+                            }
+                        }
+                
                 Text("Relay")
                     .font(.title2)
                 Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")" )
                 
                 Divider()
-                
                 
                 HStack {
                     Spacer()
@@ -64,7 +78,7 @@ struct UserDetail: View {
                     NavigationLink {
                         DirectChat(user: user)
                     } label: {
-                        Label("Chat", systemImage: "folder")
+                        Label("Chat", systemImage: "message")
                     }
                 }
                 .padding(15)

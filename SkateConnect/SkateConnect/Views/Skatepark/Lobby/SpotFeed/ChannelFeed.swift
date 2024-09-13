@@ -13,7 +13,7 @@ import ExyteChat
 import Combine
 
 class FeedDelegate: ObservableObject, RelayDelegate {
-    @Published var fetchingStoredEvents = false
+    @Published var fetchingStoredEvents = true
     
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
     }
@@ -36,7 +36,7 @@ struct ChannelFeed: View, LegacyDirectMessageEncrypting, EventCreating {
     
     let keychainForNostr = NostrKeychainStorage()
     
-    @ObservedObject var chatDelegate = FeedDelegate()
+    @ObservedObject var feedDelegate = FeedDelegate()
     
     @State private var messages: [Message] = []
     @State private var eventsCancellable: AnyCancellable?
@@ -142,7 +142,7 @@ struct ChannelFeed: View, LegacyDirectMessageEncrypting, EventCreating {
         
         subscriptionId = viewModel.relayPool.subscribe(with: currentFilter)
         
-        viewModel.relayPool.delegate = self.chatDelegate
+        viewModel.relayPool.delegate = self.feedDelegate
         
         eventsCancellable = viewModel.relayPool.events
             .receive(on: DispatchQueue.main)
@@ -152,7 +152,7 @@ struct ChannelFeed: View, LegacyDirectMessageEncrypting, EventCreating {
             .removeDuplicates()
             .sink { event in
                 if let element = parseEvent(event: event) {
-                    if(self.chatDelegate.fetchingStoredEvents) {
+                    if(self.feedDelegate.fetchingStoredEvents) {
                         messages.insert(element, at: 0)
                     } else {
                         messages.append(element)

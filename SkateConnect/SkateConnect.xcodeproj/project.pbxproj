@@ -72,6 +72,8 @@
 		C62501762C93C2DA0026C334 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C62501752C93C2DA0026C334 /* ExyteChat */; };
 		C62501792C93C2E20026C334 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C62501782C93C2E20026C334 /* KeychainSwift */; };
 		C625017C2C93C2F00026C334 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C625017B2C93C2F00026C334 /* NostrSDK */; };
+		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
+		C6DCF46F2C93E32F00CA21ED /* Blacklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Blacklist.swift */; };
 		C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */; };
 		C6DDD72A2C936DAF000BE2A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C6DDD7292C936DAF000BE2A4 /* Assets.xcassets */; };
 		C6DDD72D2C936DAF000BE2A4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C6DDD72C2C936DAF000BE2A4 /* Preview Assets.xcassets */; };
@@ -191,6 +193,8 @@
 		C62501342C93C1340026C334 /* Profile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C62501352C93C1340026C334 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
+		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
+		C6DCF46E2C93E32F00CA21ED /* Blacklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blacklist.swift; sourceTree = "<group>"; };
 		C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkateConnect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectApp.swift; sourceTree = "<group>"; };
 		C6DDD7292C936DAF000BE2A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -368,6 +372,7 @@
 				C625010C2C93C1340026C334 /* Contacts.swift */,
 				C625010D2C93C1340026C334 /* CreateMessage.swift */,
 				C625010E2C93C1340026C334 /* LobbyView.swift */,
+				C6DCF46E2C93E32F00CA21ED /* Blacklist.swift */,
 			);
 			path = Lobby;
 			sourceTree = "<group>";
@@ -462,6 +467,7 @@
 			children = (
 				C625012D2C93C1340026C334 /* Friend.swift */,
 				C625012E2C93C1340026C334 /* Spot.swift */,
+				C6DCF46C2C93DEB200CA21ED /* Foe.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -766,6 +772,7 @@
 				C62501432C93C1340026C334 /* MockFeed.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
+				C6DCF46F2C93E32F00CA21ED /* Blacklist.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
 				C62501572C93C1340026C334 /* SkateView.swift in Sources */,
 				C62501492C93C1340026C334 /* ProfileSummary.swift in Sources */,
@@ -800,6 +807,7 @@
 				C62500E42C93C1250026C334 /* Color+hex.swift in Sources */,
 				C625014E2C93C1340026C334 /* UserRow.swift in Sources */,
 				C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */,
+				C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */,
 				C625015E2C93C1340026C334 /* WalletView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

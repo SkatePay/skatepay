@@ -8,14 +8,29 @@
 import SwiftUI
 
 struct UserRow: View {
+    @Environment(\.modelContext) private var context
+
+    @State private var isShowingBlackList = false
+
     var users: [User]
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Skaters of The Month")
-                .font(.headline)
-                .padding(.leading, 15)
-                .padding(.top, 5)
+            HStack {
+                Text("Favorites")
+                    .font(.headline)
+                    .padding(.leading, 15)
+                    .padding(.top, 5)
+                Spacer()
+                Button(action: {
+                    isShowingBlackList = true
+                }) {
+                    Text("Blacklist")
+                        .font(.headline)
+                        .padding(.leading, 15)
+                        .padding(.top, 5)
+                }
+            }
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 0) {
@@ -29,6 +44,22 @@ struct UserRow: View {
                 }
             }
             .frame(height: 120)
+        }
+        .fullScreenCover(isPresented: $isShowingBlackList) {
+            NavigationView {
+                Blacklist()
+                    .navigationBarTitle("Blacklist")
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        isShowingBlackList = false
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.left")
+                            Text("🏛️ Lobby")
+                            Spacer()
+                        }
+                    })
+            }
         }
     }
 }

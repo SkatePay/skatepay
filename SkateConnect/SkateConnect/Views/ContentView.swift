@@ -8,6 +8,7 @@
 import ConnectFramework
 import Combine
 import NostrSDK
+import SwiftData
 import SwiftUI
 
 enum Tab {
@@ -30,6 +31,8 @@ struct ActivityEvent {
 }
 
 class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncrypting, EventCreating {
+    @Environment(\.modelContext) private var context
+    
     @Published var isConnected: Bool = false
     @Published var fetchingStoredEvents: Bool = true
     
@@ -38,7 +41,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     var relayPool = try! RelayPool(relayURLs: [
         URL(string: Constants.RELAY_URL_PRIMAL)!
     ])
-        
+    
     private var subscriptionForGroup, subscriptionForDirect: String?
     private var eventsCancellableForGroup, eventsCancellableForDirect: AnyCancellable?
     
@@ -60,16 +63,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     }
     
     func relay(_ relay: Relay, didReceive event: RelayEvent) {
-        let publicKey = PublicKey(hex: event.event.pubkey)
-        let kind = event.event.kind
-        
-        let npub = publicKey!.npub
-        
-        DispatchQueue.main.async {
-            if (kind == EventKind.legacyEncryptedDirectMessage) {
-                self.room.nostrEvents.append(ActivityEvent(id: event.event.id, npub: npub))
-            }
-        }
     }
     
     func relay(_ relay: Relay, didReceive response: RelayResponse) {
@@ -80,7 +73,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             self.fetchingStoredEvents = false
         }
     }
-
+    
     private var filterForGroupMessages: Filter? {
         guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
@@ -99,7 +92,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         return filter
     }
     
-    private func updateSubscriptions() {
+    private func updateSubscriptions() {        
         if let subscriptionForGroup {
             relayPool.closeSubscription(with: subscriptionForGroup)
         }
@@ -143,19 +136,27 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                 if(event.kind == EventKind.channelCreation) {
                     self.room.channels.append(event.id)
                 }
+                
+                if (event.kind == EventKind.legacyEncryptedDirectMessage) {
+                    let publicKey = PublicKey(hex: event.pubkey)
+                    
+                    if let npub = publicKey?.npub {
+                        self.room.nostrEvents.append(ActivityEvent(id: event.id, npub: npub ))
+                    }
+                }
             }
     }
 }
 
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
-
+    
     @StateObject private var store = HostStore()
-
-    @State private var selection: Tab = .map
+    
+    @State private var selection: Tab = .lobby
     
     let keychainForNostr = NostrKeychainStorage()
-        
+    
     var body: some View {
         TabView(selection: $selection) {
             LobbyView()
@@ -164,7 +165,7 @@ struct ContentView: View {
                 }
                 .tag(Tab.lobby)
                 .environmentObject(viewModel.room)
-
+            
             SkateView()
                 .tabItem {
                     Label("Skate", systemImage: "map")
@@ -173,24 +174,24 @@ struct ContentView: View {
             
             if (hasWallet()) {
                 WalletView(host: $store.host) {
-                        Task {
-                            do {
-                                try await store.save(host: store.host)
-                            } catch {
-                                fatalError(error.localizedDescription)
-                            }
+                    Task {
+                        do {
+                            try await store.save(host: store.host)
+                        } catch {
+                            fatalError(error.localizedDescription)
                         }
                     }
-                    .tabItem {
-                        Label("Wallet", systemImage: "creditcard.and.123")
-                    }
-                    .tag(Tab.wallet)
+                }
+                .tabItem {
+                    Label("Wallet", systemImage: "creditcard.and.123")
+                }
+                .tag(Tab.wallet)
             } else {
                 SettingsView(host: $store.host)
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
-                .tag(Tab.settings)
+                    .tabItem {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                    .tag(Tab.settings)
             }
         }
         .task {
