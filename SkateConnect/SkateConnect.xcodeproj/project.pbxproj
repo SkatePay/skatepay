@@ -79,6 +79,8 @@
 		C6DDD7412C936DAF000BE2A4 /* SkateConnectUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */; };
 		C6DDD7432C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */; };
 		C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959B2C93CF350006FBF0 /* CircleImage.swift */; };
+		C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */; };
+		C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F495A02C93D3C10006FBF0 /* WalletManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -199,6 +201,8 @@
 		C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITests.swift; sourceTree = "<group>"; };
 		C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C6F4959B2C93CF350006FBF0 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
+		C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C6F495A02C93D3C10006FBF0 /* WalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -401,12 +405,10 @@
 		C62501202C93C1340026C334 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
-				C625011A2C93C1340026C334 /* Keychain */,
-				C625011B2C93C1340026C334 /* ConnectRelay.swift */,
-				C625011C2C93C1340026C334 /* ImportIdentity.swift */,
 				C625011D2C93C1340026C334 /* ImportWallet.swift */,
 				C625011E2C93C1340026C334 /* TransferToken.swift */,
 				C625011F2C93C1340026C334 /* WalletView.swift */,
+				C6F495A02C93D3C10006FBF0 /* WalletManager.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -414,6 +416,7 @@
 		C62501212C93C1340026C334 /* Skatepark */ = {
 			isa = PBXGroup;
 			children = (
+				C6F4959D2C93D3200006FBF0 /* Settings */,
 				C62500FD2C93C1340026C334 /* Chat */,
 				C625010F2C93C1340026C334 /* Lobby */,
 				C62501172C93C1340026C334 /* Skate */,
@@ -556,6 +559,17 @@
 				C624DDC92C939F920073F30F /* ConnectFramework.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C6F4959D2C93D3200006FBF0 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				C625011B2C93C1340026C334 /* ConnectRelay.swift */,
+				C625011C2C93C1340026C334 /* ImportIdentity.swift */,
+				C625011A2C93C1340026C334 /* Keychain */,
+				C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -750,6 +764,7 @@
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
 				C62501432C93C1340026C334 /* MockFeed.swift in Sources */,
+				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
 				C62501572C93C1340026C334 /* SkateView.swift in Sources */,
@@ -765,6 +780,7 @@
 				C625016E2C93C1340026C334 /* User.swift in Sources */,
 				C625013D2C93C1340026C334 /* MapView.swift in Sources */,
 				C62501612C93C1340026C334 /* Lorem.swift in Sources */,
+				C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */,
 				C62501402C93C1340026C334 /* CreateChannel.swift in Sources */,
 				C62500DD2C93C1210026C334 /* SolanaAccount.swift in Sources */,
 				C625014A2C93C1340026C334 /* ChannelFeed.swift in Sources */,

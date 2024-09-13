@@ -185,6 +185,12 @@ struct ContentView: View {
                         Label("Wallet", systemImage: "creditcard.and.123")
                     }
                     .tag(Tab.wallet)
+            } else {
+                SettingsView(host: $store.host)
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .tag(Tab.settings)
             }
         }
         .task {

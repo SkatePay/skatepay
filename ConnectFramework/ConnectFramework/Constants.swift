@@ -17,9 +17,13 @@ public struct Constants {
     public static let NCHANNEL_ID = "daa690d701274549da87efbc969bb6b64a5367dbcbef26e116776053696e72ee"
 }
 
+public struct ProRobot {
+    public static let HELP_URL_SKATEPAY = "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics"
+    public static let HELP_URL_SKATECONNECT = ""
+}
+
 public func hasWallet() -> Bool {
     if let bundleID = Bundle.main.bundleIdentifier {
-        print(bundleID)
         if (bundleID == "chat.skatepay.SkatePay") {
             return true
         }
