@@ -4,20 +4,20 @@
 <dict>
 	<key>UILaunchScreen</key>
 	<dict>
-		<key>UIImageRespectsSafeAreaInsets</key>
-		<true/>
 		<key>UIImageName</key>
 		<string>skate-connect</string>
+		<key>UIImageRespectsSafeAreaInsets</key>
+		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>SkateConnect uses the camera to scan QR codes to enhance user experience with AR features.</string>
+	<string>SkateConnect uses the camera to scan QR codes and to enhance user experience with AR features.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>SkateConnect uses the microphone for voice commands to facilitate user interaction with our AI assistant feature.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>SkateConnect uses the photo library to allow users to upload profile pictures.</string>
+	<string>SkateConnect uses the microphone for voice commands to facilitate voice notes and to improve user interaction with our AI assistant feature.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>SkateConnect uses your location to provide location-based services, such as finding nearby locations.</string>
+	<string>SkateConnect uses your location to provide location-based services, such as finding nearby locations or enhancing our AR features with real-world positioning.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>SkateConnect uses your location even when the app is in the background to offer continuous location-based services, like tracking your journey.</string>
+	<string>SkateConnect uses your location even when the app is in the background to offer continuous location-based services, like tracking your journey or providing real-time updates on nearby options.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SkateConnect uses the photo library to allow users to upload pictures.</string>
 </dict>
 </plist>
