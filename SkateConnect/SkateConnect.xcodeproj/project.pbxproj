@@ -69,9 +69,9 @@
 		C625016D2C93C1340026C334 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501342C93C1340026C334 /* Profile.swift */; };
 		C625016E2C93C1340026C334 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501352C93C1340026C334 /* User.swift */; };
 		C631E98D2C954FBB009E5C0D /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C631E98C2C954FBB009E5C0D /* SolanaSwift */; };
-		C631E9902C954FC9009E5C0D /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C631E98F2C954FC9009E5C0D /* NostrSDK */; };
 		C631E9932C954FDC009E5C0D /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C631E9922C954FDC009E5C0D /* KeychainSwift */; };
 		C631E9962C954FE5009E5C0D /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C631E9952C954FE5009E5C0D /* ExyteChat */; };
+		C6844E132C9552DD00A2E941 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6844E122C9552DD00A2E941 /* NostrSDK */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -222,7 +222,7 @@
 				C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */,
 				C631E9962C954FE5009E5C0D /* ExyteChat in Frameworks */,
 				C631E9932C954FDC009E5C0D /* KeychainSwift in Frameworks */,
-				C631E9902C954FC9009E5C0D /* NostrSDK in Frameworks */,
+				C6844E132C9552DD00A2E941 /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,9 +603,9 @@
 			name = SkateConnect;
 			packageProductDependencies = (
 				C631E98C2C954FBB009E5C0D /* SolanaSwift */,
-				C631E98F2C954FC9009E5C0D /* NostrSDK */,
 				C631E9922C954FDC009E5C0D /* KeychainSwift */,
 				C631E9952C954FE5009E5C0D /* ExyteChat */,
+				C6844E122C9552DD00A2E941 /* NostrSDK */,
 			);
 			productName = SkateConnect;
 			productReference = C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */;
@@ -681,9 +681,9 @@
 			mainGroup = C6DDD7172C936DAE000BE2A4;
 			packageReferences = (
 				C631E98B2C954FBB009E5C0D /* XCRemoteSwiftPackageReference "solana-swift" */,
-				C631E98E2C954FC9009E5C0D /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 				C631E9912C954FDC009E5C0D /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				C631E9942C954FE5009E5C0D /* XCRemoteSwiftPackageReference "Chat" */,
+				C6844E112C9552DD00A2E941 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 			);
 			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
 			projectDirPath = "";
@@ -1166,14 +1166,6 @@
 				kind = branch;
 			};
 		};
-		C631E98E2C954FC9009E5C0D /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:SkatePay/nostr-sdk-ios.git";
-			requirement = {
-				branch = "yurchenko/nip-28";
-				kind = branch;
-			};
-		};
 		C631E9912C954FDC009E5C0D /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
@@ -1190,6 +1182,14 @@
 				minimumVersion = 2.0.5;
 			};
 		};
+		C6844E112C9552DD00A2E941 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SkatePay/nostr-sdk-ios";
+			requirement = {
+				branch = "yurchenko/nip-28";
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1197,11 +1197,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C631E98B2C954FBB009E5C0D /* XCRemoteSwiftPackageReference "solana-swift" */;
 			productName = SolanaSwift;
-		};
-		C631E98F2C954FC9009E5C0D /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C631E98E2C954FC9009E5C0D /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
-			productName = NostrSDK;
 		};
 		C631E9922C954FDC009E5C0D /* KeychainSwift */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1212,6 +1207,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C631E9942C954FE5009E5C0D /* XCRemoteSwiftPackageReference "Chat" */;
 			productName = ExyteChat;
+		};
+		C6844E122C9552DD00A2E941 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6844E112C9552DD00A2E941 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
+			productName = NostrSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
