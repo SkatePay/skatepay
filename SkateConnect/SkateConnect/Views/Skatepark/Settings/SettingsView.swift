@@ -33,7 +33,7 @@ struct SettingsView: View {
             List {
                 Section ("NOSTR") {
                     if let publicKey = keychainForNostr.account?.publicKey.npub {
-                        Text("\(publicKey.prefix(8))...\(publicKey.suffix(8))")
+                        Text("\(publicKey)")
                             .contextMenu {
                                 if let npub = keychainForNostr.account?.publicKey.npub {
                                     Button(action: {
