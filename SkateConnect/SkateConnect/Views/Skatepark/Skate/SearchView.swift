@@ -21,7 +21,7 @@ struct SearchView: View {
                 TextField("{ \"latitude\": 0.0, \"longitude\": 0.0 }", text: $coordinates)
             }
             Section("channel") {
-                TextField("about", text: $channelId)
+                TextField("channel", text: $channelId)
             }
             Button("Search") {
                 showingAlert.toggle()

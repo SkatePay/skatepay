@@ -25,6 +25,13 @@ class Lobby: ObservableObject {
     @Published var channels: [String: Channel] = [:]
     @Published var leads: [String: Lead] = [:]
     @Published var events: [ActivityEvent] = []
+    
+    func clear() {
+        guests = [:]
+        leads = [:]
+        channels = [:]
+        events = []
+    }
 }
 
 struct ActivityEvent {
@@ -274,6 +281,8 @@ struct ContentView: View {
                     .tabItem {
                         Label("Settings", systemImage: "gearshape")
                     }
+                    .environmentObject(viewModel.room)
+                    .environmentObject(viewModel)
                     .tag(Tab.settings)
             }
         }

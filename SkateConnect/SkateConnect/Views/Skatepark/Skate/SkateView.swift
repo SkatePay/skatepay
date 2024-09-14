@@ -108,14 +108,21 @@ class NavigationManager: ObservableObject {
     @Published var path = NavigationPath()
     @Published var landmark: Landmark?
     
-    @Published var showDirectoryView = false
-    @Published var showChannelView = false
-    @Published var showSearchView = false
+    @Published var isShowingDirectory = false
+    @Published var isShowingChannelFeed = false
+    @Published var isShowingSearch = false
+    @Published var isShowingCreateChannel = false
+    @Published var isShowingMarkerOptions = false
     
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .didDismissToContentView, object: nil)
-        showDirectoryView = false
+        isShowingDirectory = false
+    }
+    
+    func dismissToSkateView() {
+        isShowingMarkerOptions = false
+        isShowingCreateChannel = false
     }
 }
 
@@ -132,7 +139,6 @@ struct SkateView: View {
     @StateObject var locationManager = LocationManager()
     
     @State private var showingAlert = false
-    @State private var isShowingMarkerOptions = false
     @State private var isShowingLeadOptions = false
     
     @State private var npub: String?
@@ -176,7 +182,7 @@ struct SkateView: View {
                                         }
                                         .onChanged { state in
                                             channelId = lead.eventId
-                                            navigation.showChannelView.toggle()
+                                            navigation.isShowingChannelFeed.toggle()
                                         }
                                 )
                             }
@@ -197,11 +203,11 @@ struct SkateView: View {
                 
                 HStack {
                     Button("Landmarks") {
-                        navigation.showDirectoryView = true
+                        navigation.isShowingDirectory = true
                     }
                     
                     Button("🔎") {
-                        navigation.showSearchView.toggle()
+                        navigation.isShowingSearch.toggle()
                     }
                     .padding(32)
                     
@@ -213,19 +219,19 @@ struct SkateView: View {
                     }
                 }
             }
-            .sheet(isPresented: $isShowingMarkerOptions) {
-                MarkerOptions(npub: npub, marks: locationManager.marks)
+            .sheet(isPresented: $navigation.isShowingMarkerOptions) {
+                MarkerOptions(navigation: navigation, marks: locationManager.marks)
             }
             .sheet(isPresented: $isShowingLeadOptions) {
                 LeadOptions()
             }
-            .fullScreenCover(isPresented: $navigation.showDirectoryView) {
+            .fullScreenCover(isPresented: $navigation.isShowingDirectory) {
                 NavigationView {
                     LandmarkDirectory(navigation: navigation)
                         .navigationBarTitle("Landmarks")
                         .navigationBarItems(leading:
                                                 Button(action: {
-                            navigation.showDirectoryView = false
+                            navigation.isShowingDirectory = false
                         }) {
                             HStack {
                                 Image(systemName: "arrow.left")
@@ -235,7 +241,7 @@ struct SkateView: View {
                         })
                 }
             }
-            .fullScreenCover(isPresented: $navigation.showChannelView) {
+            .fullScreenCover(isPresented: $navigation.isShowingChannelFeed) {
                 if let lead = room.leads[self.channelId] {
                     NavigationView {
                         ChannelFeed(lead: lead)
@@ -244,13 +250,13 @@ struct SkateView: View {
                     Text("No lead available at this index.")
                 }
             }
-            .fullScreenCover(isPresented: $navigation.showSearchView) {
+            .fullScreenCover(isPresented: $navigation.isShowingSearch) {
                 NavigationView {
                     SearchView(navigation: navigation)
                         .navigationBarTitle("Search")
                         .navigationBarItems(leading:
                             Button(action: {
-                                navigation.showSearchView = false
+                                navigation.isShowingSearch = false
                         }) {
                             HStack {
                                 Image(systemName: "arrow.left")
@@ -288,7 +294,7 @@ struct SkateView: View {
             let spot = nearbyLandmarks[0]
             npub = spot.npub
             
-            isShowingMarkerOptions = true
+            navigation.isShowingMarkerOptions = true
         } else {
             print("No nearby landmarks")
         }

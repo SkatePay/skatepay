@@ -5,16 +5,18 @@
 //  Created by Konstantin Yurchenko, Jr on 9/12/24.
 //
 
+import Combine
 import ConnectFramework
 import CoreData
-import SwiftUI
 import NostrSDK
 import SolanaSwift
-import Combine
+import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.modelContext) private var context
+
+    @EnvironmentObject var room: Lobby
 
     @Binding var host: Host
 
@@ -100,9 +102,12 @@ struct SettingsView: View {
                                 try context.delete(model: Spot.self)
                                 try context.delete(model: Friend.self)
                                 try context.delete(model: Foe.self)
+                                
                             } catch {
                                 print("Failed to delete all spots.")
                             }
+                            
+                            room.clear()
                         }
                     }
                     Button("Cancel", role: .cancel) { }

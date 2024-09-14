@@ -18,20 +18,15 @@ struct MarkerOptions: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject var viewModel: ContentViewModel
     
+    @ObservedObject var navigation: NavigationManager
+
     @StateObject private var markerOptionsModel = MarkerOptionsModel()
-    
-    @State private var showCreateChannel = false
-    
-    var npub: String?
+        
     var marks: [Mark]
     
     let keychainForNostr = NostrKeychainStorage()
     
     var landmarks: [Landmark] = AppData().landmarks
-    
-    func getLandmark() -> Landmark? {
-        return landmarks.first { $0.npub == npub }
-    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -40,7 +35,7 @@ struct MarkerOptions: View {
                 .padding()
             
             Button(action: {
-                showCreateChannel = true
+                navigation.isShowingCreateChannel = true
                 viewModel.mark = marks[0]
             }) {
                 Text("Start New Chat")
@@ -75,12 +70,12 @@ struct MarkerOptions: View {
                 viewModel.relayPool.closeSubscription(with: subscriptionId)
             }
         }
-        .fullScreenCover(isPresented: $showCreateChannel) {
+        .fullScreenCover(isPresented: $navigation.isShowingCreateChannel) {
             NavigationView {
-                CreateChannel()
+                CreateChannel(navigation: navigation)
                     .navigationBarItems(leading:
                     Button(action: {
-                        showCreateChannel = false
+                        navigation.isShowingCreateChannel = false
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
@@ -133,5 +128,5 @@ struct MarkerOptions: View {
     }
 }
 #Preview {
-    MarkerOptions(npub: "", marks: [])
+    MarkerOptions(navigation: NavigationManager(), marks: [])
 }

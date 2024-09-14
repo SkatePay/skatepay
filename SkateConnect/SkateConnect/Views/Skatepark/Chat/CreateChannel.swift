@@ -50,11 +50,13 @@ struct CreateChannel: View, EventCreating {
     
     let keychainForNostr = NostrKeychainStorage()
     
+    @ObservedObject var navigation: NavigationManager
+
     @State private var showingAlert = false
     
     @State private var name: String = "My Awesome Channel"
     @State private var about: String = "This is a channel about awesome things."
-    
+        
     var body: some View {
         Text("📡 Create Channel")
         Form {
@@ -86,7 +88,9 @@ struct CreateChannel: View, EventCreating {
                 }
             }
             .alert("Channel created", isPresented: $showingAlert) {
-                Button("OK", role: .cancel) { }
+                Button("OK", role: .cancel) { 
+                    navigation.dismissToSkateView()
+                }
             }
             .disabled(!readyToSend())
         }
@@ -98,5 +102,5 @@ struct CreateChannel: View, EventCreating {
 }
 
 #Preview {
-    CreateChannel()
+    CreateChannel(navigation: NavigationManager())
 }
