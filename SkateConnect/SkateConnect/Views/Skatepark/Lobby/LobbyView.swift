@@ -39,7 +39,7 @@ struct LobbyView: View {
     }
     
     func parseActivity() -> [ActivityEvent] {
-        let events = room.nostrEvents.filter ({ !self.isFoe($0.npub) })
+        let events = room.events.filter ({ !self.isFoe($0.npub) })
         return events
     }
     
@@ -134,7 +134,7 @@ struct LobbyView: View {
             }
         }
         .onAppear() {
-            room.nostrEvents = []
+            room.events = []
         }
     }
 }

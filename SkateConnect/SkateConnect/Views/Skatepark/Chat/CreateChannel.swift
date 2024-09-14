@@ -5,9 +5,45 @@
 //  Created by Konstantin Yurchenko, Jr on 9/11/24.
 //
 
+import ConnectFramework
+import NostrSDK
 import SwiftUI
 import SwiftData
-import NostrSDK
+
+struct Channel: Codable {
+    let name: String
+    let about: String
+    let picture: String
+    let relays: [String]
+}
+
+func parseChannel(from jsonString: String) -> Channel? {
+    guard let data = jsonString.data(using: .utf8) else {
+        print("Failed to convert string to data")
+        return nil
+    }
+    
+    do {
+        let decoder = JSONDecoder()
+        let channel = try decoder.decode(Channel.self, from: data)
+        return channel
+    } catch {
+        print("Error decoding JSON: \(error)")
+        return nil
+    }
+}
+
+func encodeChannel(_ channel: Channel) -> String? {
+    do {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted // For a more readable JSON output
+        let data = try encoder.encode(channel)
+        return String(data: data, encoding: .utf8)
+    } catch {
+        print("Error encoding channel: \(error)")
+        return nil
+    }
+}
 
 struct CreateChannel: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
@@ -16,11 +52,11 @@ struct CreateChannel: View, EventCreating {
     
     @State private var showingAlert = false
     
-    @State private var name: String = ""
-    @State private var about: String = ""
+    @State private var name: String = "My Awesome Channel"
+    @State private var about: String = "This is a channel about awesome things."
     
     var body: some View {
-        Text("Create Channel")
+        Text("📡 Create Channel")
         Form {
             Section("Name") {
                 TextField("name", text: $name)
@@ -31,12 +67,19 @@ struct CreateChannel: View, EventCreating {
             Button("Send") {
                 if let account = keychainForNostr.account {
                     do {
-                        let content = "{\"name\": \"Demo Channel\", \"about\": \"A test channel.\", \"picture\": \"https://placekitten.com/200/200\", \"relays\": [\"wss://relay.primal.net\"]}"
-
-                        let event = try createChannelEvent(withContent: content, signedBy: account)
+                        let channel = Channel(
+                            name: name,
+                            about: about,
+                            picture: Constants.PICTURE_RABOTA_TOKEN,
+                            relays: [Constants.RELAY_URL_PRIMAL]
+                        )
                         
-                        viewModel.relayPool.publishEvent(event)
-                        showingAlert = true
+                        if let content = encodeChannel(channel) {
+                            let event = try createChannelEvent(withContent: content, signedBy: account)
+                            
+                            viewModel.relayPool.publishEvent(event)
+                            showingAlert = true
+                        }
                     } catch {
                         print(error.localizedDescription)
                     }

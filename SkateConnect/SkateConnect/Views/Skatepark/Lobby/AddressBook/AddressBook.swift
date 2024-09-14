@@ -5,9 +5,11 @@
 //  Created by Konstantin Yurchenko, Jr on 9/3/24.
 //
 
+import ConnectFramework
+import CoreLocation
+import NostrSDK
 import SwiftUI
 import SwiftData
-import NostrSDK
 
 extension Formatter {
     static let clearForZero: NumberFormatter = {
@@ -45,6 +47,27 @@ struct AddressBook: View {
                     
                     Text(spot.name)
                         .contextMenu {
+                            Button(action: {
+                                let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
+
+                                if let jsonString = coordinateToJSONString(coordinate) {
+                                    UIPasteboard.general.string = jsonString
+                                    print("Coordinate copied to clipboard: \(jsonString)")
+                                } else {
+                                    print("Failed to copy coordinate to clipboard")
+                                }
+                            }) {
+                                Text("Copy coordinates")
+                            }
+                            
+                            if !spot.channelId.isEmpty {
+                                Button(action: {
+                                    UIPasteboard.general.string = spot.channelId
+                                }) {
+                                    Text("Copy channelId")
+                                }
+                            }
+                            
                             Button(action: {
                                 context.delete(spot)
                             }) {

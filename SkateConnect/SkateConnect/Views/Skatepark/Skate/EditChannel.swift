@@ -5,6 +5,7 @@
 //  Created by Konstantin Yurchenko, Jr on 9/12/24.
 //
 
+import ConnectFramework
 import NostrSDK
 import SwiftUI
 
@@ -13,31 +14,50 @@ struct EditChannel: View {
     
     let keychainForNostr = NostrKeychainStorage()
     
+    private var lead: Lead?
+    private var channel: Channel?
+
+    init(lead: Lead?, channel: Channel?) {
+        self.lead = lead
+        self.channel = channel
+    }
+    
     var body: some View {
-        if let event = viewModelForChannelFeed.metadataForChannel {
-            List {
-                Section ("Channel Info") {
-                    Text("Name: \(event.content)")
-                    Text("Id: \(event.id)")
-                        .contextMenu {
-                            Button(action: {
-                                UIPasteboard.general.string = event.id
-                            }) {
-                                Text("Copy channelId")
-                            }
-                        }
-                    Text("Description: ")
+        if let lead = lead {
+            Form {
+                Text("📡 Edit Channel")
+                if let channel = lead.channel {
+                    Section ("Name") {
+                        Text("\(channel.name)")
+                    }
+                    Section ("Description") {
+                        Text("\(channel.about)")
+                    }
                     
-                    if let publicKeyForMod = PublicKey(hex: event.pubkey),
-                       let npub = keychainForNostr.account?.publicKey.npub {
-                        Text(publicKeyForMod.npub == npub ? "You" : "Mod: \(publicKeyForMod.npub)")
-                            .contextMenu {
-                                Button(action: {
-                                    UIPasteboard.general.string = publicKeyForMod.npub
-                                }) {
-                                    Text("Copy npub")
+                    Section ("Id") {
+                        Text("\(lead.eventId)")
+                                .contextMenu {
+                                    Button(action: {
+                                        UIPasteboard.general.string = lead.eventId
+                                    }) {
+                                        Text("Copy channelId")
+                                    }
                                 }
-                            }
+                    }
+    
+
+                    if let pubkey = lead.event?.pubkey {
+                        if let publicKeyForMod = PublicKey(hex: pubkey),
+                           let npub = keychainForNostr.account?.publicKey.npub {
+                            Text(publicKeyForMod.npub == npub ? "Mod: You" : "Mod: \(publicKeyForMod.npub)")
+                                .contextMenu {
+                                    Button(action: {
+                                        UIPasteboard.general.string = publicKeyForMod.npub
+                                    }) {
+                                        Text("Copy npub")
+                                    }
+                                }
+                        }
                     }
                 }
             }
@@ -46,5 +66,5 @@ struct EditChannel: View {
 }
 
 #Preview {
-    EditChannel()
+    EditChannel(lead: nil, channel: Channel(name: "", about: "", picture: "", relays: [Constants.RELAY_URL_PRIMAL]))
 }

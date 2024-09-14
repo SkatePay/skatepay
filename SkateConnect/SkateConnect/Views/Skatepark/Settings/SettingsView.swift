@@ -12,14 +12,16 @@ import SolanaSwift
 import Combine
 
 struct SettingsView: View {
+    @Environment(\.openURL) private var openURL
+
     @Binding var host: Host
-    
+
     @State private var keypair: Keypair?
     @State private var nsec: String?
     @State private var npub: String?
     
-    @Environment(\.openURL) private var openURL
-    
+    @State private var showingConfirmation = false
+
     let keychainForNostr = NostrKeychainStorage()
     
     var body: some View {
@@ -86,9 +88,17 @@ struct SettingsView: View {
                 }
                 
                 Button("Reset App") {
-                    Task {
-                        keychainForNostr.clear()
+                    showingConfirmation = true
+                }
+                .confirmationDialog("Are you sure?", isPresented: $showingConfirmation) {
+                    Button("Reset", role: .destructive) {
+                        Task {
+                            keychainForNostr.clear()
+                        }
                     }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("This will reset all app data. Are you sure you want to proceed?")
                 }
             }
             .navigationTitle("Settings")

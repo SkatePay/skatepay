@@ -15,7 +15,7 @@ struct Filters: View {
     var body: some View {
         NavigationStack {
             if (foes.isEmpty) {
-                Text("0 Blocked Users")
+                Text("0 Muted Users")
             } else {
                 List(foes) { foe in
                     HStack {

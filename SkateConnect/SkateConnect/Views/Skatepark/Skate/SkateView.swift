@@ -5,9 +5,10 @@
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
 
-import SwiftUI
-import SwiftData
 import MapKit
+import NostrSDK
+import SwiftData
+import SwiftUI
 
 struct Mark: Identifiable {
     let id = UUID()
@@ -21,15 +22,18 @@ struct Lead: Identifiable, Equatable {
     }
     
     let id = UUID()
-    let name: String
-    let coordinate: CLLocationCoordinate2D
+    var name: String
+    var icon: String
+    var coordinate: CLLocationCoordinate2D
+    var eventId: String // NostrEventId
+    var event: NostrEvent?
+    var channel: Channel?
 }
 
 final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     var locationManager: CLLocationManager?
     
     @Published var marks: [Mark] = []
-    @Published var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: AppData().landmarks[0].locationCoordinate)]
     
     @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
     
@@ -100,6 +104,7 @@ class NavigationManager: ObservableObject {
     @Published var path = NavigationPath()
     @Published var landmark: Landmark?
     @Published var showDirectoryView = false
+    @Published var showChannelView = false
     
     func dismissToContentView() {
         path = NavigationPath()
@@ -109,7 +114,9 @@ class NavigationManager: ObservableObject {
 }
 
 struct SkateView: View {
-    @StateObject private var navManager = NavigationManager()
+    @EnvironmentObject var room: Lobby
+    
+    @StateObject private var navigation = NavigationManager()
     
     @Query private var spots: [Spot]
     
@@ -120,56 +127,51 @@ struct SkateView: View {
     @State private var isShowingLeadOptions = false
     
     @State private var npub: String?
-    
-    @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: AppData().landmarks[0].locationCoordinate)]
-    @State var leadIndex = 0
-    
+    @State var channelId = ""
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
     }
     
     var body: some View {
-        NavigationStack(path: $navManager.path) {
+        NavigationStack(path: $navigation.path) {
             VStack {
                 MapReader { proxy in
                     Map(position: $viewModel.mapPosition) {
-                        //                        UserAnnotation()
+//                        UserAnnotation()
                         // Marks
                         ForEach(viewModel.marks) { mark in
                             Marker(mark.name, coordinate: mark.coordinate)
                                 .tint(.orange)
                         }
-                       // Leads
-                       ForEach(leads) { lead in
-                           Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
-                               ZStack {
-                                   Circle()
-                                       .foregroundStyle(.indigo.opacity(0.5))
-                                       .frame(width: 80, height: 80)
-                                   
-                                   Text("🧹")
-                                       .font(.system(size: 24))
-                                       .symbolEffect(.variableColor)
-                                       .padding()
-                                       .foregroundStyle(.white)
-                                       .background(Color.indigo)
-                                       .clipShape(Circle())
-                               }
-                               .gesture(
-                                   LongPressGesture(minimumDuration: 1.0)
-                                       .onEnded { _ in
-//                                                                                        handleLongPress(lead: lead)
-                                       }
-                                       .onChanged { state in
-                                           if let index = leads.firstIndex(where: { $0 == lead }) {
-                                               isShowingLeadOptions = true
-                                               leadIndex = index
-                                           }
-                                       }
-                               )
-                           }
-                       }
+                        // Leads
+                        ForEach(Array(room.leads.values)) { lead in
+                            Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
+                                ZStack {
+                                    Circle()
+                                        .foregroundStyle(.indigo.opacity(0.5))
+                                        .frame(width: 80, height: 80)
+                                    
+                                    Text(lead.icon)
+                                        .font(.system(size: 24))
+                                        .symbolEffect(.variableColor)
+                                        .padding()
+                                        .foregroundStyle(.white)
+                                        .background(Color.indigo)
+                                        .clipShape(Circle())
+                                }
+                                .gesture(
+                                    LongPressGesture(minimumDuration: 1.0)
+                                        .onEnded { _ in
+//                                           handleLongPress(lead: lead)
+                                        }
+                                        .onChanged { state in
+                                            channelId = lead.eventId
+                                            navigation.showChannelView.toggle()
+                                        }
+                                )
+                            }
+                        }
                     }
                     .onAppear{
                         viewModel.checkIfLocationIsEnabled()
@@ -185,8 +187,8 @@ struct SkateView: View {
                 }
                 
                 HStack {
-                    Button("Directory") {
-                        navManager.showDirectoryView = true
+                    Button("Landmark Directory") {
+                        navigation.showDirectoryView = true
                     }
                     
                     Button("Clear mark") {
@@ -204,24 +206,33 @@ struct SkateView: View {
             .sheet(isPresented: $isShowingLeadOptions) {
                 LeadOptions()
             }
-            .fullScreenCover(isPresented: $navManager.showDirectoryView) {
+            .fullScreenCover(isPresented: $navigation.showDirectoryView) {
                 NavigationView {
-                    LandmarkDirectory(navManager: navManager)
+                    LandmarkDirectory(navManager: navigation)
                         .navigationBarTitle("Landmarks")
                         .navigationBarItems(leading:
                                                 Button(action: {
-                            navManager.showDirectoryView = false
+                            navigation.showDirectoryView = false
                         }) {
                             HStack {
                                 Image(systemName: "arrow.left")
-                                Text("🗺️ Map")
+                                Text("Map")
                                 Spacer()
                             }
                         })
                 }
             }
+            .fullScreenCover(isPresented: $navigation.showChannelView) {
+                if let lead = room.leads[self.channelId] {
+                    NavigationView {
+                        ChannelFeed(lead: lead)
+                    }
+                } else {
+                    Text("No lead available at this index.")
+                }
+            }
             .onReceive(NotificationCenter.default.publisher(for: .didDismissToContentView)) { _ in
-                if  let locationCoordinate = navManager.landmark?.locationCoordinate {
+                if  let locationCoordinate = navigation.landmark?.locationCoordinate {
                     viewModel.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
             }

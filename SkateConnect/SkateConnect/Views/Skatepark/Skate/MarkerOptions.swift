@@ -21,7 +21,6 @@ struct MarkerOptions: View {
     @StateObject private var markerOptionsModel = MarkerOptionsModel()
     
     @State private var showCreateChannel = false
-    @State private var showChannelView = false
     
     var npub: String?
     var marks: [Mark]
@@ -39,17 +38,6 @@ struct MarkerOptions: View {
             Text("Marker Options")
                 .font(.title2)
                 .padding()
-            
-            Button(action: {
-                showChannelView = true
-            }) {
-                Text("Join Official Chat")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
             
             Button(action: {
                 showCreateChannel = true
@@ -86,18 +74,11 @@ struct MarkerOptions: View {
                 viewModel.relayPool.closeSubscription(with: subscriptionId)
             }
         }
-        .fullScreenCover(isPresented: $showChannelView) {
-            if let landmark = getLandmark() {
-                NavigationView {
-                    ChannelFeed(eventId: landmark.eventId)
-                }
-            }
-        }
         .fullScreenCover(isPresented: $showCreateChannel) {
             NavigationView {
                 CreateChannel()
                     .navigationBarItems(leading:
-                                            Button(action: {
+                    Button(action: {
                         showCreateChannel = false
                     }) {
                         HStack {
