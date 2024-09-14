@@ -13,7 +13,7 @@ struct ConnectRelay: View {
     var body: some View {
         Text("Connected Relays")
         ForEach(Array(viewModel.relayPool.relays), id: \.self) { relay in
-            Text("🟢 \(relay.url.absoluteString)")
+            Text("\(relay.state == .connected ? "🟢" : "🔴" ) \(relay.url.absoluteString)")
                 .contextMenu {
                     Button(action: {
                         UIPasteboard.general.string = relay.url.absoluteString

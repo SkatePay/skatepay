@@ -5,21 +5,27 @@
 //  Created by Konstantin Yurchenko, Jr on 9/12/24.
 //
 
+import Combine
 import ConnectFramework
-import SwiftUI
+import CoreData
 import NostrSDK
 import SolanaSwift
-import Combine
+import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.openURL) private var openURL
+    @Environment(\.modelContext) private var context
+
+    @EnvironmentObject var room: Lobby
+
     @Binding var host: Host
-    
+
     @State private var keypair: Keypair?
     @State private var nsec: String?
     @State private var npub: String?
     
-    @Environment(\.openURL) private var openURL
-    
+    @State private var showingConfirmation = false
+
     let keychainForNostr = NostrKeychainStorage()
     
     var body: some View {
@@ -86,9 +92,27 @@ struct SettingsView: View {
                 }
                 
                 Button("Reset App") {
-                    Task {
-                        keychainForNostr.clear()
+                    showingConfirmation = true
+                }
+                .confirmationDialog("Are you sure?", isPresented: $showingConfirmation) {
+                    Button("Reset", role: .destructive) {
+                        Task {
+                            keychainForNostr.clear()
+                            do {
+                                try context.delete(model: Spot.self)
+                                try context.delete(model: Friend.self)
+                                try context.delete(model: Foe.self)
+                                
+                            } catch {
+                                print("Failed to delete all spots.")
+                            }
+                            
+                            room.clear()
+                        }
                     }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("This will reset all app data. Are you sure you want to proceed?")
                 }
             }
             .navigationTitle("Settings")

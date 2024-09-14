@@ -5,9 +5,10 @@
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
 
-import SwiftUI
-import SwiftData
 import MapKit
+import NostrSDK
+import SwiftData
+import SwiftUI
 
 struct Mark: Identifiable {
     let id = UUID()
@@ -21,15 +22,18 @@ struct Lead: Identifiable, Equatable {
     }
     
     let id = UUID()
-    let name: String
-    let coordinate: CLLocationCoordinate2D
+    var name: String
+    var icon: String
+    var coordinate: CLLocationCoordinate2D
+    var eventId: String // NostrEventId
+    var event: NostrEvent?
+    var channel: Channel?
 }
 
-final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
+final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     var locationManager: CLLocationManager?
     
     @Published var marks: [Mark] = []
-    @Published var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: AppData().landmarks[0].locationCoordinate)]
     
     @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
     
@@ -90,6 +94,10 @@ final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
             break
         }
     }
+    
+    func clearMarks() {
+        self.marks = []
+    }
 }
 
 extension Notification.Name {
@@ -99,85 +107,94 @@ extension Notification.Name {
 class NavigationManager: ObservableObject {
     @Published var path = NavigationPath()
     @Published var landmark: Landmark?
-    @Published var showDirectoryView = false
+    
+    @Published var isShowingDirectory = false
+    @Published var isShowingChannelFeed = false
+    @Published var isShowingSearch = false
+    @Published var isShowingCreateChannel = false
+    @Published var isShowingMarkerOptions = false
     
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .didDismissToContentView, object: nil)
-        showDirectoryView = false
+        isShowingDirectory = false
+    }
+    
+    func dismissToSkateView() {
+        isShowingMarkerOptions = false
+        isShowingCreateChannel = false
     }
 }
 
 struct SkateView: View {
-    @StateObject private var navManager = NavigationManager()
+    @Environment(\.modelContext) private var context
+
+    @EnvironmentObject var room: Lobby
+    @EnvironmentObject var viewModel: ContentViewModel
+    
+    @StateObject private var navigation = NavigationManager()
     
     @Query private var spots: [Spot]
     
-    @StateObject var viewModel = SkateViewModel()
+    @StateObject var locationManager = LocationManager()
     
     @State private var showingAlert = false
-    @State private var isShowingMarkerOptions = false
     @State private var isShowingLeadOptions = false
     
     @State private var npub: String?
-    
-    @State var leads: [Lead] = [Lead(name: "Cleaning Job", coordinate: AppData().landmarks[0].locationCoordinate)]
-    @State var leadIndex = 0
-    
+    @State var channelId = ""
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
     }
     
     var body: some View {
-        NavigationStack(path: $navManager.path) {
+        NavigationStack(path: $navigation.path) {
             VStack {
                 MapReader { proxy in
-                    Map(position: $viewModel.mapPosition) {
-                        //                        UserAnnotation()
+                    Map(position: $locationManager.mapPosition) {
+//                        UserAnnotation()
                         // Marks
-                        ForEach(viewModel.marks) { mark in
+                        ForEach(locationManager.marks) { mark in
                             Marker(mark.name, coordinate: mark.coordinate)
                                 .tint(.orange)
                         }
-                       // Leads
-                       ForEach(leads) { lead in
-                           Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
-                               ZStack {
-                                   Circle()
-                                       .foregroundStyle(.indigo.opacity(0.5))
-                                       .frame(width: 80, height: 80)
-                                   
-                                   Text("🧹")
-                                       .font(.system(size: 24))
-                                       .symbolEffect(.variableColor)
-                                       .padding()
-                                       .foregroundStyle(.white)
-                                       .background(Color.indigo)
-                                       .clipShape(Circle())
-                               }
-                               .gesture(
-                                   LongPressGesture(minimumDuration: 1.0)
-                                       .onEnded { _ in
-//                                                                                        handleLongPress(lead: lead)
-                                       }
-                                       .onChanged { state in
-                                           if let index = leads.firstIndex(where: { $0 == lead }) {
-                                               isShowingLeadOptions = true
-                                               leadIndex = index
-                                           }
-                                       }
-                               )
-                           }
-                       }
+                        // Leads
+                        ForEach(Array(room.leads.values)) { lead in
+                            Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
+                                ZStack {
+                                    Circle()
+                                        .foregroundStyle(.indigo.opacity(0.5))
+                                        .frame(width: 80, height: 80)
+                                    
+                                    Text(lead.icon)
+                                        .font(.system(size: 24))
+                                        .symbolEffect(.variableColor)
+                                        .padding()
+                                        .foregroundStyle(.white)
+                                        .background(Color.indigo)
+                                        .clipShape(Circle())
+                                }
+                                .gesture(
+                                    LongPressGesture(minimumDuration: 1.0)
+                                        .onEnded { _ in
+//                                           handleLongPress(lead: lead)
+                                        }
+                                        .onChanged { state in
+                                            channelId = lead.eventId
+                                            navigation.isShowingChannelFeed.toggle()
+                                        }
+                                )
+                            }
+                        }
                     }
                     .onAppear{
-                        viewModel.checkIfLocationIsEnabled()
+                        locationManager.checkIfLocationIsEnabled()
                     }
                     .onTapGesture { position in
                         if let coordinate = proxy.convert(position, from: .local) {
                             print("Tapped at \(coordinate)")
-                            viewModel.marks = []
+                            locationManager.marks = []
                             
                             addMarker(at: coordinate)
                         }
@@ -185,44 +202,82 @@ struct SkateView: View {
                 }
                 
                 HStack {
-                    Button("Directory") {
-                        navManager.showDirectoryView = true
+                    Button("Landmarks") {
+                        navigation.isShowingDirectory = true
                     }
                     
-                    Button("Clear mark") {
-                        viewModel.marks = []
+                    Button("🔎") {
+                        navigation.isShowingSearch.toggle()
                     }
                     .padding(32)
+                    
+                    Button("Clear mark") {
+                        locationManager.marks = []
+                    }
                     .alert("Mark cleared.", isPresented: $showingAlert) {
                         Button("Ok", role: .cancel) { }
                     }
                 }
             }
-            .sheet(isPresented: $isShowingMarkerOptions) {
-                MarkerOptions(npub: npub, marks: viewModel.marks)
+            .sheet(isPresented: $navigation.isShowingMarkerOptions) {
+                MarkerOptions(navigation: navigation, marks: locationManager.marks)
             }
             .sheet(isPresented: $isShowingLeadOptions) {
                 LeadOptions()
             }
-            .fullScreenCover(isPresented: $navManager.showDirectoryView) {
+            .fullScreenCover(isPresented: $navigation.isShowingDirectory) {
                 NavigationView {
-                    LandmarkDirectory(navManager: navManager)
+                    LandmarkDirectory(navigation: navigation)
                         .navigationBarTitle("Landmarks")
                         .navigationBarItems(leading:
                                                 Button(action: {
-                            navManager.showDirectoryView = false
+                            navigation.isShowingDirectory = false
                         }) {
                             HStack {
                                 Image(systemName: "arrow.left")
-                                Text("🗺️ Map")
+                                Text("Map")
+                                Spacer()
+                            }
+                        })
+                }
+            }
+            .fullScreenCover(isPresented: $navigation.isShowingChannelFeed) {
+                if let lead = room.leads[self.channelId] {
+                    NavigationView {
+                        ChannelFeed(lead: lead)
+                    }
+                } else {
+                    Text("No lead available at this index.")
+                }
+            }
+            .fullScreenCover(isPresented: $navigation.isShowingSearch) {
+                NavigationView {
+                    SearchView(navigation: navigation)
+                        .navigationBarTitle("Search")
+                        .navigationBarItems(leading:
+                            Button(action: {
+                                navigation.isShowingSearch = false
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.left")
+                                Text("Map")
                                 Spacer()
                             }
                         })
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .didDismissToContentView)) { _ in
-                if  let locationCoordinate = navManager.landmark?.locationCoordinate {
-                    viewModel.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                if  let locationCoordinate = navigation.landmark?.locationCoordinate {
+                    locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                }
+            }
+            .onReceive(viewModel.$observedSpot) { observedSpot in
+                DispatchQueue.main.async {
+                    if let spot = observedSpot.spot {
+                        context.insert(spot)
+                        viewModel.observedSpot.spot = nil
+                        locationManager.clearMarks()
+                    }
                 }
             }
         }
@@ -230,7 +285,7 @@ struct SkateView: View {
     
     func addMarker(at coordinate: CLLocationCoordinate2D) {
         let mark = Mark(name: "Marker \(spots.count + 1)", coordinate: coordinate)
-        viewModel.marks.append(mark)
+        locationManager.marks.append(mark)
         
         let nearbyLandmarks = getNearbyLandmarks(for: coordinate)
         if !nearbyLandmarks.isEmpty {
@@ -239,7 +294,7 @@ struct SkateView: View {
             let spot = nearbyLandmarks[0]
             npub = spot.npub
             
-            isShowingMarkerOptions = true
+            navigation.isShowingMarkerOptions = true
         } else {
             print("No nearby landmarks")
         }
@@ -259,7 +314,7 @@ struct SkateView: View {
     
     func convertPointToCoordinate(_ point: CGPoint) -> CLLocationCoordinate2D? {
         let mapView = MKMapView(frame: .zero)
-        mapView.setRegion(viewModel.mapRegion, animated: false)
+        mapView.setRegion(locationManager.mapRegion, animated: false)
         
         let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
         return coordinate

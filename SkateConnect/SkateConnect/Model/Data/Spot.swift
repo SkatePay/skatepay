@@ -25,8 +25,10 @@ class Spot {
     
     var latitude: Double
     var longitude: Double
+    
+    var channelId: String
         
-    init(name: String, address: String, state: String, note: String, isFavorite: Bool = false, latitude: Double = -118.475601, longitude: Double = 33.987164, imageName: String = "") {
+    init(name: String, address: String, state: String, note: String, isFavorite: Bool = false, latitude: Double = -118.475601, longitude: Double = 33.987164, channelId: String = "", imageName: String = "") {
         self.name = name
         self.address = address
         self.state = state
@@ -34,6 +36,7 @@ class Spot {
         self.note = note
         self.latitude = latitude
         self.longitude = longitude
+        self.channelId = channelId
         self.imageName = imageName
     }
     

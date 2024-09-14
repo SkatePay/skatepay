@@ -10,7 +10,7 @@ import SwiftUI
 struct UserRow: View {
     @Environment(\.modelContext) private var context
 
-    @State private var isShowingBlackList = false
+    @State private var isShowingFilters = false
 
     var users: [User]
 
@@ -23,9 +23,9 @@ struct UserRow: View {
                     .padding(.top, 5)
                 Spacer()
                 Button(action: {
-                    isShowingBlackList = true
+                    isShowingFilters = true
                 }) {
-                    Text("Blacklist")
+                    Text("Filters")
                         .font(.headline)
                         .padding(.leading, 15)
                         .padding(.top, 5)
@@ -45,13 +45,13 @@ struct UserRow: View {
             }
             .frame(height: 120)
         }
-        .fullScreenCover(isPresented: $isShowingBlackList) {
+        .fullScreenCover(isPresented: $isShowingFilters) {
             NavigationView {
-                Blacklist()
-                    .navigationBarTitle("Blacklist")
+                Filters()
+                    .navigationBarTitle("Filters")
                     .navigationBarItems(leading:
                                             Button(action: {
-                        isShowingBlackList = false
+                        isShowingFilters = false
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
