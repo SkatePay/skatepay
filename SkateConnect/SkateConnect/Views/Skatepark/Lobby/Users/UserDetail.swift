@@ -12,6 +12,7 @@ struct UserDetail: View {
     @Environment(AppData.self) var modelData
         
     @EnvironmentObject var viewModel: ContentViewModel
+    @EnvironmentObject var appConnections: AppConnections
         
     @State var showingConnector = false
     
@@ -21,7 +22,7 @@ struct UserDetail: View {
         modelData.users.firstIndex(where: { $0.id == user.id })!
     }
     
-    var connected: Bool { viewModel.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
+    var connected: Bool { appConnections.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     var body: some View {
         @Bindable var modelData = modelData

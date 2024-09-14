@@ -32,6 +32,7 @@ class ChatDelegate: ObservableObject, RelayDelegate {
 struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var viewModel: ContentViewModel
+    @EnvironmentObject var appConnections: AppConnections
         
     let keychainForNostr = NostrKeychainStorage()
     
@@ -45,7 +46,7 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
             
     private var user: User
     
-    var connected: Bool { viewModel.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
+    var connected: Bool { appConnections.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     init(user: User) {
         self.user = user
@@ -93,7 +94,7 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         }
         .onDisappear{
             if let subscriptionId {
-                viewModel.relayPool.closeSubscription(with: subscriptionId)
+                appConnections.relayPool.closeSubscription(with: subscriptionId)
             }
         }
     }
@@ -153,24 +154,26 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
             let directMessage = try legacyEncryptedDirectMessage(withContent: draft.text,
                                                                  toRecipient: recipientPublicKey,
                                                                  signedBy: senderKeyPair)
-            viewModel.relayPool.publishEvent(directMessage)
+            appConnections.relayPool.publishEvent(directMessage)
         } catch {
             print(error.localizedDescription)
         }
     }
     private func updateSubscription() {
+        chatDelegate.fetchingStoredEvents = true
+        
         if let subscriptionId {
-            viewModel.relayPool.closeSubscription(with: subscriptionId)
+            appConnections.relayPool.closeSubscription(with: subscriptionId)
         }
         
         if let unwrappedFilter = currentFilter {
-            subscriptionId = viewModel.relayPool.subscribe(with: unwrappedFilter)
+            subscriptionId = appConnections.relayPool.subscribe(with: unwrappedFilter)
         } else {
             print("currentFilter is nil, unable to subscribe")
         }
-        viewModel.relayPool.delegate = self.chatDelegate
+        appConnections.relayPool.delegate = self.chatDelegate
                 
-        eventsCancellable = viewModel.relayPool.events
+        eventsCancellable = appConnections.relayPool.events
             .receive(on: DispatchQueue.main)
             .map {
                 return $0.event

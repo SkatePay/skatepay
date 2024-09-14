@@ -49,9 +49,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     
     let keychainForNostr = NostrKeychainStorage()
     
-    var relayPool = try! RelayPool(relayURLs: [
-        URL(string: Constants.RELAY_URL_PRIMAL)!
-    ])
+    var relayPool: RelayPool?
     
     private var subscriptionForChannels, subscriptionForDirectMessages: String?
     private var eventsCancellableForGroup, eventsCancellableForDirect: AnyCancellable?
@@ -61,15 +59,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     var mark: Mark?
     
     var spots: [Spot] = []
-
-    init() {
-        connectRelays()
-        relayPool.delegate = self
-    }
-    
-    func connectRelays() {
-        relayPool.connect()
-    }
     
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         if (state == .connected) {
@@ -89,7 +78,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             guard case .eose(let subscriptionId) = response else {
                 return
             }
-            print(subscriptionId, self.subscriptionForChannels!)
             
             if (subscriptionId == self.subscriptionForDirectMessages) {
                 self.fetchingStoredEvents = false
@@ -97,7 +85,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         }
     }
     
-    private var filterForGroupMessages: Filter? {
+    private var filterForChannels: Filter? {
         guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
             return nil
@@ -105,7 +93,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         let filter = Filter(authors: [account.publicKey.hex], kinds: [EventKind.channelCreation.rawValue])
         return filter
     }
-    
     private var filterForDirectMessages: Filter? {
         guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
@@ -115,26 +102,26 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         return filter
     }
     
-    private func updateSubscriptions() {        
+    func updateSubscriptions() {
         if let subscriptionForChannels {
-            relayPool.closeSubscription(with: subscriptionForChannels)
+            relayPool?.closeSubscription(with: subscriptionForChannels)
         }
         
         if let subscriptionForDirectMessages {
-            relayPool.closeSubscription(with: subscriptionForDirectMessages)
+            relayPool?.closeSubscription(with: subscriptionForDirectMessages)
         }
         
-        if let unwrappedFilter = filterForGroupMessages {
-            subscriptionForChannels = relayPool.subscribe(with: unwrappedFilter)
+        if let unwrappedFilter = filterForChannels {
+            subscriptionForChannels = relayPool?.subscribe(with: unwrappedFilter)
         }
         
         if let unwrappedFilter = filterForDirectMessages {
-            subscriptionForDirectMessages = relayPool.subscribe(with: unwrappedFilter)
+            subscriptionForDirectMessages = relayPool?.subscribe(with: unwrappedFilter)
         }
         
-        relayPool.delegate = self
+        relayPool?.delegate = self
         
-        eventsCancellableForDirect = relayPool.events
+        eventsCancellableForDirect = relayPool?.events
             .receive(on: DispatchQueue.main)
             .map {
                 return $0.event
@@ -149,7 +136,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                 }
             }
         
-        eventsCancellableForGroup = relayPool.events
+        eventsCancellableForGroup = relayPool?.events
             .receive(on: DispatchQueue.main)
             .map {
                 return $0.event
@@ -226,7 +213,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             }
     }
     
-
     func findSpotByChannelId(_ channelId: String) -> Spot? {
         return spots.first { $0.channelId == channelId }
     }
@@ -234,15 +220,20 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
 
 struct ContentView: View {
     @Environment(\.modelContext) private var context
+    
+    @EnvironmentObject var appConnections: AppConnections
+
     @Query(sort: \Spot.channelId) private var spots: [Spot]
 
     @StateObject private var viewModel = ContentViewModel()
-    
     @StateObject private var store = HostStore()
     
     @State private var selection: Tab = .map
     
     let keychainForNostr = NostrKeychainStorage()
+    
+    init() {
+    }
     
     var body: some View {
         TabView(selection: $selection) {
@@ -255,11 +246,12 @@ struct ContentView: View {
 
             
             SkateView()
+                .environmentObject(appConnections)
+                .environmentObject(viewModel.room)
+                .environmentObject(viewModel)
                 .tabItem {
                     Label("Skate", systemImage: "map")
                 }
-                .environmentObject(viewModel.room)
-                .environmentObject(viewModel)
                 .tag(Tab.map)
             
             if (hasWallet()) {
@@ -298,6 +290,11 @@ struct ContentView: View {
             
             viewModel.spots = spots
         }
+        .onAppear {
+            self.viewModel.relayPool = appConnections.relayPool
+            self.viewModel.updateSubscriptions()
+        }
+        .environmentObject(appConnections)
         .environmentObject(viewModel)
         .environmentObject(store)
     }

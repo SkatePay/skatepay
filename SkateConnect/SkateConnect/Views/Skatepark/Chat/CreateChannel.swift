@@ -47,6 +47,7 @@ func encodeChannel(_ channel: Channel) -> String? {
 
 struct CreateChannel: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
+    @EnvironmentObject var appConnections: AppConnections
     
     let keychainForNostr = NostrKeychainStorage()
     
@@ -79,7 +80,7 @@ struct CreateChannel: View, EventCreating {
                         if let content = encodeChannel(channel) {
                             let event = try createChannelEvent(withContent: content, signedBy: account)
                             
-                            viewModel.relayPool.publishEvent(event)
+                            appConnections.relayPool.publishEvent(event)
                             showingAlert = true
                         }
                     } catch {

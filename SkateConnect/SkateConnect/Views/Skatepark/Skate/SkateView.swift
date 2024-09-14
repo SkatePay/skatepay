@@ -136,6 +136,8 @@ class NavigationManager: ObservableObject {
 struct SkateView: View {
     @Environment(\.modelContext) private var context
 
+    @EnvironmentObject var appConnections: AppConnections
+    
     @EnvironmentObject var room: Lobby
     @EnvironmentObject var viewModel: ContentViewModel
     
@@ -228,6 +230,7 @@ struct SkateView: View {
             }
             .sheet(isPresented: $navigation.isShowingMarkerOptions) {
                 MarkerOptions(navigation: navigation, marks: locationManager.marks)
+                    .environmentObject(appConnections)
             }
             .sheet(isPresented: $isShowingLeadOptions) {
                 LeadOptions()
@@ -252,6 +255,7 @@ struct SkateView: View {
                 if let lead = room.leads[self.channelId] {
                     NavigationView {
                         ChannelFeed(lead: lead)
+                            .environmentObject(appConnections)
                     }
                 } else {
                     Text("No lead available at this index.")

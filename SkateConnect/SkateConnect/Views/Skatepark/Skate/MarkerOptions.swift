@@ -9,25 +9,19 @@ import Combine
 import NostrSDK
 import SwiftUI
 
-class MarkerOptionsModel: ObservableObject {
-    @Published var showEditChannel = false
-}
-
 struct MarkerOptions: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+
+    @EnvironmentObject var appConnections: AppConnections
     @EnvironmentObject var viewModel: ContentViewModel
     
     @ObservedObject var navigation: NavigationManager
-
-    @StateObject private var markerOptionsModel = MarkerOptionsModel()
         
     var marks: [Mark]
     
     let keychainForNostr = NostrKeychainStorage()
-    
-    var landmarks: [Landmark] = AppData().landmarks
-    
+        
     var body: some View {
         VStack(spacing: 20) {
             Text("Marker Options")
@@ -62,17 +56,10 @@ struct MarkerOptions: View {
                     .cornerRadius(10)
             }
         }
-        .onAppear{
-            updateSubscription()
-        }
-        .onDisappear{
-            if let subscriptionId {
-                viewModel.relayPool.closeSubscription(with: subscriptionId)
-            }
-        }
         .fullScreenCover(isPresented: $navigation.isShowingCreateChannel) {
             NavigationView {
                 CreateChannel(navigation: navigation)
+                    .environmentObject(appConnections)
                     .navigationBarItems(leading:
                     Button(action: {
                         navigation.isShowingCreateChannel = false
@@ -85,46 +72,6 @@ struct MarkerOptions: View {
             }
         }
         .padding()
-    }
-    
-    // Nostr
-    @State private var subscriptionId: String?
-    @State var fetchingStoredEvents = true
-    @State private var eventsCancellable: AnyCancellable?
-    @ObservedObject var chatDelegate = ChatDelegate()
-
-    private var currentFilter: Filter? {
-        guard let account = keychainForNostr.account else {
-            print("Error: Failed to create Filter")
-            return nil
-        }
-        
-        let authors = [account.publicKey.hex]
-        
-        return Filter(authors: authors, kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])
-    }
-    
-    private func updateSubscription() {
-        if let subscriptionId {
-            viewModel.relayPool.closeSubscription(with: subscriptionId)
-        }
-        
-        if let unwrappedFilter = currentFilter {
-            subscriptionId = viewModel.relayPool.subscribe(with: unwrappedFilter)
-        } else {
-            print("currentFilter is nil, unable to subscribe")
-        }
-        viewModel.relayPool.delegate = chatDelegate
-                
-        eventsCancellable = viewModel.relayPool.events
-            .receive(on: DispatchQueue.main)
-            .map {
-                return $0.event
-            }
-            .removeDuplicates()
-            .sink { event in
-//                print(event)
-            }
     }
 }
 #Preview {
