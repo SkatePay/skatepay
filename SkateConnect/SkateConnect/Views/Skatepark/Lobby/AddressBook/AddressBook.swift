@@ -8,8 +8,8 @@
 import ConnectFramework
 import CoreLocation
 import NostrSDK
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 extension Formatter {
     static let clearForZero: NumberFormatter = {
@@ -110,13 +110,6 @@ struct AddressBook: View {
                 .padding()
                 .background(.bar)
             }
-            //            .task {
-            //                do {
-            //                    try context.delete(model: Spot.self)
-            //                } catch {
-            //                    print("Failed to delete all spots.")
-            //                }
-            //            }
         }
     }
 }

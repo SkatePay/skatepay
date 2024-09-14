@@ -5,20 +5,25 @@
 //  Created by Konstantin Yurchenko, Jr on 9/13/24.
 //
 
+import ConnectFramework
+import CoreLocation
+import SwiftData
 import SwiftUI
 
 struct SearchView: View {
     @ObservedObject var navigation: NavigationManager
 
-    @State private var coordinates: String = ""
+    @Query private var spots: [Spot]
+
+    @State private var coordinateString: String = ""
     @State private var channelId: String = ""
     
     @State private var showingAlert = false
-
+    
     var body: some View {
         Form {
             Section("coordinates") {
-                TextField("{ \"latitude\": 0.0, \"longitude\": 0.0 }", text: $coordinates)
+                TextField("{ \"latitude\": 0.0, \"longitude\": 0.0 }", text: $coordinateString)
             }
             Section("channel") {
                 TextField("channel", text: $channelId)
@@ -27,14 +32,31 @@ struct SearchView: View {
                 showingAlert.toggle()
             }
             .alert("Start search.", isPresented: $showingAlert) {
-                Button("OK", role: .cancel) { }
+                Button("OK", role: .cancel) {
+                    if (!coordinateString.isEmpty) {
+                        navigation.coordinates = convertStringToCoordinate(coordinateString)
+                    }
+                    
+                    if (!channelId.isEmpty) {
+                        let spot = findSpotByChannelId(channelId)
+                        
+                        if let coordinates = spot?.locationCoordinate {
+                            navigation.coordinates = coordinates
+                        }
+                    }
+                    navigation.recoverFromSearch()
+                }
             }
             .disabled(!readyToSend())
         }
     }
     
+    func findSpotByChannelId(_ channelId: String) -> Spot? {
+        return spots.first { $0.channelId == channelId }
+    }
+    
     private func readyToSend() -> Bool {
-        (!coordinates.isEmpty || !channelId.isEmpty)
+        (!coordinateString.isEmpty || !channelId.isEmpty)
     }
 }
 

@@ -28,7 +28,7 @@ struct LandmarkDirectory: View {
             }
             ForEach(filteredSpots) { landmark in
                 NavigationLink {
-                    LandmarkDetail(navManager: navigation, landmark: landmark)
+                    LandmarkDetail(navigation: navigation, landmark: landmark)
                 } label: {
                     LandmarkRow(landmark: landmark)
                 }

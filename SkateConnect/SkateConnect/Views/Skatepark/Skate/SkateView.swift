@@ -101,12 +101,14 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
 }
 
 extension Notification.Name {
-    static let didDismissToContentView = Notification.Name("didDismissToContentView")
+    static let goToLandmark = Notification.Name("goToLandmark")
+    static let goToCoordinate = Notification.Name("goToCoordinate")
 }
 
 class NavigationManager: ObservableObject {
     @Published var path = NavigationPath()
     @Published var landmark: Landmark?
+    @Published var coordinates: CLLocationCoordinate2D?
     
     @Published var isShowingDirectory = false
     @Published var isShowingChannelFeed = false
@@ -116,13 +118,18 @@ class NavigationManager: ObservableObject {
     
     func dismissToContentView() {
         path = NavigationPath()
-        NotificationCenter.default.post(name: .didDismissToContentView, object: nil)
+        NotificationCenter.default.post(name: .goToLandmark, object: nil)
         isShowingDirectory = false
     }
     
     func dismissToSkateView() {
         isShowingMarkerOptions = false
         isShowingCreateChannel = false
+    }
+    
+    func recoverFromSearch() {
+        NotificationCenter.default.post(name: .goToCoordinate, object: nil)
+        isShowingSearch = false
     }
 }
 
@@ -266,8 +273,13 @@ struct SkateView: View {
                         })
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .didDismissToContentView)) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: .goToLandmark)) { _ in
                 if  let locationCoordinate = navigation.landmark?.locationCoordinate {
+                    locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
+                if  let locationCoordinate = navigation.coordinates {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
             }

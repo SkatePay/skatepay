@@ -31,6 +31,34 @@ public func coordinateToJSONString(_ coordinate: CLLocationCoordinate2D) -> Stri
      }
 }
 
+public func convertStringToCoordinate(_ coordinateString: String) -> CLLocationCoordinate2D? {
+    let cleanedString = coordinateString.replacingOccurrences(of: "\\s", with: "", options: .regularExpression, range: nil)
+    
+    guard let data = cleanedString.data(using: .utf8) else {
+        print("Failed to convert string to data")
+        return nil
+    }
+    
+    do {
+        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Double] {
+            // Extract latitude and longitude
+            guard let latitude = json["latitude"],
+                  let longitude = json["longitude"] else {
+                print("Missing latitude or longitude in JSON")
+                return nil
+            }
+            
+            return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        } else {
+            print("JSON serialization failed or not in expected format")
+            return nil
+        }
+    } catch {
+        print("Error parsing JSON: \(error)")
+        return nil
+    }
+}
+
 public func load<T: Decodable>(_ filename: String) -> T {
     let data: Data
     
