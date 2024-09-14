@@ -64,7 +64,7 @@ struct CreateChannel: View, EventCreating {
             Section("About") {
                 TextField("about", text: $about)
             }
-            Button("Send") {
+            Button("Create") {
                 if let account = keychainForNostr.account {
                     do {
                         let channel = Channel(
@@ -88,7 +88,7 @@ struct CreateChannel: View, EventCreating {
             .alert("Channel created", isPresented: $showingAlert) {
                 Button("OK", role: .cancel) { }
             }
-//            .disabled(!readyToSend())
+            .disabled(!readyToSend())
         }
     }
     

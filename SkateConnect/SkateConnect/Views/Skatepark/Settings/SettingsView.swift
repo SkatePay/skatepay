@@ -6,6 +6,7 @@
 //
 
 import ConnectFramework
+import CoreData
 import SwiftUI
 import NostrSDK
 import SolanaSwift
@@ -13,6 +14,7 @@ import Combine
 
 struct SettingsView: View {
     @Environment(\.openURL) private var openURL
+    @Environment(\.modelContext) private var context
 
     @Binding var host: Host
 
@@ -94,6 +96,13 @@ struct SettingsView: View {
                     Button("Reset", role: .destructive) {
                         Task {
                             keychainForNostr.clear()
+                            do {
+                                try context.delete(model: Spot.self)
+                                try context.delete(model: Friend.self)
+                                try context.delete(model: Foe.self)
+                            } catch {
+                                print("Failed to delete all spots.")
+                            }
                         }
                     }
                     Button("Cancel", role: .cancel) { }

@@ -41,6 +41,7 @@ struct MarkerOptions: View {
             
             Button(action: {
                 showCreateChannel = true
+                viewModel.mark = marks[0]
             }) {
                 Text("Start New Chat")
                     .frame(maxWidth: .infinity)

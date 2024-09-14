@@ -32,11 +32,13 @@ struct ActivityEvent {
     var npub: String
 }
 
+class ObservedSpot: ObservableObject {
+    var spot: Spot?
+}
+
 class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncrypting, EventCreating {
-    @Environment(\.modelContext) private var context
-    
-    @Published var isConnected: Bool = false
     @Published var fetchingStoredEvents: Bool = true
+    @Published var observedSpot: ObservedSpot = ObservedSpot()
     
     let keychainForNostr = NostrKeychainStorage()
     
@@ -49,6 +51,10 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     
     @Published var room: Lobby = Lobby()
     
+    var mark: Mark?
+    
+    var spots: [Spot] = []
+
     init() {
         connectRelays()
         relayPool.delegate = self
@@ -153,17 +159,49 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                             lead.event = event
                             self.room.leads[event.id] = lead
                         } else {
-                            // New value check with bookmarks for location
-                            self.room.leads[event.id] = Lead(
-                                    name: channel.name,
-                                    icon: "🛹",
-                                    coordinate: CLLocationCoordinate2D(
-                                        latitude: 33.98698741635913,
-                                        longitude: -118.47553109622498),
-                                    eventId: event.id,
-                                    event: event,
-                                    channel: channel
-                                )
+                            if let spot = self.findSpotByChannelId(event.id) {
+                                self.room.leads[event.id] = Lead(
+                                        name: channel.name,
+                                        icon: "🛹",
+                                        coordinate: CLLocationCoordinate2D(
+                                            latitude: spot.locationCoordinate.latitude,
+                                            longitude: spot.locationCoordinate.longitude),
+                                        eventId: event.id,
+                                        event: event,
+                                        channel: channel
+                                    )
+                            } else {
+                                if let mark = self.mark {
+                                    self.room.leads[event.id] = Lead(
+                                            name: channel.name,
+                                            icon: "🛹",
+                                            coordinate: CLLocationCoordinate2D(
+                                                latitude: mark.coordinate.latitude,
+                                                longitude: mark.coordinate.longitude),
+                                            eventId: event.id,
+                                            event: event,
+                                            channel: channel
+                                        )
+                                    
+                                    let spot = ObservedSpot()
+                                    spot.spot = Spot(
+                                        name: channel.name,
+                                        address: "",
+                                        state: "",
+                                        note: "channel",
+                                        latitude: mark.coordinate.latitude,
+                                        longitude: mark.coordinate.longitude,
+                                        channelId:
+                                        event.id
+                                    )
+                                    self.observedSpot = spot
+                                    
+                                } else {
+                                    print("unknown channel location")
+                                }
+                                
+                                self.mark = nil
+                            }
                         }
                     }
                 }
@@ -180,9 +218,17 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                 }
             }
     }
+    
+
+    func findSpotByChannelId(_ channelId: String) -> Spot? {
+        return spots.first { $0.channelId == channelId }
+    }
 }
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var context
+    @Query(sort: \Spot.channelId) private var spots: [Spot]
+
     @StateObject private var viewModel = ContentViewModel()
     
     @StateObject private var store = HostStore()
@@ -206,6 +252,7 @@ struct ContentView: View {
                     Label("Skate", systemImage: "map")
                 }
                 .environmentObject(viewModel.room)
+                .environmentObject(viewModel)
                 .tag(Tab.map)
             
             if (hasWallet()) {
@@ -239,6 +286,8 @@ struct ContentView: View {
             } catch {
                 fatalError(error.localizedDescription)
             }
+            
+            viewModel.spots = spots
         }
         .environmentObject(viewModel)
         .environmentObject(store)

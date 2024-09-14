@@ -68,6 +68,14 @@ struct AddressBook: View {
                                 }
                             }
                             
+                            if !spot.note.isEmpty {
+                                Button(action: {
+                                    UIPasteboard.general.string = spot.note
+                                }) {
+                                    Text("Copy note")
+                                }
+                            }
+                            
                             Button(action: {
                                 context.delete(spot)
                             }) {

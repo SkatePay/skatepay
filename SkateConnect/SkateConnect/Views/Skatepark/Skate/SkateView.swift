@@ -30,7 +30,7 @@ struct Lead: Identifiable, Equatable {
     var channel: Channel?
 }
 
-final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
+final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     var locationManager: CLLocationManager?
     
     @Published var marks: [Mark] = []
@@ -94,6 +94,10 @@ final class SkateViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
             break
         }
     }
+    
+    func clearMarks() {
+        self.marks = []
+    }
 }
 
 extension Notification.Name {
@@ -103,8 +107,10 @@ extension Notification.Name {
 class NavigationManager: ObservableObject {
     @Published var path = NavigationPath()
     @Published var landmark: Landmark?
+    
     @Published var showDirectoryView = false
     @Published var showChannelView = false
+    @Published var showSearchView = false
     
     func dismissToContentView() {
         path = NavigationPath()
@@ -114,13 +120,16 @@ class NavigationManager: ObservableObject {
 }
 
 struct SkateView: View {
+    @Environment(\.modelContext) private var context
+
     @EnvironmentObject var room: Lobby
+    @EnvironmentObject var viewModel: ContentViewModel
     
     @StateObject private var navigation = NavigationManager()
     
     @Query private var spots: [Spot]
     
-    @StateObject var viewModel = SkateViewModel()
+    @StateObject var locationManager = LocationManager()
     
     @State private var showingAlert = false
     @State private var isShowingMarkerOptions = false
@@ -137,10 +146,10 @@ struct SkateView: View {
         NavigationStack(path: $navigation.path) {
             VStack {
                 MapReader { proxy in
-                    Map(position: $viewModel.mapPosition) {
+                    Map(position: $locationManager.mapPosition) {
 //                        UserAnnotation()
                         // Marks
-                        ForEach(viewModel.marks) { mark in
+                        ForEach(locationManager.marks) { mark in
                             Marker(mark.name, coordinate: mark.coordinate)
                                 .tint(.orange)
                         }
@@ -174,12 +183,12 @@ struct SkateView: View {
                         }
                     }
                     .onAppear{
-                        viewModel.checkIfLocationIsEnabled()
+                        locationManager.checkIfLocationIsEnabled()
                     }
                     .onTapGesture { position in
                         if let coordinate = proxy.convert(position, from: .local) {
                             print("Tapped at \(coordinate)")
-                            viewModel.marks = []
+                            locationManager.marks = []
                             
                             addMarker(at: coordinate)
                         }
@@ -187,28 +196,32 @@ struct SkateView: View {
                 }
                 
                 HStack {
-                    Button("Landmark Directory") {
+                    Button("Landmarks") {
                         navigation.showDirectoryView = true
                     }
                     
-                    Button("Clear mark") {
-                        viewModel.marks = []
+                    Button("🔎") {
+                        navigation.showSearchView.toggle()
                     }
                     .padding(32)
+                    
+                    Button("Clear mark") {
+                        locationManager.marks = []
+                    }
                     .alert("Mark cleared.", isPresented: $showingAlert) {
                         Button("Ok", role: .cancel) { }
                     }
                 }
             }
             .sheet(isPresented: $isShowingMarkerOptions) {
-                MarkerOptions(npub: npub, marks: viewModel.marks)
+                MarkerOptions(npub: npub, marks: locationManager.marks)
             }
             .sheet(isPresented: $isShowingLeadOptions) {
                 LeadOptions()
             }
             .fullScreenCover(isPresented: $navigation.showDirectoryView) {
                 NavigationView {
-                    LandmarkDirectory(navManager: navigation)
+                    LandmarkDirectory(navigation: navigation)
                         .navigationBarTitle("Landmarks")
                         .navigationBarItems(leading:
                                                 Button(action: {
@@ -231,9 +244,34 @@ struct SkateView: View {
                     Text("No lead available at this index.")
                 }
             }
+            .fullScreenCover(isPresented: $navigation.showSearchView) {
+                NavigationView {
+                    SearchView(navigation: navigation)
+                        .navigationBarTitle("Search")
+                        .navigationBarItems(leading:
+                            Button(action: {
+                                navigation.showSearchView = false
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.left")
+                                Text("Map")
+                                Spacer()
+                            }
+                        })
+                }
+            }
             .onReceive(NotificationCenter.default.publisher(for: .didDismissToContentView)) { _ in
                 if  let locationCoordinate = navigation.landmark?.locationCoordinate {
-                    viewModel.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                    locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                }
+            }
+            .onReceive(viewModel.$observedSpot) { observedSpot in
+                DispatchQueue.main.async {
+                    if let spot = observedSpot.spot {
+                        context.insert(spot)
+                        viewModel.observedSpot.spot = nil
+                        locationManager.clearMarks()
+                    }
                 }
             }
         }
@@ -241,7 +279,7 @@ struct SkateView: View {
     
     func addMarker(at coordinate: CLLocationCoordinate2D) {
         let mark = Mark(name: "Marker \(spots.count + 1)", coordinate: coordinate)
-        viewModel.marks.append(mark)
+        locationManager.marks.append(mark)
         
         let nearbyLandmarks = getNearbyLandmarks(for: coordinate)
         if !nearbyLandmarks.isEmpty {
@@ -270,7 +308,7 @@ struct SkateView: View {
     
     func convertPointToCoordinate(_ point: CGPoint) -> CLLocationCoordinate2D? {
         let mapView = MKMapView(frame: .zero)
-        mapView.setRegion(viewModel.mapRegion, animated: false)
+        mapView.setRegion(locationManager.mapRegion, animated: false)
         
         let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
         return coordinate
