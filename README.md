@@ -9,9 +9,6 @@ npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r
 ## Overview
 - [Gitbook](https://support.skatepark.chat)
 
-## Design
-- [Figma](https://www.figma.com/design/lqDGXZPk1snAz2jUFeYAXj/skatepay.chat?node-id=0-1&t=prSWSvVwsbe0B26W-1)
-
 ## Requirements
 
 * iOS 16+
