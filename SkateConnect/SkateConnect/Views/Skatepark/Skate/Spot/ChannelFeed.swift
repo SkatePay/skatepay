@@ -240,14 +240,14 @@ struct ChannelFeed: View {
                                     .clipShape(Circle())
                                 
                                 VStack(alignment: .leading, spacing: 0) {
-                                    Text("\(landmark.name) \(landmark.eventId.prefix(4))...\(landmark.eventId.suffix(4))")
+                                    Text("\(landmark.name)")
                                         .fontWeight(.semibold)
                                         .font(.headline)
                                 }
                             } else {
                                 if let channel = lead.channel {
                                     VStack(alignment: .leading, spacing: 0) {
-                                        Text("\(channel.name) \(lead.eventId.prefix(4))...\(lead.eventId.suffix(4))")
+                                        Text("\(channel.name)")
                                             .fontWeight(.semibold)
                                             .font(.headline)
                                     }

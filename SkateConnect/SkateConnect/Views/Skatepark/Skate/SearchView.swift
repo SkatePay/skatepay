@@ -35,6 +35,8 @@ struct SearchView: View {
                 Button("OK", role: .cancel) {
                     if (!coordinateString.isEmpty) {
                         navigation.coordinates = convertStringToCoordinate(coordinateString)
+                        navigation.recoverFromSearch()
+                        return
                     }
                     
                     if (!channelId.isEmpty) {
@@ -43,8 +45,9 @@ struct SearchView: View {
                         if let coordinates = spot?.locationCoordinate {
                             navigation.coordinates = coordinates
                         }
+                        
+                        navigation.joinChat(channelId: channelId)
                     }
-                    navigation.recoverFromSearch()
                 }
             }
             .disabled(!readyToSend())

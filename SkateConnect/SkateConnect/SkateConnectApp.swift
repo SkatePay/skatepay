@@ -59,6 +59,15 @@ class NavigationManager: ObservableObject {
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
         isShowingSearch = false
     }
+    
+    func joinChat(channelId: String) {
+        NotificationCenter.default.post(
+            name: .joinChat,
+            object: self,
+            userInfo: ["channelId": channelId]
+        )
+        isShowingSearch = false
+    }
 }
 
 @main

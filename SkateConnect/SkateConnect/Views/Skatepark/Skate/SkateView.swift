@@ -103,6 +103,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
 extension Notification.Name {
     static let goToLandmark = Notification.Name("goToLandmark")
     static let goToCoordinate = Notification.Name("goToCoordinate")
+    static let joinChat = Notification.Name("joinChat")
 }
 
 struct SkateView: View {
@@ -221,12 +222,20 @@ struct SkateView: View {
                 }
             }
             .fullScreenCover(isPresented: $navigation.isShowingChannelFeed) {
-                if let lead = room.leads[self.channelId] {
+                if self.channelId.isEmpty {
+                    Text("No lead available at this index.")
+                } else {
+                    let lead = room.leads[self.channelId] ??
+                        Lead(name: "Private Group Chat",
+                             icon: "💬",
+                             coordinate: AppData().landmarks[0].locationCoordinate,
+                             eventId: self.channelId,
+                             event: nil,
+                             channel: nil)
+                    
                     NavigationView {
                         ChannelFeed(lead: lead)
                     }
-                } else {
-                    Text("No lead available at this index.")
                 }
             }
             .fullScreenCover(isPresented: $navigation.isShowingSearch) {
@@ -253,6 +262,20 @@ struct SkateView: View {
             .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
                 if  let locationCoordinate = navigation.coordinates {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .joinChat)) { notification in
+                if  let locationCoordinate = navigation.coordinates {
+                    locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                }
+                
+                // Join Chain
+                navigation.isShowingChannelFeed = true
+                
+                if let channelId = notification.userInfo?["channelId"] as? String {
+                    print("Joined chat with channel ID: \(channelId)")
+                        
+                    self.channelId = channelId
                 }
             }
             .onReceive(viewModel.$observedSpot) { observedSpot in

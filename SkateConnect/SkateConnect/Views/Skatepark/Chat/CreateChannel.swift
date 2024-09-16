@@ -54,10 +54,10 @@ struct CreateChannel: View, EventCreating {
     
     @ObservedObject var navigation = NavigationManager.shared
 
-    @State private var showingAlert = false
+    @State private var isShowingConfirmation = false
     
-    @State private var name: String = "My Awesome Channel"
-    @State private var about: String = "This is a channel about awesome things."
+    @State private var name: String = ""
+    @State private var about: String = ""
         
     var body: some View {
         Text("📡 Create Channel")
@@ -84,15 +84,15 @@ struct CreateChannel: View, EventCreating {
                             networkConnections.reconnectRelaysIfNeeded()
                             networkConnections.relayPool.publishEvent(event)
                             
-                            showingAlert = true
+                            isShowingConfirmation = true
                         }
                     } catch {
                         print(error.localizedDescription)
                     }
                 }
             }
-            .alert("Channel created", isPresented: $showingAlert) {
-                Button("OK", role: .cancel) { 
+            .alert("Channel created", isPresented: $isShowingConfirmation) {
+                Button("OK", role: .cancel) {
                     navigation.dismissToSkateView()
                 }
             }
