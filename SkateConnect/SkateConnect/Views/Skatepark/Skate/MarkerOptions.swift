@@ -13,11 +13,10 @@ struct MarkerOptions: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
 
-    @EnvironmentObject var appConnections: AppConnections
     @EnvironmentObject var viewModel: ContentViewModel
     
-    @ObservedObject var navigation: NavigationManager
-        
+    @ObservedObject var navigation = NavigationManager.shared
+
     var marks: [Mark]
     
     let keychainForNostr = NostrKeychainStorage()
@@ -58,8 +57,7 @@ struct MarkerOptions: View {
         }
         .fullScreenCover(isPresented: $navigation.isShowingCreateChannel) {
             NavigationView {
-                CreateChannel(navigation: navigation)
-                    .environmentObject(appConnections)
+                CreateChannel()
                     .navigationBarItems(leading:
                     Button(action: {
                         navigation.isShowingCreateChannel = false
@@ -75,5 +73,5 @@ struct MarkerOptions: View {
     }
 }
 #Preview {
-    MarkerOptions(navigation: NavigationManager(), marks: [])
+    MarkerOptions(marks: [])
 }

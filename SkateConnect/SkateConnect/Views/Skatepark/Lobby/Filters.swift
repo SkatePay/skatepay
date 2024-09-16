@@ -24,7 +24,7 @@ struct Filters: View {
                                 Button(action: {
                                     context.delete(foe)
                                 }) {
-                                    Text("Unblock")
+                                    Text("Unmute")
                                 }
                             }
                         

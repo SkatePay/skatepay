@@ -32,8 +32,9 @@ class ChatDelegate: ObservableObject, RelayDelegate {
 struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var viewModel: ContentViewModel
-    @EnvironmentObject var appConnections: AppConnections
-        
+
+    @ObservedObject var networkConnections = NetworkConnections.shared
+
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var chatDelegate = ChatDelegate()
@@ -46,7 +47,7 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
             
     private var user: User
     
-    var connected: Bool { appConnections.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
+    var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     init(user: User) {
         self.user = user
@@ -94,9 +95,14 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
         }
         .onDisappear{
             if let subscriptionId {
-                appConnections.relayPool.closeSubscription(with: subscriptionId)
+                relayPool.closeSubscription(with: subscriptionId)
             }
         }
+    }
+    
+    private var relayPool: RelayPool {
+        networkConnections.reconnectRelaysIfNeeded()
+        return networkConnections.relayPool
     }
     
     private func myKeypair() -> Keypair? {
@@ -154,26 +160,29 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
             let directMessage = try legacyEncryptedDirectMessage(withContent: draft.text,
                                                                  toRecipient: recipientPublicKey,
                                                                  signedBy: senderKeyPair)
-            appConnections.relayPool.publishEvent(directMessage)
+            networkConnections.reconnectRelaysIfNeeded()
+            relayPool.publishEvent(directMessage)
         } catch {
             print(error.localizedDescription)
         }
     }
     private func updateSubscription() {
+        networkConnections.reconnectRelaysIfNeeded()
+        
         chatDelegate.fetchingStoredEvents = true
         
         if let subscriptionId {
-            appConnections.relayPool.closeSubscription(with: subscriptionId)
+            relayPool.closeSubscription(with: subscriptionId)
         }
         
         if let unwrappedFilter = currentFilter {
-            subscriptionId = appConnections.relayPool.subscribe(with: unwrappedFilter)
+            subscriptionId = relayPool.subscribe(with: unwrappedFilter)
         } else {
             print("currentFilter is nil, unable to subscribe")
         }
-        appConnections.relayPool.delegate = self.chatDelegate
+        relayPool.delegate = self.chatDelegate
                 
-        eventsCancellable = appConnections.relayPool.events
+        eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
             .map {
                 return $0.event

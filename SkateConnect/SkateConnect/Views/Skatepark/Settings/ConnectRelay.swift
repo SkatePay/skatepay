@@ -10,12 +10,12 @@ import SwiftUI
 
 struct ConnectRelay: View {
     @EnvironmentObject var viewModel: ContentViewModel
-    @EnvironmentObject var relayPool: RelayPool
-
     
+    @ObservedObject var networkConnections = NetworkConnections.shared
+
     var body: some View {
         Text("Connected Relays")
-        ForEach(Array(relayPool.relays), id: \.self) { relay in
+        ForEach(Array(networkConnections.relayPool.relays), id: \.self) { relay in
             Text("\(relay.state == .connected ? "🟢" : "🔴" ) \(relay.url.absoluteString)")
                 .contextMenu {
                     Button(action: {
@@ -24,6 +24,10 @@ struct ConnectRelay: View {
                         Text("Copy")
                     }
                 }
+        }
+        
+        Button("Reconnect 🔄") {
+            networkConnections.reconnectRelaysIfNeeded()
         }
     }
 }

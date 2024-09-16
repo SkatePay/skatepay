@@ -25,7 +25,7 @@ struct UserRow: View {
                 Button(action: {
                     isShowingFilters = true
                 }) {
-                    Text("Filters")
+                    Text("Ignore")
                         .font(.headline)
                         .padding(.leading, 15)
                         .padding(.top, 5)
@@ -55,7 +55,7 @@ struct UserRow: View {
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
-                            Text("🏛️ Lobby")
+                            Text("⛺️ Lobby")
                             Spacer()
                         }
                     })

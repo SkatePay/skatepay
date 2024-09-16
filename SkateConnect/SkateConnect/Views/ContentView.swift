@@ -21,13 +21,11 @@ enum Tab {
 }
 
 class Lobby: ObservableObject {
-    @Published var guests: [String: Date] = [:]
     @Published var channels: [String: Channel] = [:]
     @Published var leads: [String: Lead] = [:]
     @Published var events: [ActivityEvent] = []
     
     func clear() {
-        guests = [:]
         leads = [:]
         channels = [:]
         events = []
@@ -49,7 +47,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     
     let keychainForNostr = NostrKeychainStorage()
     
-    var relayPool: RelayPool?
+    @ObservedObject var networkConnections = NetworkConnections.shared
     
     private var subscriptionForChannels, subscriptionForDirectMessages: String?
     private var eventsCancellableForGroup, eventsCancellableForDirect: AnyCancellable?
@@ -85,6 +83,11 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         }
     }
     
+    private var relayPool: RelayPool {
+        networkConnections.reconnectRelaysIfNeeded()
+        return networkConnections.relayPool
+    }
+    
     private var filterForChannels: Filter? {
         guard let account = keychainForNostr.account else {
             print("Error: Failed to create Filter")
@@ -103,40 +106,27 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     }
     
     func updateSubscriptions() {
+        networkConnections.reconnectRelaysIfNeeded()
+        
         if let subscriptionForChannels {
-            relayPool?.closeSubscription(with: subscriptionForChannels)
+            relayPool.closeSubscription(with: subscriptionForChannels)
         }
         
         if let subscriptionForDirectMessages {
-            relayPool?.closeSubscription(with: subscriptionForDirectMessages)
+            relayPool.closeSubscription(with: subscriptionForDirectMessages)
         }
         
         if let unwrappedFilter = filterForChannels {
-            subscriptionForChannels = relayPool?.subscribe(with: unwrappedFilter)
+            subscriptionForChannels = relayPool.subscribe(with: unwrappedFilter)
         }
         
         if let unwrappedFilter = filterForDirectMessages {
-            subscriptionForDirectMessages = relayPool?.subscribe(with: unwrappedFilter)
+            subscriptionForDirectMessages = relayPool.subscribe(with: unwrappedFilter)
         }
         
-        relayPool?.delegate = self
+        relayPool.delegate = self
         
-        eventsCancellableForDirect = relayPool?.events
-            .receive(on: DispatchQueue.main)
-            .map {
-                return $0.event
-            }
-            .removeDuplicates()
-            .sink { event in
-                if let publicKey = PublicKey(hex: event.pubkey) {
-                    let key = publicKey.npub
-                    self.room.guests[key] = event.createdDate
-                } else {
-                    print("Failed to create PublicKey from pubkey: \(event.pubkey)")
-                }
-            }
-        
-        eventsCancellableForGroup = relayPool?.events
+        eventsCancellableForGroup = relayPool.events
             .receive(on: DispatchQueue.main)
             .map {
                 return $0.event
@@ -155,27 +145,27 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                         } else {
                             if let spot = self.findSpotByChannelId(event.id) {
                                 self.room.leads[event.id] = Lead(
+                                    name: channel.name,
+                                    icon: "🛹",
+                                    coordinate: CLLocationCoordinate2D(
+                                        latitude: spot.locationCoordinate.latitude,
+                                        longitude: spot.locationCoordinate.longitude),
+                                    eventId: event.id,
+                                    event: event,
+                                    channel: channel
+                                )
+                            } else {
+                                if let mark = self.mark {
+                                    self.room.leads[event.id] = Lead(
                                         name: channel.name,
                                         icon: "🛹",
                                         coordinate: CLLocationCoordinate2D(
-                                            latitude: spot.locationCoordinate.latitude,
-                                            longitude: spot.locationCoordinate.longitude),
+                                            latitude: mark.coordinate.latitude,
+                                            longitude: mark.coordinate.longitude),
                                         eventId: event.id,
                                         event: event,
                                         channel: channel
                                     )
-                            } else {
-                                if let mark = self.mark {
-                                    self.room.leads[event.id] = Lead(
-                                            name: channel.name,
-                                            icon: "🛹",
-                                            coordinate: CLLocationCoordinate2D(
-                                                latitude: mark.coordinate.latitude,
-                                                longitude: mark.coordinate.longitude),
-                                            eventId: event.id,
-                                            event: event,
-                                            channel: channel
-                                        )
                                     
                                     let spot = ObservedSpot()
                                     spot.spot = Spot(
@@ -186,7 +176,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                                         latitude: mark.coordinate.latitude,
                                         longitude: mark.coordinate.longitude,
                                         channelId:
-                                        event.id
+                                            event.id
                                     )
                                     self.observedSpot = spot
                                     
@@ -221,10 +211,10 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     
-    @EnvironmentObject var appConnections: AppConnections
-
+    @ObservedObject var networkConnections = NetworkConnections.shared
+    
     @Query(sort: \Spot.channelId) private var spots: [Spot]
-
+    
     @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
     
@@ -232,8 +222,6 @@ struct ContentView: View {
     
     let keychainForNostr = NostrKeychainStorage()
     
-    init() {
-    }
     
     var body: some View {
         TabView(selection: $selection) {
@@ -243,14 +231,13 @@ struct ContentView: View {
                 }
                 .environmentObject(viewModel.room)
                 .tag(Tab.lobby)
-
+            
             
             SkateView()
-                .environmentObject(appConnections)
                 .environmentObject(viewModel.room)
                 .environmentObject(viewModel)
                 .tabItem {
-                    Label("Skate", systemImage: "map")
+                    Label("Map", systemImage: "map")
                 }
                 .tag(Tab.map)
             
@@ -291,10 +278,8 @@ struct ContentView: View {
             viewModel.spots = spots
         }
         .onAppear {
-            self.viewModel.relayPool = appConnections.relayPool
             self.viewModel.updateSubscriptions()
         }
-        .environmentObject(appConnections)
         .environmentObject(viewModel)
         .environmentObject(store)
     }

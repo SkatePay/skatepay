@@ -44,6 +44,9 @@ struct ImportIdentity: View {
                         }
                     }
             }
+            Section("Instructions") {
+                Text("Hold key to copy")
+            }
         }
       }
     

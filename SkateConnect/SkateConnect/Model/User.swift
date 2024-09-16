@@ -21,4 +21,16 @@ struct User: Hashable, Codable, Identifiable {
     var image: Image {
         Image(imageName)
     }
+    
+    init(id: Int, name: String, npub: String, solanaAddress: String, relayUrl: String, isFavorite: Bool = false, note: String = "", imageName: String = "default") {
+        self.id = id
+        self.name = name
+        self.npub = npub
+        self.solanaAddress = solanaAddress
+        self.relayUrl = relayUrl
+        self.isFavorite = isFavorite
+        self.note = note
+        self.imageName = imageName
+    }
 }
+

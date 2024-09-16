@@ -10,7 +10,7 @@ import SwiftUI
 struct LandmarkDetail: View {
     @Environment(AppData.self) var modelData
 
-    @ObservedObject var navigation: NavigationManager
+    @ObservedObject var navigation = NavigationManager.shared
 
     var landmark: Landmark
 
@@ -44,12 +44,20 @@ struct LandmarkDetail: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 
-                Button(action: {
-                    navigation.landmark = landmark
-                    navigation.dismissToContentView()
-                }) {
-                    Text("Visit")
+                HStack(spacing: 20) {
+                    Button(action: {
+                        navigation.landmark = landmark
+                        navigation.dismissToContentView()
+                    }) {
+                        Text("Visit 🛹")
+                            .padding(8)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    Spacer()
                 }
+                
                 Divider()
                 
                 Text("About")
@@ -67,6 +75,6 @@ struct LandmarkDetail: View {
 
 #Preview {
     let modelData = AppData()
-    return LandmarkDetail(navigation: NavigationManager(), landmark: modelData.landmarks[0])
+    return LandmarkDetail(landmark: modelData.landmarks[0])
         .environment(modelData)
 }

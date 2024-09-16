@@ -11,8 +11,8 @@ import SwiftUI
 struct LandmarkDirectory: View {
     @Environment(AppData.self) var modelData
     
-    @ObservedObject var navigation: NavigationManager
-    
+    @ObservedObject var navigation = NavigationManager.shared
+
     @State private var showFavoritesOnly = false
     
     var filteredSpots: [Landmark] {
@@ -28,7 +28,7 @@ struct LandmarkDirectory: View {
             }
             ForEach(filteredSpots) { landmark in
                 NavigationLink {
-                    LandmarkDetail(navigation: navigation, landmark: landmark)
+                    LandmarkDetail(landmark: landmark)
                 } label: {
                     LandmarkRow(landmark: landmark)
                 }
@@ -38,5 +38,5 @@ struct LandmarkDirectory: View {
 }
 
 #Preview {
-    LandmarkDirectory(navigation: NavigationManager()).modelContainer(for: Spot.self, inMemory: true)
+    LandmarkDirectory().modelContainer(for: Spot.self, inMemory: true)
 }
