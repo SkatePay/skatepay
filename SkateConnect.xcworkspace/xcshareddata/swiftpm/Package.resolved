@@ -1,5 +1,5 @@
 {
-  "originHash" : "46b62010f3c46444823f8c43f5599ba68a834d406f3162d0792d6be30bd594ba",
+  "originHash" : "286044fab5aa04c37a8fa93676da820ab5a8c1ae803c76e48fd0665ae75a8490",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -38,6 +38,15 @@
       }
     },
     {
+      "identity" : "inputbaraccessoryview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nathantannar4/InputBarAccessoryView",
+      "state" : {
+        "revision" : "093bdc71dc26bfcdaa71352d5ff0cd84b9b8d427",
+        "version" : "6.4.0"
+      }
+    },
+    {
       "identity" : "keychain-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/evgenyneu/keychain-swift.git",
@@ -53,6 +62,15 @@
       "state" : {
         "revision" : "88769b1b69c2b5e5fa5b65522c08bc7b667a6cb8",
         "version" : "2.2.3"
+      }
+    },
+    {
+      "identity" : "messagekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MessageKit/MessageKit.git",
+      "state" : {
+        "revision" : "1993e8e90d4e9a61b8d9bc8ceb733964ce943376",
+        "version" : "4.2.0"
       }
     },
     {

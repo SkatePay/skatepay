@@ -11,7 +11,7 @@ import SwiftData
 import SwiftUI
 
 struct SearchView: View {
-    @ObservedObject var navigation: NavigationManager
+    @ObservedObject var navigation = NavigationManager.shared
 
     @Query private var spots: [Spot]
 
@@ -61,5 +61,5 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView(navigation: NavigationManager())
+    SearchView()
 }

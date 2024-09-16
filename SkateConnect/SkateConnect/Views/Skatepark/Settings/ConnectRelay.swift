@@ -5,14 +5,17 @@
 //  Created by Konstantin Yurchenko, Jr on 9/10/24.
 //
 
+import NostrSDK
 import SwiftUI
 
 struct ConnectRelay: View {
     @EnvironmentObject var viewModel: ContentViewModel
     
+    @ObservedObject var networkConnections = NetworkConnections.shared
+
     var body: some View {
         Text("Connected Relays")
-        ForEach(Array(viewModel.relayPool.relays), id: \.self) { relay in
+        ForEach(Array(networkConnections.relayPool.relays), id: \.self) { relay in
             Text("\(relay.state == .connected ? "🟢" : "🔴" ) \(relay.url.absoluteString)")
                 .contextMenu {
                     Button(action: {
@@ -21,6 +24,10 @@ struct ConnectRelay: View {
                         Text("Copy")
                     }
                 }
+        }
+        
+        Button("Reconnect 🔄") {
+            networkConnections.reconnectRelaysIfNeeded()
         }
     }
 }

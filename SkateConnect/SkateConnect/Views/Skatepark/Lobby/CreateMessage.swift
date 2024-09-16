@@ -11,7 +11,8 @@ import NostrSDK
 
 struct CreateMessage: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
-    
+    @ObservedObject var networkConnections = NetworkConnections.shared
+
     @Query(filter: #Predicate<Friend> { $0.npub != ""  }, sort: \Friend.name)
     private var friends: [Friend]
 
@@ -67,7 +68,9 @@ struct CreateMessage: View, EventCreating {
                     let directMessage = try legacyEncryptedDirectMessage(withContent: message,
                                                                          toRecipient: recipientPublicKey,
                                                                          signedBy: senderKeyPair)
-                    viewModel.relayPool.publishEvent(directMessage)
+                    
+                    networkConnections.reconnectRelaysIfNeeded()
+                    networkConnections.relayPool.publishEvent(directMessage)
                     
                     showingAlert = true
                 } catch {

@@ -25,7 +25,7 @@ struct EditChannel: View {
     var body: some View {
         if let lead = lead {
             Form {
-                Text("📡 Edit Channel")
+                Text("📡 Channel Info")
                 if let channel = lead.channel {
                     Section ("Name") {
                         Text("\(channel.name)")

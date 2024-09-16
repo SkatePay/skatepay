@@ -14,7 +14,7 @@ struct Profile {
     var seasonalPhoto = Season.winter
     var birthday = Date()
 
-    static let `default` = Profile(username: "prorobot")
+    static let `default` = Profile(username: "skater")
 
     enum Season: String, CaseIterable, Identifiable {
         case spring = "🌷"

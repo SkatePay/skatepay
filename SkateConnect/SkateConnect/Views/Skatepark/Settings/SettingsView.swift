@@ -115,7 +115,7 @@ struct SettingsView: View {
                     Text("This will reset all app data. Are you sure you want to proceed?")
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("🛠️ Settings")
         }
     }
 }

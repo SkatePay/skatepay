@@ -105,42 +105,14 @@ extension Notification.Name {
     static let goToCoordinate = Notification.Name("goToCoordinate")
 }
 
-class NavigationManager: ObservableObject {
-    @Published var path = NavigationPath()
-    @Published var landmark: Landmark?
-    @Published var coordinates: CLLocationCoordinate2D?
-    
-    @Published var isShowingDirectory = false
-    @Published var isShowingChannelFeed = false
-    @Published var isShowingSearch = false
-    @Published var isShowingCreateChannel = false
-    @Published var isShowingMarkerOptions = false
-    
-    func dismissToContentView() {
-        path = NavigationPath()
-        NotificationCenter.default.post(name: .goToLandmark, object: nil)
-        isShowingDirectory = false
-    }
-    
-    func dismissToSkateView() {
-        isShowingMarkerOptions = false
-        isShowingCreateChannel = false
-    }
-    
-    func recoverFromSearch() {
-        NotificationCenter.default.post(name: .goToCoordinate, object: nil)
-        isShowingSearch = false
-    }
-}
-
 struct SkateView: View {
     @Environment(\.modelContext) private var context
-
+    
     @EnvironmentObject var room: Lobby
     @EnvironmentObject var viewModel: ContentViewModel
     
-    @StateObject private var navigation = NavigationManager()
-    
+    @ObservedObject var navigation = NavigationManager.shared
+
     @Query private var spots: [Spot]
     
     @StateObject var locationManager = LocationManager()
@@ -209,7 +181,7 @@ struct SkateView: View {
                 }
                 
                 HStack {
-                    Button("Landmarks") {
+                    Button("Skateparks") {
                         navigation.isShowingDirectory = true
                     }
                     
@@ -227,15 +199,15 @@ struct SkateView: View {
                 }
             }
             .sheet(isPresented: $navigation.isShowingMarkerOptions) {
-                MarkerOptions(navigation: navigation, marks: locationManager.marks)
+                MarkerOptions(marks: locationManager.marks)
             }
             .sheet(isPresented: $isShowingLeadOptions) {
                 LeadOptions()
             }
             .fullScreenCover(isPresented: $navigation.isShowingDirectory) {
                 NavigationView {
-                    LandmarkDirectory(navigation: navigation)
-                        .navigationBarTitle("Landmarks")
+                    LandmarkDirectory()
+                        .navigationBarTitle("🛹 Skateparks")
                         .navigationBarItems(leading:
                                                 Button(action: {
                             navigation.isShowingDirectory = false
@@ -259,7 +231,7 @@ struct SkateView: View {
             }
             .fullScreenCover(isPresented: $navigation.isShowingSearch) {
                 NavigationView {
-                    SearchView(navigation: navigation)
+                    SearchView()
                         .navigationBarTitle("Search")
                         .navigationBarItems(leading:
                             Button(action: {

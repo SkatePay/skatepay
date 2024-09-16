@@ -88,7 +88,7 @@ struct Contacts: View {
                 .background(.bar)
             }
             .task {
-                context.insert(Friend(name: AppData().users[0].name, birthday: Date(timeIntervalSince1970: 0), npub: AppData().users[0].npub, solanaAddress: AppData().users[0].solanaAddress,  note: "🐝💤💤💤"))
+                context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().users[0].npub, solanaAddress: AppData().users[0].solanaAddress,  note: "🐝💤💤💤"))
             }
         }
     }

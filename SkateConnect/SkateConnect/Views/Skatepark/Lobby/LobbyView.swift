@@ -26,12 +26,12 @@ struct LobbyView: View {
     @EnvironmentObject var room: Lobby
     
     @StateObject private var viewModel = FriendsViewModel()
-
+    
     @Query(sort: \Foe.npub) private var foes: [Foe]
-
+    
     @State private var isShowingProfile = false
     @State private var isShowingChatView = false
-
+    
     @State private var npub = ""
     
     func isFoe(_ npub: String) -> Bool {
@@ -45,32 +45,38 @@ struct LobbyView: View {
     
     var activity: some View {
         Section("Activity") {
-            ForEach(parseActivity(),  id: \.id) { event in
-                Text("✉️ Incoming message from \(event.npub.prefix(4))...\(event.npub.suffix(4))")
+            if parseActivity().isEmpty {
+                
+                Text("No incoming messages found.")
                     .font(.caption)
-                    .contextMenu {
-                        Button(action: {
-                            DispatchQueue.main.async {
-                                self.npub = event.npub
+            } else {
+                ForEach(parseActivity(),  id: \.id) { event in
+                    Text("✉️ Incoming message from \(event.npub.prefix(4))...\(event.npub.suffix(4))")
+                        .font(.caption)
+                        .contextMenu {
+                            Button(action: {
+                                DispatchQueue.main.async {
+                                    self.npub = event.npub
+                                }
+                                isShowingChatView = true
+                            }) {
+                                Text("Open")
                             }
-                            isShowingChatView = true
-                        }) {
-                            Text("Open")
+                            
+                            Button(action: {
+                                UIPasteboard.general.string = event.npub
+                            }) {
+                                Text("Copy")
+                            }
+                            
+                            Button(action: {
+                                let foe = Foe(npub: event.npub, birthday: Date.now, note: "")
+                                context.insert(foe)
+                            }) {
+                                Text("Block")
+                            }
                         }
-                        
-                        Button(action: {
-                            UIPasteboard.general.string = event.npub
-                        }) {
-                            Text("Copy")
-                        }
-                        
-                        Button(action: {
-                            let foe = Foe(npub: event.npub, birthday: Date.now, note: "")
-                            context.insert(foe)
-                        }) {
-                            Text("Block")
-                        }
-                    }
+                }
             }
         }
     }
@@ -93,14 +99,15 @@ struct LobbyView: View {
                 }
                 
                 NavigationLink {
-                    CreateMessage().environment(modelData)
+                    CreateMessage()
+                        .environment(modelData)
                 } label: {
                     Text("🖋️ Message")
                 }
                 
                 activity
             }
-            .navigationTitle("🏛️ Lobby")
+            .navigationTitle("⛺️ Lobby")
             .toolbar {
                 Button {
                     isShowingProfile.toggle()
@@ -126,9 +133,9 @@ struct LobbyView: View {
                 "note": ""
             }
             """.data(using: .utf8)!
-
+            
             let user = try? JSONDecoder().decode(User.self, from: jsonData)
-        
+            
             NavigationView {
                 DirectChat(user: user!)
             }

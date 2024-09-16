@@ -21,13 +21,8 @@
 		C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500EE2C93C1340026C334 /* NostrKeyInput.swift */; };
 		C625013C2C93C1340026C334 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F22C93C1340026C334 /* FavoriteButton.swift */; };
 		C625013D2C93C1340026C334 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F32C93C1340026C334 /* MapView.swift */; };
-		C625013E2C93C1340026C334 /* ConversationInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F52C93C1340026C334 /* ConversationInteractorProtocol.swift */; };
-		C625013F2C93C1340026C334 /* MockChatInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F62C93C1340026C334 /* MockChatInteractor.swift */; };
 		C62501402C93C1340026C334 /* CreateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F82C93C1340026C334 /* CreateChannel.swift */; };
 		C62501412C93C1340026C334 /* DirectChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F92C93C1340026C334 /* DirectChat.swift */; };
-		C62501422C93C1340026C334 /* MockChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500FA2C93C1340026C334 /* MockChat.swift */; };
-		C62501432C93C1340026C334 /* MockFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500FB2C93C1340026C334 /* MockFeed.swift */; };
-		C62501442C93C1340026C334 /* NostrFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500FC2C93C1340026C334 /* NostrFeed.swift */; };
 		C62501452C93C1340026C334 /* AddressBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500FE2C93C1340026C334 /* AddressBook.swift */; };
 		C62501462C93C1340026C334 /* SpotRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500FF2C93C1340026C334 /* SpotRow.swift */; };
 		C62501472C93C1340026C334 /* ProfileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501012C93C1340026C334 /* ProfileEditor.swift */; };
@@ -55,12 +50,6 @@
 		C625015D2C93C1340026C334 /* TransferToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011E2C93C1340026C334 /* TransferToken.swift */; };
 		C625015E2C93C1340026C334 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011F2C93C1340026C334 /* WalletView.swift */; };
 		C625015F2C93C1340026C334 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501222C93C1340026C334 /* ContentView.swift */; };
-		C62501612C93C1340026C334 /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501252C93C1340026C334 /* Lorem.swift */; };
-		C62501622C93C1340026C334 /* MockChatData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501262C93C1340026C334 /* MockChatData.swift */; };
-		C62501632C93C1340026C334 /* ChatError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501282C93C1340026C334 /* ChatError.swift */; };
-		C62501642C93C1340026C334 /* MockAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501292C93C1340026C334 /* MockAttachment.swift */; };
-		C62501652C93C1340026C334 /* MockMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625012A2C93C1340026C334 /* MockMessage.swift */; };
-		C62501662C93C1340026C334 /* MockUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625012B2C93C1340026C334 /* MockUser.swift */; };
 		C62501672C93C1340026C334 /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625012D2C93C1340026C334 /* Friend.swift */; };
 		C62501682C93C1340026C334 /* Spot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625012E2C93C1340026C334 /* Spot.swift */; };
 		C625016A2C93C1340026C334 /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501312C93C1340026C334 /* Host.swift */; };
@@ -68,10 +57,20 @@
 		C625016C2C93C1340026C334 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501332C93C1340026C334 /* Landmark.swift */; };
 		C625016D2C93C1340026C334 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501342C93C1340026C334 /* Profile.swift */; };
 		C625016E2C93C1340026C334 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501352C93C1340026C334 /* User.swift */; };
-		C631E98D2C954FBB009E5C0D /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C631E98C2C954FBB009E5C0D /* SolanaSwift */; };
-		C631E9932C954FDC009E5C0D /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C631E9922C954FDC009E5C0D /* KeychainSwift */; };
-		C631E9962C954FE5009E5C0D /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C631E9952C954FE5009E5C0D /* ExyteChat */; };
-		C6844E132C9552DD00A2E941 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6844E122C9552DD00A2E941 /* NostrSDK */; };
+		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
+		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
+		C668FC4C2C967A9F00612BEA /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC4B2C967A9F00612BEA /* ExyteChat */; };
+		C668FC4F2C967AAA00612BEA /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC4E2C967AAA00612BEA /* KeychainSwift */; };
+		C668FC522C967AB600612BEA /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC512C967AB600612BEA /* NostrSDK */; };
+		C668FC582C967D6A00612BEA /* MessageKit in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC572C967D6A00612BEA /* MessageKit */; };
+		C66E09632C9657A400C9F8F1 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09622C9657A400C9F8F1 /* MessageView.swift */; };
+		C66E09662C96583800C9F8F1 /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09642C96583800C9F8F1 /* Lorem.swift */; };
+		C66E09672C96583800C9F8F1 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09652C96583800C9F8F1 /* SampleData.swift */; };
+		C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096A2C96597A00C9F8F1 /* MockMessage.swift */; };
+		C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096B2C96597A00C9F8F1 /* MockSocket.swift */; };
+		C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096C2C96597A00C9F8F1 /* MockUser.swift */; };
+		C69DC22C2C96121E00A7ED67 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C69DC22B2C96121E00A7ED67 /* NostrSDK */; };
+		C6DCB0532C98DBBF0030B35F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DCB0522C98DBBF0030B35F /* NostrSDK */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -146,13 +145,8 @@
 		C62500EE2C93C1340026C334 /* NostrKeyInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrKeyInput.swift; sourceTree = "<group>"; };
 		C62500F22C93C1340026C334 /* FavoriteButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
 		C62500F32C93C1340026C334 /* MapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
-		C62500F52C93C1340026C334 /* ConversationInteractorProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationInteractorProtocol.swift; sourceTree = "<group>"; };
-		C62500F62C93C1340026C334 /* MockChatInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockChatInteractor.swift; sourceTree = "<group>"; };
 		C62500F82C93C1340026C334 /* CreateChannel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateChannel.swift; sourceTree = "<group>"; };
 		C62500F92C93C1340026C334 /* DirectChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectChat.swift; sourceTree = "<group>"; };
-		C62500FA2C93C1340026C334 /* MockChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockChat.swift; sourceTree = "<group>"; };
-		C62500FB2C93C1340026C334 /* MockFeed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockFeed.swift; sourceTree = "<group>"; };
-		C62500FC2C93C1340026C334 /* NostrFeed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrFeed.swift; sourceTree = "<group>"; };
 		C62500FE2C93C1340026C334 /* AddressBook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressBook.swift; sourceTree = "<group>"; };
 		C62500FF2C93C1340026C334 /* SpotRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotRow.swift; sourceTree = "<group>"; };
 		C62501012C93C1340026C334 /* ProfileEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileEditor.swift; sourceTree = "<group>"; };
@@ -181,12 +175,6 @@
 		C625011F2C93C1340026C334 /* WalletView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		C62501222C93C1340026C334 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C62501242C93C1340026C334 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C62501252C93C1340026C334 /* Lorem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lorem.swift; sourceTree = "<group>"; };
-		C62501262C93C1340026C334 /* MockChatData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockChatData.swift; sourceTree = "<group>"; };
-		C62501282C93C1340026C334 /* ChatError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatError.swift; sourceTree = "<group>"; };
-		C62501292C93C1340026C334 /* MockAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockAttachment.swift; sourceTree = "<group>"; };
-		C625012A2C93C1340026C334 /* MockMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockMessage.swift; sourceTree = "<group>"; };
-		C625012B2C93C1340026C334 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
 		C625012D2C93C1340026C334 /* Friend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
 		C625012E2C93C1340026C334 /* Spot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spot.swift; sourceTree = "<group>"; };
 		C62501312C93C1340026C334 /* Host.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
@@ -194,6 +182,13 @@
 		C62501332C93C1340026C334 /* Landmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Landmark.swift; sourceTree = "<group>"; };
 		C62501342C93C1340026C334 /* Profile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C62501352C93C1340026C334 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
+		C66E09622C9657A400C9F8F1 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
+		C66E09642C96583800C9F8F1 /* Lorem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lorem.swift; sourceTree = "<group>"; };
+		C66E09652C96583800C9F8F1 /* SampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
+		C66E096A2C96597A00C9F8F1 /* MockMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockMessage.swift; sourceTree = "<group>"; };
+		C66E096B2C96597A00C9F8F1 /* MockSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockSocket.swift; sourceTree = "<group>"; };
+		C66E096C2C96597A00C9F8F1 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
 		C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
 		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
 		C6DCF46E2C93E32F00CA21ED /* Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filters.swift; sourceTree = "<group>"; };
@@ -218,11 +213,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C631E98D2C954FBB009E5C0D /* SolanaSwift in Frameworks */,
+				C6DCB0532C98DBBF0030B35F /* NostrSDK in Frameworks */,
+				C668FC4C2C967A9F00612BEA /* ExyteChat in Frameworks */,
+				C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */,
+				C668FC522C967AB600612BEA /* NostrSDK in Frameworks */,
+				C668FC582C967D6A00612BEA /* MessageKit in Frameworks */,
+				C668FC4F2C967AAA00612BEA /* KeychainSwift in Frameworks */,
 				C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */,
-				C631E9962C954FE5009E5C0D /* ExyteChat in Frameworks */,
-				C631E9932C954FDC009E5C0D /* KeychainSwift in Frameworks */,
-				C6844E132C9552DD00A2E941 /* NostrSDK in Frameworks */,
+				C69DC22C2C96121E00A7ED67 /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +289,7 @@
 		C62500F02C93C1340026C334 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
+				C66E096D2C96597A00C9F8F1 /* Models */,
 				C62500EF2C93C1340026C334 /* Nostr */,
 			);
 			path = Debug;
@@ -306,24 +305,11 @@
 			path = Helper;
 			sourceTree = "<group>";
 		};
-		C62500F72C93C1340026C334 /* ChatInteractor */ = {
-			isa = PBXGroup;
-			children = (
-				C62500F52C93C1340026C334 /* ConversationInteractorProtocol.swift */,
-				C62500F62C93C1340026C334 /* MockChatInteractor.swift */,
-			);
-			path = ChatInteractor;
-			sourceTree = "<group>";
-		};
 		C62500FD2C93C1340026C334 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
-				C62500F72C93C1340026C334 /* ChatInteractor */,
 				C62500F82C93C1340026C334 /* CreateChannel.swift */,
 				C62500F92C93C1340026C334 /* DirectChat.swift */,
-				C62500FA2C93C1340026C334 /* MockChat.swift */,
-				C62500FB2C93C1340026C334 /* MockFeed.swift */,
-				C62500FC2C93C1340026C334 /* NostrFeed.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -347,13 +333,14 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
-		C62501072C93C1340026C334 /* SpotFeed */ = {
+		C62501072C93C1340026C334 /* Spot */ = {
 			isa = PBXGroup;
 			children = (
 				C62501052C93C1340026C334 /* ChannelFeed.swift */,
 				C62501062C93C1340026C334 /* SpotDetail.swift */,
+				C66E09622C9657A400C9F8F1 /* MessageView.swift */,
 			);
-			path = SpotFeed;
+			path = Spot;
 			sourceTree = "<group>";
 		};
 		C625010B2C93C1340026C334 /* Users */ = {
@@ -371,7 +358,6 @@
 			children = (
 				C62501002C93C1340026C334 /* AddressBook */,
 				C62501042C93C1340026C334 /* Profile */,
-				C62501072C93C1340026C334 /* SpotFeed */,
 				C625010B2C93C1340026C334 /* Users */,
 				C625010C2C93C1340026C334 /* Contacts.swift */,
 				C625010D2C93C1340026C334 /* CreateMessage.swift */,
@@ -394,6 +380,7 @@
 		C62501172C93C1340026C334 /* Skate */ = {
 			isa = PBXGroup;
 			children = (
+				C62501072C93C1340026C334 /* Spot */,
 				C62501132C93C1340026C334 /* LandmarkDirectory */,
 				C62501142C93C1340026C334 /* LeadOptions.swift */,
 				C62501152C93C1340026C334 /* MarkerOptions.swift */,
@@ -427,6 +414,7 @@
 		C62501212C93C1340026C334 /* Skatepark */ = {
 			isa = PBXGroup;
 			children = (
+				C642B2142C97854A001022DF /* EULA */,
 				C6F4959D2C93D3200006FBF0 /* Settings */,
 				C62500FD2C93C1340026C334 /* Chat */,
 				C625010F2C93C1340026C334 /* Lobby */,
@@ -447,27 +435,6 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		C62501272C93C1340026C334 /* DataGeneration */ = {
-			isa = PBXGroup;
-			children = (
-				C62501252C93C1340026C334 /* Lorem.swift */,
-				C62501262C93C1340026C334 /* MockChatData.swift */,
-			);
-			path = DataGeneration;
-			sourceTree = "<group>";
-		};
-		C625012C2C93C1340026C334 /* Chat */ = {
-			isa = PBXGroup;
-			children = (
-				C62501272C93C1340026C334 /* DataGeneration */,
-				C62501282C93C1340026C334 /* ChatError.swift */,
-				C62501292C93C1340026C334 /* MockAttachment.swift */,
-				C625012A2C93C1340026C334 /* MockMessage.swift */,
-				C625012B2C93C1340026C334 /* MockUser.swift */,
-			);
-			path = Chat;
-			sourceTree = "<group>";
-		};
 		C625012F2C93C1340026C334 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -481,7 +448,6 @@
 		C62501362C93C1340026C334 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				C625012C2C93C1340026C334 /* Chat */,
 				C625012F2C93C1340026C334 /* Data */,
 				C62501312C93C1340026C334 /* Host.swift */,
 				C62501322C93C1340026C334 /* HostStore.swift */,
@@ -490,6 +456,26 @@
 				C62501352C93C1340026C334 /* User.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		C642B2142C97854A001022DF /* EULA */ = {
+			isa = PBXGroup;
+			children = (
+				C642B2172C978571001022DF /* EULAView.swift */,
+			);
+			path = EULA;
+			sourceTree = "<group>";
+		};
+		C66E096D2C96597A00C9F8F1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C66E09642C96583800C9F8F1 /* Lorem.swift */,
+				C66E09652C96583800C9F8F1 /* SampleData.swift */,
+				C66E096A2C96597A00C9F8F1 /* MockMessage.swift */,
+				C66E096B2C96597A00C9F8F1 /* MockSocket.swift */,
+				C66E096C2C96597A00C9F8F1 /* MockUser.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		C67293242C93BED9000191B2 /* Products */ = {
@@ -602,10 +588,13 @@
 			);
 			name = SkateConnect;
 			packageProductDependencies = (
-				C631E98C2C954FBB009E5C0D /* SolanaSwift */,
-				C631E9922C954FDC009E5C0D /* KeychainSwift */,
-				C631E9952C954FE5009E5C0D /* ExyteChat */,
-				C6844E122C9552DD00A2E941 /* NostrSDK */,
+				C69DC22B2C96121E00A7ED67 /* NostrSDK */,
+				C668FC482C967A9600612BEA /* SolanaSwift */,
+				C668FC4B2C967A9F00612BEA /* ExyteChat */,
+				C668FC4E2C967AAA00612BEA /* KeychainSwift */,
+				C668FC512C967AB600612BEA /* NostrSDK */,
+				C668FC572C967D6A00612BEA /* MessageKit */,
+				C6DCB0522C98DBBF0030B35F /* NostrSDK */,
 			);
 			productName = SkateConnect;
 			productReference = C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */;
@@ -680,10 +669,11 @@
 			);
 			mainGroup = C6DDD7172C936DAE000BE2A4;
 			packageReferences = (
-				C631E98B2C954FBB009E5C0D /* XCRemoteSwiftPackageReference "solana-swift" */,
-				C631E9912C954FDC009E5C0D /* XCRemoteSwiftPackageReference "keychain-swift" */,
-				C631E9942C954FE5009E5C0D /* XCRemoteSwiftPackageReference "Chat" */,
-				C6844E112C9552DD00A2E941 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
+				C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */,
+				C668FC4A2C967A9F00612BEA /* XCRemoteSwiftPackageReference "Chat" */,
+				C668FC4D2C967AAA00612BEA /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				C668FC562C967D6A00612BEA /* XCRemoteSwiftPackageReference "MessageKit" */,
+				C6DCB0512C98DBBF0030B35F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 			);
 			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
 			projectDirPath = "";
@@ -750,32 +740,30 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C62501662C93C1340026C334 /* MockUser.swift in Sources */,
 				C62501552C93C1340026C334 /* LeadOptions.swift in Sources */,
-				C62501642C93C1340026C334 /* MockAttachment.swift in Sources */,
 				C62501542C93C1340026C334 /* LandmarkRow.swift in Sources */,
 				C62501592C93C1340026C334 /* SolanaKeychainStorage.swift in Sources */,
 				C625016C2C93C1340026C334 /* Landmark.swift in Sources */,
+				C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */,
 				C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */,
 				C62501472C93C1340026C334 /* ProfileEditor.swift in Sources */,
 				C625016D2C93C1340026C334 /* Profile.swift in Sources */,
 				C62501412C93C1340026C334 /* DirectChat.swift in Sources */,
+				C66E09662C96583800C9F8F1 /* Lorem.swift in Sources */,
 				C62501522C93C1340026C334 /* LandmarkDetail.swift in Sources */,
 				C62501682C93C1340026C334 /* Spot.swift in Sources */,
+				C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */,
 				C625015A2C93C1340026C334 /* ConnectRelay.swift in Sources */,
-				C62501622C93C1340026C334 /* MockChatData.swift in Sources */,
 				C625015F2C93C1340026C334 /* ContentView.swift in Sources */,
 				C625014B2C93C1340026C334 /* SpotDetail.swift in Sources */,
 				C62501512C93C1340026C334 /* LobbyView.swift in Sources */,
 				C62501672C93C1340026C334 /* Friend.swift in Sources */,
 				C62500E52C93C1250026C334 /* Date+Extensions.swift in Sources */,
-				C62501652C93C1340026C334 /* MockMessage.swift in Sources */,
 				C625014D2C93C1340026C334 /* UserItem.swift in Sources */,
 				C62501482C93C1340026C334 /* ProfileHost.swift in Sources */,
-				C62501632C93C1340026C334 /* ChatError.swift in Sources */,
+				C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */,
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
-				C62501432C93C1340026C334 /* MockFeed.swift in Sources */,
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
@@ -789,27 +777,25 @@
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
 				C62501562C93C1340026C334 /* MarkerOptions.swift in Sources */,
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,
-				C625013E2C93C1340026C334 /* ConversationInteractorProtocol.swift in Sources */,
 				C625014F2C93C1340026C334 /* Contacts.swift in Sources */,
 				C625016E2C93C1340026C334 /* User.swift in Sources */,
+				C66E09672C96583800C9F8F1 /* SampleData.swift in Sources */,
 				C625013D2C93C1340026C334 /* MapView.swift in Sources */,
-				C62501612C93C1340026C334 /* Lorem.swift in Sources */,
 				C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */,
 				C62501402C93C1340026C334 /* CreateChannel.swift in Sources */,
 				C62500DD2C93C1210026C334 /* SolanaAccount.swift in Sources */,
 				C625014A2C93C1340026C334 /* ChannelFeed.swift in Sources */,
-				C625013F2C93C1340026C334 /* MockChatInteractor.swift in Sources */,
 				C62501502C93C1340026C334 /* CreateMessage.swift in Sources */,
 				C62500D52C93C11A0026C334 /* AppData.swift in Sources */,
 				C625015D2C93C1340026C334 /* TransferToken.swift in Sources */,
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
-				C62501422C93C1340026C334 /* MockChat.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,
 				C62501532C93C1340026C334 /* LandmarkDirectory.swift in Sources */,
+				C642B2182C978571001022DF /* EULAView.swift in Sources */,
+				C66E09632C9657A400C9F8F1 /* MessageView.swift in Sources */,
 				C625013C2C93C1340026C334 /* FavoriteButton.swift in Sources */,
 				C625016B2C93C1340026C334 /* HostStore.swift in Sources */,
 				C62500E92C93C12A0026C334 /* DemoHelper.swift in Sources */,
-				C62501442C93C1340026C334 /* NostrFeed.swift in Sources */,
 				C62501462C93C1340026C334 /* SpotRow.swift in Sources */,
 				C62500E42C93C1250026C334 /* Color+hex.swift in Sources */,
 				C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */,
@@ -1158,7 +1144,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C631E98B2C954FBB009E5C0D /* XCRemoteSwiftPackageReference "solana-swift" */ = {
+		C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SkatePay/solana-swift";
 			requirement = {
@@ -1166,15 +1152,7 @@
 				kind = branch;
 			};
 		};
-		C631E9912C954FDC009E5C0D /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 24.0.0;
-			};
-		};
-		C631E9942C954FE5009E5C0D /* XCRemoteSwiftPackageReference "Chat" */ = {
+		C668FC4A2C967A9F00612BEA /* XCRemoteSwiftPackageReference "Chat" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/Chat.git";
 			requirement = {
@@ -1182,7 +1160,23 @@
 				minimumVersion = 2.0.5;
 			};
 		};
-		C6844E112C9552DD00A2E941 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
+		C668FC4D2C967AAA00612BEA /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
+		C668FC562C967D6A00612BEA /* XCRemoteSwiftPackageReference "MessageKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MessageKit/MessageKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.0;
+			};
+		};
+		C6DCB0512C98DBBF0030B35F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SkatePay/nostr-sdk-ios";
 			requirement = {
@@ -1193,24 +1187,37 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C631E98C2C954FBB009E5C0D /* SolanaSwift */ = {
+		C668FC482C967A9600612BEA /* SolanaSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C631E98B2C954FBB009E5C0D /* XCRemoteSwiftPackageReference "solana-swift" */;
+			package = C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */;
 			productName = SolanaSwift;
 		};
-		C631E9922C954FDC009E5C0D /* KeychainSwift */ = {
+		C668FC4B2C967A9F00612BEA /* ExyteChat */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C631E9912C954FDC009E5C0D /* XCRemoteSwiftPackageReference "keychain-swift" */;
-			productName = KeychainSwift;
-		};
-		C631E9952C954FE5009E5C0D /* ExyteChat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C631E9942C954FE5009E5C0D /* XCRemoteSwiftPackageReference "Chat" */;
+			package = C668FC4A2C967A9F00612BEA /* XCRemoteSwiftPackageReference "Chat" */;
 			productName = ExyteChat;
 		};
-		C6844E122C9552DD00A2E941 /* NostrSDK */ = {
+		C668FC4E2C967AAA00612BEA /* KeychainSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C6844E112C9552DD00A2E941 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
+			package = C668FC4D2C967AAA00612BEA /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
+		};
+		C668FC512C967AB600612BEA /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C668FC572C967D6A00612BEA /* MessageKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C668FC562C967D6A00612BEA /* XCRemoteSwiftPackageReference "MessageKit" */;
+			productName = MessageKit;
+		};
+		C69DC22B2C96121E00A7ED67 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C6DCB0522C98DBBF0030B35F /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6DCB0512C98DBBF0030B35F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
 			productName = NostrSDK;
 		};
 /* End XCSwiftPackageProductDependency section */

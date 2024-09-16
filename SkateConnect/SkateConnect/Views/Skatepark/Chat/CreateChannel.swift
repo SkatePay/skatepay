@@ -48,9 +48,11 @@ func encodeChannel(_ channel: Channel) -> String? {
 struct CreateChannel: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
     
+    @ObservedObject var networkConnections = NetworkConnections.shared
+
     let keychainForNostr = NostrKeychainStorage()
     
-    @ObservedObject var navigation: NavigationManager
+    @ObservedObject var navigation = NavigationManager.shared
 
     @State private var showingAlert = false
     
@@ -79,7 +81,9 @@ struct CreateChannel: View, EventCreating {
                         if let content = encodeChannel(channel) {
                             let event = try createChannelEvent(withContent: content, signedBy: account)
                             
-                            viewModel.relayPool.publishEvent(event)
+                            networkConnections.reconnectRelaysIfNeeded()
+                            networkConnections.relayPool.publishEvent(event)
+                            
                             showingAlert = true
                         }
                     } catch {
@@ -102,5 +106,5 @@ struct CreateChannel: View, EventCreating {
 }
 
 #Preview {
-    CreateChannel(navigation: NavigationManager())
+    CreateChannel()
 }
