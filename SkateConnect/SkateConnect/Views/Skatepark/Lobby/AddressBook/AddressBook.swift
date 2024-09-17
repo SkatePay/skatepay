@@ -20,16 +20,25 @@ extension Formatter {
     }()
 }
 
+class ChannelSelectionManager: ObservableObject {
+    @Published var spot: Spot?
+}
+
 struct AddressBook: View {
     @Environment(\.modelContext) private var context
     
     @Query private var spots: [Spot]
+    
+    @StateObject private var channelSelection = ChannelSelectionManager()
+
     @State private var showFavoritesOnly = false
     
     @State private var name = ""
     @State private var date = Date.now
     @State private var latitude = 0.0
     @State private var longitude = 0.0
+    
+    @State var isShowingChannelFeed = false
     
     var filteredSpots: [Spot] {
         spots.filter { spot in
@@ -62,6 +71,13 @@ struct AddressBook: View {
                             
                             if !spot.channelId.isEmpty {
                                 Button(action: {
+                                    channelSelection.spot = spot
+                                    isShowingChannelFeed = true
+                                }) {
+                                    Text("Open channel")
+                                }
+                                
+                                Button(action: {
                                     UIPasteboard.general.string = spot.channelId
                                 }) {
                                     Text("Copy channelId")
@@ -82,6 +98,30 @@ struct AddressBook: View {
                                 Text("Delete")
                             }
                         }
+                }
+            }
+            .fullScreenCover(isPresented: $isShowingChannelFeed) {
+                if let spot = channelSelection.spot {
+                    if spot.channelId.isEmpty {
+                        Text("No channel available.")
+                    } else {
+                        let lead = Lead(name: spot.name,
+                             icon: "💬",
+                             coordinate: AppData().landmarks[0].locationCoordinate,
+                             eventId: spot.channelId,
+                             event: nil,
+                             channel: Channel(
+                                name: spot.name,
+                                about: "Private Channel",
+                                picture: "",
+                                relays: [Constants.RELAY_URL_PRIMAL]
+                             )
+                        )
+                        
+                        NavigationView {
+                            ChannelFeed(lead: lead)
+                        }
+                    }
                 }
             }
             .navigationTitle("Spots")

@@ -32,50 +32,64 @@ struct LobbyView: View {
     @State private var isShowingProfile = false
     @State private var isShowingChatView = false
     
-    @State private var npub = ""
-    
+    @StateObject private var userSelection = UserSelectionManager()
+
+    let keychainForNostr = NostrKeychainStorage()
+
     func isFoe(_ npub: String) -> Bool {
         return foes.contains(where: { $0.npub == npub })
     }
     
-    func parseActivity() -> [ActivityEvent] {
-        let events = room.events.filter ({ !self.isFoe($0.npub) })
-        return events
+    func parseActivity() -> [String] {
+        let npub = keychainForNostr.account?.publicKey.npub
+
+        // TODO: Needs rework bad filtering
+        var npubs = room.events
+            .filter ({ !self.isFoe($0.npub) })
+            .filter({ $0.npub != npub })
+            .map { $0.npub }
+                
+        let uniqueNpubs = Set(npubs)
+        
+        return Array(uniqueNpubs)
     }
     
     var activity: some View {
         Section("Activity") {
-            if parseActivity().isEmpty {
-                
+            let npubs = parseActivity()
+            
+            if npubs.isEmpty {
                 Text("No incoming messages found.")
                     .font(.caption)
             } else {
-                ForEach(parseActivity(),  id: \.id) { event in
-                    Text("✉️ Incoming message from skater-\(event.npub.suffix(3))")
-                        .font(.caption)
-                        .contextMenu {
-                            Button(action: {
-                                DispatchQueue.main.async {
-                                    self.npub = event.npub
-                                }
-                                isShowingChatView = true
-                            }) {
-                                Text("Open")
-                            }
-                            
-                            Button(action: {
-                                UIPasteboard.general.string = event.npub
-                            }) {
-                                Text("Copy")
-                            }
-                            
-                            Button(action: {
-                                let foe = Foe(npub: event.npub, birthday: Date.now, note: "")
-                                context.insert(foe)
-                            }) {
-                                Text("Block")
-                            }
+                ForEach(npubs, id: \.self) { npub in
+                    HStack {
+                        Image(systemName: "envelope")
+                            .foregroundColor(.blue)
+                        Text("Incoming message from skater-\(npub.suffix(3))")
+                            .font(.caption)
+                    }
+                    .contextMenu {
+                        Button(action: {
+                            userSelection.npub = npub
+                            isShowingChatView = true
+                        }) {
+                            Label("Open", systemImage: "message")
                         }
+                        
+                        Button(action: {
+                            UIPasteboard.general.string = npub
+                        }) {
+                            Label("Copy", systemImage: "doc.on.doc")
+                        }
+                        
+                        Button(role: .destructive, action: {
+                            let foe = Foe(npub: npub, birthday: Date.now, note: "")
+                            context.insert(foe)
+                        }) {
+                            Label("Block", systemImage: "person.fill.xmark")
+                        }
+                    }
                 }
             }
         }
@@ -124,8 +138,8 @@ struct LobbyView: View {
             let jsonData = """
             {
                 "id": 1,
-                "name": "skater-\(self.npub.suffix(3))",
-                "npub": "\(self.npub)",
+                "name": "skater-\(userSelection.npub.suffix(3))",
+                "npub": "\(userSelection.npub)",
                 "solanaAddress": "",
                 "relayUrl": "\(Constants.RELAY_URL_PRIMAL)",
                 "isFavorite": false,

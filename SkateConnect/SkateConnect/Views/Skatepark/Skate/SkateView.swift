@@ -5,6 +5,7 @@
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
 
+import ConnectFramework
 import MapKit
 import NostrSDK
 import SwiftData
@@ -252,7 +253,13 @@ struct SkateView: View {
                              coordinate: AppData().landmarks[0].locationCoordinate,
                              eventId: self.channelId,
                              event: nil,
-                             channel: nil)
+                             channel: Channel(
+                                name: "Private Channel",
+                                about: "Private Channel",
+                                picture: "",
+                                relays: [Constants.RELAY_URL_PRIMAL]
+                             )
+                        )
                     
                     NavigationView {
                         ChannelFeed(lead: lead)

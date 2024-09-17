@@ -11,7 +11,7 @@ import SwiftUI
 import SwiftData
 
 class UserSelectionManager: ObservableObject {
-    @Published var selectedPublicKey: String = ""
+    @Published var npub: String = ""
 }
 
 struct Contacts: View {
@@ -31,7 +31,6 @@ struct Contacts: View {
     @StateObject private var userSelection = UserSelectionManager()
 
     func findFriendByPublicKey(_ npub: String) -> Friend? {
-        print("npub", npub)
         return friends.first { $0.npub == npub }
     }
     
@@ -48,7 +47,7 @@ struct Contacts: View {
                         .contextMenu {
                             Button(action: {
                                 Task {
-                                    userSelection.selectedPublicKey = friend.npub
+                                    userSelection.npub = friend.npub
                                     isShowingUserDetail = true
                                 }
                             }) {
@@ -116,7 +115,7 @@ struct Contacts: View {
             }
         }
         .fullScreenCover(isPresented: $isShowingUserDetail) {
-            if let friend = findFriendByPublicKey(userSelection.selectedPublicKey) {
+            if let friend = findFriendByPublicKey(userSelection.npub) {
                 let user = User(
                     id: 1,
                     name: friend.name,
