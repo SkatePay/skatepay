@@ -45,6 +45,7 @@ struct LandmarkDetail: View {
                 .foregroundStyle(.secondary)
                 
                 HStack(spacing: 20) {
+                    Spacer()
                     Button(action: {
                         navigation.landmark = landmark
                         navigation.dismissToContentView()
@@ -55,7 +56,6 @@ struct LandmarkDetail: View {
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    Spacer()
                 }
                 
                 Divider()

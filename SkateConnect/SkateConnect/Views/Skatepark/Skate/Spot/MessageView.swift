@@ -61,7 +61,7 @@ struct MessagesView: UIViewControllerRepresentable {
     // MARK: Internal
     
     
-    final class Coordinator: MessagesDataSource, InputBarAccessoryViewDelegate {
+    final class Coordinator: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate, InputBarAccessoryViewDelegate {
         // MARK: Lifecycle
         
         let keychainForNostr = NostrKeychainStorage()
@@ -76,7 +76,7 @@ struct MessagesView: UIViewControllerRepresentable {
             let keychainForNostr = NostrKeychainStorage()
             
             guard let account = keychainForNostr.account else { return }
-            currentUser.senderId = account.publicKey.hex
+            currentUser.senderId = account.publicKey.npub
         }
         
         // MARK: Internal
@@ -130,6 +130,19 @@ struct MessagesView: UIViewControllerRepresentable {
                 attributes: [NSAttributedString.Key.font: timeLabelFont, NSAttributedString.Key.foregroundColor: timeLabelColor])
         }
         
+        func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in _: MessagesCollectionView) {
+            let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
+            avatarView.set(avatar: avatar)
+        }
+        
+        func messageTopLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
+            16
+        }
+        
+        func messageBottomLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
+            0
+        }
+        
     }
     
     @State var initialized = false
@@ -168,23 +181,5 @@ struct MessagesView: UIViewControllerRepresentable {
             uiViewController.messagesCollectionView.scrollToLastItem(animated: self.initialized)
             self.initialized = true
         }
-    }
-}
-
-// MARK: - MessagesView.Coordinator + MessagesLayoutDelegate, MessagesDisplayDelegate
-
-extension MessagesView.Coordinator: MessagesLayoutDelegate, MessagesDisplayDelegate {
-    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in _: MessagesCollectionView) {
-        let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
-        avatarView.set(avatar: avatar)
-        avatarView.tag = 6
-    }
-    
-    func messageTopLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
-        16
-    }
-    
-    func messageBottomLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
-        0
     }
 }

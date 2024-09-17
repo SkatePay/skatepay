@@ -57,8 +57,11 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         let publicKey = PublicKey(hex: event.pubkey)
         let isCurrentUser = publicKey == keychainForNostr.account?.publicKey
         
-        let displayName = isCurrentUser ? "You" : "skater-" + event.pubkey.prefix(3)
-        let user = MockUser(senderId: event.pubkey, displayName: displayName)
+        let npub = publicKey?.npub ?? ""
+        
+        let displayName = isCurrentUser ? "You" : "skater-" + npub.suffix(3)
+        
+        let user = MockUser(senderId: npub, displayName: displayName)
         
         return MockMessage(text: event.content, user: user, messageId: event.id, date: event.createdDate)
     }
@@ -194,10 +197,10 @@ struct ChannelFeed: View {
     }
     
     func showMenu(_ senderId: String) {
-        let publicKey = PublicKey(hex: senderId)
-        
-        if let npub = publicKey?.npub {
-            self.npub = npub
+        if senderId.isEmpty {
+            print("unknown sender")
+        } else {
+            self.npub = senderId
             navigation.isShowingUserDetail.toggle()
         }
     }

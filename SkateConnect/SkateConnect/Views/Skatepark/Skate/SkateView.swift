@@ -181,23 +181,44 @@ struct SkateView: View {
                     }
                 }
                 
-                HStack {
-                    Button("Skateparks") {
+                HStack(spacing: 20) {
+                    Button(action: {
                         navigation.isShowingDirectory = true
+
+                    }) {
+                        Text("Skateparks")
+                            .padding(8)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
                     }
                     
-                    Button("🔎") {
+                    Button(action: {
                         navigation.isShowingSearch.toggle()
+
+                    }) {
+                        Text("🔎")
+                            .padding(8)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
                     }
-                    .padding(32)
                     
-                    Button("Clear mark") {
-                        locationManager.marks = []
-                    }
-                    .alert("Mark cleared.", isPresented: $showingAlert) {
-                        Button("Ok", role: .cancel) { }
+                    if (!locationManager.marks.isEmpty) {
+                        Button(action: {
+                            locationManager.marks = []
+                        }) {
+                            Text("Clear Mark")
+                                .padding(8)
+                                .background(Color.gray)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }.alert("Mark cleared.", isPresented: $showingAlert) {
+                            Button("Ok", role: .cancel) { }
+                        }
                     }
                 }
+                .padding()
             }
             .sheet(isPresented: $navigation.isShowingMarkerOptions) {
                 MarkerOptions(marks: locationManager.marks)

@@ -10,6 +10,10 @@ import NostrSDK
 import SwiftUI
 import SwiftData
 
+class UserSelectionManager: ObservableObject {
+    @Published var selectedPublicKey: String = ""
+}
+
 struct Contacts: View {
     @Query(sort: \Friend.name) private var friends: [Friend]
     @Environment(\.modelContext) private var context
@@ -19,6 +23,17 @@ struct Contacts: View {
     @State private var newNPub = ""
     
     @State private var solanaAddress = ""
+    
+    @State private var isShowingUserDetail = false
+
+    @State private var selectedPublicKey: String = ""
+    
+    @StateObject private var userSelection = UserSelectionManager()
+
+    func findFriendByPublicKey(_ npub: String) -> Friend? {
+        print("npub", npub)
+        return friends.first { $0.npub == npub }
+    }
     
     var body: some View {
         NavigationStack {
@@ -31,6 +46,15 @@ struct Contacts: View {
                     Text(friend.name)
                         .bold(friend.isBirthdayToday)
                         .contextMenu {
+                            Button(action: {
+                                Task {
+                                    userSelection.selectedPublicKey = friend.npub
+                                    isShowingUserDetail = true
+                                }
+                            }) {
+                                Text("Open")
+                            }
+                            
                             Button(action: {
                                 UIPasteboard.general.string = friend.npub
                             }) {
@@ -89,6 +113,35 @@ struct Contacts: View {
             }
             .task {
                 context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().users[0].npub, solanaAddress: AppData().users[0].solanaAddress,  note: "🐝💤💤💤"))
+            }
+        }
+        .fullScreenCover(isPresented: $isShowingUserDetail) {
+            if let friend = findFriendByPublicKey(userSelection.selectedPublicKey) {
+                let user = User(
+                    id: 1,
+                    name: friend.name,
+                    npub: friend.npub,
+                    solanaAddress: "SolanaAddress1...",
+                    relayUrl: Constants.RELAY_URL_PRIMAL,
+                    isFavorite: false,
+                    note: "Not provided.",
+                    imageName: "user-skatepay"
+                )
+                
+                NavigationView {
+                    UserDetail(user: user)
+                        .navigationBarTitle("Filters")
+                        .navigationBarItems(leading:
+                                                Button(action: {
+                            isShowingUserDetail = false
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.left")
+                                Text("Direct Chat")
+                                Spacer()
+                            }
+                        })
+                }
             }
         }
     }

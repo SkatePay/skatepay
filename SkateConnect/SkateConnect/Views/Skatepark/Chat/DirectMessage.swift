@@ -1,15 +1,16 @@
 //
-//  DirectChat.swift
+//  DirectMessage.swift
 //  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/1/24.
 //
 
-import Foundation
-import SwiftUI
-import NostrSDK
-import ExyteChat
 import Combine
+import ConnectFramework
+import ExyteChat
+import Foundation
+import NostrSDK
+import SwiftUI
 
 class ChatDelegate: ObservableObject, RelayDelegate {
     @Published var fetchingStoredEvents = true
@@ -29,7 +30,7 @@ class ChatDelegate: ObservableObject, RelayDelegate {
     }
 }
 
-struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
+struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var viewModel: ContentViewModel
 
@@ -44,6 +45,8 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
     
     @State private var errorString: String?
     @State private var subscriptionId: String?
+    
+    @State private var isShowingUserDetail = false
             
     private var user: User
     
@@ -69,25 +72,56 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
             }
             
             ToolbarItem(placement: .principal) {
-                HStack {
-                    user.image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 35, height: 35)
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(user.name)
-                            .fontWeight(.semibold)
-                            .font(.headline)
-                            .foregroundColor(.black)
-                        Text(connected ? "online" : "offline")
-                            .font(.footnote)
-                            .foregroundColor(Color(hex: "AFB3B8"))
+                Button(action: {
+                    self.isShowingUserDetail = true
+                }) {
+                    HStack {
+                        user.image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 35, height: 35)
+                            .clipShape(Circle())
+                        
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(user.name)
+                                .fontWeight(.semibold)
+                                .font(.headline)
+                                .foregroundColor(.black)
+                            Text(connected ? "online" : "offline")
+                                .font(.footnote)
+                                .foregroundColor(Color(hex: "AFB3B8"))
+                        }
+                        Spacer()
                     }
-                    Spacer()
+                    .padding(.leading, 10)
                 }
-                .padding(.leading, 10)
+            }
+        }
+        .fullScreenCover(isPresented: $isShowingUserDetail) {
+            let user = User(
+                id: 1,
+                name: "skater-\(self.user.npub.suffix(3))",
+                npub: self.user.npub,
+                solanaAddress: "SolanaAddress1...",
+                relayUrl: Constants.RELAY_URL_PRIMAL,
+                isFavorite: false,
+                note: "Not provided.",
+                imageName: "user-skatepay"
+            )
+            
+            NavigationView {
+                UserDetail(user: user)
+                    .navigationBarTitle("Direct Chat")
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        isShowingUserDetail = false
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.left")
+                            Text("Direct Chat")
+                            Spacer()
+                        }
+                    })
             }
         }
         .onAppear{
@@ -201,5 +235,5 @@ struct DirectChat: View, LegacyDirectMessageEncrypting, EventCreating {
 }
 
 #Preview {
-    DirectChat(user: AppData().users[0])
+    DirectMessage(user: AppData().users[0])
 }

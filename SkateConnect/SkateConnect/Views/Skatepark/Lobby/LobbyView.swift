@@ -51,7 +51,7 @@ struct LobbyView: View {
                     .font(.caption)
             } else {
                 ForEach(parseActivity(),  id: \.id) { event in
-                    Text("✉️ Incoming message from \(event.npub.prefix(4))...\(event.npub.suffix(4))")
+                    Text("✉️ Incoming message from skater-\(event.npub.suffix(3))")
                         .font(.caption)
                         .contextMenu {
                             Button(action: {
@@ -124,7 +124,7 @@ struct LobbyView: View {
             let jsonData = """
             {
                 "id": 1,
-                "name": "ghost",
+                "name": "skater-\(self.npub.suffix(3))",
                 "npub": "\(self.npub)",
                 "solanaAddress": "",
                 "relayUrl": "\(Constants.RELAY_URL_PRIMAL)",
@@ -137,7 +137,7 @@ struct LobbyView: View {
             let user = try? JSONDecoder().decode(User.self, from: jsonData)
             
             NavigationView {
-                DirectChat(user: user!)
+                DirectMessage(user: user!)
             }
         }
         .onAppear() {

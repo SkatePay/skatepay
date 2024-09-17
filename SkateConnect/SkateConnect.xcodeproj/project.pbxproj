@@ -22,7 +22,7 @@
 		C625013C2C93C1340026C334 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F22C93C1340026C334 /* FavoriteButton.swift */; };
 		C625013D2C93C1340026C334 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F32C93C1340026C334 /* MapView.swift */; };
 		C62501402C93C1340026C334 /* CreateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F82C93C1340026C334 /* CreateChannel.swift */; };
-		C62501412C93C1340026C334 /* DirectChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F92C93C1340026C334 /* DirectChat.swift */; };
+		C62501412C93C1340026C334 /* DirectMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500F92C93C1340026C334 /* DirectMessage.swift */; };
 		C62501452C93C1340026C334 /* AddressBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500FE2C93C1340026C334 /* AddressBook.swift */; };
 		C62501462C93C1340026C334 /* SpotRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500FF2C93C1340026C334 /* SpotRow.swift */; };
 		C62501472C93C1340026C334 /* ProfileEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501012C93C1340026C334 /* ProfileEditor.swift */; };
@@ -146,7 +146,7 @@
 		C62500F22C93C1340026C334 /* FavoriteButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
 		C62500F32C93C1340026C334 /* MapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		C62500F82C93C1340026C334 /* CreateChannel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateChannel.swift; sourceTree = "<group>"; };
-		C62500F92C93C1340026C334 /* DirectChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectChat.swift; sourceTree = "<group>"; };
+		C62500F92C93C1340026C334 /* DirectMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectMessage.swift; sourceTree = "<group>"; };
 		C62500FE2C93C1340026C334 /* AddressBook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressBook.swift; sourceTree = "<group>"; };
 		C62500FF2C93C1340026C334 /* SpotRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotRow.swift; sourceTree = "<group>"; };
 		C62501012C93C1340026C334 /* ProfileEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileEditor.swift; sourceTree = "<group>"; };
@@ -309,7 +309,7 @@
 			isa = PBXGroup;
 			children = (
 				C62500F82C93C1340026C334 /* CreateChannel.swift */,
-				C62500F92C93C1340026C334 /* DirectChat.swift */,
+				C62500F92C93C1340026C334 /* DirectMessage.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -748,7 +748,7 @@
 				C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */,
 				C62501472C93C1340026C334 /* ProfileEditor.swift in Sources */,
 				C625016D2C93C1340026C334 /* Profile.swift in Sources */,
-				C62501412C93C1340026C334 /* DirectChat.swift in Sources */,
+				C62501412C93C1340026C334 /* DirectMessage.swift in Sources */,
 				C66E09662C96583800C9F8F1 /* Lorem.swift in Sources */,
 				C62501522C93C1340026C334 /* LandmarkDetail.swift in Sources */,
 				C62501682C93C1340026C334 /* Spot.swift in Sources */,

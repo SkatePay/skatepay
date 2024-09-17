@@ -49,7 +49,7 @@ struct EditChannel: View {
                     if let pubkey = lead.event?.pubkey {
                         if let publicKeyForMod = PublicKey(hex: pubkey),
                            let npub = keychainForNostr.account?.publicKey.npub {
-                            Text(publicKeyForMod.npub == npub ? "Mod: You" : "Mod: \(publicKeyForMod.npub)")
+                            Text(publicKeyForMod.npub == npub ? "Owner: You" : "Owner: \(publicKeyForMod.npub)")
                                 .contextMenu {
                                     Button(action: {
                                         UIPasteboard.general.string = publicKeyForMod.npub

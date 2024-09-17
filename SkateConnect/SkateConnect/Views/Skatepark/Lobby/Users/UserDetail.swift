@@ -128,7 +128,7 @@ struct UserDetail: View {
                     }
                     
                     // Navigation link for direct chat
-                    NavigationLink(destination: DirectChat(user: user)) {
+                    NavigationLink(destination: DirectMessage(user: user)) {
                         Label("Chat", systemImage: "message")
                             .padding(8)
                             .background(Color.green)
@@ -183,7 +183,7 @@ struct UserDetail: View {
         }
         .fullScreenCover(isPresented: $showReport) {
             NavigationView {
-                DirectChat(user: AppData().users[0])
+                DirectMessage(user: AppData().users[0])
             }
         }
         .navigationTitle(user.name)
