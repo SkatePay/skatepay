@@ -9,6 +9,7 @@ import ConnectFramework
 import NostrSDK
 import SwiftUI
 import SwiftData
+import CoreLocation
 
 struct Channel: Codable {
     let name: String
@@ -33,15 +34,56 @@ func parseChannel(from jsonString: String) -> Channel? {
     }
 }
 
-func encodeChannel(_ channel: Channel) -> String? {
-    do {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted // For a more readable JSON output
-        let data = try encoder.encode(channel)
-        return String(data: data, encoding: .utf8)
-    } catch {
-        print("Error encoding channel: \(error)")
-        return nil
+func createLead(from event: NostrEvent) -> Lead? {
+    var lead: Lead?
+    
+    if let channel = parseChannel(from: event.content) {
+        let about = channel.about
+        
+        do {
+            let decoder = JSONDecoder()
+            let decodedStructure = try decoder.decode(AboutStructure.self, from: about.data(using: .utf8)!)
+            
+            lead = Lead(
+                name: channel.name,
+                icon: "🛹",
+                coordinate: decodedStructure.location,
+                eventId: event.id,
+                event: event,
+                channel: channel
+            )
+            
+            print(channel)
+            
+        } catch {
+            print("Error decoding: \(error)")
+        }
+    }
+    return lead
+}
+
+struct AboutStructure: Codable {
+    let description: String
+    let location: CLLocationCoordinate2D
+}
+
+extension CLLocationCoordinate2D: Codable {
+    enum CodingKeys: String, CodingKey {
+        case latitude
+        case longitude
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let latitude = try values.decode(Double.self, forKey: .latitude)
+        let longitude = try values.decode(Double.self, forKey: .longitude)
+        self.init(latitude: latitude, longitude: longitude)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(latitude, forKey: .latitude)
+        try container.encode(longitude, forKey: .longitude)
     }
 }
 
@@ -49,43 +91,65 @@ struct CreateChannel: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
     
     @ObservedObject var networkConnections = NetworkConnections.shared
-
+    
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var navigation = NavigationManager.shared
-
+    
     @State private var isShowingConfirmation = false
     
     @State private var name: String = ""
-    @State private var about: String = ""
-        
+    @State private var description: String = ""
+    
+    private var mark: Mark?
+    
+    init(mark: Mark? = nil) {
+        self.mark = mark
+    }
+    
     var body: some View {
         Text("📡 Create Channel")
         Form {
             Section("Name") {
                 TextField("name", text: $name)
             }
-            Section("About") {
-                TextField("about", text: $about)
+            Section("Description") {
+                TextField("description", text: $description)
             }
             Button("Create") {
+                var about = description
+                
+                if let mark = mark {
+                    let aboutStructure = AboutStructure(description: description, location: mark.coordinate)
+                    do {
+                        let encoder = JSONEncoder()
+                        encoder.outputFormatting = .prettyPrinted
+                        let data = try encoder.encode(aboutStructure)
+                        about  = String(data: data, encoding: .utf8) ?? description
+                        print(about)
+                    } catch {
+                        print("Error encoding: \(error)")
+                    }
+                }
+                
                 if let account = keychainForNostr.account {
                     do {
-                        let channel = Channel(
+                        
+                        let metadata = ChannelMetadata(
                             name: name,
                             about: about,
                             picture: Constants.PICTURE_RABOTA_TOKEN,
-                            relays: [Constants.RELAY_URL_PRIMAL]
-                        )
+                            relays: [Constants.RELAY_URL_PRIMAL])
                         
-                        if let content = encodeChannel(channel) {
-                            let event = try createChannelEvent(withContent: content, signedBy: account)
+                        let builder = try? CreateChannelEvent.Builder().channelMetadata(metadata)
                             
-                            networkConnections.reconnectRelaysIfNeeded()
-                            networkConnections.relayPool.publishEvent(event)
-                            
-                            isShowingConfirmation = true
-                        }
+                        let event =  try builder?.build(signedBy: account)
+                        
+                        networkConnections.reconnectRelaysIfNeeded()
+                        networkConnections.relayPool.publishEvent(event!)
+
+                        isShowingConfirmation = true
+                        
                     } catch {
                         print(error.localizedDescription)
                     }
@@ -101,7 +165,7 @@ struct CreateChannel: View, EventCreating {
     }
     
     private func readyToSend() -> Bool {
-        (!name.isEmpty && !about.isEmpty)
+        (!name.isEmpty && !description.isEmpty)
     }
 }
 

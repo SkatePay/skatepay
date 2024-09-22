@@ -34,7 +34,12 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     var viewModelForChannelFeed: ChannelFeedViewModel?
     
-    var blackList: [String] = []
+    var getBlacklist: () -> [String]
+    var saveSpot: ((Lead?) -> Void)?
+    
+    init() {
+        self.getBlacklist = { [] }
+    }
     
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
     }
@@ -59,7 +64,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         let npub = publicKey?.npub ?? ""
         
-        let displayName = isCurrentUser ? "You" : "skater-" + npub.suffix(3)
+        let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
         
         let user = MockUser(senderId: npub, displayName: displayName)
         
@@ -112,22 +117,24 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     private func handleEvent(_ event: NostrEvent) {
         if let message = parseEvent(event: event) {
             if event.kind == .channelCreation {
-                if let channel = parseChannel(from: event.content) {
-                    lead = Lead(
-                        name: channel.name,
-                        icon: "🛹",
-                        coordinate: CLLocationCoordinate2D(latitude: 33.98698741635913, longitude: -118.47553109622498),
-                        eventId: event.id,
-                        event: event,
-                        channel: channel
-                    )
+
+                lead = createLead(from: event)
+                
+                // Ignore bootstrapped values
+                if (event.id == AppData().landmarks[0].eventId ) {
+                    return
+                }
+                
+                guard let lead = lead else { return }
+                if let saveSpot = saveSpot {
+                    saveSpot(lead)
                 }
             } else if event.kind == .channelMessage {
                 guard let publicKey = PublicKey(hex: event.pubkey) else {
                     return
                 }
                 
-                if (blackList.contains(publicKey.npub)) {
+                if (getBlacklist().contains(publicKey.npub)) {
                     return
                 }
                 
@@ -165,24 +172,24 @@ class ChannelFeedViewModel: ObservableObject {
 struct ChannelFeed: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-    
-    @EnvironmentObject var viewModel: ContentViewModel
-    @ObservedObject var networkConnections = NetworkConnections.shared
 
     @Query(sort: \Foe.npub) private var foes: [Foe]
+    @Query(sort: \Spot.channelId) private var spots: [Spot]
+    
+    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var dataManager = DataManager.shared
     
     @StateObject var viewModelForChannelFeed = ChannelFeedViewModel()
     
     @ObservedObject var navigation = NavigationManager.shared
     @ObservedObject var feedDelegate = FeedDelegate.shared
-    
-    var landmarks: [Landmark] = AppData().landmarks
+    @ObservedObject var lobby = Lobby.shared
     
     @State private var keyboardHeight: CGFloat = 0
-    
     @State private var showAlert = false
-    
     @State var npub = ""
+    
+    var landmarks: [Landmark] = AppData().landmarks
     
     func getBlacklist() -> [String] {
         return foes.map({$0.npub})
@@ -192,8 +199,57 @@ struct ChannelFeed: View {
         return landmarks.first { $0.eventId == eventId }
     }
     
-    init(lead: Lead) {
+    func findSpot(_ eventId: String) -> Spot? {
+        return spots.first { $0.channelId == eventId }
+    }
+    
+    func saveSpot(lead: Lead?) {
+        if let lead = lead {
+            // Find the spot associated with the lead's eventId
+            if findSpot(lead.eventId) != nil {
+                // Handle existing spot if needed
+                print("Spot already exists for eventId: \(lead.eventId)")
+            } else {
+                // Create a new spot if one doesn't exist
+                let spot = Spot(
+                    name: lead.name,
+                    address: "",
+                    state: "",
+                    note: "invite",
+                    latitude: lead.coordinate.latitude,
+                    longitude: lead.coordinate.longitude,
+                    channelId: lead.eventId
+                )
+                
+                DispatchQueue.main.async {
+                    self.dataManager.insertSpot(spot)
+                }
+
+                print("New spot inserted for eventId: \(lead.eventId)")
+            }
+        } else {
+            print("No lead provided, cannot save spot.")
+        }
+        
+    }
+    
+    init(channelId: String) {
+        let lead = lobby.leads[channelId] ??
+        Lead(name: "Private Group Chat",
+             icon: "💬",
+             coordinate: AppData().landmarks[0].locationCoordinate,
+             eventId: channelId,
+             event: nil,
+             channel: Channel(
+                name: "Private Channel",
+                about: "Private Channel",
+                picture: "",
+                relays: [Constants.RELAY_URL_PRIMAL]
+             )
+        )
+        
         feedDelegate.lead = lead
+        feedDelegate.saveSpot = saveSpot
     }
     
     func showMenu(_ senderId: String) {
@@ -205,6 +261,16 @@ struct ChannelFeed: View {
         }
     }
     
+    private func observeNotification() {
+        NotificationCenter.default.addObserver(
+            forName: .muteUser,
+            object: nil,
+            queue: .main
+        ) { _ in
+            self.feedDelegate.updateSubscription()
+        }
+    }
+    
     var messageKit: some View {
         VStack {
             MessagesView(messages: $feedDelegate.messages, onTapAvatar: showMenu)
@@ -212,10 +278,13 @@ struct ChannelFeed: View {
                     self.feedDelegate.relayPool = networkConnections.relayPool
                     self.feedDelegate.updateSubscription()
                     setupKeyboardObservers()
-                    feedDelegate.blackList =  getBlacklist()
+                    feedDelegate.getBlacklist = getBlacklist
                 }
+                .onAppear(perform: observeNotification)
+            
                 .onDisappear {
                     self.feedDelegate.cleanUp()
+                    NotificationCenter.default.removeObserver(self)
                 }
                 .navigationBarBackButtonHidden()
                 .sheet(isPresented: $viewModelForChannelFeed.showEditChannel) {
@@ -263,7 +332,7 @@ struct ChannelFeed: View {
         .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
             let user = User(
                 id: 1,
-                name: "skater-\(self.npub.suffix(3))",
+                name: friendlyKey(npub: self.npub),
                 npub: self.npub,
                 solanaAddress: "SolanaAddress1...",
                 relayUrl: Constants.RELAY_URL_PRIMAL,
@@ -286,7 +355,6 @@ struct ChannelFeed: View {
                     })
             }
         }
-        
         .padding(.bottom, keyboardHeight)
         .modifier(IgnoresSafeArea()) //fixes issue with IBAV placement when keyboard appear
     }
@@ -352,5 +420,5 @@ extension View {
 }
 
 #Preview {
-    ChannelFeed(lead: Lead(name: "Public Chat", icon: "💬", coordinate: AppData().landmarks[0].locationCoordinate, eventId: AppData().landmarks[0].eventId, event: nil, channel: nil))
+    ChannelFeed(channelId: "")
 }

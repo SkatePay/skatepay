@@ -22,6 +22,8 @@ struct UserDetail: View {
     @State private var showReport = false
     @State var showingConnector = false
     
+    @State private var isDebugging = false
+    
     var user: User
     
     //    var userIndex: Int {
@@ -88,7 +90,7 @@ struct UserDetail: View {
                             }
                         } else {
                             Button(action: {
-                                let friend = Friend(name: "skater-\(user.npub.suffix(3))", birthday: Date.now, npub: user.npub, note: "")
+                                let friend = Friend(name: friendlyKey(npub: user.npub), birthday: Date.now, npub: user.npub, note: "")
                                 context.insert(friend)
                             }) {
                                 Text("+1 Contacts")
@@ -98,7 +100,7 @@ struct UserDetail: View {
                                     .cornerRadius(8)
                             }
                         }
-     
+                        
                         if (isFoe()) {
                             // Button to ignore
                             Button(action: {
@@ -117,6 +119,8 @@ struct UserDetail: View {
                             Button(action: {
                                 let foe = Foe(npub: user.npub, birthday: Date.now, note: "")
                                 context.insert(foe)
+                                
+                                NotificationCenter.default.post(name: .muteUser, object: nil)
                             }) {
                                 Text("Ignore 🙈")
                                     .padding(8)
@@ -139,10 +143,16 @@ struct UserDetail: View {
                 .padding(15)
                 
                 Divider()
-
+                
                 
                 Text("Info")
                     .font(.title2)
+                    .gesture(
+                        LongPressGesture(minimumDuration: 1.0)
+                            .onEnded { _ in
+                                self.isDebugging = true
+                            }
+                    )
                 
                 Text(user.note)
                     .font(.subheadline)
@@ -156,9 +166,11 @@ struct UserDetail: View {
                         }
                     }
                 
-                Text("Relay")
-                    .font(.title2)
-                Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")" )
+                if (isDebugging) {
+                        Text("Relay")
+                        .font(.title2)
+                        Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")" )
+                }
                 
                 Divider()
                 
@@ -183,7 +195,7 @@ struct UserDetail: View {
         }
         .fullScreenCover(isPresented: $showReport) {
             NavigationView {
-                DirectMessage(user: AppData().users[0])
+                DirectMessage(user: AppData().users[0], message: "\(user.npub)")
             }
         }
         .navigationTitle(user.name)

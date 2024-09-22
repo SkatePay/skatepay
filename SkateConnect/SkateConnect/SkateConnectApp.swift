@@ -44,6 +44,8 @@ class NavigationManager: ObservableObject {
     
     @Published var isShowingUserDetail = false
     
+    @Published var isShowingBarcodeScanner = false
+    
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)
@@ -70,6 +72,54 @@ class NavigationManager: ObservableObject {
     }
 }
 
+@MainActor
+class DataManager: ObservableObject {
+    static let shared = DataManager()
+
+    @ObservedObject var lobby = Lobby.shared
+    
+    private let modelContainer: ModelContainer
+    
+    init(inMemory: Bool = false) {
+        do {
+            self.modelContainer = try ModelContainer(for: Friend.self, Foe.self, Spot.self)
+        } catch {
+            print("Failed to initialize ModelContainer: \(error)")
+            // Handle the error, e.g., crash the app with a fatal error or proceed with a fallback
+            fatalError("Failed to initialize ModelContainer")
+        }
+    }
+    
+    var modelContext: ModelContext {
+        modelContainer.mainContext
+    }
+    
+    func insertSpot(_ spot: Spot) {
+        modelContext.insert(spot)
+        do {
+            try modelContext.save()
+            
+            let spots = fetchSortedSpots()
+            
+            lobby.setupLeads(spots: spots)
+        } catch {
+            print("Failed saving: \(error)")
+        }
+    }
+    
+    func fetchSortedSpots() -> [Spot] {
+        do {
+            let fetchDescriptor = FetchDescriptor<Spot>(
+                sortBy: [SortDescriptor(\.name, order: .reverse)]
+            )
+            return try modelContext.fetch(fetchDescriptor)
+        } catch {
+            print("Failed to fetch and sort Spots: \(error)")
+            return []
+        }
+    }
+}
+
 @main
 struct SkateConnectApp: App {
     @State private var modelData = AppData()
@@ -80,7 +130,7 @@ struct SkateConnectApp: App {
         WindowGroup {
             if hasAcknowledgedEULA {
                 ContentView()
-                    .modelContainer(for: [Friend.self, Foe.self, Spot.self])
+                    .modelContainer(for: [Friend.self, Foe.self, Spot.self], inMemory: false)
                     .environment(modelData)
             } else {
                 EULAView(hasAcknowledgedEULA: $hasAcknowledgedEULA)

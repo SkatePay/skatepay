@@ -29,6 +29,8 @@ struct AddressBook: View {
     
     @Query private var spots: [Spot]
     
+    @ObservedObject var lobby = Lobby.shared
+
     @StateObject private var channelSelection = ChannelSelectionManager()
 
     @State private var showFavoritesOnly = false
@@ -44,6 +46,18 @@ struct AddressBook: View {
         spots.filter { spot in
             (!showFavoritesOnly || spot.isFavorite)
         }
+    }
+    
+    func removeLead(with eventId: String) {
+        lobby.leads.removeValue(forKey: eventId)
+    }
+    
+    func deleteSpot(_ spot: Spot) {
+        if !spot.channelId.isEmpty {
+            removeLead(with: spot.channelId)
+        }
+        print(spot.channelId)
+        context.delete(spot)
     }
     
     var body: some View {
@@ -93,7 +107,7 @@ struct AddressBook: View {
                             }
                             
                             Button(action: {
-                                context.delete(spot)
+                                deleteSpot(spot)
                             }) {
                                 Text("Delete")
                             }
@@ -105,21 +119,8 @@ struct AddressBook: View {
                     if spot.channelId.isEmpty {
                         Text("No channel available.")
                     } else {
-                        let lead = Lead(name: spot.name,
-                             icon: "💬",
-                             coordinate: AppData().landmarks[0].locationCoordinate,
-                             eventId: spot.channelId,
-                             event: nil,
-                             channel: Channel(
-                                name: spot.name,
-                                about: "Private Channel",
-                                picture: "",
-                                relays: [Constants.RELAY_URL_PRIMAL]
-                             )
-                        )
-                        
                         NavigationView {
-                            ChannelFeed(lead: lead)
+                            ChannelFeed(channelId: spot.channelId)
                         }
                     }
                 }

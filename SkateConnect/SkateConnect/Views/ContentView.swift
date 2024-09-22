@@ -21,6 +21,8 @@ enum Tab {
 }
 
 class Lobby: ObservableObject {
+    static let shared = Lobby()
+    
     @Published var channels: [String: Channel] = [:]
     @Published var leads: [String: Lead] = [:]
     @Published var events: [ActivityEvent] = []
@@ -29,6 +31,42 @@ class Lobby: ObservableObject {
         leads = [:]
         channels = [:]
         events = []
+    }
+    
+    func setupLeads(spots: [Spot]) {
+        let eventId = AppData().landmarks[0].eventId
+        self.leads[eventId] = Lead(
+            name: "Public Chat",
+            icon: "💬",
+            coordinate: AppData().landmarks[0].locationCoordinate,
+            eventId: eventId,
+            event: nil,
+            channel: nil
+        )
+        
+        for spot in spots.filter({ $0.note == "invite" }) {
+            let lead = Lead(
+                name: spot.name,
+                icon: "🏆",
+                coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
+                eventId: spot.channelId,
+                event: nil,
+                channel: nil
+            )
+            self.leads[lead.eventId] = lead
+        }
+        
+        for spot in spots.filter({ $0.note == "channel"}) {
+            let lead = Lead(
+                name: spot.name,
+                icon: "🛹",
+                coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
+                eventId: spot.channelId,
+                event: nil,
+                channel: nil
+            )
+            self.leads[lead.eventId] = lead
+        }
     }
 }
 
@@ -60,11 +98,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         if (state == .connected) {
-            updateSubscriptions()
-            
-            // Bootstrap Public
-            let eventId = AppData().landmarks[0].eventId
-            self.room.leads[eventId] = Lead(name: "Public Chat", icon: "💬", coordinate: AppData().landmarks[0].locationCoordinate, eventId: eventId, event: nil, channel: nil)
+            self.updateSubscriptions()
         }
     }
     
@@ -156,17 +190,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                                 )
                             } else {
                                 if let mark = self.mark {
-                                    self.room.leads[event.id] = Lead(
-                                        name: channel.name,
-                                        icon: "🛹",
-                                        coordinate: CLLocationCoordinate2D(
-                                            latitude: mark.coordinate.latitude,
-                                            longitude: mark.coordinate.longitude),
-                                        eventId: event.id,
-                                        event: event,
-                                        channel: channel
-                                    )
-                                    
                                     let spot = ObservedSpot()
                                     spot.spot = Spot(
                                         name: channel.name,
@@ -209,8 +232,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
 }
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var context
-    
     @ObservedObject var networkConnections = NetworkConnections.shared
     
     @Query(sort: \Spot.channelId) private var spots: [Spot]
@@ -218,10 +239,9 @@ struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
     
-    @State private var selection: Tab = .map
+    @State private var selection: Tab = .lobby
     
     let keychainForNostr = NostrKeychainStorage()
-    
     
     var body: some View {
         TabView(selection: $selection) {
@@ -234,7 +254,6 @@ struct ContentView: View {
             
             
             SkateView()
-                .environmentObject(viewModel.room)
                 .environmentObject(viewModel)
                 .tabItem {
                     Label("Map", systemImage: "map")
