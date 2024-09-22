@@ -203,7 +203,7 @@ struct SkateView: View {
                         
                         self.lobby.leads[spot.channelId] = Lead(
                             name: spot.name,
-                            icon: "📡",
+                            icon: "🛹",
                             coordinate: spot.locationCoordinate,
                             eventId: spot.channelId,
                             event: nil,

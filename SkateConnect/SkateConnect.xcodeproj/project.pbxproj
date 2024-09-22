@@ -73,6 +73,8 @@
 		C69DC22C2C96121E00A7ED67 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C69DC22B2C96121E00A7ED67 /* NostrSDK */; };
 		C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */; };
 		C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6D1F2DB2C9FC3A700FF428F /* NostrSDK */; };
+		C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */; };
+		C6D1F2E02C9FC52A00FF428F /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DF2C9FC52A00FF428F /* CameraView.swift */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -193,6 +195,8 @@
 		C66E096C2C96597A00C9F8F1 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
 		C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
 		C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScanner.swift; sourceTree = "<group>"; };
+		C6D1F2DF2C9FC52A00FF428F /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
 		C6DCF46E2C93E32F00CA21ED /* Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filters.swift; sourceTree = "<group>"; };
 		C6DCF4722C94000F00CA21ED /* EditChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChannel.swift; sourceTree = "<group>"; };
@@ -367,6 +371,8 @@
 				C625010D2C93C1340026C334 /* CreateMessage.swift */,
 				C625010E2C93C1340026C334 /* LobbyView.swift */,
 				C6DCF46E2C93E32F00CA21ED /* Filters.swift */,
+				C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */,
+				C6D1F2DF2C9FC52A00FF428F /* CameraView.swift */,
 			);
 			path = Lobby;
 			sourceTree = "<group>";
@@ -797,6 +803,7 @@
 				C625015D2C93C1340026C334 /* TransferToken.swift in Sources */,
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,
+				C6D1F2E02C9FC52A00FF428F /* CameraView.swift in Sources */,
 				C62501532C93C1340026C334 /* LandmarkDirectory.swift in Sources */,
 				C642B2182C978571001022DF /* EULAView.swift in Sources */,
 				C66E09632C9657A400C9F8F1 /* MessageView.swift in Sources */,
@@ -805,6 +812,7 @@
 				C62500E92C93C12A0026C334 /* DemoHelper.swift in Sources */,
 				C62501462C93C1340026C334 /* SpotRow.swift in Sources */,
 				C62500E42C93C1250026C334 /* Color+hex.swift in Sources */,
+				C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */,
 				C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */,
 				C625014E2C93C1340026C334 /* UserRow.swift in Sources */,
 				C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */,

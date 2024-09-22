@@ -11,7 +11,9 @@ import NostrSDK
 
 struct CreateMessage: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
+    
     @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var navigation = NavigationManager.shared
 
     @Query(filter: #Predicate<Friend> { $0.npub != ""  }, sort: \Friend.name)
     private var friends: [Friend]
@@ -42,6 +44,9 @@ struct CreateMessage: View, EventCreating {
                 NostrKeyInput(key: $npub,
                               isValid: $recipientPublicKeyIsValid,
                               type: .public)
+                Button("Scan Barcode") {
+                    navigation.isShowingBarcodeScanner = true
+                }
             }
             
             Section("Content") {
@@ -81,6 +86,21 @@ struct CreateMessage: View, EventCreating {
                 Button("OK", role: .cancel) { }
             }
             .disabled(!readyToSend())
+        }
+        .fullScreenCover(isPresented: $navigation.isShowingBarcodeScanner) {
+            NavigationView {
+                BarcodeScanner()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in
+            
+            func cleanNostrPrefix(_ input: String) -> String {
+                return input.replacingOccurrences(of: "nostr:", with: "")
+            }
+            
+            if let scannedText = notification.userInfo?["scannedText"] as? String {
+                self.npub = cleanNostrPrefix(scannedText)
+            }
         }
     }
     

@@ -106,4 +106,5 @@ extension Notification.Name {
     static let goToCoordinate = Notification.Name("goToCoordinate")
     static let joinChat = Notification.Name("joinChat")
     static let muteUser = Notification.Name("muteUser")
+    static let barcodeScanned = Notification.Name("barcodeScanned")
 }

@@ -44,6 +44,8 @@ class NavigationManager: ObservableObject {
     
     @Published var isShowingUserDetail = false
     
+    @Published var isShowingBarcodeScanner = false
+    
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)

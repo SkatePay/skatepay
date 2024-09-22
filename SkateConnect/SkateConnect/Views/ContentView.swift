@@ -59,7 +59,7 @@ class Lobby: ObservableObject {
         for spot in spots.filter({ $0.note == "channel"}) {
             let lead = Lead(
                 name: spot.name,
-                icon: "📡",
+                icon: "🛹",
                 coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
                 eventId: spot.channelId,
                 event: nil,
@@ -239,7 +239,7 @@ struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
     
-    @State private var selection: Tab = .map
+    @State private var selection: Tab = .lobby
     
     let keychainForNostr = NostrKeychainStorage()
     

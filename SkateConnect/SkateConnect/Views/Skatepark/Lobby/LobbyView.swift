@@ -23,10 +23,8 @@ struct LobbyView: View {
     @Environment(\.modelContext) private var context
     
     @EnvironmentObject var hostStore: HostStore
-    @EnvironmentObject var room: Lobby
-    
-    @StateObject private var viewModel = FriendsViewModel()
-    
+    @ObservedObject var lobby = Lobby.shared
+        
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
     @State private var isShowingProfile = false
@@ -44,7 +42,7 @@ struct LobbyView: View {
         let npub = keychainForNostr.account?.publicKey.npub
 
         // TODO: Needs rework bad filtering
-        let npubs = room.events
+        let npubs = lobby.events
             .filter ({ !self.isFoe($0.npub) })
             .filter({ $0.npub != npub })
             .map { $0.npub }
@@ -114,7 +112,6 @@ struct LobbyView: View {
                 
                 NavigationLink {
                     CreateMessage()
-                        .environment(modelData)
                 } label: {
                     Text("🖋️ Message")
                 }
@@ -155,7 +152,7 @@ struct LobbyView: View {
             }
         }
         .onAppear() {
-            room.events = []
+            lobby.events = []
         }
     }
 }
