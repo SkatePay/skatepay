@@ -11,111 +11,14 @@ import NostrSDK
 import SwiftData
 import SwiftUI
 
-struct Mark: Identifiable {
-    let id = UUID()
-    let name: String
-    let coordinate: CLLocationCoordinate2D
-}
-
-struct Lead: Identifiable, Equatable {
-    static func == (lhs: Lead, rhs: Lead) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    let id = UUID()
-    var name: String
-    var icon: String
-    var coordinate: CLLocationCoordinate2D
-    var eventId: String // NostrEventId
-    var event: NostrEvent?
-    var channel: Channel?
-}
-
-final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    var locationManager: CLLocationManager?
-    
-    @Published var marks: [Mark] = []
-    
-    @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
-    
-    @Published var mapPosition = MapCameraPosition.region(
-        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
-    )
-    
-    func updateMapRegion(with coordinate: CLLocationCoordinate2D) {
-        mapRegion = MKCoordinateRegion(
-            center: coordinate,
-            latitudinalMeters: 64,
-            longitudinalMeters: 64
-        )
-        
-        mapPosition = MapCameraPosition.region(mapRegion)
-    }
-    
-    func checkIfLocationIsEnabled() {
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager = CLLocationManager()
-            locationManager?.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager!.delegate = self
-        } else {
-            print("Show an alert letting them know this is off")
-        }
-    }
-    
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let previousAuthorizationStatus = manager.authorizationStatus
-        manager.requestWhenInUseAuthorization()
-        if manager.authorizationStatus != previousAuthorizationStatus {
-            checkLocationAuthorization()
-        }
-    }
-    
-    private func checkLocationAuthorization() {
-        guard let location = locationManager else {
-            return
-        }
-        
-        switch location.authorizationStatus {
-        case .notDetermined:
-            print("Location authorization is not determined.")
-        case .restricted:
-            print("Location is restricted.")
-        case .denied:
-            print("Location permission denied.")
-        case .authorizedAlways, .authorizedWhenInUse:
-            if let location = location.location {
-                mapRegion = MKCoordinateRegion(
-                    center: location.coordinate,
-                    latitudinalMeters: 64,
-                    longitudinalMeters: 64
-                )
-            }
-            
-        default:
-            break
-        }
-    }
-    
-    func clearMarks() {
-        self.marks = []
-    }
-}
-
-extension Notification.Name {
-    static let goToLandmark = Notification.Name("goToLandmark")
-    static let goToCoordinate = Notification.Name("goToCoordinate")
-    static let joinChat = Notification.Name("joinChat")
-}
-
 struct SkateView: View {
     @Environment(\.modelContext) private var context
-    
-    @EnvironmentObject var room: Lobby
+    @Query private var spots: [Spot]
+
     @EnvironmentObject var viewModel: ContentViewModel
     
     @ObservedObject var navigation = NavigationManager.shared
-
-    @Query private var spots: [Spot]
+    @ObservedObject var lobby = Lobby.shared
     
     @StateObject var locationManager = LocationManager()
     
@@ -141,7 +44,7 @@ struct SkateView: View {
                                 .tint(.orange)
                         }
                         // Leads
-                        ForEach(Array(room.leads.values)) { lead in
+                        ForEach(Array(lobby.leads.values)) { lead in
                             Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
                                 ZStack {
                                     Circle()
@@ -247,22 +150,8 @@ struct SkateView: View {
                 if self.channelId.isEmpty {
                     Text("No lead available at this index.")
                 } else {
-                    let lead = room.leads[self.channelId] ??
-                        Lead(name: "Private Group Chat",
-                             icon: "💬",
-                             coordinate: AppData().landmarks[0].locationCoordinate,
-                             eventId: self.channelId,
-                             event: nil,
-                             channel: Channel(
-                                name: "Private Channel",
-                                about: "Private Channel",
-                                picture: "",
-                                relays: [Constants.RELAY_URL_PRIMAL]
-                             )
-                        )
-                    
                     NavigationView {
-                        ChannelFeed(lead: lead)
+                        ChannelFeed(channelId: self.channelId)
                     }
                 }
             }
@@ -297,7 +186,6 @@ struct SkateView: View {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
                 
-                // Join Chain
                 navigation.isShowingChannelFeed = true
                 
                 if let channelId = notification.userInfo?["channelId"] as? String {
@@ -312,8 +200,20 @@ struct SkateView: View {
                         context.insert(spot)
                         viewModel.observedSpot.spot = nil
                         locationManager.clearMarks()
+                        
+                        self.lobby.leads[spot.channelId] = Lead(
+                            name: spot.name,
+                            icon: "📡",
+                            coordinate: spot.locationCoordinate,
+                            eventId: spot.channelId,
+                            event: nil,
+                            channel: nil
+                        )
                     }
                 }
+            }
+            .onAppear() {
+                lobby.setupLeads(spots: spots)
             }
         }
     }

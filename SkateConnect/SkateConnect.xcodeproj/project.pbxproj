@@ -69,8 +69,10 @@
 		C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096A2C96597A00C9F8F1 /* MockMessage.swift */; };
 		C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096B2C96597A00C9F8F1 /* MockSocket.swift */; };
 		C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096C2C96597A00C9F8F1 /* MockUser.swift */; };
+		C69153CB2C9E27E80075ED6C /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C69153CA2C9E27E80075ED6C /* NostrSDK */; };
 		C69DC22C2C96121E00A7ED67 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C69DC22B2C96121E00A7ED67 /* NostrSDK */; };
-		C6DCB0532C98DBBF0030B35F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6DCB0522C98DBBF0030B35F /* NostrSDK */; };
+		C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */; };
+		C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6D1F2DB2C9FC3A700FF428F /* NostrSDK */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -190,6 +192,7 @@
 		C66E096B2C96597A00C9F8F1 /* MockSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockSocket.swift; sourceTree = "<group>"; };
 		C66E096C2C96597A00C9F8F1 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
 		C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
+		C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
 		C6DCF46E2C93E32F00CA21ED /* Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filters.swift; sourceTree = "<group>"; };
 		C6DCF4722C94000F00CA21ED /* EditChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChannel.swift; sourceTree = "<group>"; };
@@ -213,8 +216,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C6DCB0532C98DBBF0030B35F /* NostrSDK in Frameworks */,
+				C69153CB2C9E27E80075ED6C /* NostrSDK in Frameworks */,
 				C668FC4C2C967A9F00612BEA /* ExyteChat in Frameworks */,
+				C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */,
 				C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */,
 				C668FC522C967AB600612BEA /* NostrSDK in Frameworks */,
 				C668FC582C967D6A00612BEA /* MessageKit in Frameworks */,
@@ -387,6 +391,7 @@
 				C62501162C93C1340026C334 /* SkateView.swift */,
 				C6DCF4722C94000F00CA21ED /* EditChannel.swift */,
 				C6DCF4782C951B7700CA21ED /* SearchView.swift */,
+				C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */,
 			);
 			path = Skate;
 			sourceTree = "<group>";
@@ -594,7 +599,8 @@
 				C668FC4E2C967AAA00612BEA /* KeychainSwift */,
 				C668FC512C967AB600612BEA /* NostrSDK */,
 				C668FC572C967D6A00612BEA /* MessageKit */,
-				C6DCB0522C98DBBF0030B35F /* NostrSDK */,
+				C69153CA2C9E27E80075ED6C /* NostrSDK */,
+				C6D1F2DB2C9FC3A700FF428F /* NostrSDK */,
 			);
 			productName = SkateConnect;
 			productReference = C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */;
@@ -673,7 +679,7 @@
 				C668FC4A2C967A9F00612BEA /* XCRemoteSwiftPackageReference "Chat" */,
 				C668FC4D2C967AAA00612BEA /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				C668FC562C967D6A00612BEA /* XCRemoteSwiftPackageReference "MessageKit" */,
-				C6DCB0512C98DBBF0030B35F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
+				C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 			);
 			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
 			projectDirPath = "";
@@ -776,6 +782,7 @@
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
 				C62501562C93C1340026C334 /* MarkerOptions.swift in Sources */,
+				C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */,
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,
 				C625014F2C93C1340026C334 /* Contacts.swift in Sources */,
 				C625016E2C93C1340026C334 /* User.swift in Sources */,
@@ -1176,7 +1183,7 @@
 				minimumVersion = 4.2.0;
 			};
 		};
-		C6DCB0512C98DBBF0030B35F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
+		C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SkatePay/nostr-sdk-ios";
 			requirement = {
@@ -1211,13 +1218,17 @@
 			package = C668FC562C967D6A00612BEA /* XCRemoteSwiftPackageReference "MessageKit" */;
 			productName = MessageKit;
 		};
+		C69153CA2C9E27E80075ED6C /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
 		C69DC22B2C96121E00A7ED67 /* NostrSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NostrSDK;
 		};
-		C6DCB0522C98DBBF0030B35F /* NostrSDK */ = {
+		C6D1F2DB2C9FC3A700FF428F /* NostrSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C6DCB0512C98DBBF0030B35F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
+			package = C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
 			productName = NostrSDK;
 		};
 /* End XCSwiftPackageProductDependency section */

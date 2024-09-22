@@ -12,7 +12,7 @@ import CoreLocation
 
 @Model
 class Spot {
-    @Attribute(.unique) let name: String
+    let name: String
         
     let address: String
     let state: String

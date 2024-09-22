@@ -47,13 +47,16 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var subscriptionId: String?
     
     @State private var isShowingUserDetail = false
-            
+    @State private var showAlert = false
+    
     private var user: User
+    private var message: String
     
     var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
-    init(user: User) {
+    init(user: User, message: String = "") {
         self.user = user
+        self.message = message
     }
     
     var body: some View {
@@ -100,7 +103,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         .fullScreenCover(isPresented: $isShowingUserDetail) {
             let user = User(
                 id: 1,
-                name: "skater-\(self.user.npub.suffix(3))",
+                name: friendlyKey(npub: self.user.npub),
                 npub: self.user.npub,
                 solanaAddress: "SolanaAddress1...",
                 relayUrl: Constants.RELAY_URL_PRIMAL,
@@ -124,8 +127,23 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     })
             }
         }
+        .alert("Confirm Report", isPresented: $showAlert) {
+            Button("No", role: .cancel) {
+            }
+            Button("Yes") {
+                publishEvent(content: "Hi, I would like to report \(friendlyKey(npub: message)).")
+            }
+        } message: {
+            Text("Do you want to continue with the report on \(friendlyKey(npub: message))?")
+        }
         .onAppear{
             updateSubscription()
+
+            if (message.isEmpty) {
+                return
+            }
+            
+            showAlert.toggle()
         }
         .onDisappear{
             if let subscriptionId {
@@ -185,21 +203,26 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         return filter
     }
     
-    private func publishDraft(draft: DraftMessage) {
+    private func publishEvent(content: String) {
         guard let recipientPublicKey = recipientPublicKey(),
               let senderKeyPair = myKeypair() else {
             return
         }
         do {
-            let directMessage = try legacyEncryptedDirectMessage(withContent: draft.text,
+            let directMessage = try legacyEncryptedDirectMessage(withContent: content,
                                                                  toRecipient: recipientPublicKey,
                                                                  signedBy: senderKeyPair)
-            networkConnections.reconnectRelaysIfNeeded()
             relayPool.publishEvent(directMessage)
         } catch {
             print(error.localizedDescription)
         }
     }
+    
+    private func publishDraft(draft: DraftMessage) {
+        let content = draft.text
+        publishEvent(content: content)
+    }
+    
     private func updateSubscription() {
         networkConnections.reconnectRelaysIfNeeded()
         
@@ -214,6 +237,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         } else {
             print("currentFilter is nil, unable to subscribe")
         }
+        
         relayPool.delegate = self.chatDelegate
                 
         eventsCancellable = relayPool.events

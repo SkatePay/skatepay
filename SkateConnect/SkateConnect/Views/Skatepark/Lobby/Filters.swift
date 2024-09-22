@@ -8,10 +8,14 @@
 import SwiftData
 import SwiftUI
 
+func friendlyKey(npub: String) -> String {
+    return "skater-\(npub.suffix(3))"
+}
+
 struct Filters: View {
     @Query(sort: \Foe.birthday) private var foes: [Foe]
     @Environment(\.modelContext) private var context
-
+    
     var body: some View {
         NavigationStack {
             if (foes.isEmpty) {
@@ -19,8 +23,13 @@ struct Filters: View {
             } else {
                 List(foes) { foe in
                     HStack {
-                        Text(foe.npub)
+                        Text(friendlyKey(npub: foe.npub))
                             .contextMenu {
+                                Button(action: {
+                                    UIPasteboard.general.string = foe.npub
+                                }) {
+                                    Text("Copy npub")
+                                }
                                 Button(action: {
                                     context.delete(foe)
                                 }) {
@@ -29,7 +38,7 @@ struct Filters: View {
                             }
                         
                         Spacer()
-
+                        
                     }
                 }
             }

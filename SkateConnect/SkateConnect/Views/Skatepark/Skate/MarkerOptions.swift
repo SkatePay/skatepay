@@ -57,7 +57,7 @@ struct MarkerOptions: View {
         }
         .fullScreenCover(isPresented: $navigation.isShowingCreateChannel) {
             NavigationView {
-                CreateChannel()
+                CreateChannel(mark: viewModel.mark)
                     .navigationBarItems(leading:
                     Button(action: {
                         navigation.isShowingCreateChannel = false

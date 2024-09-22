@@ -44,7 +44,7 @@ struct LobbyView: View {
         let npub = keychainForNostr.account?.publicKey.npub
 
         // TODO: Needs rework bad filtering
-        var npubs = room.events
+        let npubs = room.events
             .filter ({ !self.isFoe($0.npub) })
             .filter({ $0.npub != npub })
             .map { $0.npub }
@@ -66,7 +66,7 @@ struct LobbyView: View {
                     HStack {
                         Image(systemName: "envelope")
                             .foregroundColor(.blue)
-                        Text("Incoming message from skater-\(npub.suffix(3))")
+                        Text("Incoming message from \(friendlyKey(npub: npub))")
                             .font(.caption)
                     }
                     .contextMenu {
@@ -138,7 +138,7 @@ struct LobbyView: View {
             let jsonData = """
             {
                 "id": 1,
-                "name": "skater-\(userSelection.npub.suffix(3))",
+                "name": "\(friendlyKey(npub: userSelection.npub))",
                 "npub": "\(userSelection.npub)",
                 "solanaAddress": "",
                 "relayUrl": "\(Constants.RELAY_URL_PRIMAL)",
