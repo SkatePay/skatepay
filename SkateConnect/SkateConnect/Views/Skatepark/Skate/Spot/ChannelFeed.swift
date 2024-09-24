@@ -17,6 +17,11 @@ import UIKit
 
 // MARK: - Feed Delegate
 
+struct ContentStructure: Codable {
+    let content: String
+    let kind: String
+}
+
 class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     static let shared = FeedDelegate()
     
@@ -24,7 +29,9 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     @Published var lead: Lead?
     
-    var relayPool: RelayPool?
+    @ObservedObject var dataManager = DataManager.shared
+    @ObservedObject var networkConnections = NetworkConnections.shared
+    
     let keychainForNostr = NostrKeychainStorage()
     
     private var fetchingStoredEvents = true
@@ -35,7 +42,10 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     var viewModelForChannelFeed: ChannelFeedViewModel?
     
     var getBlacklist: () -> [String]
-    var saveSpot: ((Lead?) -> Void)?
+    
+    var relayPool: RelayPool? {
+        return self.networkConnections.relayPool
+    }
     
     init() {
         self.getBlacklist = { [] }
@@ -58,7 +68,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         }
     }
     
-    private func parseEvent(event: NostrEvent) -> MessageType? {
+    private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
         let publicKey = PublicKey(hex: event.pubkey)
         let isCurrentUser = publicKey == keychainForNostr.account?.publicKey
         
@@ -68,7 +78,18 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         let user = MockUser(senderId: npub, displayName: displayName)
         
-        return MockMessage(text: event.content, user: user, messageId: event.id, date: event.createdDate)
+        var text = event.content
+        
+        do {
+            let decoder = JSONDecoder()
+            let decodedStructure = try decoder.decode(ContentStructure.self, from: event.content.data(using: .utf8)!)
+            
+            text = decodedStructure.content
+        } catch {
+            print("Error decoding: \(error)")
+        }
+        
+        return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
     }
     
     private var filterForMetadata: Filter? {
@@ -89,7 +110,15 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         guard let account = keychainForNostr.account, let eventId = lead?.eventId else { return }
         
         do {
-            let event = try createChannelMessageEvent(withContent: text, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
+            let contentStructure = ContentStructure(content: text, kind: "message")
+            
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let data = try encoder.encode(contentStructure)
+            let content  = String(data: data, encoding: .utf8) ?? text
+            print(content)
+            
+            let event = try createChannelMessageEvent(withContent: content, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
             relayPool?.publishEvent(event)
         } catch {
             print("Failed to publish draft: \(error.localizedDescription)")
@@ -115,20 +144,17 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     }
     
     private func handleEvent(_ event: NostrEvent) {
-        if let message = parseEvent(event: event) {
+        if let message = parseEventIntoMessage(event: event) {
             if event.kind == .channelCreation {
-
-                lead = createLead(from: event)
-                
                 // Ignore bootstrapped values
                 if (event.id == AppData().landmarks[0].eventId ) {
                     return
                 }
                 
+                self.lead = createLead(from: event)
+                
                 guard let lead = lead else { return }
-                if let saveSpot = saveSpot {
-                    saveSpot(lead)
-                }
+                self.dataManager.createSpot(lead: lead)
             } else if event.kind == .channelMessage {
                 guard let publicKey = PublicKey(hex: event.pubkey) else {
                     return
@@ -176,7 +202,6 @@ struct ChannelFeed: View {
     @Query(sort: \Foe.npub) private var foes: [Foe]
     @Query(sort: \Spot.channelId) private var spots: [Spot]
     
-    @ObservedObject var networkConnections = NetworkConnections.shared
     @ObservedObject var dataManager = DataManager.shared
     
     @StateObject var viewModelForChannelFeed = ChannelFeedViewModel()
@@ -203,36 +228,6 @@ struct ChannelFeed: View {
         return spots.first { $0.channelId == eventId }
     }
     
-    func saveSpot(lead: Lead?) {
-        if let lead = lead {
-            // Find the spot associated with the lead's eventId
-            if findSpot(lead.eventId) != nil {
-                // Handle existing spot if needed
-                print("Spot already exists for eventId: \(lead.eventId)")
-            } else {
-                // Create a new spot if one doesn't exist
-                let spot = Spot(
-                    name: lead.name,
-                    address: "",
-                    state: "",
-                    note: "invite",
-                    latitude: lead.coordinate.latitude,
-                    longitude: lead.coordinate.longitude,
-                    channelId: lead.eventId
-                )
-                
-                DispatchQueue.main.async {
-                    self.dataManager.insertSpot(spot)
-                }
-
-                print("New spot inserted for eventId: \(lead.eventId)")
-            }
-        } else {
-            print("No lead provided, cannot save spot.")
-        }
-        
-    }
-    
     init(channelId: String) {
         let lead = lobby.leads[channelId] ??
         Lead(name: "Private Group Chat",
@@ -249,7 +244,6 @@ struct ChannelFeed: View {
         )
         
         feedDelegate.lead = lead
-        feedDelegate.saveSpot = saveSpot
     }
     
     func showMenu(_ senderId: String) {
@@ -275,7 +269,6 @@ struct ChannelFeed: View {
         VStack {
             MessagesView(messages: $feedDelegate.messages, onTapAvatar: showMenu)
                 .onAppear {
-                    self.feedDelegate.relayPool = networkConnections.relayPool
                     self.feedDelegate.updateSubscription()
                     setupKeyboardObservers()
                     feedDelegate.getBlacklist = getBlacklist

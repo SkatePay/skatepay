@@ -23,7 +23,7 @@ struct MarkerOptions: View {
         
     var body: some View {
         VStack(spacing: 20) {
-            Text("Marker Options")
+            Text("Location Options")
                 .font(.title2)
                 .padding()
             
@@ -31,7 +31,7 @@ struct MarkerOptions: View {
                 navigation.isShowingCreateChannel = true
                 viewModel.mark = marks[0]
             }) {
-                Text("Start New Chat")
+                Text("Start New Channel")
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.green)

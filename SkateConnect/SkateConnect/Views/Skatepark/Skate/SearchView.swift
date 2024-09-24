@@ -22,11 +22,12 @@ struct SearchView: View {
     
     var body: some View {
         Form {
-            Section("coordinates") {
-                TextField("{ \"latitude\": 0.0, \"longitude\": 0.0 }", text: $coordinateString)
-            }
             Section("channel") {
                 TextField("channel", text: $channelId)
+            }
+            
+            Section("coordinates") {
+                TextField("{ \"latitude\": 0.0, \"longitude\": 0.0 }", text: $coordinateString)
             }
             Button("Search") {
                 showingAlert.toggle()
@@ -34,7 +35,7 @@ struct SearchView: View {
             .alert("Start search.", isPresented: $showingAlert) {
                 Button("OK", role: .cancel) {
                     if (!coordinateString.isEmpty) {
-                        navigation.coordinates = convertStringToCoordinate(coordinateString)
+                        navigation.coordinate = convertStringToCoordinate(coordinateString)
                         navigation.recoverFromSearch()
                         return
                     }
@@ -43,7 +44,7 @@ struct SearchView: View {
                         let spot = findSpotByChannelId(channelId)
                         
                         if let coordinates = spot?.locationCoordinate {
-                            navigation.coordinates = coordinates
+                            navigation.coordinate = coordinates
                         }
                         
                         navigation.joinChat(channelId: channelId)

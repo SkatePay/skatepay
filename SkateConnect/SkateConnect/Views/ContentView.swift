@@ -59,7 +59,7 @@ class Lobby: ObservableObject {
         for spot in spots.filter({ $0.note == "channel"}) {
             let lead = Lead(
                 name: spot.name,
-                icon: "🛹",
+                icon: "📡",
                 coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
                 eventId: spot.channelId,
                 event: nil,
@@ -86,15 +86,15 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var lobby = Lobby.shared
+    @ObservedObject var dataManager = DataManager.shared
     
     private var subscriptionForChannels, subscriptionForDirectMessages: String?
     private var eventsCancellableForGroup, eventsCancellableForDirect: AnyCancellable?
-    
-    @Published var room: Lobby = Lobby()
-    
+        
     var mark: Mark?
     
-    var spots: [Spot] = []
+//    var spots: [Spot] = []
     
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         if (state == .connected) {
@@ -139,6 +139,61 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
         return filter
     }
     
+    private func handleEvent(_ event: NostrEvent) {
+        if (event.kind == EventKind.channelCreation) {
+            if let channel = parseChannel(from: event.content) {
+                self.lobby.channels[event.id] = channel
+                
+                if var lead = self.lobby.leads[event.id] {
+                    // Bootstrapped value
+                    lead.channel = channel
+                    lead.event = event
+                    self.lobby.leads[event.id] = lead
+                } else {
+                    if let spot = self.dataManager.findSpot(event.id) {
+                        self.lobby.leads[event.id] = createLead(from: event)
+                    } else {
+                        if let mark = self.mark {
+                            // Create new spot record
+                            
+                            self.observedSpot = ObservedSpot()
+                            
+                            let spot = Spot(
+                                name: channel.name,
+                                address: "",
+                                state: "",
+                                note: "channel",
+                                latitude: mark.coordinate.latitude,
+                                longitude: mark.coordinate.longitude,
+                                channelId: event.id
+                            )
+                            
+                            self.observedSpot.spot = spot
+                            
+                            let lead = createLead(from: event)
+                            self.dataManager.createSpot(lead: lead)
+                        } else {
+                            print("unknown channel location")
+                        }
+                        
+                        self.mark = nil
+                    }
+                }
+            }
+        }
+        
+        if (event.kind == EventKind.channelMetadata) {
+        }
+        
+        if (event.kind == EventKind.legacyEncryptedDirectMessage) {
+            let publicKey = PublicKey(hex: event.pubkey)
+            
+            if let npub = publicKey?.npub {
+                self.lobby.events.append(ActivityEvent(id: event.id, npub: npub ))
+            }
+        }
+    }
+    
     func updateSubscriptions() {
         networkConnections.reconnectRelaysIfNeeded()
         
@@ -166,90 +221,25 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                 return $0.event
             }
             .removeDuplicates()
-            .sink { event in
-                if (event.kind == EventKind.channelCreation) {
-                    if let channel = parseChannel(from: event.content) {
-                        self.room.channels[event.id] = channel
-                        
-                        if var lead = self.room.leads[event.id] {
-                            // Bootstrapped value
-                            lead.channel = channel
-                            lead.event = event
-                            self.room.leads[event.id] = lead
-                        } else {
-                            if let spot = self.findSpotByChannelId(event.id) {
-                                self.room.leads[event.id] = Lead(
-                                    name: channel.name,
-                                    icon: "🛹",
-                                    coordinate: CLLocationCoordinate2D(
-                                        latitude: spot.locationCoordinate.latitude,
-                                        longitude: spot.locationCoordinate.longitude),
-                                    eventId: event.id,
-                                    event: event,
-                                    channel: channel
-                                )
-                            } else {
-                                if let mark = self.mark {
-                                    let spot = ObservedSpot()
-                                    spot.spot = Spot(
-                                        name: channel.name,
-                                        address: "",
-                                        state: "",
-                                        note: "channel",
-                                        latitude: mark.coordinate.latitude,
-                                        longitude: mark.coordinate.longitude,
-                                        channelId:
-                                            event.id
-                                    )
-                                    self.observedSpot = spot
-                                    
-                                } else {
-                                    print("unknown channel location")
-                                }
-                                
-                                self.mark = nil
-                            }
-                        }
-                    }
-                }
-                
-                if (event.kind == EventKind.channelMetadata) {
-                }
-                
-                if (event.kind == EventKind.legacyEncryptedDirectMessage) {
-                    let publicKey = PublicKey(hex: event.pubkey)
-                    
-                    if let npub = publicKey?.npub {
-                        self.room.events.append(ActivityEvent(id: event.id, npub: npub ))
-                    }
-                }
-            }
-    }
-    
-    func findSpotByChannelId(_ channelId: String) -> Spot? {
-        return spots.first { $0.channelId == channelId }
+            .sink(receiveValue: handleEvent)
     }
 }
 
 struct ContentView: View {
+    @ObservedObject var navigation = NavigationManager.shared
     @ObservedObject var networkConnections = NetworkConnections.shared
-    
-    @Query(sort: \Spot.channelId) private var spots: [Spot]
-    
+        
     @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
-    
-    @State private var selection: Tab = .map
-    
+        
     let keychainForNostr = NostrKeychainStorage()
     
     var body: some View {
-        TabView(selection: $selection) {
+        TabView(selection: $navigation.tab) {
             LobbyView()
                 .tabItem {
                     Label("Lobby", systemImage: "star")
                 }
-                .environmentObject(viewModel.room)
                 .tag(Tab.lobby)
             
             
@@ -279,7 +269,6 @@ struct ContentView: View {
                     .tabItem {
                         Label("Settings", systemImage: "gearshape")
                     }
-                    .environmentObject(viewModel.room)
                     .environmentObject(viewModel)
                     .tag(Tab.settings)
             }
@@ -293,8 +282,6 @@ struct ContentView: View {
             } catch {
                 fatalError(error.localizedDescription)
             }
-            
-            viewModel.spots = spots
         }
         .onAppear {
             self.viewModel.updateSubscriptions()

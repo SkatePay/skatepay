@@ -25,7 +25,6 @@ struct SkateView: View {
     @State private var showingAlert = false
     @State private var isShowingLeadOptions = false
     
-    @State private var npub: String?
     @State var channelId = ""
     
     func handleLongPress(lead: Lead) {
@@ -177,12 +176,12 @@ struct SkateView: View {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
-                if  let locationCoordinate = navigation.coordinates {
+                if  let locationCoordinate = navigation.coordinate {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .joinChat)) { notification in
-                if  let locationCoordinate = navigation.coordinates {
+                if  let locationCoordinate = navigation.coordinate {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
                 
@@ -196,20 +195,8 @@ struct SkateView: View {
             }
             .onReceive(viewModel.$observedSpot) { observedSpot in
                 DispatchQueue.main.async {
-                    if let spot = observedSpot.spot {
-                        context.insert(spot)
-                        viewModel.observedSpot.spot = nil
-                        locationManager.clearMarks()
-                        
-                        self.lobby.leads[spot.channelId] = Lead(
-                            name: spot.name,
-                            icon: "🛹",
-                            coordinate: spot.locationCoordinate,
-                            eventId: spot.channelId,
-                            event: nil,
-                            channel: nil
-                        )
-                    }
+                    viewModel.observedSpot.spot = nil
+                    self.locationManager.clearMarks()
                 }
             }
             .onAppear() {
@@ -225,14 +212,11 @@ struct SkateView: View {
         let nearbyLandmarks = getNearbyLandmarks(for: coordinate)
         if !nearbyLandmarks.isEmpty {
             print("Nearby landmarks: \(nearbyLandmarks.map { $0.name })")
-            
-            let spot = nearbyLandmarks[0]
-            npub = spot.npub
-            
-            navigation.isShowingMarkerOptions = true
         } else {
             print("No nearby landmarks")
         }
+        
+        navigation.isShowingMarkerOptions = true
     }
     
     func getNearbyLandmarks(for coordinate: CLLocationCoordinate2D) -> [Landmark] {

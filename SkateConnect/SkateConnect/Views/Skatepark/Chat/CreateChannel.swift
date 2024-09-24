@@ -44,9 +44,14 @@ func createLead(from event: NostrEvent) -> Lead? {
             let decoder = JSONDecoder()
             let decodedStructure = try decoder.decode(AboutStructure.self, from: about.data(using: .utf8)!)
             
+            var icon = "📺"
+            if let note = decodedStructure.note {
+                icon = note
+            }
+            
             lead = Lead(
                 name: channel.name,
-                icon: "🛹",
+                icon: icon,
                 coordinate: decodedStructure.location,
                 eventId: event.id,
                 event: event,
@@ -65,6 +70,7 @@ func createLead(from event: NostrEvent) -> Lead? {
 struct AboutStructure: Codable {
     let description: String
     let location: CLLocationCoordinate2D
+    let note: String?
 }
 
 extension CLLocationCoordinate2D: Codable {
@@ -87,6 +93,15 @@ extension CLLocationCoordinate2D: Codable {
     }
 }
 
+enum ChannelType: String, CaseIterable, Identifiable {
+    case game = "🏆"
+    case job = "🧹"
+    case content = "📺"
+    case broadcast = "📡"
+    case skate = "🛹"
+    var id: String { rawValue }
+}
+
 struct CreateChannel: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
     
@@ -100,6 +115,7 @@ struct CreateChannel: View, EventCreating {
     
     @State private var name: String = ""
     @State private var description: String = ""
+    @State private var icon: String = ""
     
     private var mark: Mark?
     
@@ -113,6 +129,15 @@ struct CreateChannel: View, EventCreating {
             Section("Name") {
                 TextField("name", text: $name)
             }
+            
+            Section("Icon") {
+                Picker("Select One", selection: $icon) {
+                    ForEach(ChannelType.allCases) { season in
+                        Text(season.rawValue).tag(season)
+                    }
+                }
+            }
+            
             Section("Description") {
                 TextField("description", text: $description)
             }
@@ -120,13 +145,12 @@ struct CreateChannel: View, EventCreating {
                 var about = description
                 
                 if let mark = mark {
-                    let aboutStructure = AboutStructure(description: description, location: mark.coordinate)
+                    let aboutStructure = AboutStructure(description: description, location: mark.coordinate, note: icon)
                     do {
                         let encoder = JSONEncoder()
                         encoder.outputFormatting = .prettyPrinted
                         let data = try encoder.encode(aboutStructure)
                         about  = String(data: data, encoding: .utf8) ?? description
-                        print(about)
                     } catch {
                         print("Error encoding: \(error)")
                     }

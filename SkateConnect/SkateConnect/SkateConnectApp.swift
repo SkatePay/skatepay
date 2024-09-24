@@ -32,8 +32,10 @@ class NavigationManager: ObservableObject {
     static let shared = NavigationManager()
     
     @Published var path = NavigationPath()
+    @Published var tab: Tab = .map
+    
     @Published var landmark: Landmark?
-    @Published var coordinates: CLLocationCoordinate2D?
+    @Published var coordinate: CLLocationCoordinate2D?
     
     @Published var isShowingEULA = false
     @Published var isShowingDirectory = false
@@ -70,6 +72,12 @@ class NavigationManager: ObservableObject {
         )
         isShowingSearch = false
     }
+    
+    func goToCoordinate() {
+        path = NavigationPath()
+        self.tab = .map
+        NotificationCenter.default.post(name: .goToCoordinate, object: nil)
+    }
 }
 
 @MainActor
@@ -79,7 +87,8 @@ class DataManager: ObservableObject {
     @ObservedObject var lobby = Lobby.shared
     
     private let modelContainer: ModelContainer
-    
+    private let keychainForNostr = NostrKeychainStorage()
+
     init(inMemory: Bool = false) {
         do {
             self.modelContainer = try ModelContainer(for: Friend.self, Foe.self, Spot.self)
@@ -118,6 +127,47 @@ class DataManager: ObservableObject {
             return []
         }
     }
+    
+    func findSpot(_ eventId: String) -> Spot? {
+        return fetchSortedSpots().first { $0.channelId == eventId }
+    }
+    
+    func createSpot(lead: Lead?) {
+        if let lead = lead {
+            // Find the spot associated with the lead's eventId
+            if findSpot(lead.eventId) != nil {
+                // Handle existing spot if needed
+                print("Spot already exists for eventId: \(lead.eventId)")
+            } else {
+                // Create a new spot if one doesn't exist
+                var note = "invite"
+                
+                if (keychainForNostr.account?.publicKey.hex == lead.event?.pubkey) {
+                    note = "channel"
+                }
+                
+                note = lead.icon
+                let spot = Spot(
+                    name: lead.name,
+                    address: "",
+                    state: "",
+                    note: note,
+                    latitude: lead.coordinate.latitude,
+                    longitude: lead.coordinate.longitude,
+                    channelId: lead.eventId
+                )
+                
+                self.insertSpot(spot)
+                print("New spot inserted for eventId: \(lead.eventId)")
+                
+                self.lobby.leads[spot.channelId] = lead
+            }
+        } else {
+            print("No lead provided, cannot save spot.")
+        }
+        
+    }
+    
 }
 
 @main

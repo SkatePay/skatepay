@@ -30,6 +30,7 @@ struct AddressBook: View {
     @Query private var spots: [Spot]
     
     @ObservedObject var lobby = Lobby.shared
+    @ObservedObject var navigation = NavigationManager.shared
 
     @StateObject private var channelSelection = ChannelSelectionManager()
 
@@ -70,6 +71,15 @@ struct AddressBook: View {
                     
                     Text(spot.name)
                         .contextMenu {
+                            Button(action: {
+                                let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
+                                
+                                self.navigation.coordinate = coordinate
+                                
+                                self.navigation.goToCoordinate()
+                            }) {
+                                Text("Go to coordinates")
+                            }
                             Button(action: {
                                 let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
 

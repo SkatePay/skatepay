@@ -23,8 +23,10 @@ struct LobbyView: View {
     @Environment(\.modelContext) private var context
     
     @EnvironmentObject var hostStore: HostStore
+    
     @ObservedObject var lobby = Lobby.shared
-        
+    @ObservedObject var navigation = NavigationManager.shared
+
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
     @State private var isShowingProfile = false
@@ -94,7 +96,7 @@ struct LobbyView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigation.path)  {
             List {
                 UserRow(users: [modelData.users[0]])
                 
