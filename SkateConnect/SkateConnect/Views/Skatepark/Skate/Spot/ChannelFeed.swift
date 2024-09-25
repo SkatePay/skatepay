@@ -43,8 +43,8 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     var getBlacklist: () -> [String]
     
-    var relayPool: RelayPool? {
-        return self.networkConnections.relayPool
+    private var relayPool: RelayPool {
+        return networkConnections.getRelayPool()
     }
     
     init() {
@@ -119,7 +119,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             print(content)
             
             let event = try createChannelMessageEvent(withContent: content, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
-            relayPool?.publishEvent(event)
+            relayPool.publishEvent(event)
         } catch {
             print("Failed to publish draft: \(error.localizedDescription)")
         }
@@ -129,13 +129,13 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         cleanUp()
         
         if let metadataFilter = filterForMetadata {
-            subscriptionIdForMetadata = relayPool?.subscribe(with: metadataFilter)
+            subscriptionIdForMetadata = relayPool.subscribe(with: metadataFilter)
         }
         
         if let feedFilter = filterForFeed {
-            subscriptionIdForPublicMessages = relayPool?.subscribe(with: feedFilter)
+            subscriptionIdForPublicMessages = relayPool.subscribe(with: feedFilter)
             
-            eventsCancellable = relayPool?.events
+            eventsCancellable = relayPool.events
                 .receive(on: DispatchQueue.main)
                 .map { $0.event }
                 .removeDuplicates()
@@ -175,7 +175,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     public func cleanUp() {
         [subscriptionIdForMetadata, subscriptionIdForPublicMessages].compactMap { $0 }.forEach {
-            relayPool?.closeSubscription(with: $0)
+            relayPool.closeSubscription(with: $0)
         }
         
         messages.removeAll()
@@ -184,7 +184,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         fetchingStoredEvents = true
         
-        relayPool?.delegate = self
+        relayPool.delegate = self
     }
 }
 

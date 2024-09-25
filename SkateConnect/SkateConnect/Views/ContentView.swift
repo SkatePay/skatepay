@@ -118,8 +118,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     }
     
     private var relayPool: RelayPool {
-        networkConnections.reconnectRelaysIfNeeded()
-        return networkConnections.relayPool
+        return networkConnections.getRelayPool()
     }
     
     private var filterForChannels: Filter? {

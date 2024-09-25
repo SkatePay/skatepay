@@ -13,9 +13,13 @@ struct ConnectRelay: View {
     
     @ObservedObject var networkConnections = NetworkConnections.shared
 
+    private var relayPool: RelayPool {
+        return networkConnections.getRelayPool()
+    }
+    
     var body: some View {
         Text("Connected Relays")
-        ForEach(Array(networkConnections.relayPool.relays), id: \.self) { relay in
+        ForEach(Array(relayPool.relays), id: \.self) { relay in
             Text("\(relay.state == .connected ? "🟢" : "🔴" ) \(relay.url.absoluteString)")
                 .contextMenu {
                     Button(action: {

@@ -28,6 +28,10 @@ struct CreateMessage: View, EventCreating {
     
     @State private var selectedOption = 0
     
+    private var relayPool: RelayPool {
+        return networkConnections.getRelayPool()
+    }
+    
     var body: some View {
         Text("Nostr Message")
         Form {
@@ -74,8 +78,7 @@ struct CreateMessage: View, EventCreating {
                                                                          toRecipient: recipientPublicKey,
                                                                          signedBy: senderKeyPair)
                     
-                    networkConnections.reconnectRelaysIfNeeded()
-                    networkConnections.relayPool.publishEvent(directMessage)
+                    relayPool.publishEvent(directMessage)
                     
                     showingAlert = true
                 } catch {

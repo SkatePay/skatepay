@@ -30,6 +30,10 @@ struct UserDetail: View {
     //        modelData.users.firstIndex(where: { $0.id == user.id })!
     //    }
     
+    private var relayPool: RelayPool {
+        return networkConnections.getRelayPool()
+    }
+    
     func isFriend() -> Bool {
         return friends.contains(where: { $0.npub == user.npub })
     }
@@ -38,10 +42,15 @@ struct UserDetail: View {
         return foes.contains(where: { $0.npub == user.npub })
     }
     
-    var connected: Bool { networkConnections.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
+    var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     private func isSupport() -> Bool {
         return user.npub == AppData().users[0].npub
+    }
+    
+    private func getUserSymbol () -> String {
+        let odd = isStringSumOdd(user.name)
+        return odd ? "🌴" : "🌵";
     }
     
     var body: some View {
@@ -54,9 +63,9 @@ struct UserDetail: View {
             
             VStack(alignment: .leading) {
                 HStack {
-                    Text(user.name)
+                    Text(user.name + " \(getUserSymbol())")
                         .font(.title)
-                    //                     FavoriteButton(isSet: $modelData.users[userIndex].isFavorite)
+                    FavoriteButton(isSet: .constant(true))
                 }
                 
                 Text(user.npub)

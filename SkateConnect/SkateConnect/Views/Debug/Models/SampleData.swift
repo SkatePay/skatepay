@@ -274,11 +274,6 @@ final internal class SampleData {
         completion(messages)
     }
     
-    func isStringSumOdd(_ input: String) -> Bool {
-        let sum = input.unicodeScalars.map { Int($0.value) }.reduce(0, +)
-        return sum % 2 != 0
-    }
-    
     func getAvatarFor(sender: SenderType) -> Avatar {
         let firstName = sender.displayName.components(separatedBy: " ").first
         let lastName = sender.displayName.components(separatedBy: " ").first
@@ -298,4 +293,9 @@ final internal class SampleData {
             return Avatar(image: nil, initials: odd ? "🌴" : "🌵")
         }
     }
+}
+
+func isStringSumOdd(_ input: String) -> Bool {
+    let sum = input.unicodeScalars.map { Int($0.value) }.reduce(0, +)
+    return sum % 2 != 0
 }

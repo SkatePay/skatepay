@@ -94,10 +94,10 @@ extension CLLocationCoordinate2D: Codable {
 }
 
 enum ChannelType: String, CaseIterable, Identifiable {
+    case broadcast = "📡"
+    case content = "📺"
     case game = "🏆"
     case job = "🧹"
-    case content = "📺"
-    case broadcast = "📡"
     case skate = "🛹"
     var id: String { rawValue }
 }
@@ -115,7 +115,11 @@ struct CreateChannel: View, EventCreating {
     
     @State private var name: String = ""
     @State private var description: String = ""
-    @State private var icon: String = ""
+    @State private var icon: String = ChannelType.broadcast.rawValue
+    
+    private var relayPool: RelayPool {
+        return networkConnections.getRelayPool()
+    }
     
     private var mark: Mark?
     
@@ -169,8 +173,7 @@ struct CreateChannel: View, EventCreating {
                             
                         let event =  try builder?.build(signedBy: account)
                         
-                        networkConnections.reconnectRelaysIfNeeded()
-                        networkConnections.relayPool.publishEvent(event!)
+                        relayPool.publishEvent(event!)
 
                         isShowingConfirmation = true
                         

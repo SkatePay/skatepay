@@ -153,8 +153,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     }
     
     private var relayPool: RelayPool {
-        networkConnections.reconnectRelaysIfNeeded()
-        return networkConnections.relayPool
+        return networkConnections.getRelayPool()
     }
     
     private func myKeypair() -> Keypair? {
@@ -223,9 +222,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         publishEvent(content: content)
     }
     
-    private func updateSubscription() {
-        networkConnections.reconnectRelaysIfNeeded()
-        
+    private func updateSubscription() {        
         chatDelegate.fetchingStoredEvents = true
         
         if let subscriptionId {
