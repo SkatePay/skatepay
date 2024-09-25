@@ -150,7 +150,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                     lead.event = event
                     self.lobby.leads[event.id] = lead
                 } else {
-                    if let spot = self.dataManager.findSpot(event.id) {
+                    if self.dataManager.findSpot(event.id) != nil {
                         self.lobby.leads[event.id] = createLead(from: event)
                     } else {
                         if let mark = self.mark {
@@ -195,8 +195,6 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     }
     
     func updateSubscriptions() {
-        networkConnections.reconnectRelaysIfNeeded()
-        
         if let subscriptionForChannels {
             relayPool.closeSubscription(with: subscriptionForChannels)
         }

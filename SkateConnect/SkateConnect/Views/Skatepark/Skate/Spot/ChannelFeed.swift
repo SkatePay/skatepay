@@ -86,7 +86,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             
             text = decodedStructure.content
         } catch {
-            print("Error decoding: \(error)")
+//            print("Error decoding: \(error)")
         }
         
         return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)

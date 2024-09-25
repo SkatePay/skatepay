@@ -20,7 +20,7 @@ class NetworkConnections: ObservableObject {
     
     func reconnectRelaysIfNeeded() {
         for (_, relay) in relayPool.relays.enumerated() {
-            if relay.state != .connected {
+            if relay.state == .notConnected {
                 print("Attempting to reconnect to relay: \(relay.url)")
                 relay.connect()
             }

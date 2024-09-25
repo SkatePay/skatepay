@@ -294,7 +294,8 @@ final internal class SampleData {
             return Avatar(image: nil, initials: "SS")
         default:
             let odd = isStringSumOdd(sender.displayName)
-            return Avatar(image: nil, initials: odd ? "🐕" : "🐺")
+//            return Avatar(image: nil, initials: odd ? "🐕" : "🐺")
+            return Avatar(image: nil, initials: odd ? "🌴" : "🌵")
         }
     }
 }

@@ -12,7 +12,6 @@ import SwiftData
 import SwiftUI
 
 struct SkateView: View {
-    @Environment(\.modelContext) private var context
     @Query private var spots: [Spot]
 
     @EnvironmentObject var viewModel: ContentViewModel
@@ -76,9 +75,7 @@ struct SkateView: View {
                     }
                     .onTapGesture { position in
                         if let coordinate = proxy.convert(position, from: .local) {
-                            print("Tapped at \(coordinate)")
                             locationManager.marks = []
-                            
                             addMarker(at: coordinate)
                         }
                     }
@@ -187,9 +184,7 @@ struct SkateView: View {
                 
                 navigation.isShowingChannelFeed = true
                 
-                if let channelId = notification.userInfo?["channelId"] as? String {
-                    print("Joined chat with channel ID: \(channelId)")
-                        
+                if let channelId = notification.userInfo?["channelId"] as? String {                        
                     self.channelId = channelId
                 }
             }
