@@ -93,21 +93,21 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     }
     
     private var filterForMetadata: Filter? {
-        if let eventId = lead?.eventId {
+        if let eventId = lead?.channelId {
             return Filter(ids: [eventId], kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])!
         }
         return nil
     }
     
     private var filterForFeed: Filter? {
-        if let eventId = lead?.eventId {
+        if let eventId = lead?.channelId {
             return Filter(kinds: [EventKind.channelMessage.rawValue], tags: ["e": [eventId]], limit: 32)!
         }
         return nil
     }
     
     public func publishDraft(text: String) {
-        guard let account = keychainForNostr.account, let eventId = lead?.eventId else { return }
+        guard let account = keychainForNostr.account, let eventId = lead?.channelId else { return }
         
         do {
             let contentStructure = ContentStructure(content: text, kind: "message")
@@ -116,7 +116,6 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             encoder.outputFormatting = .prettyPrinted
             let data = try encoder.encode(contentStructure)
             let content  = String(data: data, encoding: .utf8) ?? text
-            print(content)
             
             let event = try createChannelMessageEvent(withContent: content, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
             relayPool.publishEvent(event)
@@ -233,7 +232,7 @@ struct ChannelFeed: View {
         Lead(name: "Private Group Chat",
              icon: "💬",
              coordinate: AppData().landmarks[0].locationCoordinate,
-             eventId: channelId,
+             channelId: channelId,
              event: nil,
              channel: Channel(
                 name: "Private Channel",
@@ -297,7 +296,7 @@ struct ChannelFeed: View {
                         viewModelForChannelFeed.showEditChannel.toggle()
                     }) {
                         if let lead = feedDelegate.lead {
-                            if let landmark = findLandmark(lead.eventId) {
+                            if let landmark = findLandmark(lead.channelId) {
                                 landmark.image
                                     .resizable()
                                     .scaledToFill()

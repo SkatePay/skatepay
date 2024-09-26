@@ -17,16 +17,16 @@ struct Mark: Identifiable {
     let coordinate: CLLocationCoordinate2D
 }
 
-struct Lead: Identifiable, Equatable {
+struct Lead: Identifiable, Equatable, Codable {
     static func == (lhs: Lead, rhs: Lead) -> Bool {
         return lhs.id == rhs.id
     }
     
-    let id = UUID()
+    var id = UUID()
     var name: String
     var icon: String
     var coordinate: CLLocationCoordinate2D
-    var eventId: String // NostrEventId
+    var channelId: String
     var event: NostrEvent?
     var channel: Channel?
 }

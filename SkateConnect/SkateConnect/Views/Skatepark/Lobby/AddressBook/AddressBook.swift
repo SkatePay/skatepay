@@ -57,7 +57,6 @@ struct AddressBook: View {
         if !spot.channelId.isEmpty {
             removeLead(with: spot.channelId)
         }
-        print(spot.channelId)
         context.delete(spot)
     }
     

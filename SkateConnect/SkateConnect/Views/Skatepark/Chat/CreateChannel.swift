@@ -53,7 +53,7 @@ func createLead(from event: NostrEvent) -> Lead? {
                 name: channel.name,
                 icon: icon,
                 coordinate: decodedStructure.location,
-                eventId: event.id,
+                channelId: event.id,
                 event: event,
                 channel: channel
             )

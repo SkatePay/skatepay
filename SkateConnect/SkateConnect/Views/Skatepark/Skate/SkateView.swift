@@ -18,16 +18,43 @@ struct SkateView: View {
     
     @ObservedObject var navigation = NavigationManager.shared
     @ObservedObject var lobby = Lobby.shared
-    
+    @ObservedObject private var apiService = ApiService()
+
     @StateObject var locationManager = LocationManager()
     
     @State private var showingAlert = false
     @State private var isShowingLeadOptions = false
-    
+    @State private var isShowingLoadingOverlay = true
+
     @State var channelId = ""
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
+    }
+    
+    func overlayView() -> some View {
+        GeometryReader { geometry in
+                 if isShowingLoadingOverlay {
+                     HStack {
+                         Spacer()
+                         Text(apiService.debugOutput())
+                             .foregroundColor(.white)
+                         Button(action: {
+                             withAnimation {
+                                 isShowingLoadingOverlay = false
+                             }
+                         }) {
+                             Image(systemName: "xmark.circle.fill")
+                                 .foregroundColor(.white)
+                                 .font(.system(size: 18))
+                         }
+                     }
+                     .padding()
+                     .background(Color.black.opacity(0.5))
+                     .frame(maxWidth: .infinity)
+                     .position(x: geometry.size.width / 2, y: 16)  // Position at top
+                 }
+             }
     }
     
     var body: some View {
@@ -63,7 +90,7 @@ struct SkateView: View {
 //                                           handleLongPress(lead: lead)
                                         }
                                         .onChanged { state in
-                                            channelId = lead.eventId
+                                            channelId = lead.channelId
                                             navigation.isShowingChannelFeed.toggle()
                                         }
                                 )
@@ -79,6 +106,11 @@ struct SkateView: View {
                             addMarker(at: coordinate)
                         }
                     }
+                    .overlay(
+                        overlayView()
+                            .opacity(isShowingLoadingOverlay ? 1 : 0)
+                            .animation(.easeInOut(duration: 0.3), value: isShowingLoadingOverlay)
+                    )
                 }
                 
                 HStack(spacing: 20) {
@@ -184,7 +216,7 @@ struct SkateView: View {
                 
                 navigation.isShowingChannelFeed = true
                 
-                if let channelId = notification.userInfo?["channelId"] as? String {                        
+                if let channelId = notification.userInfo?["channelId"] as? String {
                     self.channelId = channelId
                 }
             }
@@ -194,8 +226,17 @@ struct SkateView: View {
                     self.locationManager.clearMarks()
                 }
             }
+            .onReceive(apiService.$leads) { leads in
+                DispatchQueue.main.async {
+                    for lead in leads {
+                        let eventId = lead.channelId
+                        self.lobby.leads[eventId] = lead
+                    }
+                }
+            }
             .onAppear() {
-                lobby.setupLeads(spots: spots)
+                self.apiService.fetchLeads()
+                self.lobby.setupLeads(spots: spots)
             }
         }
     }

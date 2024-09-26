@@ -39,7 +39,7 @@ class Lobby: ObservableObject {
             name: "Public Chat",
             icon: "💬",
             coordinate: AppData().landmarks[0].locationCoordinate,
-            eventId: eventId,
+            channelId: eventId,
             event: nil,
             channel: nil
         )
@@ -49,11 +49,11 @@ class Lobby: ObservableObject {
                 name: spot.name,
                 icon: "🏆",
                 coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
-                eventId: spot.channelId,
+                channelId: spot.channelId,
                 event: nil,
                 channel: nil
             )
-            self.leads[lead.eventId] = lead
+            self.leads[lead.channelId] = lead
         }
         
         for spot in spots.filter({ $0.note == "channel"}) {
@@ -61,11 +61,11 @@ class Lobby: ObservableObject {
                 name: spot.name,
                 icon: "📡",
                 coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
-                eventId: spot.channelId,
+                channelId: spot.channelId,
                 event: nil,
                 channel: nil
             )
-            self.leads[lead.eventId] = lead
+            self.leads[lead.channelId] = lead
         }
     }
 }

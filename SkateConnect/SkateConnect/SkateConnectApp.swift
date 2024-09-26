@@ -46,7 +46,7 @@ class NetworkConnections: ObservableObject, RelayDelegate {
                 case .connecting:
                     print("Relay is currently connecting. Please wait.")
                 case .connected:
-                    print("Relay is already connected.")
+                    continue
                 case .error(let error):
                     print("An error occurred with the relay: \(error.localizedDescription)")
 
@@ -122,96 +122,6 @@ class NavigationManager: ObservableObject {
         self.tab = .map
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
     }
-}
-
-@MainActor
-class DataManager: ObservableObject {
-    static let shared = DataManager()
-
-    @ObservedObject var lobby = Lobby.shared
-    
-    private let modelContainer: ModelContainer
-    private let keychainForNostr = NostrKeychainStorage()
-
-    init(inMemory: Bool = false) {
-        do {
-            self.modelContainer = try ModelContainer(for: Friend.self, Foe.self, Spot.self)
-        } catch {
-            print("Failed to initialize ModelContainer: \(error)")
-            // Handle the error, e.g., crash the app with a fatal error or proceed with a fallback
-            fatalError("Failed to initialize ModelContainer")
-        }
-    }
-    
-    var modelContext: ModelContext {
-        modelContainer.mainContext
-    }
-    
-    func insertSpot(_ spot: Spot) {
-        modelContext.insert(spot)
-        do {
-            try modelContext.save()
-            
-            let spots = fetchSortedSpots()
-            
-            lobby.setupLeads(spots: spots)
-        } catch {
-            print("Failed saving: \(error)")
-        }
-    }
-    
-    func fetchSortedSpots() -> [Spot] {
-        do {
-            let fetchDescriptor = FetchDescriptor<Spot>(
-                sortBy: [SortDescriptor(\.name, order: .reverse)]
-            )
-            return try modelContext.fetch(fetchDescriptor)
-        } catch {
-            print("Failed to fetch and sort Spots: \(error)")
-            return []
-        }
-    }
-    
-    func findSpot(_ eventId: String) -> Spot? {
-        return fetchSortedSpots().first { $0.channelId == eventId }
-    }
-    
-    func createSpot(lead: Lead?) {
-        if let lead = lead {
-            // Find the spot associated with the lead's eventId
-            if findSpot(lead.eventId) != nil {
-                // Handle existing spot if needed
-                print("Spot already exists for eventId: \(lead.eventId)")
-            } else {
-                // Create a new spot if one doesn't exist
-                var note = "invite"
-                
-                if (keychainForNostr.account?.publicKey.hex == lead.event?.pubkey) {
-                    note = "channel"
-                }
-                
-                note = lead.icon
-                let spot = Spot(
-                    name: lead.name,
-                    address: "",
-                    state: "",
-                    note: note,
-                    latitude: lead.coordinate.latitude,
-                    longitude: lead.coordinate.longitude,
-                    channelId: lead.eventId
-                )
-                
-                self.insertSpot(spot)
-                print("New spot inserted for eventId: \(lead.eventId)")
-                
-                self.lobby.leads[spot.channelId] = lead
-            }
-        } else {
-            print("No lead provided, cannot save spot.")
-        }
-        
-    }
-    
 }
 
 @main
