@@ -35,7 +35,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     var locationManager: CLLocationManager?
     
     @Published var marks: [Mark] = []
-    
+    @Published var currentLocation: CLLocation?
     @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
     
     @Published var mapPosition = MapCameraPosition.region(
@@ -57,6 +57,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
             locationManager = CLLocationManager()
             locationManager?.desiredAccuracy = kCLLocationAccuracyBest
             locationManager!.delegate = self
+            locationManager?.startUpdatingLocation() // Start updating location
         } else {
             print("Show an alert letting them know this is off")
         }
@@ -96,15 +97,13 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
     
+    // Update the currentLocation when a new location is received
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        currentLocation = location // Update the current location
+    }
+    
     func clearMarks() {
         self.marks = []
     }
-}
-
-extension Notification.Name {
-    static let goToLandmark = Notification.Name("goToLandmark")
-    static let goToCoordinate = Notification.Name("goToCoordinate")
-    static let joinChat = Notification.Name("joinChat")
-    static let muteUser = Notification.Name("muteUser")
-    static let barcodeScanned = Notification.Name("barcodeScanned")
 }

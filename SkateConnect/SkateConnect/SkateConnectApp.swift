@@ -72,58 +72,6 @@ class NetworkConnections: ObservableObject, RelayDelegate {
     }
 }
 
-class NavigationManager: ObservableObject {
-    static let shared = NavigationManager()
-    
-    @Published var path = NavigationPath()
-    @Published var tab: Tab = .map
-    
-    @Published var landmark: Landmark?
-    @Published var coordinate: CLLocationCoordinate2D?
-    
-    @Published var isShowingEULA = false
-    @Published var isShowingDirectory = false
-    @Published var isShowingChannelFeed = false
-    @Published var isShowingSearch = false
-    @Published var isShowingCreateChannel = false
-    @Published var isShowingMarkerOptions = false
-    
-    @Published var isShowingUserDetail = false
-    
-    @Published var isShowingBarcodeScanner = false
-    
-    func dismissToContentView() {
-        path = NavigationPath()
-        NotificationCenter.default.post(name: .goToLandmark, object: nil)
-        isShowingDirectory = false
-    }
-    
-    func dismissToSkateView() {
-        isShowingMarkerOptions = false
-        isShowingCreateChannel = false
-    }
-    
-    func recoverFromSearch() {
-        NotificationCenter.default.post(name: .goToCoordinate, object: nil)
-        isShowingSearch = false
-    }
-    
-    func joinChat(channelId: String) {
-        NotificationCenter.default.post(
-            name: .joinChat,
-            object: self,
-            userInfo: ["channelId": channelId]
-        )
-        isShowingSearch = false
-    }
-    
-    func goToCoordinate() {
-        path = NavigationPath()
-        self.tab = .map
-        NotificationCenter.default.post(name: .goToCoordinate, object: nil)
-    }
-}
-
 @main
 struct SkateConnectApp: App {
     @State private var modelData = AppData()

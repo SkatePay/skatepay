@@ -67,7 +67,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             }
         }
     }
-    
+
     private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
         let publicKey = PublicKey(hex: event.pubkey)
         let isCurrentUser = publicKey == keychainForNostr.account?.publicKey
@@ -76,20 +76,17 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
         
+        let content = processContent(content: event.content)
+
         let user = MockUser(senderId: npub, displayName: displayName)
-        
-        var text = event.content
-        
-        do {
-            let decoder = JSONDecoder()
-            let decodedStructure = try decoder.decode(ContentStructure.self, from: event.content.data(using: .utf8)!)
-            
-            text = decodedStructure.content
-        } catch {
-//            print("Error decoding: \(error)")
+                    
+        switch content {
+        case .text(let text):
+            return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
+        case .video(let videoURL):
+            print(videoURL)
+            return MockMessage(thumbnail: videoURL, user: user, messageId: event.id, date: event.createdDate)
         }
-        
-        return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
     }
     
     private var filterForMetadata: Filter? {
@@ -185,6 +182,48 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         relayPool.delegate = self
     }
+    
+    enum ContentType {
+        case text(String)
+        case video(URL)
+    }
+    
+    func processContent(content: String) -> ContentType {
+        var text = content
+        do {
+            let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: content.data(using: .utf8)!)
+            text = decodedStructure.content
+            if decodedStructure.kind == "video" {
+                let urlString = decodedStructure.content.replacingOccurrences(of: ".mov", with: ".jpg")
+                if let url = URL(string: urlString) {
+                    return .video(url)
+                } else {
+                    print("Invalid URL string: \(urlString)")
+                }
+            }
+        } catch {
+            print("Decoding or URL conversion error: \(error)")
+        }
+        return .text(text)
+    }
+
+    public func publishDraft(text: String, kind: String = "message") {
+        guard let account = keychainForNostr.account, let eventId = lead?.channelId else { return }
+        
+        do {
+            let contentStructure = ContentStructure(content: text, kind: kind)
+            
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let data = try encoder.encode(contentStructure)
+            let content  = String(data: data, encoding: .utf8) ?? text
+            
+            let event = try createChannelMessageEvent(withContent: content, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
+            relayPool.publishEvent(event)
+        } catch {
+            print("Failed to publish draft: \(error.localizedDescription)")
+        }
+    }
 }
 
 // MARK: - Channel Feed View Model
@@ -197,7 +236,7 @@ class ChannelFeedViewModel: ObservableObject {
 struct ChannelFeed: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-
+    
     @Query(sort: \Foe.npub) private var foes: [Foe]
     @Query(sort: \Spot.channelId) private var spots: [Spot]
     
@@ -266,7 +305,7 @@ struct ChannelFeed: View {
     
     var messageKit: some View {
         VStack {
-            MessagesView(messages: $feedDelegate.messages, onTapAvatar: showMenu)
+            ChatView(messages: $feedDelegate.messages, onTapAvatar: showMenu)
                 .onAppear {
                     self.feedDelegate.updateSubscription()
                     setupKeyboardObservers()
@@ -285,41 +324,50 @@ struct ChannelFeed: View {
                             .environmentObject(viewModelForChannelFeed)
                     }
                 }
-                .navigationBarItems(leading:
+                .navigationBarItems(
+                    leading:
+                        HStack {
+                            Button(action: {
+                                dismiss()
+                            }) {
+                                Image(systemName: "arrow.left")
+                            }
+                            
+                            Button(action: {
+                                viewModelForChannelFeed.showEditChannel.toggle()
+                            }) {
+                                if let lead = feedDelegate.lead {
+                                    if let landmark = findLandmark(lead.channelId) {
                                         HStack {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "arrow.left")
-                    }
-                    Button(action: {
-                        viewModelForChannelFeed.showEditChannel.toggle()
-                    }) {
-                        if let lead = feedDelegate.lead {
-                            if let landmark = findLandmark(lead.channelId) {
-                                landmark.image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 35, height: 35)
-                                    .clipShape(Circle())
-                                
-                                VStack(alignment: .leading, spacing: 0) {
-                                    Text("\(landmark.name)")
-                                        .fontWeight(.semibold)
-                                        .font(.headline)
-                                }
-                            } else {
-                                if let channel = lead.channel {
-                                    VStack(alignment: .leading, spacing: 0) {
-                                        Text("\(channel.name)")
-                                            .fontWeight(.semibold)
-                                            .font(.headline)
+                                            landmark.image
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 35, height: 35)
+                                                .clipShape(Circle())
+                                            
+                                            VStack(alignment: .leading, spacing: 0) {
+                                                Text("\(landmark.name)")
+                                                    .fontWeight(.semibold)
+                                                    .font(.headline)
+                                            }
+                                        }
+                                    } else {
+                                        if let channel = lead.channel {
+                                            Text("\(channel.name)")
+                                                .fontWeight(.semibold)
+                                                .font(.headline)
+                                        }
                                     }
                                 }
                             }
+                        },
+                    trailing:
+                        Button(action: {
+                            self.navigation.isShowingCameraView = true
+                        }) {
+                            Image(systemName: "camera.on.rectangle.fill")
                         }
-                    }
-                })
+                )
         }
         .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
             let user = User(
@@ -345,6 +393,17 @@ struct ChannelFeed: View {
                             Spacer()
                         }
                     })
+            }
+        }
+        .fullScreenCover(isPresented: $navigation.isShowingCameraView) {
+            NavigationView {
+                CameraView()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .uploadVideo)) { notification in
+            if let assetURL = notification.userInfo?["assetURL"] as? String {
+                print(assetURL)
+                feedDelegate.publishDraft(text: assetURL, kind: "video")
             }
         }
         .padding(.bottom, keyboardHeight)

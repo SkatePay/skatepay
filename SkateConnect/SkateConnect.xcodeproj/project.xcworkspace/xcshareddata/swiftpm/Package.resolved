@@ -1,5 +1,5 @@
 {
-  "originHash" : "9ff254255af8ba3c7bf8ad34ce58ecdcedc7bc120bf4fcc2de18c3867307c5fb",
+  "originHash" : "f93bf89b402d1afcf3ff19ee5fb47213718f3198cf963120441b2f5d92d81aa0",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -11,12 +11,30 @@
       }
     },
     {
+      "identity" : "aws-crt-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/awslabs/aws-crt-swift",
+      "state" : {
+        "revision" : "7b42e0343f28b3451aab20840dc670abd12790bd",
+        "version" : "0.36.0"
+      }
+    },
+    {
+      "identity" : "aws-sdk-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/awslabs/aws-sdk-swift.git",
+      "state" : {
+        "revision" : "9268b5ea03b3a92566f38ab4b12cb16f02c2ac1a",
+        "version" : "1.0.7"
+      }
+    },
+    {
       "identity" : "chat",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/exyte/Chat.git",
       "state" : {
-        "revision" : "08394a539ebe69a3f3af8b236fb472a08752b74b",
-        "version" : "2.0.5"
+        "revision" : "931167c334d126690756c3226bba58ac49192bf8",
+        "version" : "2.0.6"
       }
     },
     {
@@ -56,6 +74,15 @@
       }
     },
     {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "33696a71dd4d71f1b0f781ade11a48ba5549581a",
+        "version" : "8.0.3"
+      }
+    },
+    {
       "identity" : "mediapicker",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/exyte/MediaPicker.git",
@@ -92,6 +119,15 @@
       }
     },
     {
+      "identity" : "smithy-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/smithy-lang/smithy-swift",
+      "state" : {
+        "revision" : "c5242d4e06e721293ee91c7affd1d527912f596d",
+        "version" : "0.76.0"
+      }
+    },
+    {
       "identity" : "solana-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SkatePay/solana-swift",
@@ -105,8 +141,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
       "state" : {
-        "revision" : "9bf03ff58ce34478e66aaee630e491823326fd06",
-        "version" : "1.1.3"
+        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
+        "version" : "1.1.4"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537",
+        "version" : "1.6.1"
       }
     },
     {

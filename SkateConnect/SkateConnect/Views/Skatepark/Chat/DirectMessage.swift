@@ -60,7 +60,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     }
     
     var body: some View {
-        ChatView(messages: messages, chatType: .conversation) { draft in
+        ExyteChat.ChatView(messages: messages, chatType: .conversation) { draft in
             publishDraft(draft: draft)
         }
         .enableLoadMore(pageSize: 3) { message in

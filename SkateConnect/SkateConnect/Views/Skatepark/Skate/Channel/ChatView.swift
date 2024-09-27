@@ -6,19 +6,20 @@
 //
 
 import InputBarAccessoryView
+import Kingfisher
 import MessageKit
 import SwiftUI
 
 // MARK: - MessageSwiftUIVC
 
 final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
-   
+    
     let onTapAvatar: (String) -> Void
-
+    
     init(onTapAvatar: @escaping (String) -> Void) {
-         self.onTapAvatar = onTapAvatar
-         super.init(nibName: nil, bundle: nil)
-     }
+        self.onTapAvatar = onTapAvatar
+        super.init(nibName: nil, bundle: nil)
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -57,7 +58,7 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
 
 // MARK: - MessagesView
 
-struct MessagesView: UIViewControllerRepresentable {
+struct ChatView: UIViewControllerRepresentable {
     // MARK: Internal
     
     
@@ -106,6 +107,11 @@ struct MessagesView: UIViewControllerRepresentable {
             messages.wrappedValue.count
         }
         
+        func photoCell(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
+        -> UICollectionViewCell? {            
+            return nil
+        }
+        
         func messageTopLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
             let name = message.sender.displayName
             return NSAttributedString(
@@ -113,12 +119,12 @@ struct MessagesView: UIViewControllerRepresentable {
                 attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption1)])
         }
         
-//        func messageBottomLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
-//            let dateString = formatter.string(from: message.sentDate)
-//            return NSAttributedString(
-//                string: dateString,
-//                attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)])
-//        }
+        //        func messageBottomLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
+        //            let dateString = formatter.string(from: message.sentDate)
+        //            return NSAttributedString(
+        //                string: dateString,
+        //                attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)])
+        //        }
         
         func messageTimestampLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
             let sentDate = message.sentDate
@@ -143,12 +149,29 @@ struct MessagesView: UIViewControllerRepresentable {
             0
         }
         
+        func configureMediaMessageImageView(
+            _ imageView: UIImageView,
+            for message: MessageType,
+            at _: IndexPath,
+            in _: MessagesCollectionView)
+        {
+            if case MessageKind.photo(let media) = message.kind, let imageURL = media.url {
+                imageView.kf.setImage(with: imageURL)
+            }
+            if case MessageKind.video(let media) = message.kind, let imageURL = media.url {
+                imageView.kf.setImage(with: imageURL)
+            }
+            else {
+                imageView.kf.cancelDownloadTask()
+            }
+        }
+        
     }
     
     @State var initialized = false
     @Binding var messages: [MessageType]
     let onTapAvatar: (String) -> Void
-
+    
     func makeUIViewController(context: Context) -> MessagesViewController {
         let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar)
         
@@ -164,7 +187,7 @@ struct MessagesView: UIViewControllerRepresentable {
         
         return messagesVC
     }
-        
+    
     func updateUIViewController(_ uiViewController: MessagesViewController, context _: Context) {
         uiViewController.messagesCollectionView.reloadData()
         scrollToBottom(uiViewController)

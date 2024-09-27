@@ -13,19 +13,19 @@ import SwiftUI
 
 struct SkateView: View {
     @Query private var spots: [Spot]
-
+    
     @EnvironmentObject var viewModel: ContentViewModel
     
     @ObservedObject var navigation = NavigationManager.shared
     @ObservedObject var lobby = Lobby.shared
     @ObservedObject private var apiService = ApiService()
-
+    
     @StateObject var locationManager = LocationManager()
     
     @State private var showingAlert = false
     @State private var isShowingLeadOptions = false
     @State private var isShowingLoadingOverlay = true
-
+    
     @State var channelId = ""
     
     func handleLongPress(lead: Lead) {
@@ -34,27 +34,28 @@ struct SkateView: View {
     
     func overlayView() -> some View {
         GeometryReader { geometry in
-                 if isShowingLoadingOverlay {
-                     HStack {
-                         Spacer()
-                         Text(apiService.debugOutput())
-                             .foregroundColor(.white)
-                         Button(action: {
-                             withAnimation {
-                                 isShowingLoadingOverlay = false
-                             }
-                         }) {
-                             Image(systemName: "xmark.circle.fill")
-                                 .foregroundColor(.white)
-                                 .font(.system(size: 18))
-                         }
-                     }
-                     .padding()
-                     .background(Color.black.opacity(0.5))
-                     .frame(maxWidth: .infinity)
-                     .position(x: geometry.size.width / 2, y: 16)  // Position at top
-                 }
-             }
+            if isShowingLoadingOverlay {
+                HStack {
+                    Text(apiService.debugOutput())
+                        .foregroundColor(.white)
+                    Spacer()
+                    
+                    Button(action: {
+                        withAnimation {
+                            isShowingLoadingOverlay = false
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 18))
+                    }
+                }
+                .padding()
+                .background(Color.black.opacity(0.5))
+                .frame(maxWidth: .infinity)
+                .position(x: geometry.size.width / 2, y: 16)  // Position at top
+            }
+        }
     }
     
     var body: some View {
@@ -62,7 +63,7 @@ struct SkateView: View {
             VStack {
                 MapReader { proxy in
                     Map(position: $locationManager.mapPosition) {
-//                        UserAnnotation()
+                        //                        UserAnnotation()
                         // Marks
                         ForEach(locationManager.marks) { mark in
                             Marker(mark.name, coordinate: mark.coordinate)
@@ -87,7 +88,7 @@ struct SkateView: View {
                                 .gesture(
                                     LongPressGesture(minimumDuration: 1.0)
                                         .onEnded { _ in
-//                                           handleLongPress(lead: lead)
+                                            //                                           handleLongPress(lead: lead)
                                         }
                                         .onChanged { state in
                                             channelId = lead.channelId
@@ -115,8 +116,23 @@ struct SkateView: View {
                 
                 HStack(spacing: 20) {
                     Button(action: {
+                        if let location = locationManager.currentLocation?.coordinate {
+                            locationManager.updateMapRegion(with: location) // Move map to user's current location
+                        } else {
+                            print("Current location not available.")
+                        }
+                    }) {
+                        Text("Find Me")
+                            .font(.headline)
+                            .padding(8)
+                            .background(Color.purple)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    
+                    Button(action: {
                         navigation.isShowingDirectory = true
-
+                        
                     }) {
                         Text("Skateparks")
                             .padding(8)
@@ -127,7 +143,7 @@ struct SkateView: View {
                     
                     Button(action: {
                         navigation.isShowingSearch.toggle()
-
+                        
                     }) {
                         Text("🔎")
                             .padding(8)
@@ -188,8 +204,8 @@ struct SkateView: View {
                     SearchView()
                         .navigationBarTitle("Search")
                         .navigationBarItems(leading:
-                            Button(action: {
-                                navigation.isShowingSearch = false
+                                                Button(action: {
+                            navigation.isShowingSearch = false
                         }) {
                             HStack {
                                 Image(systemName: "arrow.left")
@@ -235,6 +251,7 @@ struct SkateView: View {
                 }
             }
             .onAppear() {
+                self.locationManager.checkIfLocationIsEnabled()
                 self.apiService.fetchLeads()
                 self.lobby.setupLeads(spots: spots)
             }

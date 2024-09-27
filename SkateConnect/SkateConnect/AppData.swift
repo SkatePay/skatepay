@@ -150,7 +150,7 @@ class ApiService: ObservableObject {
         if let error = error {
             return error.localizedDescription
         }
-        return isLoading ? "Loading..." : "Finished loading data."
+        return isLoading ? "Loading..." : "🤠🛹 Welcome to SkateConnect! 🌐"
     }
 
     private var subscriptions = Set<AnyCancellable>()
