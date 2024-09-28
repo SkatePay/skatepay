@@ -5,6 +5,7 @@
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
 
+import Combine
 import ConnectFramework
 import MapKit
 import NostrSDK
@@ -16,9 +17,10 @@ struct SkateView: View {
     
     @EnvironmentObject var viewModel: ContentViewModel
     
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var navigation = Navigation.shared
     @ObservedObject var lobby = Lobby.shared
-    @ObservedObject private var apiService = ApiService()
+    @ObservedObject private var apiService = ApiService.shared
+    @ObservedObject private var dataManager = DataManager.shared
     
     @StateObject var locationManager = LocationManager()
     
@@ -92,7 +94,7 @@ struct SkateView: View {
                                         }
                                         .onChanged { state in
                                             channelId = lead.channelId
-                                            navigation.isShowingChannelFeed.toggle()
+                                            navigation.isShowingChannelView.toggle()
                                         }
                                 )
                             }
@@ -190,12 +192,12 @@ struct SkateView: View {
                         })
                 }
             }
-            .fullScreenCover(isPresented: $navigation.isShowingChannelFeed) {
+            .fullScreenCover(isPresented: $navigation.isShowingChannelView) {
                 if self.channelId.isEmpty {
                     Text("No lead available at this index.")
                 } else {
                     NavigationView {
-                        ChannelFeed(channelId: self.channelId)
+                        ChannelView(channelId: self.channelId)
                     }
                 }
             }
@@ -215,6 +217,18 @@ struct SkateView: View {
                         })
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .newChannelCreated)) { notification in
+                if let event = notification.object as? NostrEvent {
+                    // Need to deprecate in favor of nostr channel
+                    if (event.id == AppData().landmarks[0].eventId ) {
+                        return
+                    }
+                    
+                    let lead = createLead(from: event)
+                    self.dataManager.saveSpotForLead(lead)
+                    self.locationManager.marks = []
+                }
+            }
             .onReceive(NotificationCenter.default.publisher(for: .goToLandmark)) { _ in
                 if  let locationCoordinate = navigation.landmark?.locationCoordinate {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
@@ -230,7 +244,7 @@ struct SkateView: View {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 }
                 
-                navigation.isShowingChannelFeed = true
+                navigation.isShowingChannelView = true
                 
                 if let channelId = notification.userInfo?["channelId"] as? String {
                     self.channelId = channelId
@@ -242,20 +256,51 @@ struct SkateView: View {
                     self.locationManager.clearMarks()
                 }
             }
-            .onReceive(apiService.$leads) { leads in
-                DispatchQueue.main.async {
-                    for lead in leads {
-                        let eventId = lead.channelId
-                        self.lobby.leads[eventId] = lead
-                    }
-                }
-            }
+//            .onReceive(apiService.$leads) { leads in
+//                DispatchQueue.main.async {
+//                    for lead in leads {
+//                        let eventId = lead.channelId
+//                        self.lobby.leads[eventId] = lead
+//                    }
+//                }
+//            }
             .onAppear() {
+//                self.subscribeToChannelCreation()
                 self.locationManager.checkIfLocationIsEnabled()
                 self.apiService.fetchLeads()
                 self.lobby.setupLeads(spots: spots)
             }
         }
+//        .onAppear(perform: subscribeToChannelCreation)
+    }
+    
+    @State private var channelCreationEvent: NostrEvent? // Store the event
+    private var subscriptions = Set<AnyCancellable>() // Combine subscriptions
+
+//    private func subscribeToChannelCreation() {
+////        // Subscribe to channel creation events
+////        NotificationCenter.default.publisher(for: .newChannelCreated)
+////            .sink { [weak self] notification in
+////                if let nostrEvent = notification.object as? NostrEvent {
+////                    self?.channelCreationEvent = nostrEvent
+////                }
+////            }
+////            .store(in: &subscriptions)
+//        NotificationCenter.default.addObserver(
+//            forName: .newChannelCreated,
+//            object: nil,
+//            queue: .main
+//        ) { _ in
+//            self.feedDelegate.updateSubscription()
+//        }
+//    }
+
+    private func handleNewChannelCreationEvent(_ event: NostrEvent) {
+        // Update state with the received event
+        channelCreationEvent = event
+
+        // Any other state or UI updates related to the new channel creation can go here
+        print("Received channel creation event: \(event)")
     }
     
     func addMarker(at coordinate: CLLocationCoordinate2D) {

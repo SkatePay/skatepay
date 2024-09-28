@@ -1,5 +1,5 @@
 //
-//  ChannelFeed.swift
+//  ChannelView.swift
 //  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 9/9/24.
@@ -30,7 +30,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     @Published var lead: Lead?
     
     @ObservedObject var dataManager = DataManager.shared
-    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var networkConnections = Network.shared
     
     let keychainForNostr = NostrKeychainStorage()
     
@@ -39,7 +39,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     private var subscriptionIdForMetadata: String?
     private var subscriptionIdForPublicMessages: String?
     
-    var viewModelForChannelFeed: ChannelFeedViewModel?
+    var viewModelForChannelView: ChannelViewViewModel?
     
     var getBlacklist: () -> [String]
     
@@ -130,13 +130,13 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         if let feedFilter = filterForFeed {
             subscriptionIdForPublicMessages = relayPool.subscribe(with: feedFilter)
-            
-            eventsCancellable = relayPool.events
-                .receive(on: DispatchQueue.main)
-                .map { $0.event }
-                .removeDuplicates()
-                .sink(receiveValue: handleEvent)
         }
+        
+        eventsCancellable = relayPool.events
+            .receive(on: DispatchQueue.main)
+            .map { $0.event }
+            .removeDuplicates()
+            .sink(receiveValue: handleEvent)
     }
     
     private func handleEvent(_ event: NostrEvent) {
@@ -150,7 +150,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
                 self.lead = createLead(from: event)
                 
                 guard let lead = lead else { return }
-                self.dataManager.createSpot(lead: lead)
+                self.dataManager.saveSpotForLead(lead)
             } else if event.kind == .channelMessage {
                 guard let publicKey = PublicKey(hex: event.pubkey) else {
                     return
@@ -228,12 +228,12 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
 
 // MARK: - Channel Feed View Model
 
-class ChannelFeedViewModel: ObservableObject {
+class ChannelViewViewModel: ObservableObject {
     @Published var lead: Lead?
     @Published var showEditChannel = false
 }
 
-struct ChannelFeed: View {
+struct ChannelView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     
@@ -242,9 +242,9 @@ struct ChannelFeed: View {
     
     @ObservedObject var dataManager = DataManager.shared
     
-    @StateObject var viewModelForChannelFeed = ChannelFeedViewModel()
+    @StateObject var viewModelForChannelView = ChannelViewViewModel()
     
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var navigation = Navigation.shared
     @ObservedObject var feedDelegate = FeedDelegate.shared
     @ObservedObject var lobby = Lobby.shared
     
@@ -318,10 +318,10 @@ struct ChannelFeed: View {
                     NotificationCenter.default.removeObserver(self)
                 }
                 .navigationBarBackButtonHidden()
-                .sheet(isPresented: $viewModelForChannelFeed.showEditChannel) {
+                .sheet(isPresented: $viewModelForChannelView.showEditChannel) {
                     if let lead = feedDelegate.lead {
                         EditChannel(lead: lead, channel: lead.channel)
-                            .environmentObject(viewModelForChannelFeed)
+                            .environmentObject(viewModelForChannelView)
                     }
                 }
                 .navigationBarItems(
@@ -334,7 +334,7 @@ struct ChannelFeed: View {
                             }
                             
                             Button(action: {
-                                viewModelForChannelFeed.showEditChannel.toggle()
+                                viewModelForChannelView.showEditChannel.toggle()
                             }) {
                                 if let lead = feedDelegate.lead {
                                     if let landmark = findLandmark(lead.channelId) {
@@ -471,5 +471,5 @@ extension View {
 }
 
 #Preview {
-    ChannelFeed(channelId: "")
+    ChannelView(channelId: "")
 }

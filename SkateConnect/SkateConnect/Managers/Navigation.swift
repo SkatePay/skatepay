@@ -1,5 +1,5 @@
 //
-//  NavigationManager.swift
+//  Navigation.swift
 //  SkateConnect
 //
 //  Created by Konstantin Yurchenko, Jr on 9/26/24.
@@ -19,8 +19,8 @@ extension Notification.Name {
     static let uploadVideo = Notification.Name("uploadVideo")
 }
 
-class NavigationManager: ObservableObject {
-    static let shared = NavigationManager()
+class Navigation: ObservableObject {
+    static let shared = Navigation()
     
     @Published var path = NavigationPath()
     @Published var tab: Tab = .map
@@ -30,7 +30,7 @@ class NavigationManager: ObservableObject {
     
     @Published var isShowingEULA = false
     @Published var isShowingDirectory = false
-    @Published var isShowingChannelFeed = false
+    @Published var isShowingChannelView = false
     @Published var isShowingSearch = false
     @Published var isShowingCreateChannel = false
     @Published var isShowingMarkerOptions = false

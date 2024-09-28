@@ -288,9 +288,7 @@ final internal class SampleData {
         case "000000":
             return Avatar(image: nil, initials: "SS")
         default:
-            let odd = isStringSumOdd(sender.displayName)
-//            return Avatar(image: nil, initials: odd ? "🐕" : "🐺")
-            return Avatar(image: nil, initials: odd ? "🌴" : "🌵")
+            return Avatar(image: nil, initials: isStringOneOfThree(sender.displayName))
         }
     }
 }
@@ -298,4 +296,22 @@ final internal class SampleData {
 func isStringSumOdd(_ input: String) -> Bool {
     let sum = input.unicodeScalars.map { Int($0.value) }.reduce(0, +)
     return sum % 2 != 0
+}
+
+func isStringOneOfThree(_ input: String) -> String {
+    let sum = input.unicodeScalars.map { Int($0.value) }.reduce(0, +)
+    
+    // Use modulo 3 to cycle through the three emoji
+    let remainder = sum % 3
+    
+    switch remainder {
+    case 0:
+        return "🙈"  // See no evil
+    case 1:
+        return "🙊"  // Speak no evil
+    case 2:
+        return "🙉"  // Hear no evil
+    default:
+        return "" // This will never be reached, but Swift requires a default case
+    }
 }

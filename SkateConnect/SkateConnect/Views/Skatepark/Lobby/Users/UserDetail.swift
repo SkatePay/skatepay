@@ -14,7 +14,7 @@ struct UserDetail: View {
     @Environment(\.modelContext) private var context
     
     @EnvironmentObject var viewModel: ContentViewModel
-    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var networkConnections = Network.shared
 
     @Query(sort: \Friend.npub) private var friends: [Friend]
     @Query(sort: \Foe.npub) private var foes: [Foe]
@@ -48,9 +48,8 @@ struct UserDetail: View {
         return user.npub == AppData().users[0].npub
     }
     
-    private func getUserSymbol () -> String {
-        let odd = isStringSumOdd(user.name)
-        return odd ? "🌴" : "🌵";
+    private func getMonkey () -> String {
+        return isStringOneOfThree(user.name)
     }
     
     var body: some View {
@@ -63,7 +62,7 @@ struct UserDetail: View {
             
             VStack(alignment: .leading) {
                 HStack {
-                    Text(user.name + " \(getUserSymbol())")
+                    Text(user.name + " \(getMonkey())")
                         .font(.title)
                     FavoriteButton(isSet: .constant(true))
                 }

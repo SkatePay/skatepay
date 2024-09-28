@@ -15,7 +15,7 @@ struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
     @Environment(\.presentationMode) var presentationMode
 
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var navigation = Navigation.shared
 
     var body: some View {
         ZStack {

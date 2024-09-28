@@ -12,8 +12,8 @@ import NostrSDK
 struct CreateMessage: View, EventCreating {
     @EnvironmentObject var viewModel: ContentViewModel
     
-    @ObservedObject var networkConnections = NetworkConnections.shared
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var networkConnections = Network.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @Query(filter: #Predicate<Friend> { $0.npub != ""  }, sort: \Friend.name)
     private var friends: [Friend]

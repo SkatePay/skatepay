@@ -25,7 +25,7 @@ struct LobbyView: View {
     @EnvironmentObject var hostStore: HostStore
     
     @ObservedObject var lobby = Lobby.shared
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @Query(sort: \Foe.npub) private var foes: [Foe]
     

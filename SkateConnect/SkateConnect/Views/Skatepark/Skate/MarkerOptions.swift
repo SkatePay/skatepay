@@ -15,7 +15,7 @@ struct MarkerOptions: View {
 
     @EnvironmentObject var viewModel: ContentViewModel
     
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var navigation = Navigation.shared
 
     var marks: [Mark]
     

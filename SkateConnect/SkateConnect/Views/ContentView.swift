@@ -85,7 +85,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     
     let keychainForNostr = NostrKeychainStorage()
     
-    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var networkConnections = Network.shared
     @ObservedObject var lobby = Lobby.shared
     @ObservedObject var dataManager = DataManager.shared
     
@@ -93,12 +93,10 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     private var eventsCancellableForGroup, eventsCancellableForDirect: AnyCancellable?
         
     var mark: Mark?
-    
-//    var spots: [Spot] = []
-    
+        
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         if (state == .connected) {
-            self.updateSubscriptions()
+//            self.updateSubscriptions()
         }
     }
     
@@ -134,7 +132,10 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
             print("Error: Failed to create Filter")
             return nil
         }
-        let filter = Filter(kinds: [EventKind.legacyEncryptedDirectMessage.rawValue, EventKind.channelCreation.rawValue], tags: ["p" : [account.publicKey.hex]])
+        let filter = Filter(kinds: [
+            EventKind.legacyEncryptedDirectMessage.rawValue, 
+            EventKind.channelCreation.rawValue
+        ], tags: ["p" : [account.publicKey.hex]])
         return filter
     }
     
@@ -170,7 +171,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
                             self.observedSpot.spot = spot
                             
                             let lead = createLead(from: event)
-                            self.dataManager.createSpot(lead: lead)
+                            self.dataManager.saveSpotForLead(lead)
                         } else {
                             print("unknown channel location")
                         }
@@ -223,8 +224,8 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
 }
 
 struct ContentView: View {
-    @ObservedObject var navigation = NavigationManager.shared
-    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var navigation = Navigation.shared
+    @ObservedObject var networkConnections = Network.shared
         
     @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
@@ -281,7 +282,8 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            self.viewModel.updateSubscriptions()
+//            self.viewModel.updateSubscriptions()
+//            Network.shared.up
         }
         .environmentObject(viewModel)
         .environmentObject(store)

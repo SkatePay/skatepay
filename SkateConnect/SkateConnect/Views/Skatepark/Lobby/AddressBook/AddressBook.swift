@@ -30,7 +30,7 @@ struct AddressBook: View {
     @Query private var spots: [Spot]
     
     @ObservedObject var lobby = Lobby.shared
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @StateObject private var channelSelection = ChannelSelectionManager()
 
@@ -41,7 +41,7 @@ struct AddressBook: View {
     @State private var latitude = 0.0
     @State private var longitude = 0.0
     
-    @State var isShowingChannelFeed = false
+    @State var isShowingChannelView = false
     
     var filteredSpots: [Spot] {
         spots.filter { spot in
@@ -95,7 +95,7 @@ struct AddressBook: View {
                             if !spot.channelId.isEmpty {
                                 Button(action: {
                                     channelSelection.spot = spot
-                                    isShowingChannelFeed = true
+                                    isShowingChannelView = true
                                 }) {
                                     Text("Open channel")
                                 }
@@ -123,13 +123,13 @@ struct AddressBook: View {
                         }
                 }
             }
-            .fullScreenCover(isPresented: $isShowingChannelFeed) {
+            .fullScreenCover(isPresented: $isShowingChannelView) {
                 if let spot = channelSelection.spot {
                     if spot.channelId.isEmpty {
                         Text("No channel available.")
                     } else {
                         NavigationView {
-                            ChannelFeed(channelId: spot.channelId)
+                            ChannelView(channelId: spot.channelId)
                         }
                     }
                 }

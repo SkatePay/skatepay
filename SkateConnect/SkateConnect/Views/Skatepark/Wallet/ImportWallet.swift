@@ -16,7 +16,7 @@ struct ImportWallet: View, EventCreating {
     
     @State private var privateKey: String = ""
     
-    let network: Network = .testnet
+    let network: SolanaSwift.Network = .testnet
     @State private var account: SolanaSwift.KeyPair!
     
     let keychainForSolana = SolanaKeychainStorage()

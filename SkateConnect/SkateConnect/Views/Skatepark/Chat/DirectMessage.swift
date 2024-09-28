@@ -34,7 +34,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var viewModel: ContentViewModel
 
-    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var networkConnections = Network.shared
 
     let keychainForNostr = NostrKeychainStorage()
     

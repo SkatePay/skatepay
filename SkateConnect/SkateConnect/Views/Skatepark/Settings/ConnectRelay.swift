@@ -11,7 +11,7 @@ import SwiftUI
 struct ConnectRelay: View {
     @EnvironmentObject var viewModel: ContentViewModel
     
-    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var networkConnections = Network.shared
 
     private var relayPool: RelayPool {
         return networkConnections.getRelayPool()

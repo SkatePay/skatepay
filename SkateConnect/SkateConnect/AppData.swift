@@ -70,21 +70,14 @@ class DataManager: ObservableObject {
         return fetchSortedSpots().first { $0.channelId == eventId }
     }
     
-    func createSpot(lead: Lead?) {
+    func saveSpotForLead(_ lead: Lead?) {
         if let lead = lead {
             // Find the spot associated with the lead's eventId
-            if findSpot(lead.channelId) != nil {
+            if let spot = findSpot(lead.channelId) {
                 // Handle existing spot if needed
-                print("Spot already exists for eventId: \(lead.channelId)")
+                print("Spot already exists for eventId: \(spot.channelId)")
             } else {
-                // Create a new spot if one doesn't exist
-                var note = "invite"
-                
-                if (keychainForNostr.account?.publicKey.hex == lead.event?.pubkey) {
-                    note = "channel"
-                }
-                
-                note = lead.icon
+                let note = lead.icon
                 let spot = Spot(
                     name: lead.name,
                     address: "",
@@ -97,18 +90,27 @@ class DataManager: ObservableObject {
                 
                 self.insertSpot(spot)
                 print("New spot inserted for eventId: \(lead.channelId)")
-                
-                self.lobby.leads[spot.channelId] = lead
             }
+            
+            self.lobby.leads[lead.channelId] = lead
         } else {
             print("No lead provided, cannot save spot.")
         }
         
     }
+    
+    func createSpots(leads: [Lead]) {
+        for lead in leads {
+            saveSpotForLead(lead)
+        }
+    }
 }
 
 class ApiService: ObservableObject {
-    @Published var leads: [Lead] = []
+    static let shared = ApiService()
+
+    @ObservedObject var dataManager = DataManager.shared
+
     @Published var isLoading = false
     @Published var error: Error?
 
@@ -140,7 +142,7 @@ class ApiService: ObservableObject {
                     break
                 }
             } receiveValue: { [weak self] leads in
-                self?.leads = leads
+                self?.dataManager.createSpots(leads: leads)
                 self?.error = nil // Clear any previous errors if successful
             }
             .store(in: &subscriptions)
