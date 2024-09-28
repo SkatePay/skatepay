@@ -18,6 +18,8 @@ struct Contacts: View {
     @Query(sort: \Friend.name) private var friends: [Friend]
     @Environment(\.modelContext) private var context
     
+    @ObservedObject var navigation = Navigation.shared
+
     @State private var newName = ""
     @State private var newDate = Date.now
     @State private var newNPub = ""
@@ -67,7 +69,7 @@ struct Contacts: View {
                                     Text("Copy solana address")
                                 }
                             }
-
+                            
                             Button(action: {
                                 UIPasteboard.general.string = friend.npub
                             }) {
@@ -96,11 +98,15 @@ struct Contacts: View {
                     TextField("npub", text: $newNPub)
                         .textFieldStyle(.roundedBorder)
                     
+                    Button("Scan Barcode") {
+                        navigation.isShowingBarcodeScanner = true
+                    }
+                    
                     if (hasWallet()) {
                         TextField("solana account", text: $solanaAddress)
                             .textFieldStyle(.roundedBorder)
                     }
-
+                    
                     Button("Save") {
                         let newFriend = Friend(name: newName, birthday: newDate, npub: newNPub, solanaAddress: solanaAddress, note: "")
                         context.insert(newFriend)
@@ -141,6 +147,21 @@ struct Contacts: View {
                             }
                         })
                 }
+            }
+        }
+        .fullScreenCover(isPresented: $navigation.isShowingBarcodeScanner) {
+            NavigationView {
+                BarcodeScanner()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in
+            
+            func cleanNostrPrefix(_ input: String) -> String {
+                return input.replacingOccurrences(of: "nostr:", with: "")
+            }
+            
+            if let scannedText = notification.userInfo?["scannedText"] as? String {
+                self.newNPub = cleanNostrPrefix(scannedText)
             }
         }
     }

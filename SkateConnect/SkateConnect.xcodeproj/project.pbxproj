@@ -73,6 +73,8 @@
 		C66AFE902CA74DFB000CD716 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C66AFE8F2CA74DFB000CD716 /* Kingfisher */; };
 		C66AFE922CA7812C000CD716 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE912CA7812C000CD716 /* Network.swift */; };
 		C66AFE942CA7A067000CD716 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE932CA7A067000CD716 /* Channel.swift */; };
+		C66AFE972CA7B69D000CD716 /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE962CA7B69D000CD716 /* VideoPlayerViewController.swift */; };
+		C66AFE992CA7B8A6000CD716 /* VideoEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE982CA7B8A6000CD716 /* VideoEditorView.swift */; };
 		C66E09632C9657A400C9F8F1 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09622C9657A400C9F8F1 /* ChatView.swift */; };
 		C66E09662C96583800C9F8F1 /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09642C96583800C9F8F1 /* Lorem.swift */; };
 		C66E09672C96583800C9F8F1 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09652C96583800C9F8F1 /* SampleData.swift */; };
@@ -204,6 +206,8 @@
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
 		C66AFE912CA7812C000CD716 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		C66AFE932CA7A067000CD716 /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
+		C66AFE962CA7B69D000CD716 /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
+		C66AFE982CA7B8A6000CD716 /* VideoEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorView.swift; sourceTree = "<group>"; };
 		C66E09622C9657A400C9F8F1 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		C66E09642C96583800C9F8F1 /* Lorem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lorem.swift; sourceTree = "<group>"; };
 		C66E09652C96583800C9F8F1 /* SampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
@@ -454,6 +458,7 @@
 		C62501232C93C1340026C334 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C66AFE952CA7B66D000CD716 /* VideoPlayer */,
 				C66AFE842CA61C65000CD716 /* AWS */,
 				C62B84F12CA5D4100086AEE0 /* Camera */,
 				C62500F02C93C1340026C334 /* Debug */,
@@ -495,6 +500,7 @@
 				C62B84EF2CA527090086AEE0 /* CameraInputView.swift */,
 				C62B84F22CA5D4230086AEE0 /* CameraView.swift */,
 				C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */,
+				C66AFE982CA7B8A6000CD716 /* VideoEditorView.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -541,6 +547,14 @@
 				C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */,
 			);
 			path = Map;
+			sourceTree = "<group>";
+		};
+		C66AFE952CA7B66D000CD716 /* VideoPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				C66AFE962CA7B69D000CD716 /* VideoPlayerViewController.swift */,
+			);
+			path = VideoPlayer;
 			sourceTree = "<group>";
 		};
 		C66E096D2C96597A00C9F8F1 /* Models */ = {
@@ -864,9 +878,11 @@
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
 				C62501562C93C1340026C334 /* MarkerOptions.swift in Sources */,
 				C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */,
+				C66AFE992CA7B8A6000CD716 /* VideoEditorView.swift in Sources */,
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,
 				C625014F2C93C1340026C334 /* Contacts.swift in Sources */,
 				C625016E2C93C1340026C334 /* User.swift in Sources */,
+				C66AFE972CA7B69D000CD716 /* VideoPlayerViewController.swift in Sources */,
 				C66E09672C96583800C9F8F1 /* SampleData.swift in Sources */,
 				C625013D2C93C1340026C334 /* MapView.swift in Sources */,
 				C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */,

@@ -293,6 +293,21 @@ struct ChannelView: View {
         }
     }
     
+    @State private var isShowingPlayer = false
+    @State private var videoURL: URL?
+    
+    func openVideoPlayer(_ message: MessageType) {
+        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
+            
+            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
+            
+            print(videoURLString)
+            
+            self.videoURL = URL(string: videoURLString)
+            self.isShowingPlayer = true
+        }
+    }
+    
     private func observeNotification() {
         NotificationCenter.default.addObserver(
             forName: .muteUser,
@@ -303,9 +318,10 @@ struct ChannelView: View {
         }
     }
     
+    
     var messageKit: some View {
         VStack {
-            ChatView(messages: $feedDelegate.messages, onTapAvatar: showMenu)
+            ChatView(messages: $feedDelegate.messages, onTapAvatar: showMenu, onTapVideo: openVideoPlayer)
                 .onAppear {
                     self.feedDelegate.updateSubscription()
                     setupKeyboardObservers()
@@ -398,6 +414,13 @@ struct ChannelView: View {
         .fullScreenCover(isPresented: $navigation.isShowingCameraView) {
             NavigationView {
                 CameraView()
+            }
+        }
+        .fullScreenCover(isPresented: $isShowingPlayer) {
+            if let videoURL = videoURL {
+                NavigationView {
+                    VideoPreviewView(url: videoURL)
+                }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .uploadVideo)) { notification in

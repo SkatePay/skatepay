@@ -121,7 +121,7 @@ struct CameraView: View {
                     }
                 }
                 .sheet(isPresented: $cameraViewModel.showingPreview) {
-                    VideoPreviewView(url: cameraViewModel.videoURL, cameraViewModel: cameraViewModel)
+                    VideoEditorView(url: cameraViewModel.videoURL, cameraViewModel: cameraViewModel)
                 }
             }
         }

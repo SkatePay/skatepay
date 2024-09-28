@@ -15,9 +15,12 @@ import SwiftUI
 final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     
     let onTapAvatar: (String) -> Void
+    let onTapVideo: (MessageType) -> Void
     
-    init(onTapAvatar: @escaping (String) -> Void) {
+    init(onTapAvatar: @escaping (String) -> Void, onTapVideo: @escaping (MessageType) -> Void) {
         self.onTapAvatar = onTapAvatar
+        self.onTapVideo = onTapVideo
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -53,6 +56,14 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     
     func didTapMessage(in _: MessageCollectionViewCell) {
         print("Message tapped")
+    }
+    
+    func didTapImage(in cell: MessageCollectionViewCell) {
+        guard let indexPath = messagesCollectionView.indexPath(for: cell) else { return }
+        guard let messagesDataSource = messagesCollectionView.messagesDataSource else { return }
+        let message = messagesDataSource.messageForItem(at: indexPath, in: messagesCollectionView)
+        
+        onTapVideo(message)
     }
 }
 
@@ -108,7 +119,7 @@ struct ChatView: UIViewControllerRepresentable {
         }
         
         func photoCell(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
-        -> UICollectionViewCell? {            
+        -> UICollectionViewCell? {
             return nil
         }
         
@@ -170,10 +181,12 @@ struct ChatView: UIViewControllerRepresentable {
     
     @State var initialized = false
     @Binding var messages: [MessageType]
+    
     let onTapAvatar: (String) -> Void
+    let onTapVideo: (MessageType) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
-        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar)
+        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo)
         
         messagesVC.messagesCollectionView.messagesDisplayDelegate = context.coordinator
         messagesVC.messagesCollectionView.messagesLayoutDelegate = context.coordinator
