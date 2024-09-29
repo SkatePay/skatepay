@@ -4,6 +4,8 @@
 <dict>
 	<key>UILaunchScreen</key>
 	<dict>
+		<key>UIColorName</key>
+		<string>LaunchScreen</string>
 		<key>UIImageName</key>
 		<string>skate-connect</string>
 		<key>UIImageRespectsSafeAreaInsets</key>
@@ -19,5 +21,7 @@
 	<string>SkateConnect uses your location even when the app is in the background to offer continuous location-based services, like tracking your journey or providing real-time updates on nearby options.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>SkateConnect uses the photo library to let you share screenshots of the app development issues with tech support.</string>
+	<key>UIUserInterfaceStyle</key>
+	<string>Dark</string>
 </dict>
 </plist>

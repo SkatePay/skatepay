@@ -1,5 +1,5 @@
 //
-//  CameraView.swift
+//  ScannerView.swift
 //  SkateConnect
 //
 //  Created by Konstantin Yurchenko, Jr on 9/21/24.
@@ -9,7 +9,7 @@ import SwiftUI
 import AVFoundation
 import Vision
 
-struct CameraView: UIViewRepresentable {
+struct ScannerView: UIViewRepresentable {
     @Binding var scannedText: String
     
     func makeUIView(context: Context) -> UIView {
@@ -80,5 +80,5 @@ struct CameraView: UIViewRepresentable {
 }
 
 #Preview {
-    CameraView(scannedText: .constant(""))
+    ScannerView(scannedText: .constant(""))
 }

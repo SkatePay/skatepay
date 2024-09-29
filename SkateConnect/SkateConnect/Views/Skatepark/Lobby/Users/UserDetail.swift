@@ -10,11 +10,10 @@ import SwiftData
 import SwiftUI
 
 struct UserDetail: View {
-    @Environment(AppData.self) var modelData
     @Environment(\.modelContext) private var context
     
-    @EnvironmentObject var viewModel: ContentViewModel
-    @ObservedObject var networkConnections = NetworkConnections.shared
+    @ObservedObject var network = Network.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @Query(sort: \Friend.npub) private var friends: [Friend]
     @Query(sort: \Foe.npub) private var foes: [Foe]
@@ -22,13 +21,14 @@ struct UserDetail: View {
     @State private var showReport = false
     @State var showingConnector = false
     
+    @State private var isShowingChatView = false
     @State private var isDebugging = false
     
     var user: User
     
-    //    var userIndex: Int {
-    //        modelData.users.firstIndex(where: { $0.id == user.id })!
-    //    }
+    private var relayPool: RelayPool {
+        return network.getRelayPool()
+    }
     
     func isFriend() -> Bool {
         return friends.contains(where: { $0.npub == user.npub })
@@ -38,15 +38,17 @@ struct UserDetail: View {
         return foes.contains(where: { $0.npub == user.npub })
     }
     
-    var connected: Bool { networkConnections.relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
+    var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     private func isSupport() -> Bool {
-        return user.npub == AppData().users[0].npub
+        return user.npub == AppData().getSupport()
+    }
+    
+    private func getMonkey () -> String {
+        return isStringOneOfThree(user.name)
     }
     
     var body: some View {
-        @Bindable var modelData = modelData
-        
         ScrollView {
             CircleImage(image: user.image)
                 .offset(y: 0)
@@ -54,9 +56,9 @@ struct UserDetail: View {
             
             VStack(alignment: .leading) {
                 HStack {
-                    Text(user.name)
+                    Text(user.name + " \(getMonkey())")
                         .font(.title)
-                    //                     FavoriteButton(isSet: $modelData.users[userIndex].isFavorite)
+                    FavoriteButton(isSet: .constant(true))
                 }
                 
                 Text(user.npub)
@@ -132,18 +134,26 @@ struct UserDetail: View {
                     }
                     
                     // Navigation link for direct chat
-                    NavigationLink(destination: DirectMessage(user: user)) {
-                        Label("Chat", systemImage: "message")
-                            .padding(8)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                    if (!navigation.isShowingChatView) {
+                        Button(action: {
+                            isShowingChatView.toggle()
+                        }) {
+                            Label("Chat", systemImage: "message")
+                                .padding(8)
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        .fullScreenCover(isPresented: $isShowingChatView) {
+                            NavigationView {
+                                DirectMessage(user: user)
+                            }
+                        }
                     }
                 }
                 .padding(15)
                 
                 Divider()
-                
                 
                 Text("Info")
                     .font(.title2)

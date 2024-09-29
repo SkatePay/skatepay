@@ -11,7 +11,7 @@ import SwiftUI
 struct LandmarkDirectory: View {
     @Environment(AppData.self) var modelData
     
-    @ObservedObject var navigation = NavigationManager.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @State private var showFavoritesOnly = false
     

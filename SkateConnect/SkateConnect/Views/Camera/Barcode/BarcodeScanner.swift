@@ -19,7 +19,7 @@ struct BarcodeScanner: View {
                 Text("Scanned: \(scannedText)")
                     .padding()
             }
-            CameraView(scannedText: $scannedText)
+            ScannerView(scannedText: $scannedText)
                 .ignoresSafeArea()
         }
         .navigationTitle("Scan Barcode")

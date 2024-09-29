@@ -12,7 +12,7 @@ import SolanaSwift
 import Combine
 
 class WalletManager: ObservableObject  {
-    @Published var network: Network = .testnet
+    @Published var network: SolanaSwift.Network = .testnet
     
     @Published var publicKey: String?
     

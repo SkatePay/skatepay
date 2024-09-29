@@ -30,6 +30,7 @@ struct AddressBook: View {
     @Query private var spots: [Spot]
     
     @ObservedObject var lobby = Lobby.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @StateObject private var channelSelection = ChannelSelectionManager()
 
@@ -40,7 +41,7 @@ struct AddressBook: View {
     @State private var latitude = 0.0
     @State private var longitude = 0.0
     
-    @State var isShowingChannelFeed = false
+    @State var isShowingChannelView = false
     
     var filteredSpots: [Spot] {
         spots.filter { spot in
@@ -48,15 +49,10 @@ struct AddressBook: View {
         }
     }
     
-    func removeLead(with eventId: String) {
-        lobby.leads.removeValue(forKey: eventId)
-    }
-    
     func deleteSpot(_ spot: Spot) {
         if !spot.channelId.isEmpty {
-            removeLead(with: spot.channelId)
+            lobby.removeLead(byChannelId: spot.channelId)
         }
-        print(spot.channelId)
         context.delete(spot)
     }
     
@@ -70,6 +66,11 @@ struct AddressBook: View {
                     
                     Text(spot.name)
                         .contextMenu {
+                            Button(action: {
+                                self.navigation.goToSpot(spot: spot)
+                            }) {
+                                Text("Go to spot")
+                            }
                             Button(action: {
                                 let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
 
@@ -86,7 +87,7 @@ struct AddressBook: View {
                             if !spot.channelId.isEmpty {
                                 Button(action: {
                                     channelSelection.spot = spot
-                                    isShowingChannelFeed = true
+                                    isShowingChannelView = true
                                 }) {
                                     Text("Open channel")
                                 }
@@ -114,18 +115,17 @@ struct AddressBook: View {
                         }
                 }
             }
-            .fullScreenCover(isPresented: $isShowingChannelFeed) {
+            .fullScreenCover(isPresented: $isShowingChannelView) {
                 if let spot = channelSelection.spot {
                     if spot.channelId.isEmpty {
                         Text("No channel available.")
                     } else {
                         NavigationView {
-                            ChannelFeed(channelId: spot.channelId)
+                            ChannelView(channelId: spot.channelId)
                         }
                     }
                 }
             }
-            .navigationTitle("Spots")
             .safeAreaInset(edge: .bottom) {
                 VStack(alignment: .center, spacing: 20) {
                     Text("New Spot")

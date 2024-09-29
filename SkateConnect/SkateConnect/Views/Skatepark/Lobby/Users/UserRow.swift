@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct UserRow: View {
-    @Environment(\.modelContext) private var context
+    @ObservedObject var navigation = Navigation.shared
 
     @State private var isShowingFilters = false
+    @State private var selectedUser: User? = nil
 
     var users: [User]
 
@@ -26,6 +27,7 @@ struct UserRow: View {
                     isShowingFilters = true
                 }) {
                     Text("Ignore")
+                        .foregroundColor(.blue)
                         .font(.headline)
                         .padding(.leading, 15)
                         .padding(.top, 5)
@@ -35,15 +37,32 @@ struct UserRow: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(users) { user in
-                        NavigationLink {
-                            UserDetail(user: user)
-                        } label: {
+                        Button(action: {
+                            navigation.isShowingUserDetail.toggle()
+                            selectedUser = user
+                        }) {
                             UserItem(user: user)
                         }
                     }
                 }
             }
             .frame(height: 120)
+        }
+        .fullScreenCover(item: $selectedUser) { user in
+            NavigationView {
+                UserDetail(user: user)
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        selectedUser = nil
+                        navigation.isShowingUserDetail = false
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.left")
+                            Text("Lobby")
+                            Spacer()
+                        }
+                    })
+            }
         }
         .fullScreenCover(isPresented: $isShowingFilters) {
             NavigationView {

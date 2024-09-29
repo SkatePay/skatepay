@@ -8,14 +8,16 @@
 import NostrSDK
 import SwiftUI
 
-struct ConnectRelay: View {
-    @EnvironmentObject var viewModel: ContentViewModel
-    
-    @ObservedObject var networkConnections = NetworkConnections.shared
+struct ConnectRelay: View {    
+    @ObservedObject var network = Network.shared
 
+    private var relayPool: RelayPool {
+        return network.getRelayPool()
+    }
+    
     var body: some View {
         Text("Connected Relays")
-        ForEach(Array(networkConnections.relayPool.relays), id: \.self) { relay in
+        ForEach(Array(relayPool.relays), id: \.self) { relay in
             Text("\(relay.state == .connected ? "🟢" : "🔴" ) \(relay.url.absoluteString)")
                 .contextMenu {
                     Button(action: {
@@ -27,7 +29,7 @@ struct ConnectRelay: View {
         }
         
         Button("Reconnect 🔄") {
-            networkConnections.reconnectRelaysIfNeeded()
+            network.reconnectRelaysIfNeeded()
         }
     }
 }

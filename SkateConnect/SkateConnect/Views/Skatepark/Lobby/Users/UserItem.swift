@@ -17,9 +17,6 @@ struct UserItem: View {
                 .resizable()
                 .frame(width: 84, height: 84)
                 .clipShape(Circle())
-                .overlay {
-                    Circle().stroke(.white, lineWidth: 4)
-                }
                 .shadow(radius: 1)
                 .cornerRadius(1)
             Text(user.name)
