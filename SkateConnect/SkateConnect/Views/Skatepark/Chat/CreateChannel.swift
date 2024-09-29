@@ -42,7 +42,7 @@ func createLead(from event: NostrEvent) -> Lead? {
 }
 
 struct CreateChannel: View, EventCreating {    
-    @ObservedObject var networkConnections = Network.shared
+    @ObservedObject var network = Network.shared
     
     let keychainForNostr = NostrKeychainStorage()
     
@@ -55,7 +55,7 @@ struct CreateChannel: View, EventCreating {
     @State private var icon: String = ChannelType.broadcast.rawValue
     
     private var relayPool: RelayPool {
-        return networkConnections.getRelayPool()
+        return network.getRelayPool()
     }
     
     private var mark: Mark?

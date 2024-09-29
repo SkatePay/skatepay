@@ -9,10 +9,10 @@ import NostrSDK
 import SwiftUI
 
 struct ConnectRelay: View {    
-    @ObservedObject var networkConnections = Network.shared
+    @ObservedObject var network = Network.shared
 
     private var relayPool: RelayPool {
-        return networkConnections.getRelayPool()
+        return network.getRelayPool()
     }
     
     var body: some View {
@@ -29,7 +29,7 @@ struct ConnectRelay: View {
         }
         
         Button("Reconnect 🔄") {
-            networkConnections.reconnectRelaysIfNeeded()
+            network.reconnectRelaysIfNeeded()
         }
     }
 }

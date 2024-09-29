@@ -1,13 +1,13 @@
 [
     {
         "id": 1001,
-        "name": "Tech Support",
+        "name": "Support Team",
         "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
         "solanaAddress": "",
         "relayUrl": "wss://relay.primal.net",
-        "imageName": "user-prorobot",
+        "imageName": "user-support",
         "isFavorite": true,
-        "note": "This is the official support account. I am here to help you address your app related questions."
+        "note": "This is the official support account. We are here to help you address your app related questions."
     },
     {
         "id": 1002,

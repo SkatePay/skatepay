@@ -49,13 +49,9 @@ struct AddressBook: View {
         }
     }
     
-    func removeLead(with eventId: String) {
-        lobby.leads.removeValue(forKey: eventId)
-    }
-    
     func deleteSpot(_ spot: Spot) {
         if !spot.channelId.isEmpty {
-            removeLead(with: spot.channelId)
+            lobby.removeLead(byChannelId: spot.channelId)
         }
         context.delete(spot)
     }

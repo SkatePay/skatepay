@@ -26,8 +26,6 @@ struct Contacts: View {
     
     @State private var solanaAddress = ""
     
-    @State private var isShowingUserDetail = false
-
     @State private var selectedPublicKey: String = ""
     
     @StateObject private var userSelection = UserSelectionManager()
@@ -50,7 +48,7 @@ struct Contacts: View {
                             Button(action: {
                                 Task {
                                     userSelection.npub = friend.npub
-                                    isShowingUserDetail = true
+                                    navigation.isShowingUserDetail.toggle()
                                 }
                             }) {
                                 Text("Open")
@@ -115,36 +113,26 @@ struct Contacts: View {
                 .padding()
                 .background(.bar)
             }
-            .task {
-                context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().users[0].npub, solanaAddress: AppData().users[0].solanaAddress,  note: "🐝💤💤💤"))
-            }
         }
-        .fullScreenCover(isPresented: $isShowingUserDetail) {
+        .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
+            // Need this to consolidate with friends and hardcoded users
             if let friend = findFriendByPublicKey(userSelection.npub) {
-                let user = User(
-                    id: 1,
-                    name: friend.name,
-                    npub: friend.npub,
-                    solanaAddress: "SolanaAddress1...",
-                    relayUrl: Constants.RELAY_URL_PRIMAL,
-                    isFavorite: false,
-                    note: "Not provided.",
-                    imageName: "user-skatepay"
-                )
+                let user = getUser(npub: userSelection.npub)
                 
                 NavigationView {
                     UserDetail(user: user)
                         .navigationBarItems(leading:
                                                 Button(action: {
-                            isShowingUserDetail = false
+                            navigation.isShowingUserDetail = false
                         }) {
                             HStack {
                                 Image(systemName: "arrow.left")
-                                Text("Direct Chat")
+                                Text("Contacts")
                                 Spacer()
                             }
                         })
                 }
+                .transition(.move(edge: .trailing))
             }
         }
         .fullScreenCover(isPresented: $navigation.isShowingBarcodeScanner) {
@@ -152,6 +140,7 @@ struct Contacts: View {
                 BarcodeScanner()
             }
         }
+        .animation(.easeInOut, value: navigation.isShowingUserDetail)
         .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in
             
             func cleanNostrPrefix(_ input: String) -> String {
@@ -163,6 +152,25 @@ struct Contacts: View {
             }
         }
     }
+}
+
+func getUser(npub: String) -> User {
+    var user = User(
+        id: 1,
+        name: friendlyKey(npub: npub),
+        npub: npub,
+        solanaAddress: "SolanaAddress1...",
+        relayUrl: Constants.RELAY_URL_PRIMAL,
+        isFavorite: false,
+        note: "Not provided.",
+        imageName: "user-skatepay"
+    )
+    
+    if (npub == AppData().getSupport()) {
+        user = AppData().users[0]
+    }
+    
+    return user
 }
 
 

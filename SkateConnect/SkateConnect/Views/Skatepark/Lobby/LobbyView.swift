@@ -27,23 +27,23 @@ struct LobbyView: View {
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var dataManager = DataManager.shared
     @ObservedObject var lobby = Lobby.shared
-
+    
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
     @State private var isShowingProfile = false
-    @State private var isShowingChatView = false
+    @State private var isShowingAlert = false
     
     @StateObject private var userSelection = UserSelectionManager()
-
+    
     let keychainForNostr = NostrKeychainStorage()
-
+    
     func isFoe(_ npub: String) -> Bool {
         return foes.contains(where: { $0.npub == npub })
     }
     
     func parseActivity() -> [String] {
         let npub = keychainForNostr.account?.publicKey.npub
-
+        
         let npubs = lobby.incoming()
             .compactMap { hexString in
                 if let publicKey = PublicKey(hex: hexString) {
@@ -66,6 +66,10 @@ struct LobbyView: View {
         }
     }
     
+    private func isSupport(npub: String) -> Bool {
+        return npub == AppData().getSupport()
+    }
+    
     var activity: some View {
         Section("Activity") {
             let npubs = parseActivity()
@@ -84,22 +88,24 @@ struct LobbyView: View {
                     .contextMenu {
                         Button(action: {
                             userSelection.npub = npub
-                            isShowingChatView = true
+                            navigation.isShowingChatView.toggle()
                         }) {
                             Label("Open", systemImage: "message")
                         }
                         
-                        Button(action: {
-                            UIPasteboard.general.string = npub
-                        }) {
-                            Label("Copy", systemImage: "doc.on.doc")
-                        }
-                        
-                        Button(role: .destructive, action: {
-                            let foe = Foe(npub: npub, birthday: Date.now, note: "")
-                            context.insert(foe)
-                        }) {
-                            Label("Block", systemImage: "person.fill.xmark")
+                        if (!isSupport(npub: npub)) {
+                            Button(action: {
+                                UIPasteboard.general.string = npub
+                            }) {
+                                Label("Copy", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button(role: .destructive, action: {
+                                let foe = Foe(npub: npub, birthday: Date.now, note: "")
+                                context.insert(foe)
+                            }) {
+                                Label("Block", systemImage: "person.fill.xmark")
+                            }
                         }
                     }
                 }
@@ -107,6 +113,8 @@ struct LobbyView: View {
         }
     }
     
+    let hasRunOnboarding = "hasRunOnboarding"
+
     var body: some View {
         NavigationView {
             VStack {
@@ -195,29 +203,52 @@ struct LobbyView: View {
             ProfileHost()
                 .environment(modelData)
         }
-        .fullScreenCover(isPresented: $isShowingChatView) {
-            let jsonData = """
-            {
-                "id": 1,
-                "name": "\(friendlyKey(npub: userSelection.npub))",
-                "npub": "\(userSelection.npub)",
-                "solanaAddress": "",
-                "relayUrl": "\(Constants.RELAY_URL_PRIMAL)",
-                "isFavorite": false,
-                "imageName": "user-ghost",
-                "note": ""
-            }
-            """.data(using: .utf8)!
-            
-            let user = try? JSONDecoder().decode(User.self, from: jsonData)
-            
+        .fullScreenCover(isPresented: $navigation.isShowingChatView) {
             NavigationView {
-                DirectMessage(user: user!)
+                DirectMessage(user: getUser())
             }
         }
         .onAppear() {
             lobby.events = []
+            
+            let defaults = UserDefaults.standard
+            
+            if !defaults.bool(forKey: hasRunOnboarding) {
+                isShowingAlert = true
+            }
         }
+        .alert("💁 Instructions", isPresented: $isShowingAlert) {
+            Button("Got it!", role: .cancel) {
+                
+                let defaults = UserDefaults.standard
+                defaults.set(true, forKey: hasRunOnboarding)
+            }
+        } message: {
+            Text("Tap and hold message, contact or other to see the options menu.")
+        }
+    }
+    
+    private func getUser() -> User {
+        let jsonData = """
+        {
+            "id": 1,
+            "name": "\(friendlyKey(npub: userSelection.npub))",
+            "npub": "\(userSelection.npub)",
+            "solanaAddress": "",
+            "relayUrl": "\(Constants.RELAY_URL_PRIMAL)",
+            "isFavorite": false,
+            "imageName": "user-ghost",
+            "note": ""
+        }
+        """.data(using: .utf8)!
+        
+        var user = try! JSONDecoder().decode(User.self, from: jsonData)
+        
+        if (self.userSelection.npub == AppData().getSupport()) {
+            user = AppData().users[0]
+        }
+        
+        return user
     }
 }
 

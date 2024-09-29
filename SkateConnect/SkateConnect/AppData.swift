@@ -16,6 +16,10 @@ class AppData {
     var landmarks: [Landmark] = load("landmarkData.json")
     var users: [User] = load("userData.json")
     var profile = Profile.default
+    
+    func getSupport() -> String {
+        return AppData().users[0].npub
+    }
 }
 
 @MainActor
@@ -93,7 +97,7 @@ class DataManager: ObservableObject {
                 print("New spot inserted for eventId: \(lead.channelId)")
             }
             
-            self.lobby.leads[lead.channelId] = lead
+            self.lobby.upsertIntoLeads(lead)
         } else {
             print("No lead provided, cannot save spot.")
         }

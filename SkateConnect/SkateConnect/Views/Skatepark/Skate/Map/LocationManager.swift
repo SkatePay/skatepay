@@ -50,9 +50,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     override init() {
         super.init()
-        if let loadedRegion = loadMapRegion() {
-            
-            print(loadedRegion)
+        if let loadedRegion = loadMapRegion() {            
             mapRegion = loadedRegion
         }
         mapPosition = MapCameraPosition.region(mapRegion)

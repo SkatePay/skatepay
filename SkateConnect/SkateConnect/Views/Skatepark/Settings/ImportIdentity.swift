@@ -11,10 +11,10 @@ import SwiftUI
 struct ImportIdentity: View {
     @Environment(\.openURL) private var openURL
 
+    @ObservedObject var lobby = Lobby.shared
+
     @State private var showingAlert = false
-    
     @State private var privateKey: String = ""
-    
     @State private var account: Keypair!
     
     let keychainForNostr = NostrKeychainStorage()
@@ -68,6 +68,7 @@ struct ImportIdentity: View {
                     account = Keypair(nsec: privateKey)
 
                     do {
+                        self.lobby.clear()
                         try keychainForNostr.save(account)
                         showingAlert = true
                     } catch {

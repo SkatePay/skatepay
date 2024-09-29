@@ -14,7 +14,7 @@ import SwiftData
 
 
 
-class Network: ObservableObject, RelayDelegate {
+class Network: ObservableObject, RelayDelegate, EventCreating {
     static let shared = Network()
     
     @Published var relayPool: RelayPool?
@@ -25,6 +25,8 @@ class Network: ObservableObject, RelayDelegate {
     private var cancellables = Set<AnyCancellable>()
 
     let keychainForNostr = NostrKeychainStorage()
+
+    @ObservedObject var lobby = Lobby.shared
 
     init() {
         connect()
@@ -76,11 +78,71 @@ class Network: ObservableObject, RelayDelegate {
         }
     }
     
+    func requestOnboardingInfo() {
+        let defaults = UserDefaults.standard
+        let hasRequestedOnboardingInfo = "hasRequestedOnboardingInfo"
+        
+        // Check if the function has run before
+        if !defaults.bool(forKey: hasRequestedOnboardingInfo) {
+            guard let account = keychainForNostr.account else {
+                print("Error: Failed to create Filter")
+                return
+            }
+            
+            guard let recipientPublicKey = PublicKey(npub: AppData().getSupport()) else {
+                print("Failed to create PublicKey from npub.")
+                return
+            }
+            
+            let content = "I'm online."
+            do {
+                let directMessage = try legacyEncryptedDirectMessage(withContent: content,
+                                                                     toRecipient: recipientPublicKey,
+                                                                     signedBy: account)
+                getRelayPool().publishEvent(directMessage)
+                defaults.set(true, forKey: hasRequestedOnboardingInfo)
+            } catch {
+                print(error.localizedDescription)
+            }
+        } else {
+            print("Onboarding info request has already been sent.")
+        }
+    }
+    
+    func announceBirthday() {
+        if (self.lobby.leads.isEmpty) { return }
+            
+        guard let account = keychainForNostr.account else { return }
+        
+        let eventId = self.lobby.leads[0].channelId
+        
+        do {
+            if let npub = keychainForNostr.account?.publicKey.npub {
+                let contentStructure = ContentStructure(content: npub, kind: "birthday")
+                
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = .prettyPrinted
+                let data = try encoder.encode(contentStructure)
+                if let content  = String(data: data, encoding: .utf8) {
+                    let event = try createChannelMessageEvent(
+                        withContent: content,
+                        eventId: eventId,
+                        relayUrl: Constants.RELAY_URL_PRIMAL,
+                        signedBy: account
+                    )
+                    getRelayPool().publishEvent(event)
+                }
+            }
+        } catch {
+            print("Failed to publish draft: \(error.localizedDescription)")
+        }
+    }
+    
     // MARK: - RelayDelegate
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         switch state {
             case .connected:
-                updateSubscriptions(filterForChannels: filterForChannels, filterForDirectMessages: filterForDirectMessages)
+            self.updateSubscriptions()
         case .notConnected:
             return
         case .connecting:
@@ -90,7 +152,6 @@ class Network: ObservableObject, RelayDelegate {
         }
     }
     func relay(_ relay: Relay, didReceive event: RelayEvent) {
-        print(event)
     }
     func relay(_ relay: Relay, didReceive response: RelayResponse) {
         DispatchQueue.main.async {
@@ -114,12 +175,15 @@ class Network: ObservableObject, RelayDelegate {
             print("Error: Failed to create Filter")
             return nil
         }
-        let filter = Filter(kinds: [EventKind.legacyEncryptedDirectMessage.rawValue, EventKind.channelCreation.rawValue], tags: ["p" : [account.publicKey.hex]])
+        let filter = Filter(kinds: [
+            EventKind.legacyEncryptedDirectMessage.rawValue,
+            EventKind.channelCreation.rawValue
+        ], tags: ["p" : [account.publicKey.hex]])
         return filter
     }
     
     // MARK: - Subscriptions
-    func updateSubscriptions(filterForChannels: Filter?, filterForDirectMessages: Filter?) {
+    func updateSubscriptions() {
         // Close existing subscriptions if necessary
         for subscription in activeSubscriptions {
             getRelayPool().closeSubscription(with: subscription)
@@ -149,12 +213,14 @@ class Network: ObservableObject, RelayDelegate {
 
     
     // Function to handle relay events
-    func handleEvent(_ event: NostrEvent) {
+    private func handleEvent(_ event: NostrEvent) {
         switch event.kind {
             case .channelCreation:
                 handleChannelCreation(event)
             case .legacyEncryptedDirectMessage:
                 handleDirectMessage(event)
+            case .channelMessage:
+            handleChannelMessage(event)
             default:
                 print("Unhandled event kind: \(event.kind)")
         }
@@ -169,9 +235,15 @@ class Network: ObservableObject, RelayDelegate {
     private func handleDirectMessage(_ event: NostrEvent) {
         NotificationCenter.default.post(name: .receivedDirectMessage, object: event)
     }
+    
+    // Process channel message event
+    private func handleChannelMessage(_ event: NostrEvent) {
+        NotificationCenter.default.post(name: .receivedChannelMessage, object: event)
+    }
 }
 
 extension Notification.Name {
     static let newChannelCreated = Notification.Name("newChannelCreated")
     static let receivedDirectMessage = Notification.Name("receivedDirectMessage")
+    static let receivedChannelMessage = Notification.Name("receivedChannelMessage")
 }

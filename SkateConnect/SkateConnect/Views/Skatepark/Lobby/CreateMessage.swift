@@ -10,7 +10,7 @@ import SwiftData
 import NostrSDK
 
 struct CreateMessage: View, EventCreating {
-    @ObservedObject var networkConnections = Network.shared
+    @ObservedObject var network = Network.shared
     @ObservedObject var navigation = Navigation.shared
     
     @Query(filter: #Predicate<Friend> { $0.npub != ""  }, sort: \Friend.name)
@@ -27,7 +27,7 @@ struct CreateMessage: View, EventCreating {
     @State private var selectedOption = 0
     
     private var relayPool: RelayPool {
-        return networkConnections.getRelayPool()
+        return network.getRelayPool()
     }
     
     var body: some View {
@@ -114,5 +114,5 @@ struct CreateMessage: View, EventCreating {
 }
 
 #Preview {
-    CreateMessage(npub: AppData().users[0].npub)
+    CreateMessage(npub: AppData().getSupport())
 }

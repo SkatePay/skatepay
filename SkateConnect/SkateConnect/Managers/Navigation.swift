@@ -46,6 +46,8 @@ class Navigation: ObservableObject {
     @Published var isShowingContacts = false
     @Published var isShowingCreateMessage = false
     
+    @Published var isShowingChatView = false
+    
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)

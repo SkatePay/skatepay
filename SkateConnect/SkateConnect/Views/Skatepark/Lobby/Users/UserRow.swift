@@ -27,6 +27,7 @@ struct UserRow: View {
                     isShowingFilters = true
                 }) {
                     Text("Ignore")
+                        .foregroundColor(.blue)
                         .font(.headline)
                         .padding(.leading, 15)
                         .padding(.top, 5)

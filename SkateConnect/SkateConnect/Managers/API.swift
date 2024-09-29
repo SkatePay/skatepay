@@ -89,9 +89,7 @@ class API: ObservableObject {
                 }
             } receiveValue: { [weak self] keys in
                 guard let self = self else { return } // Safely unwrap self
-                
-                print(keys)
-                
+                            
                 do {
                     try self.keychainForAws.save(keys)
                 } catch {

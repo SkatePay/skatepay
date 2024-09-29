@@ -16,21 +16,36 @@ class ObservedSpot: ObservableObject {
 class Lobby: ObservableObject {
     static let shared = Lobby()
     
-    @Published var channels: [String: Channel] = [:]
-    @Published var leads: [String: Lead] = [:]
+    @Published var leads: [Lead] = []
     @Published var events: [ActivityEvent] = []
     @Published var dms: Set<NostrEvent> = []
     
     @Published var observedSpot: ObservedSpot = ObservedSpot()
 
     func clear() {
-        leads = [:]
-        channels = [:]
+        leads = []
         events = []
         dms = []
     }
     
-    func setupLeads(spots: [Spot]) {        
+    func findLead(byChannelId channelId: String) -> Lead? {
+        print(channelId)
+        return leads.first { $0.channelId == channelId }
+    }
+    
+    func removeLead(byChannelId channelId: String) {
+        leads.removeAll { $0.channelId == channelId }
+    }
+
+    func upsertIntoLeads(_ element: Lead) {
+        if let index = leads.firstIndex(where: { $0.channelId == element.channelId }) {
+            leads[index] = element
+        } else {
+            leads.append(element)
+        }
+    }
+    
+    func setupLeads(spots: [Spot]) {
         for spot in spots.filter({ $0.note == "invite" }) {
             let lead = Lead(
                 name: spot.name,
@@ -40,7 +55,7 @@ class Lobby: ObservableObject {
                 event: nil,
                 channel: nil
             )
-            self.leads[lead.channelId] = lead
+            self.upsertIntoLeads(lead)
         }
         
         for spot in spots.filter({ $0.note == "channel"}) {
@@ -52,7 +67,7 @@ class Lobby: ObservableObject {
                 event: nil,
                 channel: nil
             )
-            self.leads[lead.channelId] = lead
+            self.upsertIntoLeads(lead)
         }
     }
     func incoming() -> [String] {

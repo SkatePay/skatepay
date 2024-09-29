@@ -33,4 +33,3 @@ struct User: Hashable, Codable, Identifiable {
         self.imageName = imageName
     }
 }
-

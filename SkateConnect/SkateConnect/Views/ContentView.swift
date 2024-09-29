@@ -27,8 +27,10 @@ class ContentViewModel: ObservableObject {
 }
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var context
+
     @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var networkConnections = Network.shared
+    @ObservedObject var network = Network.shared
     @ObservedObject var lobby = Lobby.shared
         
     @StateObject private var viewModel = ContentViewModel()
@@ -78,21 +80,21 @@ struct ContentView: View {
                     .tag(Tab.settings)
             }
         }
-        .task {
-            do {
-                if ((keychainForNostr.account) == nil) {
-                    let keypair = Keypair()!
-                    try keychainForNostr.save(keypair)
-                }
-            } catch {
-                fatalError(error.localizedDescription)
-            }
+        .onAppear {
+            network.reconnectRelaysIfNeeded()
         }
         .onReceive(NotificationCenter.default.publisher(for: .receivedDirectMessage)) { notification in
             if let event = notification.object as? NostrEvent {
                 self.lobby.dms.insert(event)
                 self.incomingMessagesCount = self.lobby.dms.count
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .receivedChannelMessage)) { notification in
+            if let event = notification.object as? NostrEvent {
+            }
+        }
+        .task {
+            context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().getSupport(), solanaAddress: AppData().users[0].solanaAddress,  note: "Support Team"))
         }
         .environmentObject(viewModel)
         .environmentObject(store)

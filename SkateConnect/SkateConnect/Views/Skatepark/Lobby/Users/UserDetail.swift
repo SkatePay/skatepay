@@ -10,10 +10,10 @@ import SwiftData
 import SwiftUI
 
 struct UserDetail: View {
-    @Environment(AppData.self) var modelData
     @Environment(\.modelContext) private var context
     
-    @ObservedObject var networkConnections = Network.shared
+    @ObservedObject var network = Network.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @Query(sort: \Friend.npub) private var friends: [Friend]
     @Query(sort: \Foe.npub) private var foes: [Foe]
@@ -25,12 +25,8 @@ struct UserDetail: View {
     
     var user: User
     
-    //    var userIndex: Int {
-    //        modelData.users.firstIndex(where: { $0.id == user.id })!
-    //    }
-    
     private var relayPool: RelayPool {
-        return networkConnections.getRelayPool()
+        return network.getRelayPool()
     }
     
     func isFriend() -> Bool {
@@ -44,7 +40,7 @@ struct UserDetail: View {
     var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     private func isSupport() -> Bool {
-        return user.npub == AppData().users[0].npub
+        return user.npub == AppData().getSupport()
     }
     
     private func getMonkey () -> String {
@@ -52,8 +48,6 @@ struct UserDetail: View {
     }
     
     var body: some View {
-        @Bindable var modelData = modelData
-        
         ScrollView {
             CircleImage(image: user.image)
                 .offset(y: 0)
@@ -139,12 +133,14 @@ struct UserDetail: View {
                     }
                     
                     // Navigation link for direct chat
-                    NavigationLink(destination: DirectMessage(user: user)) {
-                        Label("Chat", systemImage: "message")
-                            .padding(8)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                    if (!navigation.isShowingChatView) {
+                        NavigationLink(destination: DirectMessage(user: user)) {
+                            Label("Chat", systemImage: "message")
+                                .padding(8)
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
                     }
                 }
                 .padding(15)

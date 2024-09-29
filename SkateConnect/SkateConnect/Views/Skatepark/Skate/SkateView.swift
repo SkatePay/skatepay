@@ -101,7 +101,7 @@ struct SkateView: View {
                                 .tint(.orange)
                         }
                         // Leads
-                        ForEach(Array(lobby.leads.values)) { lead in
+                        ForEach(lobby.leads) { lead in
                             Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
                                 ZStack {
                                     Circle()

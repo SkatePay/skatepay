@@ -30,7 +30,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     @Published var lead: Lead?
     
     @ObservedObject var dataManager = DataManager.shared
-    @ObservedObject var networkConnections = Network.shared
+    @ObservedObject var network = Network.shared
     
     let keychainForNostr = NostrKeychainStorage()
     
@@ -44,7 +44,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     var getBlacklist: () -> [String]
     
     private var relayPool: RelayPool {
-        return networkConnections.getRelayPool()
+        return network.getRelayPool()
     }
     
     init() {
@@ -141,12 +141,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     private func handleEvent(_ event: NostrEvent) {
         if let message = parseEventIntoMessage(event: event) {
-            if event.kind == .channelCreation {
-                // Ignore bootstrapped values
-                if (event.id == AppData().landmarks[0].eventId ) {
-                    return
-                }
-                
+            if event.kind == .channelCreation {                
                 self.lead = createLead(from: event)
                 
                 guard let lead = lead else { return }
@@ -267,7 +262,7 @@ struct ChannelView: View {
     }
     
     init(channelId: String) {
-        let lead = lobby.leads[channelId] ??
+        let lead = lobby.findLead(byChannelId: channelId) ??
         Lead(name: "Private Group Chat",
              icon: "💬",
              coordinate: AppData().landmarks[0].locationCoordinate,
@@ -300,9 +295,7 @@ struct ChannelView: View {
         if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
             
             let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-            
-            print(videoURLString)
-            
+                        
             self.videoURL = URL(string: videoURLString)
             self.isShowingPlayer = true
         }
@@ -318,7 +311,6 @@ struct ChannelView: View {
         }
     }
     
-    
     var messageKit: some View {
         VStack {
             ChatView(messages: $feedDelegate.messages, onTapAvatar: showMenu, onTapVideo: openVideoPlayer)
@@ -328,7 +320,6 @@ struct ChannelView: View {
                     feedDelegate.getBlacklist = getBlacklist
                 }
                 .onAppear(perform: observeNotification)
-            
                 .onDisappear {
                     self.feedDelegate.cleanUp()
                     NotificationCenter.default.removeObserver(self)
@@ -386,16 +377,8 @@ struct ChannelView: View {
                 )
         }
         .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
-            let user = User(
-                id: 1,
-                name: friendlyKey(npub: self.npub),
-                npub: self.npub,
-                solanaAddress: "SolanaAddress1...",
-                relayUrl: Constants.RELAY_URL_PRIMAL,
-                isFavorite: false,
-                note: "Not provided.",
-                imageName: "user-skatepay"
-            )
+            let user = getUser(npub: self.npub)
+            
             NavigationView {
                 UserDetail(user: user)
                     .navigationBarItems(leading:
@@ -424,7 +407,6 @@ struct ChannelView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .uploadVideo)) { notification in
             if let assetURL = notification.userInfo?["assetURL"] as? String {
-                print(assetURL)
                 feedDelegate.publishDraft(text: assetURL, kind: "video")
             }
         }

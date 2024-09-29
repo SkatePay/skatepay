@@ -6,6 +6,7 @@
 //
 
 import ConnectFramework
+import NostrSDK
 import SwiftUI
 
 struct CheckboxWithLabel: View {
@@ -30,6 +31,8 @@ struct CheckboxWithLabel: View {
 
 struct EULAView: View {
     @Environment(\.openURL) private var openURL
+
+    @ObservedObject var network = Network.shared
 
     @Binding var hasAcknowledgedEULA: Bool
     @State private var agreeToTerms = false
@@ -58,6 +61,10 @@ struct EULAView: View {
                 Button(action: {
                     if agreeToTerms {
                         self.hasAcknowledgedEULA = true
+                        self.createIdentity()
+                        network.updateSubscriptions()
+                        network.requestOnboardingInfo()
+                        network.announceBirthday()
                     } else {
                         print("User must agree to EULA to proceed")
                     }
@@ -82,6 +89,19 @@ struct EULAView: View {
             .padding()
         }
         .navigationTitle("Terms of Service")
+    }
+    
+    let keychainForNostr = NostrKeychainStorage()
+
+    private func createIdentity() {
+        do {
+            if ((keychainForNostr.account) == nil) {
+                let keypair = Keypair()!
+                try keychainForNostr.save(keypair)
+            }
+        } catch {
+            fatalError(error.localizedDescription)
+        }
     }
     
     // Placeholder for EULA content
