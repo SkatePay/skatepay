@@ -21,6 +21,7 @@ struct UserDetail: View {
     @State private var showReport = false
     @State var showingConnector = false
     
+    @State private var isShowingChatView = false
     @State private var isDebugging = false
     
     var user: User
@@ -134,19 +135,25 @@ struct UserDetail: View {
                     
                     // Navigation link for direct chat
                     if (!navigation.isShowingChatView) {
-                        NavigationLink(destination: DirectMessage(user: user)) {
+                        Button(action: {
+                            isShowingChatView.toggle()
+                        }) {
                             Label("Chat", systemImage: "message")
                                 .padding(8)
                                 .background(Color.green)
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                         }
+                        .fullScreenCover(isPresented: $isShowingChatView) {
+                            NavigationView {
+                                DirectMessage(user: user)
+                            }
+                        }
                     }
                 }
                 .padding(15)
                 
                 Divider()
-                
                 
                 Text("Info")
                     .font(.title2)

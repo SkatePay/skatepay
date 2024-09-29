@@ -38,6 +38,7 @@ struct UserRow: View {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(users) { user in
                         Button(action: {
+                            navigation.isShowingUserDetail.toggle()
                             selectedUser = user
                         }) {
                             UserItem(user: user)
@@ -53,6 +54,7 @@ struct UserRow: View {
                     .navigationBarItems(leading:
                                             Button(action: {
                         selectedUser = nil
+                        navigation.isShowingUserDetail = false
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
