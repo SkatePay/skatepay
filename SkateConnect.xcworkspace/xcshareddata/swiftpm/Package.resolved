@@ -1,5 +1,5 @@
 {
-  "originHash" : "286044fab5aa04c37a8fa93676da820ab5a8c1ae803c76e48fd0665ae75a8490",
+  "originHash" : "ccedcfb403fff427033522e0de4c2ab4c464ea4fa2ce5ecf816ea53b1271badc",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -8,6 +8,24 @@
       "state" : {
         "revision" : "9970fd0bb7a05dad0b6566ae1f56937716686b24",
         "version" : "1.1.1"
+      }
+    },
+    {
+      "identity" : "aws-crt-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/awslabs/aws-crt-swift",
+      "state" : {
+        "revision" : "7b42e0343f28b3451aab20840dc670abd12790bd",
+        "version" : "0.36.0"
+      }
+    },
+    {
+      "identity" : "aws-sdk-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/awslabs/aws-sdk-swift.git",
+      "state" : {
+        "revision" : "192bc5984cb765a88f8a59d0678aeb85a888a9f5",
+        "version" : "1.0.8"
       }
     },
     {
@@ -56,6 +74,15 @@
       }
     },
     {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "33696a71dd4d71f1b0f781ade11a48ba5549581a",
+        "version" : "8.0.3"
+      }
+    },
+    {
       "identity" : "mediapicker",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/exyte/MediaPicker.git",
@@ -83,6 +110,15 @@
       }
     },
     {
+      "identity" : "smithy-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/smithy-lang/smithy-swift",
+      "state" : {
+        "revision" : "c5242d4e06e721293ee91c7affd1d527912f596d",
+        "version" : "0.76.0"
+      }
+    },
+    {
       "identity" : "solana-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SkatePay/solana-swift",
@@ -98,6 +134,15 @@
       "state" : {
         "revision" : "9bf03ff58ce34478e66aaee630e491823326fd06",
         "version" : "1.1.3"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537",
+        "version" : "1.6.1"
       }
     },
     {

@@ -190,6 +190,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
     let session = AVCaptureSession()
     private let videoOutput = AVCaptureMovieFileOutput()
     var videoURL: URL?
+    
+    let keychainForAws = AwsKeychainStorage()
 
     // MARK: - Check Permissions and Setup
     func checkPermissionsAndSetup() {
@@ -315,10 +317,11 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
     
     // Upload image to S3
     func uploadImage(imageURL: URL) async throws {
+        
         let serviceHandler = try await S3ServiceHandler(
             region: "us-west-2",
-            accessKeyId: Keys.S3_ACCESS_KEY_ID,
-            secretAccessKey: Keys.S3_SECRET_ACCESS_KEY
+            accessKeyId: keychainForAws.keys?.S3_ACCESS_KEY_ID,
+            secretAccessKey: keychainForAws.keys?.S3_SECRET_ACCESS_KEY
         )
         
         let objName = imageURL.lastPathComponent
@@ -333,8 +336,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
     func uploadVideo() async throws {
         let serviceHandler = try await S3ServiceHandler(
             region: "us-west-2",
-            accessKeyId: Keys.S3_ACCESS_KEY_ID,
-            secretAccessKey: Keys.S3_SECRET_ACCESS_KEY
+            accessKeyId: keychainForAws.keys?.S3_ACCESS_KEY_ID,
+            secretAccessKey: keychainForAws.keys?.S3_SECRET_ACCESS_KEY
         )
         
         guard let videoURL = videoURL else { return }

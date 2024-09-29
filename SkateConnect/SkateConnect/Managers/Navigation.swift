@@ -13,6 +13,7 @@ import SwiftUI
 extension Notification.Name {
     static let goToLandmark = Notification.Name("goToLandmark")
     static let goToCoordinate = Notification.Name("goToCoordinate")
+    static let goToSpot = Notification.Name("goToSpot")
     static let joinChat = Notification.Name("joinChat")
     static let muteUser = Notification.Name("muteUser")
     static let barcodeScanned = Notification.Name("barcodeScanned")
@@ -41,6 +42,10 @@ class Navigation: ObservableObject {
     
     @Published var isShowingCameraView = false
     
+    @Published var isShowingAddressBook = false
+    @Published var isShowingContacts = false
+    @Published var isShowingCreateMessage = false
+    
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)
@@ -66,9 +71,20 @@ class Navigation: ObservableObject {
         isShowingSearch = false
     }
     
-    func goToCoordinate() {
-        path = NavigationPath()
+    func goToSpot(spot: Spot) {
+        isShowingAddressBook = false
         self.tab = .map
+        
+        NotificationCenter.default.post(
+            name: .goToSpot,
+            object: spot
+        )
+    }
+    
+    func goToCoordinate() {
+        isShowingAddressBook = false
+        self.tab = .map
+        
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
     }
     

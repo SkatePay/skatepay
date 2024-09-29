@@ -71,13 +71,9 @@ struct AddressBook: View {
                     Text(spot.name)
                         .contextMenu {
                             Button(action: {
-                                let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
-                                
-                                self.navigation.coordinate = coordinate
-                                
-                                self.navigation.goToCoordinate()
+                                self.navigation.goToSpot(spot: spot)
                             }) {
-                                Text("Go to coordinates")
+                                Text("Go to spot")
                             }
                             Button(action: {
                                 let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
@@ -134,7 +130,6 @@ struct AddressBook: View {
                     }
                 }
             }
-            .navigationTitle("Spots")
             .safeAreaInset(edge: .bottom) {
                 VStack(alignment: .center, spacing: 20) {
                     Text("New Spot")

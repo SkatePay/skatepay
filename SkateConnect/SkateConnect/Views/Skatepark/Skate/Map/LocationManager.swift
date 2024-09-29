@@ -31,25 +31,75 @@ struct Lead: Identifiable, Equatable, Codable {
     var channel: Channel?
 }
 
+public struct Defaults {
+    public static let latitudinalMeters = 48.0
+    public static let longitudinalMeters = 48.0
+}
+
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     var locationManager: CLLocationManager?
     
     @Published var marks: [Mark] = []
     @Published var currentLocation: CLLocation?
-    @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
     
-    @Published var mapPosition = MapCameraPosition.region(
-        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude), latitudinalMeters: 64, longitudinalMeters: 64)
-    )
+    @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude),
+                                                  latitudinalMeters: Defaults.latitudinalMeters,
+                                                  longitudinalMeters: Defaults.longitudinalMeters)
+    
+    @Published var mapPosition = MapCameraPosition.region(MKCoordinateRegion())
+    
+    override init() {
+        super.init()
+        if let loadedRegion = loadMapRegion() {
+            
+            print(loadedRegion)
+            mapRegion = loadedRegion
+        }
+        mapPosition = MapCameraPosition.region(mapRegion)
+    }
+    
+    func saveMapRegion() {
+        let defaults = UserDefaults.standard
+        defaults.set(mapRegion.center.latitude, forKey: "mapCenterLatitude")
+        defaults.set(mapRegion.center.longitude, forKey: "mapCenterLongitude")
+        defaults.set(mapRegion.span.latitudeDelta, forKey: "mapLatitudeDelta")
+        defaults.set(mapRegion.span.longitudeDelta, forKey: "mapLongitudeDelta")
+    }
+    
+    func loadMapRegion() -> MKCoordinateRegion? {
+        let defaults = UserDefaults.standard
+        guard let latitude = defaults.object(forKey: "mapCenterLatitude") as? Double,
+              let longitude = defaults.object(forKey: "mapCenterLongitude") as? Double,
+              let latDelta = defaults.object(forKey: "mapLatitudeDelta") as? Double,
+              let longDelta = defaults.object(forKey: "mapLongitudeDelta") as? Double else { 
+            return MKCoordinateRegion(center: CLLocationCoordinate2D(
+                latitude: AppData().landmarks[0].locationCoordinate.latitude,
+                longitude: AppData().landmarks[0].locationCoordinate.longitude),
+                                      latitudinalMeters: Defaults.latitudinalMeters,
+                                      longitudinalMeters: Defaults.longitudinalMeters
+            )
+        }
+        
+        return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                                  span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta))
+    }
     
     func updateMapRegion(with coordinate: CLLocationCoordinate2D) {
         mapRegion = MKCoordinateRegion(
             center: coordinate,
-            latitudinalMeters: 64,
-            longitudinalMeters: 64
+            latitudinalMeters: Defaults.latitudinalMeters,
+            longitudinalMeters: Defaults.longitudinalMeters
         )
         
         mapPosition = MapCameraPosition.region(mapRegion)
+        saveMapRegion()
+    }
+    
+    func updateMapRegionOnUserInteraction(region: MKCoordinateRegion) {
+        mapRegion = region
+        mapPosition = MapCameraPosition.region(region)
+        
+        saveMapRegion()
     }
     
     func checkIfLocationIsEnabled() {
@@ -87,8 +137,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
             if let location = location.location {
                 mapRegion = MKCoordinateRegion(
                     center: location.coordinate,
-                    latitudinalMeters: 64,
-                    longitudinalMeters: 64
+                    latitudinalMeters: Defaults.latitudinalMeters,
+                    longitudinalMeters: Defaults.longitudinalMeters
                 )
             }
             
@@ -101,6 +151,9 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         currentLocation = location // Update the current location
+        
+        //        guard let region = mapPosition.region else { return }
+        //        updateMapRegionOnUserInteraction(region: region)
     }
     
     func clearMarks() {

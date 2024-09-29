@@ -73,7 +73,6 @@
 		C66AFE902CA74DFB000CD716 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C66AFE8F2CA74DFB000CD716 /* Kingfisher */; };
 		C66AFE922CA7812C000CD716 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE912CA7812C000CD716 /* Network.swift */; };
 		C66AFE942CA7A067000CD716 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE932CA7A067000CD716 /* Channel.swift */; };
-		C66AFE972CA7B69D000CD716 /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE962CA7B69D000CD716 /* VideoPlayerViewController.swift */; };
 		C66AFE992CA7B8A6000CD716 /* VideoEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66AFE982CA7B8A6000CD716 /* VideoEditorView.swift */; };
 		C66E09632C9657A400C9F8F1 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09622C9657A400C9F8F1 /* ChatView.swift */; };
 		C66E09662C96583800C9F8F1 /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E09642C96583800C9F8F1 /* Lorem.swift */; };
@@ -83,6 +82,9 @@
 		C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096C2C96597A00C9F8F1 /* MockUser.swift */; };
 		C69153CB2C9E27E80075ED6C /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C69153CA2C9E27E80075ED6C /* NostrSDK */; };
 		C69DC22C2C96121E00A7ED67 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C69DC22B2C96121E00A7ED67 /* NostrSDK */; };
+		C6C94AE72CA885B1008ECA86 /* Lobby.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AE62CA885B1008ECA86 /* Lobby.swift */; };
+		C6C94AE92CA8D731008ECA86 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AE82CA8D731008ECA86 /* API.swift */; };
+		C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AEA2CA8DAE8008ECA86 /* AwsKeychainStorage.swift */; };
 		C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */; };
 		C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6D1F2DB2C9FC3A700FF428F /* NostrSDK */; };
 		C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */; };
@@ -206,7 +208,6 @@
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
 		C66AFE912CA7812C000CD716 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		C66AFE932CA7A067000CD716 /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
-		C66AFE962CA7B69D000CD716 /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
 		C66AFE982CA7B8A6000CD716 /* VideoEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorView.swift; sourceTree = "<group>"; };
 		C66E09622C9657A400C9F8F1 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		C66E09642C96583800C9F8F1 /* Lorem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lorem.swift; sourceTree = "<group>"; };
@@ -215,6 +216,9 @@
 		C66E096B2C96597A00C9F8F1 /* MockSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockSocket.swift; sourceTree = "<group>"; };
 		C66E096C2C96597A00C9F8F1 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
 		C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
+		C6C94AE62CA885B1008ECA86 /* Lobby.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lobby.swift; sourceTree = "<group>"; };
+		C6C94AE82CA8D731008ECA86 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		C6C94AEA2CA8DAE8008ECA86 /* AwsKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwsKeychainStorage.swift; sourceTree = "<group>"; };
 		C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScanner.swift; sourceTree = "<group>"; };
 		C6D1F2DF2C9FC52A00FF428F /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
@@ -427,6 +431,7 @@
 			children = (
 				C62501182C93C1340026C334 /* NostrKeychainStorage.swift */,
 				C62501192C93C1340026C334 /* SolanaKeychainStorage.swift */,
+				C6C94AEA2CA8DAE8008ECA86 /* AwsKeychainStorage.swift */,
 			);
 			path = Keychain;
 			sourceTree = "<group>";
@@ -458,7 +463,6 @@
 		C62501232C93C1340026C334 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				C66AFE952CA7B66D000CD716 /* VideoPlayer */,
 				C66AFE842CA61C65000CD716 /* AWS */,
 				C62B84F12CA5D4100086AEE0 /* Camera */,
 				C62500F02C93C1340026C334 /* Debug */,
@@ -489,6 +493,7 @@
 				C62501342C93C1340026C334 /* Profile.swift */,
 				C62501352C93C1340026C334 /* User.swift */,
 				C66AFE932CA7A067000CD716 /* Channel.swift */,
+				C6C94AE62CA885B1008ECA86 /* Lobby.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -535,6 +540,7 @@
 			children = (
 				C66AFE8B2CA63755000CD716 /* Navigation.swift */,
 				C66AFE912CA7812C000CD716 /* Network.swift */,
+				C6C94AE82CA8D731008ECA86 /* API.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -547,14 +553,6 @@
 				C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */,
 			);
 			path = Map;
-			sourceTree = "<group>";
-		};
-		C66AFE952CA7B66D000CD716 /* VideoPlayer */ = {
-			isa = PBXGroup;
-			children = (
-				C66AFE962CA7B69D000CD716 /* VideoPlayerViewController.swift */,
-			);
-			path = VideoPlayer;
 			sourceTree = "<group>";
 		};
 		C66E096D2C96597A00C9F8F1 /* Models */ = {
@@ -849,6 +847,7 @@
 				C62501412C93C1340026C334 /* DirectMessage.swift in Sources */,
 				C66E09662C96583800C9F8F1 /* Lorem.swift in Sources */,
 				C62501522C93C1340026C334 /* LandmarkDetail.swift in Sources */,
+				C6C94AE72CA885B1008ECA86 /* Lobby.swift in Sources */,
 				C62501682C93C1340026C334 /* Spot.swift in Sources */,
 				C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */,
 				C625015A2C93C1340026C334 /* ConnectRelay.swift in Sources */,
@@ -873,6 +872,7 @@
 				C625015B2C93C1340026C334 /* ImportIdentity.swift in Sources */,
 				C66AFE862CA61C76000CD716 /* AWS.swift in Sources */,
 				C62B84F02CA527090086AEE0 /* CameraInputView.swift in Sources */,
+				C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */,
 				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
@@ -882,7 +882,6 @@
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,
 				C625014F2C93C1340026C334 /* Contacts.swift in Sources */,
 				C625016E2C93C1340026C334 /* User.swift in Sources */,
-				C66AFE972CA7B69D000CD716 /* VideoPlayerViewController.swift in Sources */,
 				C66E09672C96583800C9F8F1 /* SampleData.swift in Sources */,
 				C625013D2C93C1340026C334 /* MapView.swift in Sources */,
 				C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */,
@@ -896,6 +895,7 @@
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,
 				C6D1F2E02C9FC52A00FF428F /* ScannerView.swift in Sources */,
+				C6C94AE92CA8D731008ECA86 /* API.swift in Sources */,
 				C62501532C93C1340026C334 /* LandmarkDirectory.swift in Sources */,
 				C642B2182C978571001022DF /* EULAView.swift in Sources */,
 				C66E09632C9657A400C9F8F1 /* ChatView.swift in Sources */,

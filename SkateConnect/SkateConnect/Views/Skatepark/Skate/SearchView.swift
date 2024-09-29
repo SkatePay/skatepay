@@ -26,7 +26,7 @@ struct SearchView: View {
                 TextField("channel", text: $channelId)
             }
             
-            Section("coordinates") {
+            Section("location") {
                 TextField("{ \"latitude\": 0.0, \"longitude\": 0.0 }", text: $coordinateString)
             }
             Button("Search") {

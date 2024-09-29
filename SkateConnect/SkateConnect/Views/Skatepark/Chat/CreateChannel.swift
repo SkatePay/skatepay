@@ -41,9 +41,7 @@ func createLead(from event: NostrEvent) -> Lead? {
     return lead
 }
 
-struct CreateChannel: View, EventCreating {
-    @EnvironmentObject var viewModel: ContentViewModel
-    
+struct CreateChannel: View, EventCreating {    
     @ObservedObject var networkConnections = Network.shared
     
     let keychainForNostr = NostrKeychainStorage()

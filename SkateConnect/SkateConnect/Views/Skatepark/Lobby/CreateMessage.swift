@@ -10,18 +10,16 @@ import SwiftData
 import NostrSDK
 
 struct CreateMessage: View, EventCreating {
-    @EnvironmentObject var viewModel: ContentViewModel
-    
     @ObservedObject var networkConnections = Network.shared
     @ObservedObject var navigation = Navigation.shared
-
+    
     @Query(filter: #Predicate<Friend> { $0.npub != ""  }, sort: \Friend.name)
     private var friends: [Friend]
-
+    
     let keychainForNostr = NostrKeychainStorage()
-
+    
     @State private var showingAlert = false
-
+    
     @State var npub = ""
     @State private var recipientPublicKeyIsValid: Bool = false
     @State private var message: String = ""
@@ -33,7 +31,6 @@ struct CreateMessage: View, EventCreating {
     }
     
     var body: some View {
-        Text("Nostr Message")
         Form {
             Section("Recipient") {
                 if (friends.count > 0) {
@@ -62,7 +59,7 @@ struct CreateMessage: View, EventCreating {
                     let friend = friends[selectedOption]
                     key = friend.npub
                 }
-
+                
                 do {
                     guard let recipientPublicKey = PublicKey(npub: key) else {
                         print("Failed to create PublicKey from npub.")
@@ -96,7 +93,6 @@ struct CreateMessage: View, EventCreating {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in
-            
             func cleanNostrPrefix(_ input: String) -> String {
                 return input.replacingOccurrences(of: "nostr:", with: "")
             }
@@ -113,7 +109,7 @@ struct CreateMessage: View, EventCreating {
     
     private func readyToSend() -> Bool {
         (!message.isEmpty &&
-        (recipientPublicKeyIsValid || !friends.isEmpty))
+         (recipientPublicKeyIsValid || !friends.isEmpty))
     }
 }
 

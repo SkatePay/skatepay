@@ -21,12 +21,12 @@ class AppData {
 @MainActor
 class DataManager: ObservableObject {
     static let shared = DataManager()
-
+    
     @ObservedObject var lobby = Lobby.shared
     
     private let modelContainer: ModelContainer
     private let keychainForNostr = NostrKeychainStorage()
-
+    
     init(inMemory: Bool = false) {
         do {
             self.modelContainer = try ModelContainer(for: Friend.self, Foe.self, Spot.self)
@@ -66,6 +66,7 @@ class DataManager: ObservableObject {
         }
     }
     
+    // MARK: Spots
     func findSpot(_ eventId: String) -> Spot? {
         return fetchSortedSpots().first { $0.channelId == eventId }
     }
@@ -104,56 +105,22 @@ class DataManager: ObservableObject {
             saveSpotForLead(lead)
         }
     }
-}
-
-class ApiService: ObservableObject {
-    static let shared = ApiService()
-
-    @ObservedObject var dataManager = DataManager.shared
-
-    @Published var isLoading = false
-    @Published var error: Error?
-
-    func fetchLeads() {
-        guard let url = URL(string: "\(Constants.API_URL_SKATEPARK)/leads") else {
-            self.error = URLError(.badURL)
-            self.isLoading = false
-            return
+    
+    // MARK: Friends
+    func fetchFriends() -> [Friend] {
+        do {
+            let fetchDescriptor = FetchDescriptor<Friend>(
+                sortBy: [SortDescriptor(\.name, order: .reverse)]
+            )
+            return try modelContext.fetch(fetchDescriptor)
+        } catch {
+            print("Failed to fetch and sort Spots: \(error)")
+            return []
         }
-        
-        isLoading = true
-        
-        URLSession.shared.dataTaskPublisher(for: url)
-            .tryMap { (data, response) -> Data in
-                guard let httpResponse = response as? HTTPURLResponse,
-                      (200...299).contains(httpResponse.statusCode) else {
-                    throw URLError(.badServerResponse)
-                }
-                return data
-            }
-            .decode(type: [Lead].self, decoder: JSONDecoder())
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.isLoading = false
-                switch completion {
-                case .failure(let error):
-                    self?.error = error
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] leads in
-                self?.dataManager.createSpots(leads: leads)
-                self?.error = nil // Clear any previous errors if successful
-            }
-            .store(in: &subscriptions)
     }
-
-    func debugOutput() -> String {
-        if let error = error {
-            return error.localizedDescription
-        }
-        return isLoading ? "Loading..." : "🤠🛹 Welcome to SkateConnect! 🌐"
+    
+    func findFriend(_ npub: String) -> Friend? {
+        return fetchFriends().first(where: { $0.npub == npub })
     }
-
-    private var subscriptions = Set<AnyCancellable>()
+    
 }

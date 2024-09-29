@@ -13,7 +13,6 @@ struct UserDetail: View {
     @Environment(AppData.self) var modelData
     @Environment(\.modelContext) private var context
     
-    @EnvironmentObject var viewModel: ContentViewModel
     @ObservedObject var networkConnections = Network.shared
 
     @Query(sort: \Friend.npub) private var friends: [Friend]

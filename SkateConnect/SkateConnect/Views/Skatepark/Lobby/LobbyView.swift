@@ -24,8 +24,9 @@ struct LobbyView: View {
     
     @EnvironmentObject var hostStore: HostStore
     
-    @ObservedObject var lobby = Lobby.shared
     @ObservedObject var navigation = Navigation.shared
+    @ObservedObject var dataManager = DataManager.shared
+    @ObservedObject var lobby = Lobby.shared
 
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
@@ -43,15 +44,26 @@ struct LobbyView: View {
     func parseActivity() -> [String] {
         let npub = keychainForNostr.account?.publicKey.npub
 
-        // TODO: Needs rework bad filtering
-        let npubs = lobby.events
-            .filter ({ !self.isFoe($0.npub) })
-            .filter({ $0.npub != npub })
-            .map { $0.npub }
-                
-        let uniqueNpubs = Set(npubs)
-        
-        return Array(uniqueNpubs)
+        let npubs = lobby.incoming()
+            .compactMap { hexString in
+                if let publicKey = PublicKey(hex: hexString) {
+                    return publicKey.npub
+                }
+                return nil
+            }
+            .filter {
+                !self.isFoe($0)
+            }
+            .filter { $0 != npub}
+        return npubs
+    }
+    
+    func formatActivity(npub: String) -> String {
+        if let friend = self.dataManager.findFriend(npub) {
+            return "Incoming message from \(friend.name)"
+        } else {
+            return "Incoming message from \(friendlyKey(npub: npub))"
+        }
     }
     
     var activity: some View {
@@ -66,7 +78,7 @@ struct LobbyView: View {
                     HStack {
                         Image(systemName: "envelope")
                             .foregroundColor(.blue)
-                        Text("Incoming message from \(friendlyKey(npub: npub))")
+                        Text(formatActivity(npub: npub))
                             .font(.caption)
                     }
                     .contextMenu {
@@ -96,29 +108,79 @@ struct LobbyView: View {
     }
     
     var body: some View {
-        NavigationStack(path: $navigation.path)  {
-            List {
-                UserRow(users: [modelData.users[0]])
-                
-                NavigationLink {
-                    AddressBook()
-                } label: {
-                    Text("📘 Address Book")
+        NavigationView {
+            VStack {
+                List {
+                    UserRow(users: [modelData.users[0]])
+                    
+                    Button(action: {
+                        navigation.isShowingAddressBook.toggle()
+                    }) {
+                        Text("📘 Address Book")
+                    }
+                    .fullScreenCover(isPresented: $navigation.isShowingAddressBook) {
+                        NavigationView {
+                            AddressBook()
+                                .navigationBarTitle("Address Book")
+                                .navigationBarItems(leading:
+                                                        Button(action: {
+                                    navigation.isShowingAddressBook = false
+                                }) {
+                                    HStack {
+                                        Image(systemName: "arrow.left")
+                                        Text("Lobby")
+                                        Spacer()
+                                    }
+                                })
+                        }
+                    }
+                    
+                    Button(action: {
+                        navigation.isShowingContacts.toggle()
+                    }) {
+                        Text("🤝 Friends")
+                    }
+                    .fullScreenCover(isPresented: $navigation.isShowingContacts) {
+                        NavigationView {
+                            Contacts()
+                                .navigationBarTitle("Friends")
+                                .navigationBarItems(leading:
+                                                        Button(action: {
+                                    navigation.isShowingContacts = false
+                                }) {
+                                    HStack {
+                                        Image(systemName: "arrow.left")
+                                        Text("Lobby")
+                                        Spacer()
+                                    }
+                                })
+                        }
+                    }
+                    
+                    Button(action: {
+                        navigation.isShowingCreateMessage.toggle()
+                    }) {
+                        Text("🖋️ Message")
+                    }
+                    .fullScreenCover(isPresented: $navigation.isShowingCreateMessage) {
+                        NavigationView {
+                            CreateMessage()
+                                .navigationBarTitle("Direct Message")
+                                .navigationBarItems(leading:
+                                                        Button(action: {
+                                    navigation.isShowingCreateMessage = false
+                                }) {
+                                    HStack {
+                                        Image(systemName: "arrow.left")
+                                        Text("Lobby")
+                                        Spacer()
+                                    }
+                                })
+                        }
+                    }
+                    
+                    activity
                 }
-                
-                NavigationLink {
-                    Contacts()
-                } label: {
-                    Text("🤝 Friends")
-                }
-                
-                NavigationLink {
-                    CreateMessage()
-                } label: {
-                    Text("🖋️ Message")
-                }
-                
-                activity
             }
             .navigationTitle("⛺️ Lobby")
             .toolbar {
@@ -128,10 +190,10 @@ struct LobbyView: View {
                     Label("User Profile", systemImage: "person.crop.circle")
                 }
             }
-            .sheet(isPresented: $isShowingProfile) {
-                ProfileHost()
-                    .environment(modelData)
-            }
+        }
+        .sheet(isPresented: $isShowingProfile) {
+            ProfileHost()
+                .environment(modelData)
         }
         .fullScreenCover(isPresented: $isShowingChatView) {
             let jsonData = """

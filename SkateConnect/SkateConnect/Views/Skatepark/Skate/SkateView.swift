@@ -12,6 +12,25 @@ import NostrSDK
 import SwiftData
 import SwiftUI
 
+struct MarqueeText: View {
+    let text: String
+    @State private var offsetX: CGFloat = UIScreen.main.bounds.width
+
+    var body: some View {
+        Text(text)
+            .font(.headline)
+            .bold()
+            .foregroundColor(.white)
+            .offset(x: offsetX)
+            .onAppear {
+                let baseAnimation = Animation.linear(duration: 8.0).repeatForever(autoreverses: false)
+                withAnimation(baseAnimation) {
+                    offsetX = -UIScreen.main.bounds.width
+                }
+            }
+    }
+}
+
 struct SkateView: View {
     @Query private var spots: [Spot]
     
@@ -19,7 +38,7 @@ struct SkateView: View {
     
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var lobby = Lobby.shared
-    @ObservedObject private var apiService = ApiService.shared
+    @ObservedObject private var apiService = API.shared
     @ObservedObject private var dataManager = DataManager.shared
     
     @StateObject var locationManager = LocationManager()
@@ -29,6 +48,7 @@ struct SkateView: View {
     @State private var isShowingLoadingOverlay = true
     
     @State var channelId = ""
+    @State var pinCoordinate: CLLocationCoordinate2D?
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
@@ -38,8 +58,11 @@ struct SkateView: View {
         GeometryReader { geometry in
             if isShowingLoadingOverlay {
                 HStack {
-                    Text(apiService.debugOutput())
-                        .foregroundColor(.white)
+//                    Text(apiService.debugOutput())
+//                        .foregroundColor(.white)
+                    
+                    MarqueeText(text: apiService.debugOutput())
+                    
                     Spacer()
                     
                     Button(action: {
@@ -55,7 +78,7 @@ struct SkateView: View {
                 .padding()
                 .background(Color.black.opacity(0.5))
                 .frame(maxWidth: .infinity)
-                .position(x: geometry.size.width / 2, y: 16)  // Position at top
+                .position(x: geometry.size.width / 2, y: 16)
             }
         }
     }
@@ -65,7 +88,13 @@ struct SkateView: View {
             VStack {
                 MapReader { proxy in
                     Map(position: $locationManager.mapPosition) {
-                        //                        UserAnnotation()
+                        UserAnnotation()
+                        
+                        if let coordinate = self.pinCoordinate {
+                            Annotation("❌", coordinate: coordinate) {
+                            }
+                        }
+                        
                         // Marks
                         ForEach(locationManager.marks) { mark in
                             Marker(mark.name, coordinate: mark.coordinate)
@@ -100,6 +129,9 @@ struct SkateView: View {
                             }
                         }
                     }
+                    .onMapCameraChange(frequency: .continuous) { context in
+                        locationManager.updateMapRegionOnUserInteraction(region: context.region)
+                    }
                     .onAppear{
                         locationManager.checkIfLocationIsEnabled()
                     }
@@ -107,6 +139,7 @@ struct SkateView: View {
                         if let coordinate = proxy.convert(position, from: .local) {
                             locationManager.marks = []
                             addMarker(at: coordinate)
+                            navigation.isShowingMarkerOptions = true
                         }
                     }
                     .overlay(
@@ -119,12 +152,12 @@ struct SkateView: View {
                 HStack(spacing: 20) {
                     Button(action: {
                         if let location = locationManager.currentLocation?.coordinate {
-                            locationManager.updateMapRegion(with: location) // Move map to user's current location
+                            locationManager.updateMapRegion(with: location)
                         } else {
                             print("Current location not available.")
                         }
                     }) {
-                        Text("Find Me")
+                        Text("🔎")
                             .font(.headline)
                             .padding(8)
                             .background(Color.purple)
@@ -147,7 +180,7 @@ struct SkateView: View {
                         navigation.isShowingSearch.toggle()
                         
                     }) {
-                        Text("🔎")
+                        Text("🌐")
                             .padding(8)
                             .background(Color.green)
                             .foregroundColor(.white)
@@ -163,7 +196,8 @@ struct SkateView: View {
                                 .background(Color.gray)
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
-                        }.alert("Mark cleared.", isPresented: $showingAlert) {
+                        }
+                        .alert("Mark cleared.", isPresented: $showingAlert) {
                             Button("Ok", role: .cancel) { }
                         }
                     }
@@ -204,7 +238,7 @@ struct SkateView: View {
             .fullScreenCover(isPresented: $navigation.isShowingSearch) {
                 NavigationView {
                     SearchView()
-                        .navigationBarTitle("Search")
+                        .navigationBarTitle("🌐 Network")
                         .navigationBarItems(leading:
                                                 Button(action: {
                             navigation.isShowingSearch = false
@@ -219,11 +253,6 @@ struct SkateView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .newChannelCreated)) { notification in
                 if let event = notification.object as? NostrEvent {
-                    // Need to deprecate in favor of nostr channel
-                    if (event.id == AppData().landmarks[0].eventId ) {
-                        return
-                    }
-                    
                     let lead = createLead(from: event)
                     self.dataManager.saveSpotForLead(lead)
                     self.locationManager.marks = []
@@ -237,7 +266,12 @@ struct SkateView: View {
             .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
                 if  let locationCoordinate = navigation.coordinate {
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+                    
+                    addMarker(at: locationCoordinate)
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .goToSpot)) { notification in
+                handleGoToSpotNotification(notification)
             }
             .onReceive(NotificationCenter.default.publisher(for: .joinChat)) { notification in
                 if  let locationCoordinate = navigation.coordinate {
@@ -250,57 +284,35 @@ struct SkateView: View {
                     self.channelId = channelId
                 }
             }
-            .onReceive(viewModel.$observedSpot) { observedSpot in
+            .onReceive(lobby.$observedSpot) { observedSpot in
                 DispatchQueue.main.async {
-                    viewModel.observedSpot.spot = nil
+                    lobby.observedSpot.spot = nil
                     self.locationManager.clearMarks()
                 }
             }
-//            .onReceive(apiService.$leads) { leads in
-//                DispatchQueue.main.async {
-//                    for lead in leads {
-//                        let eventId = lead.channelId
-//                        self.lobby.leads[eventId] = lead
-//                    }
-//                }
-//            }
             .onAppear() {
-//                self.subscribeToChannelCreation()
                 self.locationManager.checkIfLocationIsEnabled()
+                
                 self.apiService.fetchLeads()
                 self.lobby.setupLeads(spots: spots)
+                
+                self.apiService.fetchKeys()
             }
         }
-//        .onAppear(perform: subscribeToChannelCreation)
     }
     
-    @State private var channelCreationEvent: NostrEvent? // Store the event
-    private var subscriptions = Set<AnyCancellable>() // Combine subscriptions
-
-//    private func subscribeToChannelCreation() {
-////        // Subscribe to channel creation events
-////        NotificationCenter.default.publisher(for: .newChannelCreated)
-////            .sink { [weak self] notification in
-////                if let nostrEvent = notification.object as? NostrEvent {
-////                    self?.channelCreationEvent = nostrEvent
-////                }
-////            }
-////            .store(in: &subscriptions)
-//        NotificationCenter.default.addObserver(
-//            forName: .newChannelCreated,
-//            object: nil,
-//            queue: .main
-//        ) { _ in
-//            self.feedDelegate.updateSubscription()
-//        }
-//    }
-
-    private func handleNewChannelCreationEvent(_ event: NostrEvent) {
-        // Update state with the received event
-        channelCreationEvent = event
-
-        // Any other state or UI updates related to the new channel creation can go here
-        print("Received channel creation event: \(event)")
+    func handleGoToSpotNotification(_ notification: Notification) {
+        guard let spot = notification.object as? Spot else {
+            print("Received goToSpot notification, but no valid Spot object was found.")
+            return
+        }
+        
+        let locationCoordinate = spot.locationCoordinate
+        locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+        
+        if spot.channelId.isEmpty {
+            self.pinCoordinate = spot.locationCoordinate
+        }
     }
     
     func addMarker(at coordinate: CLLocationCoordinate2D) {
@@ -313,8 +325,6 @@ struct SkateView: View {
         } else {
             print("No nearby landmarks")
         }
-        
-        navigation.isShowingMarkerOptions = true
     }
     
     func getNearbyLandmarks(for coordinate: CLLocationCoordinate2D) -> [Landmark] {

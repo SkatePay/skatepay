@@ -32,10 +32,10 @@ class ChatDelegate: ObservableObject, RelayDelegate {
 
 struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.presentationMode) private var presentationMode
-    @EnvironmentObject var viewModel: ContentViewModel
 
     @ObservedObject var networkConnections = Network.shared
-
+    @ObservedObject var dataManager = DataManager.shared
+    
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var chatDelegate = ChatDelegate()
@@ -57,6 +57,18 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     init(user: User, message: String = "") {
         self.user = user
         self.message = message
+    }
+    
+    func formatName() -> String {
+        if let friend = self.dataManager.findFriend(user.npub) {
+            return friend.name
+        } else {
+            return friendlyKey(npub: user.npub)
+        }
+    }
+    
+    func formatImage() -> Image {
+        return user.image
     }
     
     var body: some View {
@@ -86,7 +98,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                             .clipShape(Circle())
                         
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(user.name)
+                            Text(formatName())
                                 .fontWeight(.semibold)
                                 .font(.headline)
                                 .foregroundColor(.black)
@@ -114,7 +126,6 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
             
             NavigationView {
                 UserDetail(user: user)
-                    .navigationBarTitle("Direct Chat")
                     .navigationBarItems(leading:
                                             Button(action: {
                         isShowingUserDetail = false

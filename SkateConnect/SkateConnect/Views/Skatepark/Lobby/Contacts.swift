@@ -86,7 +86,6 @@ struct Contacts: View {
                     Text(friend.birthday, format: .dateTime.month(.wide).day().year())
                 }
             }
-            .navigationTitle("Friends")
             .safeAreaInset(edge: .bottom) {
                 VStack(alignment: .center, spacing: 20) {
                     Text("New Friend")
@@ -135,7 +134,6 @@ struct Contacts: View {
                 
                 NavigationView {
                     UserDetail(user: user)
-                        .navigationBarTitle("Filters")
                         .navigationBarItems(leading:
                                                 Button(action: {
                             isShowingUserDetail = false

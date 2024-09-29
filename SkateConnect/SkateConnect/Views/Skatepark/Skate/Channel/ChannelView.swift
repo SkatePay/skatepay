@@ -398,7 +398,6 @@ struct ChannelView: View {
             )
             NavigationView {
                 UserDetail(user: user)
-                    .navigationBarTitle("User Detail")
                     .navigationBarItems(leading:
                                             Button(action: {
                         navigation.isShowingUserDetail = false

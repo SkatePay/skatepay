@@ -97,7 +97,6 @@ class Network: ObservableObject, RelayDelegate {
             guard case .eose(_) = response else {
                 return
             }
-            print("A")
         }
     }
     
@@ -154,6 +153,8 @@ class Network: ObservableObject, RelayDelegate {
         switch event.kind {
             case .channelCreation:
                 handleChannelCreation(event)
+            case .legacyEncryptedDirectMessage:
+                handleDirectMessage(event)
             default:
                 print("Unhandled event kind: \(event.kind)")
         }
@@ -163,8 +164,14 @@ class Network: ObservableObject, RelayDelegate {
     private func handleChannelCreation(_ event: NostrEvent) {
         NotificationCenter.default.post(name: .newChannelCreated, object: event)
     }
+    
+    // Process direct message event
+    private func handleDirectMessage(_ event: NostrEvent) {
+        NotificationCenter.default.post(name: .receivedDirectMessage, object: event)
+    }
 }
 
 extension Notification.Name {
     static let newChannelCreated = Notification.Name("newChannelCreated")
+    static let receivedDirectMessage = Notification.Name("receivedDirectMessage")
 }

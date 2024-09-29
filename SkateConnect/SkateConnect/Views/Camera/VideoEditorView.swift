@@ -9,21 +9,6 @@ import SwiftUI
 import AVKit
 import AVFoundation
 
-// For SwiftUI to use UIKit's AVPlayerViewController, we need this wrapper:
-struct VideoPlayerView: UIViewControllerRepresentable {
-    var player: AVPlayer
-    
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
-        controller.player = player
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        uiViewController.player = player
-    }
-}
-
 struct VideoEditorView: View {
     var url: URL?
     

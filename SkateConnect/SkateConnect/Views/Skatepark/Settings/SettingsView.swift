@@ -103,6 +103,7 @@ struct SettingsView: View {
                         Button("Reset", role: .destructive) {
                             Task {
                                 keychainForNostr.clear()
+                                
                                 do {
                                     try context.delete(model: Spot.self)
                                     try context.delete(model: Friend.self)
@@ -113,6 +114,7 @@ struct SettingsView: View {
                                 }
                                 
                                 self.lobby.clear()
+                                clearAllUserDefaults()
                             }
                         }
                         Button("Cancel", role: .cancel) { }
@@ -123,6 +125,12 @@ struct SettingsView: View {
                 .navigationTitle("🛠️ Settings")
             }
         }
+    }
+}
+
+func clearAllUserDefaults() {
+    if let appDomain = Bundle.main.bundleIdentifier {
+        UserDefaults.standard.removePersistentDomain(forName: appDomain)
     }
 }
 
