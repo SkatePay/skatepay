@@ -17,8 +17,8 @@ class AppData {
     var users: [User] = load("userData.json")
     var profile = Profile.default
     
-    func getSupport() -> String {
-        return AppData().users[0].npub
+    func getSupport() -> User {
+        return AppData().users[0]
     }
 }
 

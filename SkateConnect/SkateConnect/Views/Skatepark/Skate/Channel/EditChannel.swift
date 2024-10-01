@@ -11,9 +11,7 @@ import SwiftUI
 
 struct EditChannel: View {
     @Environment(\.modelContext) private var context
-    
-    @EnvironmentObject var viewModelForChannelView: ChannelViewViewModel
-    
+        
     let keychainForNostr = NostrKeychainStorage()
     
     private var lead: Lead?

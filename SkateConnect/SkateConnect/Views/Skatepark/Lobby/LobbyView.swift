@@ -18,6 +18,10 @@ class FriendsViewModel: ObservableObject {
     }
 }
 
+func isSupport(npub: String) -> Bool {
+    return npub == AppData().getSupport().npub
+}
+
 struct LobbyView: View {
     @Environment(AppData.self) var modelData
     @Environment(\.modelContext) private var context
@@ -64,10 +68,6 @@ struct LobbyView: View {
         } else {
             return "Incoming message from \(friendlyKey(npub: npub))"
         }
-    }
-    
-    private func isSupport(npub: String) -> Bool {
-        return npub == AppData().getSupport()
     }
     
     var activity: some View {
@@ -217,7 +217,7 @@ struct LobbyView: View {
                 isShowingAlert = true
             }
         }
-        .alert("💁 Instructions", isPresented: $isShowingAlert) {
+        .alert("🧑‍🏫 Instructions", isPresented: $isShowingAlert) {
             Button("Got it!", role: .cancel) {
                 
                 let defaults = UserDefaults.standard
@@ -244,7 +244,7 @@ struct LobbyView: View {
         
         var user = try! JSONDecoder().decode(User.self, from: jsonData)
         
-        if (self.userSelection.npub == AppData().getSupport()) {
+        if (self.userSelection.npub == AppData().getSupport().npub) {
             user = AppData().users[0]
         }
         

@@ -41,7 +41,7 @@ struct UserDetail: View {
     var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     private func isSupport() -> Bool {
-        return user.npub == AppData().getSupport()
+        return user.npub == AppData().getSupport().npub
     }
     
     private func getMonkey () -> String {
@@ -204,9 +204,9 @@ struct UserDetail: View {
             Spacer()
         }
         .fullScreenCover(isPresented: $showReport) {
-            NavigationView {
-                DirectMessage(user: AppData().users[0], message: "\(user.npub)")
-            }
+                NavigationView {
+                    DirectMessage(user: AppData().users[0], message: "\(user.npub)")
+                }
         }
         .navigationTitle(user.name)
         .navigationBarTitleDisplayMode(.inline)

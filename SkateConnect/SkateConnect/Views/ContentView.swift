@@ -51,7 +51,6 @@ struct ContentView: View {
             
             
             SkateView()
-                .environmentObject(viewModel)
                 .tabItem {
                     Label("Map", systemImage: "map")
                 }
@@ -94,7 +93,7 @@ struct ContentView: View {
             }
         }
         .task {
-            context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().getSupport(), solanaAddress: AppData().users[0].solanaAddress,  note: "Support Team"))
+            context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().getSupport().npub, solanaAddress: AppData().users[0].solanaAddress,  note: "Support Team"))
         }
         .environmentObject(viewModel)
         .environmentObject(store)

@@ -89,7 +89,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
                 return
             }
             
-            guard let recipientPublicKey = PublicKey(npub: AppData().getSupport()) else {
+            guard let recipientPublicKey = PublicKey(npub: AppData().getSupport().npub) else {
                 print("Failed to create PublicKey from npub.")
                 return
             }
@@ -118,7 +118,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         
         do {
             if let npub = keychainForNostr.account?.publicKey.npub {
-                let contentStructure = ContentStructure(content: npub, kind: "birthday")
+                let contentStructure = ContentStructure(content: npub, kind: .subscriber)
                 
                 let encoder = JSONEncoder()
                 encoder.outputFormatting = .prettyPrinted
@@ -211,7 +211,6 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             .sink(receiveValue: handleEvent)
     }
 
-    
     // Function to handle relay events
     private func handleEvent(_ event: NostrEvent) {
         switch event.kind {

@@ -19,7 +19,13 @@ import UIKit
 
 struct ContentStructure: Codable {
     let content: String
-    let kind: String
+    let kind: Kind
+}
+
+enum Kind: String, Codable {
+    case video
+    case message
+    case subscriber
 }
 
 class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
@@ -38,9 +44,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     private var eventsCancellable: AnyCancellable?
     private var subscriptionIdForMetadata: String?
     private var subscriptionIdForPublicMessages: String?
-    
-    var viewModelForChannelView: ChannelViewViewModel?
-    
+        
     var getBlacklist: () -> [String]
     
     private var relayPool: RelayPool {
@@ -84,7 +88,6 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         case .text(let text):
             return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
         case .video(let videoURL):
-            print(videoURL)
             return MockMessage(thumbnail: videoURL, user: user, messageId: event.id, date: event.createdDate)
         }
     }
@@ -107,7 +110,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         guard let account = keychainForNostr.account, let eventId = lead?.channelId else { return }
         
         do {
-            let contentStructure = ContentStructure(content: text, kind: "message")
+            let contentStructure = ContentStructure(content: text, kind: .message)
             
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
@@ -141,8 +144,10 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     private func handleEvent(_ event: NostrEvent) {
         if let message = parseEventIntoMessage(event: event) {
-            if event.kind == .channelCreation {                
-                self.lead = createLead(from: event)
+            if event.kind == .channelCreation {       
+                DispatchQueue.main.async {
+                    self.lead = createLead(from: event)
+                }
                 
                 guard let lead = lead else { return }
                 self.dataManager.saveSpotForLead(lead)
@@ -188,13 +193,15 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         do {
             let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: content.data(using: .utf8)!)
             text = decodedStructure.content
-            if decodedStructure.kind == "video" {
+            if decodedStructure.kind == .video {
                 let urlString = decodedStructure.content.replacingOccurrences(of: ".mov", with: ".jpg")
                 if let url = URL(string: urlString) {
                     return .video(url)
                 } else {
                     print("Invalid URL string: \(urlString)")
                 }
+            } else if decodedStructure.kind == .subscriber {
+                text = "🔥 \(friendlyKey(npub: text)) joined. 🛹"
             }
         } catch {
             print("Decoding or URL conversion error: \(error)")
@@ -202,7 +209,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         return .text(text)
     }
 
-    public func publishDraft(text: String, kind: String = "message") {
+    public func publishDraft(text: String, kind: Kind = .message) {
         guard let account = keychainForNostr.account, let eventId = lead?.channelId else { return }
         
         do {
@@ -221,13 +228,6 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     }
 }
 
-// MARK: - Channel Feed View Model
-
-class ChannelViewViewModel: ObservableObject {
-    @Published var lead: Lead?
-    @Published var showEditChannel = false
-}
-
 struct ChannelView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -236,9 +236,7 @@ struct ChannelView: View {
     @Query(sort: \Spot.channelId) private var spots: [Spot]
     
     @ObservedObject var dataManager = DataManager.shared
-    
-    @StateObject var viewModelForChannelView = ChannelViewViewModel()
-    
+        
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var feedDelegate = FeedDelegate.shared
     @ObservedObject var lobby = Lobby.shared
@@ -311,7 +309,7 @@ struct ChannelView: View {
         }
     }
     
-    var messageKit: some View {
+    var body: some View {
         VStack {
             ChatView(messages: $feedDelegate.messages, onTapAvatar: showMenu, onTapVideo: openVideoPlayer)
                 .onAppear {
@@ -325,10 +323,9 @@ struct ChannelView: View {
                     NotificationCenter.default.removeObserver(self)
                 }
                 .navigationBarBackButtonHidden()
-                .sheet(isPresented: $viewModelForChannelView.showEditChannel) {
+                .sheet(isPresented: $navigation.isShowingEditChannel) {
                     if let lead = feedDelegate.lead {
                         EditChannel(lead: lead, channel: lead.channel)
-                            .environmentObject(viewModelForChannelView)
                     }
                 }
                 .navigationBarItems(
@@ -341,7 +338,7 @@ struct ChannelView: View {
                             }
                             
                             Button(action: {
-                                viewModelForChannelView.showEditChannel.toggle()
+                                navigation.isShowingEditChannel.toggle()
                             }) {
                                 if let lead = feedDelegate.lead {
                                     if let landmark = findLandmark(lead.channelId) {
@@ -407,15 +404,11 @@ struct ChannelView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .uploadVideo)) { notification in
             if let assetURL = notification.userInfo?["assetURL"] as? String {
-                feedDelegate.publishDraft(text: assetURL, kind: "video")
+                feedDelegate.publishDraft(text: assetURL, kind: .video)
             }
         }
         .padding(.bottom, keyboardHeight)
         .modifier(IgnoresSafeArea()) //fixes issue with IBAV placement when keyboard appear
-    }
-    
-    var body: some View {
-        messageKit
     }
     
     // MARK: Private

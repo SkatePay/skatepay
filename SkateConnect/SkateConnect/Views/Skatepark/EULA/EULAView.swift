@@ -64,7 +64,7 @@ struct EULAView: View {
                         self.createIdentity()
                         network.updateSubscriptions()
                         network.requestOnboardingInfo()
-                        network.announceBirthday()
+//                        network.announceBirthday()
                     } else {
                         print("User must agree to EULA to proceed")
                     }

@@ -37,7 +37,7 @@ public struct Defaults {
 }
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    var locationManager: CLLocationManager?
+    private var locationManager: CLLocationManager?
     
     @Published var marks: [Mark] = []
     @Published var currentLocation: CLLocation?
@@ -48,14 +48,17 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     @Published var mapPosition = MapCameraPosition.region(MKCoordinateRegion())
     
+    private var isLocationManagerInitialized = false // Ensure location services are initialized only once
+
     override init() {
         super.init()
-        if let loadedRegion = loadMapRegion() {            
+        if let loadedRegion = loadMapRegion() {
             mapRegion = loadedRegion
         }
         mapPosition = MapCameraPosition.region(mapRegion)
     }
     
+    // Save map region to UserDefaults
     func saveMapRegion() {
         let defaults = UserDefaults.standard
         defaults.set(mapRegion.center.latitude, forKey: "mapCenterLatitude")
@@ -64,12 +67,13 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         defaults.set(mapRegion.span.longitudeDelta, forKey: "mapLongitudeDelta")
     }
     
+    // Load map region from UserDefaults
     func loadMapRegion() -> MKCoordinateRegion? {
         let defaults = UserDefaults.standard
         guard let latitude = defaults.object(forKey: "mapCenterLatitude") as? Double,
               let longitude = defaults.object(forKey: "mapCenterLongitude") as? Double,
               let latDelta = defaults.object(forKey: "mapLatitudeDelta") as? Double,
-              let longDelta = defaults.object(forKey: "mapLongitudeDelta") as? Double else { 
+              let longDelta = defaults.object(forKey: "mapLongitudeDelta") as? Double else {
             return MKCoordinateRegion(center: CLLocationCoordinate2D(
                 latitude: AppData().landmarks[0].locationCoordinate.latitude,
                 longitude: AppData().landmarks[0].locationCoordinate.longitude),
@@ -82,6 +86,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
                                   span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta))
     }
     
+    // Update the map region and save it
     func updateMapRegion(with coordinate: CLLocationCoordinate2D) {
         mapRegion = MKCoordinateRegion(
             center: coordinate,
@@ -93,6 +98,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         saveMapRegion()
     }
     
+    // Update map region on user interaction and save it
     func updateMapRegionOnUserInteraction(region: MKCoordinateRegion) {
         mapRegion = region
         mapPosition = MapCameraPosition.region(region)
@@ -100,17 +106,24 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         saveMapRegion()
     }
     
+    // Ensure location services are only checked once, and state changes are throttled
     func checkIfLocationIsEnabled() {
+        if isLocationManagerInitialized {
+            return // Prevent initializing location manager multiple times
+        }
+        
         if CLLocationManager.locationServicesEnabled() {
             locationManager = CLLocationManager()
             locationManager?.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager!.delegate = self
-            locationManager?.startUpdatingLocation() // Start updating location
+            locationManager?.delegate = self
+            locationManager?.startUpdatingLocation() // Start updating location only if not already started
+            isLocationManagerInitialized = true // Mark as initialized
         } else {
-            print("Show an alert letting them know this is off")
+            print("Location services are disabled. Show an alert to the user.")
         }
     }
     
+    // Handle location authorization status change
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let previousAuthorizationStatus = manager.authorizationStatus
         manager.requestWhenInUseAuthorization()
@@ -133,25 +146,22 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
             print("Location permission denied.")
         case .authorizedAlways, .authorizedWhenInUse:
             if let location = location.location {
-                mapRegion = MKCoordinateRegion(
-                    center: location.coordinate,
-                    latitudinalMeters: Defaults.latitudinalMeters,
-                    longitudinalMeters: Defaults.longitudinalMeters
-                )
+                updateMapRegion(with: location.coordinate)
             }
-            
         default:
             break
         }
     }
     
-    // Update the currentLocation when a new location is received
+    // Update the current location and handle state updates efficiently
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        currentLocation = location // Update the current location
         
-        //        guard let region = mapPosition.region else { return }
-        //        updateMapRegionOnUserInteraction(region: region)
+        // Throttle the state update to avoid frequent re-renders
+        if currentLocation == nil || (location.coordinate.latitude != currentLocation?.coordinate.latitude ||
+                                      location.coordinate.longitude != currentLocation?.coordinate.longitude) {
+            currentLocation = location // Update only if there's a meaningful change
+        }
     }
     
     func clearMarks() {

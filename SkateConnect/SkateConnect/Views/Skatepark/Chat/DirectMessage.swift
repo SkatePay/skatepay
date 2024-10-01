@@ -11,6 +11,7 @@ import ExyteChat
 import Foundation
 import NostrSDK
 import SwiftUI
+import UIKit
 
 class ChatDelegate: ObservableObject, RelayDelegate {
     @Published var fetchingStoredEvents = true
@@ -94,7 +95,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     }
                 }) {
                     HStack {
-                        user.image
+                        Image("user-skatepay")
                             .resizable()
                             .scaledToFill()
                             .frame(width: 35, height: 35)

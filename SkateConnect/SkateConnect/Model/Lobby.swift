@@ -29,7 +29,6 @@ class Lobby: ObservableObject {
     }
     
     func findLead(byChannelId channelId: String) -> Lead? {
-        print(channelId)
         return leads.first { $0.channelId == channelId }
     }
     

@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 func friendlyKey(npub: String) -> String {
-    return "skater-\(npub.suffix(3))"
+    return "Skater-\(npub.suffix(3))"
 }
 
 struct Filters: View {
@@ -37,8 +37,7 @@ struct Filters: View {
                                 }
                             }
                         
-                        Spacer()
-                        
+                        Spacer()    
                     }
                 }
             }

@@ -166,7 +166,7 @@ func getUser(npub: String) -> User {
         imageName: "user-skatepay"
     )
     
-    if (npub == AppData().getSupport()) {
+    if (npub == AppData().getSupport().npub) {
         user = AppData().users[0]
     }
     

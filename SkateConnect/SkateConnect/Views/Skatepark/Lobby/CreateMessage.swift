@@ -114,5 +114,5 @@ struct CreateMessage: View, EventCreating {
 }
 
 #Preview {
-    CreateMessage(npub: AppData().getSupport())
+    CreateMessage(npub: AppData().getSupport().npub)
 }

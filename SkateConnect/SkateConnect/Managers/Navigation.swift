@@ -33,7 +33,6 @@ class Navigation: ObservableObject {
     @Published var isShowingDirectory = false
     @Published var isShowingChannelView = false
     @Published var isShowingSearch = false
-    @Published var isShowingCreateChannel = false
     @Published var isShowingMarkerOptions = false
     
     @Published var isShowingUserDetail = false
@@ -46,7 +45,9 @@ class Navigation: ObservableObject {
     @Published var isShowingContacts = false
     @Published var isShowingCreateMessage = false
     
+    @Published var isShowingCreateChannel = false
     @Published var isShowingChatView = false
+    @Published var isShowingEditChannel = false
     
     func dismissToContentView() {
         path = NavigationPath()

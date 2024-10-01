@@ -9,12 +9,12 @@ import SwiftUI
 
 struct UserRow: View {
     @ObservedObject var navigation = Navigation.shared
-
+    
     @State private var isShowingFilters = false
     @State private var selectedUser: User? = nil
-
+    
     var users: [User]
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -33,7 +33,7 @@ struct UserRow: View {
                         .padding(.top, 5)
                 }
             }
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(users) { user in

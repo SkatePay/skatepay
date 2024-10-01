@@ -9,6 +9,7 @@ import InputBarAccessoryView
 import Kingfisher
 import MessageKit
 import SwiftUI
+import UIKit
 
 // MARK: - MessageSwiftUIVC
 
@@ -124,7 +125,12 @@ struct ChatView: UIViewControllerRepresentable {
         }
         
         func messageTopLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
-            let name = message.sender.displayName
+            var name = message.sender.displayName
+
+            if (message.sender.senderId == AppData().getSupport().npub) {
+                name = AppData().getSupport().name
+            }
+
             return NSAttributedString(
                 string: name,
                 attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption1)])
@@ -148,8 +154,14 @@ struct ChatView: UIViewControllerRepresentable {
         }
         
         func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in _: MessagesCollectionView) {
-            let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
-            avatarView.set(avatar: avatar)
+            if (message.sender.senderId == AppData().getSupport().npub) {
+                let supportImageName = AppData().getSupport().imageName
+                let avatar = Avatar(image: UIImage(named: supportImageName), initials: "SC")
+                avatarView.set(avatar: avatar)
+            } else {
+                let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
+                avatarView.set(avatar: avatar)
+            }
         }
         
         func messageTopLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
