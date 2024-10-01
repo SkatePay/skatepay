@@ -49,11 +49,11 @@ struct DebugView<Content: View>: View {
 
 struct SkateView: View {
     @Query private var spots: [Spot]
-        
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var lobby = Lobby.shared
+       
     @ObservedObject private var apiService = API.shared
     @ObservedObject private var dataManager = DataManager.shared
+    @ObservedObject var navigation = Navigation.shared
+    @ObservedObject var lobby = Lobby.shared
     
     @StateObject var locationManager = LocationManager()
     
@@ -65,6 +65,8 @@ struct SkateView: View {
     
     @State var pinCoordinate: CLLocationCoordinate2D?
     
+    @State var marks: [Mark] = []
+
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
     }
@@ -107,7 +109,7 @@ struct SkateView: View {
                     }
                     
                     // Marks
-                    ForEach(locationManager.marks) { mark in
+                    ForEach(marks) { mark in
                         Marker(mark.name, coordinate: mark.coordinate)
                             .tint(.orange)
                     }
@@ -148,7 +150,7 @@ struct SkateView: View {
                 }
                 .onTapGesture { position in
                     if let coordinate = proxy.convert(position, from: .local) {
-                        locationManager.marks = []
+                        self.marks = []
                         addMarker(at: coordinate)
                         navigation.isShowingMarkerOptions = true
                     }
@@ -198,9 +200,9 @@ struct SkateView: View {
                         .cornerRadius(8)
                 }
                 
-                if (!locationManager.marks.isEmpty) {
+                if (!self.marks.isEmpty) {
                     Button(action: {
-                        locationManager.marks = []
+                        self.marks = []
                     }) {
                         Text("Clear Mark")
                             .padding(8)
@@ -216,7 +218,7 @@ struct SkateView: View {
             .padding()
         }
         .sheet(isPresented: $navigation.isShowingMarkerOptions) {
-            MarkerOptions(marks: locationManager.marks)
+            MarkerOptions(marks: self.marks)
         }
         .sheet(isPresented: $isShowingLeadOptions) {
             LeadOptions()
@@ -271,7 +273,7 @@ struct SkateView: View {
             if let event = notification.object as? NostrEvent {
                 let lead = createLead(from: event)
                 self.dataManager.saveSpotForLead(lead)
-                self.locationManager.marks = []
+                self.marks = []
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToLandmark)) { _ in
@@ -302,7 +304,7 @@ struct SkateView: View {
         .onReceive(lobby.$observedSpot) { observedSpot in
             DispatchQueue.main.async {
                 lobby.observedSpot.spot = nil
-                self.locationManager.clearMarks()
+                self.marks = []
             }
         }
         .task() {
@@ -334,7 +336,7 @@ struct SkateView: View {
     
     func addMarker(at coordinate: CLLocationCoordinate2D) {
         let mark = Mark(name: "Marker \(spots.count + 1)", coordinate: coordinate)
-        locationManager.marks.append(mark)
+        self.marks.append(mark)
         
         let nearbyLandmarks = getNearbyLandmarks(for: coordinate)
         if !nearbyLandmarks.isEmpty {
@@ -354,14 +356,6 @@ struct SkateView: View {
             
             return distance <= 32
         }
-    }
-    
-    func convertPointToCoordinate(_ point: CGPoint) -> CLLocationCoordinate2D? {
-        let mapView = MKMapView(frame: .zero)
-        mapView.setRegion(locationManager.mapRegion, animated: false)
-        
-        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
-        return coordinate
     }
 }
 

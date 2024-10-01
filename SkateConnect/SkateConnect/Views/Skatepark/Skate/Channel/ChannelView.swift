@@ -182,32 +182,6 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         relayPool.delegate = self
     }
-    
-    enum ContentType {
-        case text(String)
-        case video(URL)
-    }
-    
-    func processContent(content: String) -> ContentType {
-        var text = content
-        do {
-            let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: content.data(using: .utf8)!)
-            text = decodedStructure.content
-            if decodedStructure.kind == .video {
-                let urlString = decodedStructure.content.replacingOccurrences(of: ".mov", with: ".jpg")
-                if let url = URL(string: urlString) {
-                    return .video(url)
-                } else {
-                    print("Invalid URL string: \(urlString)")
-                }
-            } else if decodedStructure.kind == .subscriber {
-                text = "🔥 \(friendlyKey(npub: text)) joined. 🛹"
-            }
-        } catch {
-            print("Decoding or URL conversion error: \(error)")
-        }
-        return .text(text)
-    }
 
     public func publishDraft(text: String, kind: Kind = .message) {
         guard let account = keychainForNostr.account, let eventId = lead?.channelId else { return }

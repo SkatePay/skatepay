@@ -39,7 +39,8 @@ public struct Defaults {
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private var locationManager: CLLocationManager?
     
-    @Published var marks: [Mark] = []
+    @ObservedObject var navigation = Navigation.shared
+
     @Published var currentLocation: CLLocation?
     
     @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude),
@@ -48,7 +49,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     @Published var mapPosition = MapCameraPosition.region(MKCoordinateRegion())
     
-    private var isLocationManagerInitialized = false // Ensure location services are initialized only once
+    private var isLocationManagerInitialized = false 
 
     override init() {
         super.init()
@@ -155,6 +156,11 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     // Update the current location and handle state updates efficiently
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        if (self.navigation.isLocationUpdatePaused) {
+            return
+        }
+            
         guard let location = locations.last else { return }
         
         // Throttle the state update to avoid frequent re-renders
@@ -162,9 +168,5 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
                                       location.coordinate.longitude != currentLocation?.coordinate.longitude) {
             currentLocation = location // Update only if there's a meaningful change
         }
-    }
-    
-    func clearMarks() {
-        self.marks = []
     }
 }

@@ -49,6 +49,14 @@ class Navigation: ObservableObject {
     @Published var isShowingChatView = false
     @Published var isShowingEditChannel = false
     
+    var isLocationUpdatePaused: Bool {
+        return isShowingChannelView || isShowingSearch || isShowingMarkerOptions ||
+               isShowingUserDetail || isShowingBarcodeScanner || isShowingCameraView ||
+               isShowingAddressBook || isShowingContacts || isShowingCreateMessage ||
+               isShowingCreateChannel || isShowingChatView || isShowingEditChannel ||
+               isShowingEULA || isShowingDirectory
+    }
+    
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)
