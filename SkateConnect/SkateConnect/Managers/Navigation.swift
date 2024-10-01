@@ -49,12 +49,14 @@ class Navigation: ObservableObject {
     @Published var isShowingChatView = false
     @Published var isShowingEditChannel = false
     
+    @Published var isShowingVideoPlayer = false
+    
     var isLocationUpdatePaused: Bool {
         return isShowingChannelView || isShowingSearch || isShowingMarkerOptions ||
                isShowingUserDetail || isShowingBarcodeScanner || isShowingCameraView ||
                isShowingAddressBook || isShowingContacts || isShowingCreateMessage ||
                isShowingCreateChannel || isShowingChatView || isShowingEditChannel ||
-               isShowingEULA || isShowingDirectory
+               isShowingEULA || isShowingDirectory || isShowingVideoPlayer
     }
     
     func dismissToContentView() {

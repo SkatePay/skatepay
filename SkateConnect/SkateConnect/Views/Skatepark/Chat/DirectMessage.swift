@@ -49,7 +49,9 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var subscriptionId: String?
     
     @State private var isShowingUserDetail = false
-    @State private var showAlert = false
+    
+    @State private var showAlertForReporting = false
+    @State private var showAlertForAddingPark = false
     
     private var user: User
     private var message: String
@@ -131,7 +133,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     })
             }
         }
-        .alert("Confirm Report", isPresented: $showAlert) {
+        .alert("Confirm Report", isPresented: $showAlertForReporting) {
             Button("No", role: .cancel) {
             }
             Button("Yes") {
@@ -140,14 +142,27 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         } message: {
             Text("Do you want to continue with the report on \(friendlyKey(npub: message))?")
         }
+        .alert("Confirm Park Request", isPresented: $showAlertForAddingPark) {
+            Button("No", role: .cancel) {
+            }
+            Button("Yes") {
+                publishEvent(content: "Hi, I would like to add my park to your directory. Please tell me how to do that.")
+            }
+        } message: {
+            Text("Do you want to see your park on SkateConnect?")
+        }
         .onAppear{
             updateSubscription()
 
             if (message.isEmpty) {
                 return
             }
-            
-            showAlert.toggle()
+
+            if (message.contains("request")) {
+                showAlertForAddingPark.toggle()
+            } else {
+                showAlertForReporting.toggle()
+            }
         }
         .onDisappear{
             if let subscriptionId {

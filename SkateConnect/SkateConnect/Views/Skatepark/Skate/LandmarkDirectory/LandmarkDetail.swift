@@ -50,7 +50,7 @@ struct LandmarkDetail: View {
                         navigation.landmark = landmark
                         navigation.dismissToContentView()
                     }) {
-                        Text("Visit 🛹")
+                        Text("🎟️ Visit")
                             .padding(8)
                             .background(Color.blue)
                             .foregroundColor(.white)

@@ -260,7 +260,6 @@ struct ChannelView: View {
         }
     }
     
-    @State private var isShowingPlayer = false
     @State private var videoURL: URL?
     
     func openVideoPlayer(_ message: MessageType) {
@@ -269,7 +268,7 @@ struct ChannelView: View {
             let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
                         
             self.videoURL = URL(string: videoURLString)
-            self.isShowingPlayer = true
+            navigation.isShowingVideoPlayer.toggle()
         }
     }
     
@@ -369,7 +368,7 @@ struct ChannelView: View {
                 CameraView()
             }
         }
-        .fullScreenCover(isPresented: $isShowingPlayer) {
+        .fullScreenCover(isPresented: $navigation.isShowingVideoPlayer) {
             if let videoURL = videoURL {
                 NavigationView {
                     VideoPreviewView(url: videoURL)

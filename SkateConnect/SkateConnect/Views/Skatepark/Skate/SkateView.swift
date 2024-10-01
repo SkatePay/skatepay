@@ -170,10 +170,10 @@ struct SkateView: View {
                         print("Current location not available.")
                     }
                 }) {
-                    Text("🔎")
+                    Text("🌐")
                         .font(.headline)
                         .padding(8)
-                        .background(Color.purple)
+                        .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
@@ -184,7 +184,7 @@ struct SkateView: View {
                 }) {
                     Text("Skateparks")
                         .padding(8)
-                        .background(Color.blue)
+                        .background(Color.green)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
@@ -193,9 +193,9 @@ struct SkateView: View {
                     navigation.isShowingSearch.toggle()
                     
                 }) {
-                    Text("🌐")
+                    Text("🔎")
                         .padding(8)
-                        .background(Color.green)
+                        .background(Color.purple)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
@@ -239,7 +239,7 @@ struct SkateView: View {
             DebugView() {
                 NavigationView {
                     LandmarkDirectory()
-                        .navigationBarTitle("🛹 Skateparks")
+                        .navigationBarTitle("🏁 Skateparks")
                         .navigationBarItems(leading:
                                                 Button(action: {
                             navigation.isShowingDirectory = false
@@ -256,7 +256,7 @@ struct SkateView: View {
         .fullScreenCover(isPresented: $navigation.isShowingSearch) {
             NavigationView {
                 SearchView()
-                    .navigationBarTitle("🌐 Network")
+                    .navigationBarTitle("🕸️ Search Network 🎯")
                     .navigationBarItems(leading:
                                             Button(action: {
                         navigation.isShowingSearch = false

@@ -14,25 +14,37 @@ import AWSCognitoIdentityProvider
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
     @Environment(\.presentationMode) var presentationMode
-
+    
     @ObservedObject var navigation = Navigation.shared
-
+    
+    // Sensitivity factor to control zoom speed
+    let zoomSensitivity: CGFloat = 0.3
+    
     var body: some View {
         ZStack {
             CameraPreview(session: cameraViewModel.session)
                 .onAppear {
                     cameraViewModel.checkPermissionsAndSetup()
                 }
+            // Add gesture to the entire ZStack to ensure it works immediately
                 .gesture(
                     MagnificationGesture()
                         .onChanged { val in
-                            let maxZoom: CGFloat = 5.0
-                            let zoomFactor = min(max(1.0, cameraViewModel.zoomFactor + val - 1), maxZoom)
-                            cameraViewModel.zoom(factor: zoomFactor)
+                            let maxZoom: CGFloat = 5.0 // Maximum zoom level
+                            let minZoom: CGFloat = 1.0 // Minimum zoom level
+                            
+                            // Adjust zoom sensitivity
+                            let adjustedZoom = val - 1.0 // Gesture starts at 1.0, so normalize
+                            let newZoomFactor = min(max(minZoom, cameraViewModel.zoomFactor + adjustedZoom * zoomSensitivity), maxZoom)
+                            
+                            cameraViewModel.zoom(factor: newZoomFactor) // Zoom to the calculated factor
+                        }
+                        .onEnded { val in
+                            // Save the zoom factor after the gesture ends
+                            cameraViewModel.zoomFactor = cameraViewModel.zoomFactor
                         }
                 )
-                .ignoresSafeArea()
-
+            
             VStack {
                 HStack {
                     Button(action: {
@@ -54,8 +66,9 @@ struct CameraView: View {
                     
                     Spacer()
                 }
+                
                 Spacer()
-
+                
                 if (!cameraViewModel.isUploading) {
                     HStack {
                         Spacer()
@@ -68,7 +81,7 @@ struct CameraView: View {
                                 .background(Circle().fill(Color.black.opacity(0.7)))
                                 .padding()
                         }
-
+                        
                         // Record Button
                         Button(action: {
                             if cameraViewModel.isRecording {
@@ -82,27 +95,59 @@ struct CameraView: View {
                                 .frame(width: 70, height: 70)
                         }
                         .padding()
-
+                        
                         Spacer()
                     }
                 }
             }
-
+            
+            if !cameraViewModel.isRecording {
+                VStack {
+                    Spacer()
+                    
+                    VStack(spacing: 20) {
+                        Button(action: {
+                            cameraViewModel.switchToWideAngle()
+                        }) {
+                            Image(systemName: "camera.fill") // Example icon for wide angle
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.black.opacity(0.7))
+                                .clipShape(Circle())
+                        }
+                        
+                        Button(action: {
+                            cameraViewModel.switchToStandard()
+                        }) {
+                            Image(systemName: "camera.viewfinder") // Example icon for standard view
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.black.opacity(0.7))
+                                .clipShape(Circle())
+                        }
+                    }
+                    .padding(.trailing, 20)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    
+                    Spacer()
+                }
+            }
+            
             if !cameraViewModel.hasCameraAccess {
                 Text("Camera access denied. Please enable in settings.")
                     .foregroundColor(.white)
                     .background(Color.red)
                     .transition(.opacity)
             }
-
-            // Preview or Upload Button (Appears after recording stops)
-            if cameraViewModel.isVideoRecorded {
+            
+            if cameraViewModel.isVideoRecorded && !cameraViewModel.isRecording {
                 VStack {
                     Spacer()
+                    
                     if cameraViewModel.isUploading {
-                          ProgressView("Uploading...")
-                              .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                              .padding()
+                        ProgressView("Uploading...")
+                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                            .padding()
                     } else {
                         HStack {
                             Spacer()
@@ -142,35 +187,36 @@ struct CameraView: View {
         }
     }
 }
+
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
-
+    
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
-
+        
         // Ensure preview layer resizes dynamically
         context.coordinator.previewLayer = previewLayer
-
+        
         return view
     }
-
+    
     func updateUIView(_ uiView: UIView, context: Context) {
         DispatchQueue.main.async {
             context.coordinator.previewLayer?.frame = uiView.bounds
         }
     }
-
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-
+    
     class Coordinator {
         var parent: CameraPreview
         var previewLayer: AVCaptureVideoPreviewLayer?
-
+        
         init(_ parent: CameraPreview) {
             self.parent = parent
         }
@@ -185,14 +231,18 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
     @Published var isUploading = false
     @Published var showingAlert = false
     
-    var zoomFactor: CGFloat = 1.0
+    // Zoom factors for different camera modes
+    var zoomFactor: CGFloat = 1.0 // Current zoom factor
+    var wideAngleZoomFactor: CGFloat = 1.0 // Last zoom factor for wide-angle mode
+    var standardZoomFactor: CGFloat = 1.0 // Last zoom factor for standard mode
     
+    private var currentDevice: AVCaptureDevice?
     let session = AVCaptureSession()
     private let videoOutput = AVCaptureMovieFileOutput()
     var videoURL: URL?
     
     let keychainForAws = AwsKeychainStorage()
-
+    
     // MARK: - Check Permissions and Setup
     func checkPermissionsAndSetup() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -214,17 +264,17 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
             print("Unknown camera permission status.")
         }
     }
-
+    
     // MARK: - Configure Camera Session
     func configureSession() {
         session.beginConfiguration()
-
+        
         // Add video input
         guard let videoDevice = AVCaptureDevice.default(for: .video) else {
             print("Unable to access camera.")
             return
         }
-
+        
         do {
             let videoInput = try AVCaptureDeviceInput(device: videoDevice)
             if session.canAddInput(videoInput) {
@@ -233,7 +283,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
         } catch {
             print("Error: Unable to add video input.")
         }
-
+        
         // Add audio input
         if let audioDevice = AVCaptureDevice.default(for: .audio) {
             do {
@@ -245,61 +295,114 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
                 print("Error: Unable to add audio input.")
             }
         }
-
+        
         // Add video output
         if session.canAddOutput(videoOutput) {
             session.addOutput(videoOutput)
         }
-
+        
         session.commitConfiguration()
-
+        
         // Start the session
         DispatchQueue.global(qos: .background).async {
             self.session.startRunning()
         }
     }
-
+    
     // MARK: - Start Recording
     func startRecording() {
         let outputDirectory = FileManager.default.temporaryDirectory
         let fileName = UUID().uuidString + ".mov"
         videoURL = outputDirectory.appendingPathComponent(fileName)
-
+        
         guard let url = videoURL else { return }
-
+        
         videoOutput.startRecording(to: url, recordingDelegate: self)
         isRecording = true
     }
-
+    
     // MARK: - Stop Recording
     func stopRecording() {
         videoOutput.stopRecording()
         isRecording = false
     }
-
+    
     // MARK: - Delegate Method for Saving File
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if let error = error {
             print("Recording error: \(error)")
             return
         }
-
+        
         print("Video saved at: \(outputFileURL)")
         isVideoRecorded = true
         videoURL = outputFileURL
     }
-
+    
     // MARK: - Zoom Functionality
     func zoom(factor: CGFloat) {
-        guard let device = AVCaptureDevice.default(for: .video) else { return }
-
+        // Set the zoom factor based on user interaction
+        guard let device = AVCaptureDevice.default(for: .video), device.activeFormat.videoMaxZoomFactor > factor else {
+            return
+        }
         do {
             try device.lockForConfiguration()
-            device.videoZoomFactor = max(1.0, min(factor, device.activeFormat.videoMaxZoomFactor))
+            device.videoZoomFactor = factor
             device.unlockForConfiguration()
+            
+            // Save the zoom factor globally
+            self.zoomFactor = factor
         } catch {
-            print("Error: Unable to zoom.")
+            print("Failed to set zoom: \(error)")
         }
+    }
+    
+    // Function to switch between wide and normal lenses and restore zoom
+    func switchToWideAngle() {
+        guard let wideDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+            print("Wide angle camera not available")
+            return
+        }
+        
+        // Store the current zoom factor for the standard camera
+        standardZoomFactor = zoomFactor
+        
+        // Switch camera and restore last zoom level for wide-angle
+        switchCamera(to: wideDevice)
+        zoom(factor: wideAngleZoomFactor)
+    }
+    
+    func switchToStandard() {
+        guard let normalDevice = AVCaptureDevice.default(.builtInTelephotoCamera, for: .video, position: .back) else {
+            print("Standard telephoto camera not available")
+            return
+        }
+        
+        // Store the current zoom factor for the wide-angle camera
+        wideAngleZoomFactor = zoomFactor
+        
+        // Switch camera and restore last zoom level for standard camera
+        switchCamera(to: normalDevice)
+        zoom(factor: standardZoomFactor)
+    }
+    
+    private func switchCamera(to device: AVCaptureDevice) {
+        session.beginConfiguration()
+        
+        // Remove all inputs
+        session.inputs.forEach { session.removeInput($0) }
+        
+        do {
+            let newInput = try AVCaptureDeviceInput(device: device)
+            if session.canAddInput(newInput) {
+                session.addInput(newInput)
+                currentDevice = device
+            }
+        } catch {
+            print("Failed to switch camera: \(error)")
+        }
+        
+        session.commitConfiguration()
     }
     
     
@@ -350,7 +453,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
             key: objName,
             fileUrl: videoURL
         )
-
+        
         // Simulate upload...
         isVideoRecorded = false
     }
@@ -359,7 +462,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
         let url = URL(string: "\(Constants.API_URL_SKATEPARK)/token?bucket=\(bucket)")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-
+        
         let (data, _) = try await URLSession.shared.data(for: request)
         let json = try JSONSerialization.jsonObject(with: data, options: [])
         return (json as! [String: String])["token"]!

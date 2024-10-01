@@ -190,6 +190,17 @@ struct ChatView: UIViewControllerRepresentable {
             }
         }
         
+        func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
+        -> UIColor {
+            if (message.sender.senderId == AppData().getSupport().npub) {
+                return UIColor.systemOrange
+            } else if (message.sender.senderId == currentUser.senderId) {
+                return UIColor.systemGreen
+            } else {
+                return UIColor.darkGray
+            }
+        }
+        
         func messageTopLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
             16
         }
@@ -214,6 +225,7 @@ struct ChatView: UIViewControllerRepresentable {
                 imageView.kf.cancelDownloadTask()
             }
         }
+        
         
     }
     

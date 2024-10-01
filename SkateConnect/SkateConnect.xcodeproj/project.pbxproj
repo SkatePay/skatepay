@@ -463,6 +463,7 @@
 		C62501232C93C1340026C334 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C6E237112CAC75DD00CBCFA6 /* Video */,
 				C66AFE842CA61C65000CD716 /* AWS */,
 				C62B84F12CA5D4100086AEE0 /* Camera */,
 				C62500F02C93C1340026C334 /* Debug */,
@@ -504,8 +505,6 @@
 				C66AFE892CA63138000CD716 /* Barcode */,
 				C62B84EF2CA527090086AEE0 /* CameraInputView.swift */,
 				C62B84F22CA5D4230086AEE0 /* CameraView.swift */,
-				C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */,
-				C66AFE982CA7B8A6000CD716 /* VideoEditorView.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -639,6 +638,15 @@
 				C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */,
 			);
 			path = SkateConnectUITests;
+			sourceTree = "<group>";
+		};
+		C6E237112CAC75DD00CBCFA6 /* Video */ = {
+			isa = PBXGroup;
+			children = (
+				C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */,
+				C66AFE982CA7B8A6000CD716 /* VideoEditorView.swift */,
+			);
+			path = Video;
 			sourceTree = "<group>";
 		};
 		C6F2F2D12C939E3500C3CDBA /* Frameworks */ = {

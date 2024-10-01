@@ -14,7 +14,10 @@ struct LandmarkDirectory: View {
     @ObservedObject var navigation = Navigation.shared
 
     @State private var showFavoritesOnly = false
-    
+    @State private var showAddPark = false
+
+    let keychainForNostr = NostrKeychainStorage()
+
     var filteredSpots: [Landmark] {
         modelData.landmarks.filter { landmark in
             (!showFavoritesOnly || landmark.isFavorite)
@@ -33,7 +36,23 @@ struct LandmarkDirectory: View {
                     LandmarkRow(landmark: landmark)
                 }
             }
+            
+            Button(action: {
+                showAddPark.toggle()
+            }) {
+                Text("🛹 Add Yours")
+                    .padding(8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
         }
+        .fullScreenCover(isPresented: $showAddPark) {
+                NavigationView {
+                    DirectMessage(user: AppData().users[0], message: "request")
+                }
+        }
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
