@@ -30,7 +30,7 @@ struct ProfileEditor: View {
                 Text("Enable Notifications")
             }
             
-            Picker("Seasonal Photo", selection: $profile.seasonalPhoto) {
+            Picker("Mood", selection: $profile.seasonalPhoto) {
                  ForEach(Profile.Season.allCases) { season in
                      Text(season.rawValue).tag(season)
                  }

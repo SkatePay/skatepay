@@ -21,7 +21,7 @@ struct ProfileSummary: View {
 
 
                 Text("Notifications: \(profile.prefersNotifications ? "On": "Off" )")
-                Text("Seasonal Photos: \(profile.seasonalPhoto.rawValue)")
+                Text("Moods: \(profile.seasonalPhoto.rawValue)")
                 Text("Birthday: ") + Text(profile.birthday, style: .date)
             }
         }
