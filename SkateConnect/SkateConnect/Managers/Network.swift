@@ -78,7 +78,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         }
     }
     
-    func requestOnboardingInfo() {
+    func requestOnboardingInfo() async {
         let defaults = UserDefaults.standard
         let hasRequestedOnboardingInfo = "hasRequestedOnboardingInfo"
         
@@ -142,7 +142,9 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         switch state {
             case .connected:
-            self.updateSubscriptions()
+            Task {
+                await self.updateSubscriptions()
+            }
         case .notConnected:
             return
         case .connecting:
@@ -183,7 +185,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     }
     
     // MARK: - Subscriptions
-    func updateSubscriptions() {
+    func updateSubscriptions() async {
         // Close existing subscriptions if necessary
         for subscription in activeSubscriptions {
             getRelayPool().closeSubscription(with: subscription)

@@ -256,7 +256,7 @@ struct SkateView: View {
         .fullScreenCover(isPresented: $navigation.isShowingSearch) {
             NavigationView {
                 SearchView()
-                    .navigationBarTitle("🕸️ Search Network 🎯")
+                    .navigationBarTitle("🎯 Explore Network 🕸️")
                     .navigationBarItems(leading:
                                             Button(action: {
                         navigation.isShowingSearch = false
