@@ -339,12 +339,42 @@ struct ChannelView: View {
                             }
                         },
                     trailing:
-                        Button(action: {
-                            self.navigation.isShowingCameraView = true
-                        }) {
-                            Image(systemName: "camera.on.rectangle.fill")
+                        HStack(spacing: 16) {
+//                            // Business Card Button
+//                            Button(action: {
+//                                // Action for business card button
+//                                print("Business Card button tapped")
+//                            }) {
+//                                Image(systemName: "person.crop.rectangle")
+//                                    .foregroundColor(.blue) // Business card-like icon
+//                            }
+
+                            // Camera Button
+                            Button(action: {
+                                self.navigation.isShowingCameraView = true // Trigger camera view
+                            }) {
+                                Image(systemName: "camera.on.rectangle.fill")
+                                    .foregroundColor(.blue) // Camera icon
+                            }
                         }
                 )
+        }
+        .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
+            let user = getUser(npub: self.npub)
+            
+            NavigationView {
+                UserDetail(user: user)
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        navigation.isShowingUserDetail = false
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.left")
+                            Text("Channel")
+                            Spacer()
+                        }
+                    })
+            }
         }
         .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
             let user = getUser(npub: self.npub)
