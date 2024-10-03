@@ -59,6 +59,13 @@ class Navigation: ObservableObject {
                isShowingEULA || isShowingDirectory || isShowingVideoPlayer
     }
     
+    @Published var hasAcknowledgedEULA: Bool = UserDefaults.standard.bool(forKey: "hasAcknowledgedEULA")
+
+    func acknowledgeEULA() {
+        hasAcknowledgedEULA = true
+        UserDefaults.standard.set(true, forKey: "hasAcknowledgedEULA")
+    }
+    
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)

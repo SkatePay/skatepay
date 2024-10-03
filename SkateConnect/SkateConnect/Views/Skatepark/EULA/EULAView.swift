@@ -90,11 +90,13 @@ var eulaText: String {
 struct EULAView: View {
     @Environment(\.openURL) private var openURL
     
+    @ObservedObject var navigation = Navigation.shared
     @ObservedObject var network = Network.shared
     
-    @Binding var hasAcknowledgedEULA: Bool
     @State private var agreeToTerms = false
     
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -117,17 +119,16 @@ struct EULAView: View {
                 
                 // Action Button
                 Button(action: {
-                    if agreeToTerms {                        
+                    if agreeToTerms {      
                         Task {
                             self.createIdentity()
                             await network.updateSubscriptions()
                             await network.requestOnboardingInfo()
                         }
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.hasAcknowledgedEULA.toggle()
-                        }
+                        navigation.acknowledgeEULA()
                         
+                        dismiss()
                     } else {
                         print("User must agree to EULA to proceed")
                     }
@@ -183,6 +184,6 @@ struct CheckboxToggleStyle: ToggleStyle {
 
 #Preview {
     NavigationView {
-        EULAView(hasAcknowledgedEULA: .constant(true))
+        EULAView()
     }
 }

@@ -12,17 +12,16 @@ import SwiftUI
 struct SkateConnectApp: App {
     @State private var modelData = AppData()
     
-    @AppStorage("hasAcknowledgedEULA") private var hasAcknowledgedEULA = false
+    @ObservedObject var navigation = Navigation.shared
     
     var body: some Scene {
         WindowGroup {
-            if hasAcknowledgedEULA {
+            if (navigation.hasAcknowledgedEULA) {
                 ContentView()
                     .modelContainer(for: [Friend.self, Foe.self, Spot.self], inMemory: false)
                     .environment(modelData)
             } else {
-                EULAView(hasAcknowledgedEULA: $hasAcknowledgedEULA)
-                
+                EULAView()
             }
         }
     }
