@@ -17,9 +17,15 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
+    let onTapLink: (String) -> Void
     
-    init(onTapAvatar: @escaping (String) -> Void, onTapVideo: @escaping (MessageType) -> Void) {
+    init(
+        onTapAvatar: @escaping (String) -> Void,
+        onTapVideo: @escaping (MessageType) -> Void,
+        onTapLink: @escaping (String) -> Void
+    ) {
         self.onTapAvatar = onTapAvatar
+        self.onTapLink = onTapLink
         self.onTapVideo = onTapVideo
         
         super.init(nibName: nil, bundle: nil)
@@ -31,7 +37,6 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        // Because SwiftUI wont automatically make our controller the first responder, we need to do it on viewDidAppear
         becomeFirstResponder()
         messagesCollectionView.scrollToLastItem(animated: true)
     }
@@ -55,8 +60,17 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
         onTapAvatar(sender.senderId)
     }
     
-    func didTapMessage(in _: MessageCollectionViewCell) {
-        print("Message tapped")
+    func didTapMessage(in cell: MessageCollectionViewCell) {
+        guard let indexPath = messagesCollectionView.indexPath(for: cell) else { return }
+        guard let messagesDataSource = messagesCollectionView.messagesDataSource else { return }
+        let message = messagesDataSource.messageForItem(at: indexPath, in: messagesCollectionView)
+        
+        if case MessageKind.linkPreview(let linkItem) = message.kind {
+            let channelId = linkItem.teaser
+            onTapLink(channelId)
+        } else {
+            print("Message tapped")
+        }
     }
     
     func didTapImage(in cell: MessageCollectionViewCell) {
@@ -73,6 +87,7 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
 enum ContentType {
     case text(String)
     case video(URL)
+    case invite(String)
 }
 
 func processContent(content: String) -> ContentType {
@@ -88,7 +103,11 @@ func processContent(content: String) -> ContentType {
                 print("Invalid URL string: \(urlString)")
             }
         } else if decodedStructure.kind == .subscriber {
-            text = "🔥 \(friendlyKey(npub: text)) joined. 🛹"
+            text = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
+        } else if let range = text.range(of: "channel_invite:") {
+            let channelId = String(text[range.upperBound...])
+            print(channelId)
+            return .invite(channelId)
         }
     } catch {
         print("Decoding or URL conversion error: \(error)")
@@ -234,9 +253,10 @@ struct ChatView: UIViewControllerRepresentable {
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
+    let onTapLink: (String) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
-        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo)
+        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo, onTapLink: onTapLink)
         
         messagesVC.messagesCollectionView.messagesDisplayDelegate = context.coordinator
         messagesVC.messagesCollectionView.messagesLayoutDelegate = context.coordinator

@@ -1,7 +1,7 @@
 [
     {
         "id": 1001,
-        "name": "Support Team",
+        "name": "Dispatch",
         "npub": "npub1ydcksr7z0a2mk0fnhqkfd0dkgapdgqg2l39mfcuwwwuaeuf6r6qqzq7z7v",
         "solanaAddress": "",
         "relayUrl": "wss://relay.primal.net",

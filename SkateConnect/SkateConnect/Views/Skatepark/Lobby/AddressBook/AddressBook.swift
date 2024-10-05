@@ -87,6 +87,7 @@ struct AddressBook: View {
                             if !spot.channelId.isEmpty {
                                 Button(action: {
                                     channelSelection.spot = spot
+                                    navigation.channelId = spot.channelId
                                     isShowingChannelView = true
                                 }) {
                                     Text("Open channel")
@@ -121,7 +122,7 @@ struct AddressBook: View {
                         Text("No channel available.")
                     } else {
                         NavigationView {
-                            ChannelView(channelId: spot.channelId)
+                            ChannelView()
                         }
                     }
                 }

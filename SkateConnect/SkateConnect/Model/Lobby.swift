@@ -9,10 +9,6 @@ import CoreLocation
 import Foundation
 import NostrSDK
 
-class ObservedSpot: ObservableObject {
-    var spot: Spot?
-}
-
 class Lobby: ObservableObject {
     static let shared = Lobby()
     
@@ -20,8 +16,6 @@ class Lobby: ObservableObject {
     @Published var events: [ActivityEvent] = []
     @Published var dms: Set<NostrEvent> = []
     
-    @Published var observedSpot: ObservedSpot = ObservedSpot()
-
     func clear() {
         leads = []
         events = []

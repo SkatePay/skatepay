@@ -41,7 +41,9 @@ func createLead(from event: NostrEvent) -> Lead? {
     return lead
 }
 
-struct CreateChannel: View, EventCreating {    
+struct CreateChannel: View, EventCreating {
+    @Environment(\.presentationMode) var presentationMode
+
     @ObservedObject var network = Network.shared
     
     let keychainForNostr = NostrKeychainStorage()
@@ -53,6 +55,7 @@ struct CreateChannel: View, EventCreating {
     @State private var name: String = ""
     @State private var description: String = ""
     @State private var icon: String = ChannelType.broadcast.rawValue
+    @State private var event: NostrEvent?
     
     private var relayPool: RelayPool {
         return network.getRelayPool()
@@ -65,7 +68,7 @@ struct CreateChannel: View, EventCreating {
     }
     
     var body: some View {
-        Text("📡 Create Channel")
+        Text("📡 Open Channel")
         Form {
             Section("Name") {
                 TextField("name", text: $name)
@@ -108,9 +111,9 @@ struct CreateChannel: View, EventCreating {
                         
                         let builder = try? CreateChannelEvent.Builder().channelMetadata(metadata)
                             
-                        let event =  try builder?.build(signedBy: account)
+                        self.event =  try builder?.build(signedBy: account)
                         
-                        relayPool.publishEvent(event!)
+                        relayPool.publishEvent(self.event!)
 
                         isShowingConfirmation = true
                         
@@ -121,7 +124,13 @@ struct CreateChannel: View, EventCreating {
             }
             .alert("Channel created", isPresented: $isShowingConfirmation) {
                 Button("OK", role: .cancel) {
-                    navigation.dismissToSkateView()
+                    navigation.isShowingCreateChannel = false
+                    
+                    if let channelId = self.event?.id {
+                        navigation.coordinate = navigation.marks[0].coordinate
+                        navigation.joinChat(channelId: channelId)
+                    }
+                    navigation.marks = []
                 }
             }
             .disabled(!readyToSend())

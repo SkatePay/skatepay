@@ -66,5 +66,8 @@ enum ChannelType: String, CaseIterable, Identifiable {
     case game = "🏆"
     case job = "🧹"
     case skate = "🛹"
+    case repair = "🛠️"
+    case idea = "💡"
+    
     var id: String { rawValue }
 }

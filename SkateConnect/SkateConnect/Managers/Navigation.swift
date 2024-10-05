@@ -26,6 +26,9 @@ class Navigation: ObservableObject {
     @Published var path = NavigationPath()
     @Published var tab: Tab = .map
     
+    @Published var channelId: String = ""
+    @Published var marks: [Mark] = []
+    
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?
     
@@ -33,7 +36,6 @@ class Navigation: ObservableObject {
     @Published var isShowingDirectory = false
     @Published var isShowingChannelView = false
     @Published var isShowingSearch = false
-    @Published var isShowingMarkerOptions = false
     
     @Published var isShowingUserDetail = false
     
@@ -52,7 +54,7 @@ class Navigation: ObservableObject {
     @Published var isShowingVideoPlayer = false
     
     var isLocationUpdatePaused: Bool {
-        return isShowingChannelView || isShowingSearch || isShowingMarkerOptions ||
+        return isShowingChannelView || isShowingSearch ||
                isShowingUserDetail || isShowingBarcodeScanner || isShowingCameraView ||
                isShowingAddressBook || isShowingContacts || isShowingCreateMessage ||
                isShowingCreateChannel || isShowingChatView || isShowingEditChannel ||
@@ -70,11 +72,6 @@ class Navigation: ObservableObject {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)
         isShowingDirectory = false
-    }
-    
-    func dismissToSkateView() {
-        isShowingMarkerOptions = false
-        isShowingCreateChannel = false
     }
     
     func recoverFromSearch() {
@@ -106,6 +103,11 @@ class Navigation: ObservableObject {
         self.tab = .map
         
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
+    }
+    
+    func  goToChannelWithId(_ channelId: String) {
+        self.channelId = channelId
+        self.isShowingChannelView = true
     }
     
     func completeUpload(videoURL: URL) {

@@ -33,10 +33,9 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     @Published var messages: [MessageType] = []
     
-    @Published var lead: Lead?
-    
     @ObservedObject var dataManager = DataManager.shared
     @ObservedObject var network = Network.shared
+    @ObservedObject var navigation = Navigation.shared
     
     let keychainForNostr = NostrKeychainStorage()
     
@@ -44,7 +43,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     private var eventsCancellable: AnyCancellable?
     private var subscriptionIdForMetadata: String?
     private var subscriptionIdForPublicMessages: String?
-        
+    
     var getBlacklist: () -> [String]
     
     private var relayPool: RelayPool {
@@ -71,7 +70,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             }
         }
     }
-
+    
     private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
         let publicKey = PublicKey(hex: event.pubkey)
         let isCurrentUser = publicKey == keychainForNostr.account?.publicKey
@@ -81,33 +80,44 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
         
         let content = processContent(content: event.content)
-
+        
         let user = MockUser(senderId: npub, displayName: displayName)
-                    
+        
         switch content {
         case .text(let text):
             return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
         case .video(let videoURL):
             return MockMessage(thumbnail: videoURL, user: user, messageId: event.id, date: event.createdDate)
+        case .invite(let channelId):
+            if let url = URL(string: "https://support.skatepark.chat"),
+               let image = UIImage(named: "user-skatepay") {
+                let linkItem = MockLinkItem(
+                    text: "🌐 Channel Invite",
+                    attributedText: nil,
+                    url: url,
+                    title: "Enter Channel 🚪",
+                    teaser: channelId,
+                    thumbnailImage: image
+                )
+                return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
+            } else {
+                // Handle the error for invalid URL or missing image
+                print("Failed to initialize URL or image")
+                return MockMessage(text: channelId, user: user, messageId: event.id, date: event.createdDate)
+            }
         }
     }
     
     private var filterForMetadata: Filter? {
-        if let eventId = lead?.channelId {
-            return Filter(ids: [eventId], kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])!
-        }
-        return nil
+        return Filter(ids: [navigation.channelId], kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])!
     }
     
     private var filterForFeed: Filter? {
-        if let eventId = lead?.channelId {
-            return Filter(kinds: [EventKind.channelMessage.rawValue], tags: ["e": [eventId]], limit: 32)!
-        }
-        return nil
+        return Filter(kinds: [EventKind.channelMessage.rawValue], tags: ["e": [navigation.channelId]], limit: 32)!
     }
     
     public func publishDraft(text: String) {
-        guard let account = keychainForNostr.account, let eventId = lead?.channelId else { return }
+        guard let account = keychainForNostr.account else { return }
         
         do {
             let contentStructure = ContentStructure(content: text, kind: .message)
@@ -117,7 +127,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             let data = try encoder.encode(contentStructure)
             let content  = String(data: data, encoding: .utf8) ?? text
             
-            let event = try createChannelMessageEvent(withContent: content, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
+            let event = try createChannelMessageEvent(withContent: content, eventId: navigation.channelId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
             relayPool.publishEvent(event)
         } catch {
             print("Failed to publish draft: \(error.localizedDescription)")
@@ -144,14 +154,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     private func handleEvent(_ event: NostrEvent) {
         if let message = parseEventIntoMessage(event: event) {
-            if event.kind == .channelCreation {       
-                DispatchQueue.main.async {
-                    self.lead = createLead(from: event)
-                }
-                
-                guard let lead = lead else { return }
-                self.dataManager.saveSpotForLead(lead)
-            } else if event.kind == .channelMessage {
+            if event.kind == .channelMessage {
                 guard let publicKey = PublicKey(hex: event.pubkey) else {
                     return
                 }
@@ -182,9 +185,9 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
         
         relayPool.delegate = self
     }
-
+    
     public func publishDraft(text: String, kind: Kind = .message) {
-        guard let account = keychainForNostr.account, let eventId = lead?.channelId else { return }
+        guard let account = keychainForNostr.account else { return }
         
         do {
             let contentStructure = ContentStructure(content: text, kind: kind)
@@ -194,7 +197,7 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             let data = try encoder.encode(contentStructure)
             let content  = String(data: data, encoding: .utf8) ?? text
             
-            let event = try createChannelMessageEvent(withContent: content, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
+            let event = try createChannelMessageEvent(withContent: content, eventId: navigation.channelId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
             relayPool.publishEvent(event)
         } catch {
             print("Failed to publish draft: \(error.localizedDescription)")
@@ -204,20 +207,23 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
 
 struct ChannelView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
     
     @Query(sort: \Foe.npub) private var foes: [Foe]
     @Query(sort: \Spot.channelId) private var spots: [Spot]
     
     @ObservedObject var dataManager = DataManager.shared
-        
+    
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var feedDelegate = FeedDelegate.shared
     @ObservedObject var lobby = Lobby.shared
+    @ObservedObject var locationManager = LocationManager.shared
+    
+    @State private var isShowingSendTo = false
     
     @State private var keyboardHeight: CGFloat = 0
     @State private var showAlert = false
-    @State var npub = ""
+    @State private var npub = ""
+    @State private var lead: Lead?
     
     var landmarks: [Landmark] = AppData().landmarks
     
@@ -229,11 +235,11 @@ struct ChannelView: View {
         return landmarks.first { $0.eventId == eventId }
     }
     
-    func findSpot(_ eventId: String) -> Spot? {
-        return spots.first { $0.channelId == eventId }
+    func findSpotForChannelId(_ channelId: String) -> Spot? {
+        return spots.first { $0.channelId == channelId }
     }
     
-    init(channelId: String) {
+    func initializeLead(channelId: String) -> Lead {
         let lead = lobby.findLead(byChannelId: channelId) ??
         Lead(name: "Private Group Chat",
              icon: "💬",
@@ -247,8 +253,20 @@ struct ChannelView: View {
                 relays: [Constants.RELAY_URL_PRIMAL]
              )
         )
-        
-        feedDelegate.lead = lead
+        return lead
+    }
+    
+    // MARK: onMessageTap delegates
+    @State private var videoURL: URL?
+    
+    func openVideoPlayer(_ message: MessageType) {
+        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
+            
+            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
+            
+            self.videoURL = URL(string: videoURLString)
+            navigation.isShowingVideoPlayer.toggle()
+        }
     }
     
     func showMenu(_ senderId: String) {
@@ -260,16 +278,19 @@ struct ChannelView: View {
         }
     }
     
-    @State private var videoURL: URL?
+    func reload() {
+        self.feedDelegate.updateSubscription()
+        self.lead = initializeLead(channelId: navigation.channelId)
+    }
     
-    func openVideoPlayer(_ message: MessageType) {
-        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
-            
-            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-                        
-            self.videoURL = URL(string: videoURLString)
-            navigation.isShowingVideoPlayer.toggle()
+    func openLink(_ channelId: String) {
+        if let spot = findSpotForChannelId(channelId) {
+            navigation.coordinate = spot.locationCoordinate
+            locationManager.panMapToCachedCoordinate()
         }
+
+        navigation.goToChannelWithId(channelId)
+        self.reload()
     }
     
     private func observeNotification() {
@@ -284,11 +305,17 @@ struct ChannelView: View {
     
     var body: some View {
         VStack {
-            ChatView(messages: $feedDelegate.messages, onTapAvatar: showMenu, onTapVideo: openVideoPlayer)
+            ChatView(
+                messages: $feedDelegate.messages,
+                onTapAvatar: showMenu,
+                onTapVideo: openVideoPlayer,
+                onTapLink: openLink
+            )
                 .onAppear {
-                    self.feedDelegate.updateSubscription()
                     setupKeyboardObservers()
                     feedDelegate.getBlacklist = getBlacklist
+                    
+                    self.reload()
                 }
                 .onAppear(perform: observeNotification)
                 .onDisappear {
@@ -297,7 +324,7 @@ struct ChannelView: View {
                 }
                 .navigationBarBackButtonHidden()
                 .sheet(isPresented: $navigation.isShowingEditChannel) {
-                    if let lead = feedDelegate.lead {
+                    if let lead = lead {
                         EditChannel(lead: lead, channel: lead.channel)
                     }
                 }
@@ -313,7 +340,7 @@ struct ChannelView: View {
                             Button(action: {
                                 navigation.isShowingEditChannel.toggle()
                             }) {
-                                if let lead = feedDelegate.lead {
+                                if let lead = self.lead {
                                     if let landmark = findLandmark(lead.channelId) {
                                         HStack {
                                             landmark.image
@@ -340,41 +367,25 @@ struct ChannelView: View {
                         },
                     trailing:
                         HStack(spacing: 16) {
-//                            // Business Card Button
-//                            Button(action: {
-//                                // Action for business card button
-//                                print("Business Card button tapped")
-//                            }) {
-//                                Image(systemName: "person.crop.rectangle")
-//                                    .foregroundColor(.blue) // Business card-like icon
-//                            }
-
-                            // Camera Button
                             Button(action: {
-                                self.navigation.isShowingCameraView = true // Trigger camera view
+                                self.isShowingSendTo.toggle()
+                            }) {
+                                Image(systemName: "person.crop.rectangle")
+                                    .foregroundColor(.blue)
+                            }
+                            
+                            Button(action: {
+                                self.navigation.isShowingCameraView = true
                             }) {
                                 Image(systemName: "camera.on.rectangle.fill")
-                                    .foregroundColor(.blue) // Camera icon
+                                    .foregroundColor(.blue)
                             }
                         }
                 )
         }
-        .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
-            let user = getUser(npub: self.npub)
-            
-            NavigationView {
-                UserDetail(user: user)
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        navigation.isShowingUserDetail = false
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Channel")
-                            Spacer()
-                        }
-                    })
-            }
+        .sheet(isPresented: $isShowingSendTo) {
+            ToolBoxView()
+                .presentationDetents([.medium])
         }
         .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
             let user = getUser(npub: self.npub)
@@ -414,7 +425,7 @@ struct ChannelView: View {
         .modifier(IgnoresSafeArea()) //fixes issue with IBAV placement when keyboard appear
     }
     
-    // MARK: Private
+    // MARK: Keyboard Delegates
     
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(
@@ -471,5 +482,5 @@ extension View {
 }
 
 #Preview {
-    ChannelView(channelId: "")
+    ChannelView()
 }

@@ -39,8 +39,6 @@
 		C62501522C93C1340026C334 /* LandmarkDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501102C93C1340026C334 /* LandmarkDetail.swift */; };
 		C62501532C93C1340026C334 /* LandmarkDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501112C93C1340026C334 /* LandmarkDirectory.swift */; };
 		C62501542C93C1340026C334 /* LandmarkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501122C93C1340026C334 /* LandmarkRow.swift */; };
-		C62501552C93C1340026C334 /* LeadOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501142C93C1340026C334 /* LeadOptions.swift */; };
-		C62501562C93C1340026C334 /* MarkerOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501152C93C1340026C334 /* MarkerOptions.swift */; };
 		C62501572C93C1340026C334 /* SkateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501162C93C1340026C334 /* SkateView.swift */; };
 		C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501182C93C1340026C334 /* NostrKeychainStorage.swift */; };
 		C62501592C93C1340026C334 /* SolanaKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501192C93C1340026C334 /* SolanaKeychainStorage.swift */; };
@@ -99,7 +97,7 @@
 		C6DDD7372C936DAF000BE2A4 /* SkateConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7362C936DAF000BE2A4 /* SkateConnectTests.swift */; };
 		C6DDD7412C936DAF000BE2A4 /* SkateConnectUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */; };
 		C6DDD7432C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */; };
-		C6E237132CAF51CC00CBCFA6 /* SendToView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E237122CAF51CC00CBCFA6 /* SendToView.swift */; };
+		C6E237132CAF51CC00CBCFA6 /* ToolBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E237122CAF51CC00CBCFA6 /* ToolBoxView.swift */; };
 		C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959B2C93CF350006FBF0 /* CircleImage.swift */; };
 		C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */; };
 		C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F495A02C93D3C10006FBF0 /* WalletManager.swift */; };
@@ -182,8 +180,6 @@
 		C62501102C93C1340026C334 /* LandmarkDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandmarkDetail.swift; sourceTree = "<group>"; };
 		C62501112C93C1340026C334 /* LandmarkDirectory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandmarkDirectory.swift; sourceTree = "<group>"; };
 		C62501122C93C1340026C334 /* LandmarkRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandmarkRow.swift; sourceTree = "<group>"; };
-		C62501142C93C1340026C334 /* LeadOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeadOptions.swift; sourceTree = "<group>"; };
-		C62501152C93C1340026C334 /* MarkerOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MarkerOptions.swift; path = ../MarkerOptions.swift; sourceTree = "<group>"; };
 		C62501162C93C1340026C334 /* SkateView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkateView.swift; sourceTree = "<group>"; };
 		C62501182C93C1340026C334 /* NostrKeychainStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NostrKeychainStorage.swift; sourceTree = "<group>"; };
 		C62501192C93C1340026C334 /* SolanaKeychainStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaKeychainStorage.swift; sourceTree = "<group>"; };
@@ -236,7 +232,7 @@
 		C6DDD73C2C936DAF000BE2A4 /* SkateConnectUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkateConnectUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITests.swift; sourceTree = "<group>"; };
 		C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		C6E237122CAF51CC00CBCFA6 /* SendToView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendToView.swift; sourceTree = "<group>"; };
+		C6E237122CAF51CC00CBCFA6 /* ToolBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBoxView.swift; sourceTree = "<group>"; };
 		C6F4959B2C93CF350006FBF0 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 		C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C6F495A02C93D3C10006FBF0 /* WalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManager.swift; sourceTree = "<group>"; };
@@ -424,7 +420,7 @@
 				C62501132C93C1340026C334 /* LandmarkDirectory */,
 				C62501162C93C1340026C334 /* SkateView.swift */,
 				C6DCF4782C951B7700CA21ED /* SearchView.swift */,
-				C6E237122CAF51CC00CBCFA6 /* SendToView.swift */,
+				C6E237122CAF51CC00CBCFA6 /* ToolBoxView.swift */,
 			);
 			path = Skate;
 			sourceTree = "<group>";
@@ -550,8 +546,6 @@
 		C66AFE8D2CA749B3000CD716 /* Map */ = {
 			isa = PBXGroup;
 			children = (
-				C62501142C93C1340026C334 /* LeadOptions.swift */,
-				C62501152C93C1340026C334 /* MarkerOptions.swift */,
 				C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */,
 			);
 			path = Map;
@@ -847,10 +841,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C62501552C93C1340026C334 /* LeadOptions.swift in Sources */,
 				C62501542C93C1340026C334 /* LandmarkRow.swift in Sources */,
 				C62501592C93C1340026C334 /* SolanaKeychainStorage.swift in Sources */,
-				C6E237132CAF51CC00CBCFA6 /* SendToView.swift in Sources */,
+				C6E237132CAF51CC00CBCFA6 /* ToolBoxView.swift in Sources */,
 				C625016C2C93C1340026C334 /* Landmark.swift in Sources */,
 				C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */,
 				C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */,
@@ -888,7 +881,6 @@
 				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
-				C62501562C93C1340026C334 /* MarkerOptions.swift in Sources */,
 				C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */,
 				C66AFE992CA7B8A6000CD716 /* VideoEditorView.swift in Sources */,
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,

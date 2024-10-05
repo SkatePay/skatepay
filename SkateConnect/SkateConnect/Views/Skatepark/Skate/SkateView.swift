@@ -48,51 +48,103 @@ struct DebugView<Content: View>: View {
 }
 
 struct SkateView: View {
+    @Environment(\.modelContext) private var context
+    
     @Query private var spots: [Spot]
-       
+    
     @ObservedObject private var apiService = API.shared
     @ObservedObject private var dataManager = DataManager.shared
     @ObservedObject var navigation = Navigation.shared
+    @ObservedObject var locationManager = LocationManager.shared
     @ObservedObject var lobby = Lobby.shared
     
-    @StateObject var locationManager = LocationManager()
-    
-    @State private var showingAlert = false
-    @State private var isShowingLeadOptions = false
+    @State private var showingAlertForMarkClear = false
+    @State private var showingAlertForSpotBookmark = false
     @State private var isShowingLoadingOverlay = true
-    
-    @State var channelId: String = ""
     
     @State var pinCoordinate: CLLocationCoordinate2D?
     
-    @State var marks: [Mark] = []
-
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
     }
     
     func overlayView() -> some View {
-        GeometryReader { geometry in
-            if isShowingLoadingOverlay {
-                HStack {
-                    MarqueeText(text: apiService.debugOutput())
-                    
+        ZStack {
+            GeometryReader { geometry in
+                if isShowingLoadingOverlay {
+                    HStack {
+                        MarqueeText(text: apiService.debugOutput())
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            withAnimation {
+                                isShowingLoadingOverlay = false
+                            }
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.white)
+                                .font(.system(size: 18))
+                        }
+                    }
+                    .padding()
+                    .background(Color.black.opacity(0.5))
+                    .frame(maxWidth: .infinity)
+                    .position(x: geometry.size.width / 2, y: 16)
+                }
+            }
+            
+            if !navigation.marks.isEmpty {
+                // Marker Controller
+                VStack {
                     Spacer()
                     
-                    Button(action: {
-                        withAnimation {
-                            isShowingLoadingOverlay = false
+                    VStack(spacing: 20) {
+                        Button(action: {
+                            navigation.isShowingCreateChannel.toggle()
+                        }) {
+                            Image(systemName: "message.circle.fill")
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.black.opacity(0.7))
+                                .clipShape(Circle())
                         }
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.white)
-                            .font(.system(size: 18))
+                        
+                        Button(action: {
+                            Task {
+                                for mark in navigation.marks {
+                                    let spot = Spot(
+                                        name: mark.name,
+                                        address: "",
+                                        state: "",
+                                        note: "",
+                                        latitude: mark.coordinate.latitude,
+                                        longitude: mark.coordinate.longitude
+                                    )
+                                    context.insert(spot)
+                                }
+                            }
+                            showingAlertForSpotBookmark.toggle()
+                        }) {
+                            Image(systemName: "signpost.right.and.left.circle.fill")
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.black.opacity(0.7))
+                                .clipShape(Circle())
+                        }
+                        .alert("Spot bookmarked", isPresented: $showingAlertForSpotBookmark) {
+                            Button("OK", role: .cancel) {
+                                navigation.coordinate = navigation.marks[0].coordinate
+                                locationManager.panMapToCachedCoordinate()
+                                navigation.marks = []
+                            }
+                        }
                     }
+                    .padding(.trailing, 20)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    
+                    Spacer()
                 }
-                .padding()
-                .background(Color.black.opacity(0.5))
-                .frame(maxWidth: .infinity)
-                .position(x: geometry.size.width / 2, y: 16)
             }
         }
     }
@@ -109,7 +161,7 @@ struct SkateView: View {
                     }
                     
                     // Marks
-                    ForEach(marks) { mark in
+                    ForEach(navigation.marks) { mark in
                         Marker(mark.name, coordinate: mark.coordinate)
                             .tint(.orange)
                     }
@@ -137,7 +189,7 @@ struct SkateView: View {
                                     .onChanged { state in
                                         navigation.joinChat(channelId: lead.channelId)
                                     }
-
+                                
                             )
                         }
                     }
@@ -150,9 +202,8 @@ struct SkateView: View {
                 }
                 .onTapGesture { position in
                     if let coordinate = proxy.convert(position, from: .local) {
-                        self.marks = []
+                        navigation.marks = []
                         addMarker(at: coordinate)
-                        navigation.isShowingMarkerOptions = true
                     }
                 }
                 .overlay(
@@ -200,9 +251,9 @@ struct SkateView: View {
                         .cornerRadius(8)
                 }
                 
-                if (!self.marks.isEmpty) {
+                if (!navigation.marks.isEmpty) {
                     Button(action: {
-                        self.marks = []
+                        navigation.marks = []
                     }) {
                         Text("Clear Mark")
                             .padding(8)
@@ -210,29 +261,23 @@ struct SkateView: View {
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .alert("Mark cleared.", isPresented: $showingAlert) {
+                    .alert("Mark cleared.", isPresented: $showingAlertForMarkClear) {
                         Button("Ok", role: .cancel) { }
                     }
                 }
             }
             .padding()
         }
-        .sheet(isPresented: $navigation.isShowingMarkerOptions) {
-            MarkerOptions(marks: self.marks)
-        }
-        .sheet(isPresented: $isShowingLeadOptions) {
-            LeadOptions()
-        }
         .fullScreenCover(isPresented: $navigation.isShowingChannelView) {
-            if self.channelId.isEmpty {
+            if navigation.channelId.isEmpty {
                 Text("No lead available at this index.")
             } else {
                 DebugView() {
                     NavigationView {
-                        ChannelView(channelId: self.channelId)
+                        ChannelView()
                     }
                 }
-
+                
             }
         }
         .fullScreenCover(isPresented: $navigation.isShowingDirectory) {
@@ -269,11 +314,24 @@ struct SkateView: View {
                     })
             }
         }
+        .fullScreenCover(isPresented: $navigation.isShowingCreateChannel) {
+            NavigationView {
+                CreateChannel(mark: navigation.marks[0])
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        navigation.isShowingCreateChannel = false
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.left")
+                            Spacer()
+                        }
+                    })
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .newChannelCreated)) { notification in
             if let event = notification.object as? NostrEvent {
                 let lead = createLead(from: event)
                 self.dataManager.saveSpotForLead(lead)
-                self.marks = []
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToLandmark)) { _ in
@@ -297,14 +355,7 @@ struct SkateView: View {
             }
             
             if let channelId = notification.userInfo?["channelId"] as? String {
-                self.channelId = channelId
-                navigation.isShowingChannelView.toggle()
-            }
-        }
-        .onReceive(lobby.$observedSpot) { observedSpot in
-            DispatchQueue.main.async {
-                lobby.observedSpot.spot = nil
-                self.marks = []
+                navigation.goToChannelWithId(channelId)
             }
         }
         .task() {
@@ -336,7 +387,7 @@ struct SkateView: View {
     
     func addMarker(at coordinate: CLLocationCoordinate2D) {
         let mark = Mark(name: "Marker \(spots.count + 1)", coordinate: coordinate)
-        self.marks.append(mark)
+        navigation.marks.append(mark)
         
         let nearbyLandmarks = getNearbyLandmarks(for: coordinate)
         if !nearbyLandmarks.isEmpty {
