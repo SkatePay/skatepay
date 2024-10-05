@@ -350,9 +350,7 @@ struct SkateView: View {
             handleGoToSpotNotification(notification)
         }
         .onReceive(NotificationCenter.default.publisher(for: .joinChat)) { notification in
-            if  let locationCoordinate = navigation.coordinate {
-                locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
-            }
+            locationManager.panMapToCachedCoordinate()
             
             if let channelId = notification.userInfo?["channelId"] as? String {
                 navigation.goToChannelWithId(channelId)

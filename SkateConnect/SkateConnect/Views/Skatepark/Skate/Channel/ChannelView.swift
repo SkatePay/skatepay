@@ -32,8 +32,10 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     static let shared = FeedDelegate()
     
     @Published var messages: [MessageType] = []
+    @Published var lead: Lead?
     
     @ObservedObject var dataManager = DataManager.shared
+    @ObservedObject var lobby = Lobby.shared
     @ObservedObject var network = Network.shared
     @ObservedObject var navigation = Navigation.shared
     
@@ -154,6 +156,15 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     
     private func handleEvent(_ event: NostrEvent) {
         if let message = parseEventIntoMessage(event: event) {
+            if event.kind == .channelCreation {
+                 DispatchQueue.main.async {
+                     self.lead = createLead(from: event)
+                 }
+                 
+                 guard let lead = lead else { return }
+                 self.dataManager.saveSpotForLead(lead)
+             }
+            
             if event.kind == .channelMessage {
                 guard let publicKey = PublicKey(hex: event.pubkey) else {
                     return
@@ -215,7 +226,6 @@ struct ChannelView: View {
     
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var feedDelegate = FeedDelegate.shared
-    @ObservedObject var lobby = Lobby.shared
     @ObservedObject var locationManager = LocationManager.shared
     
     @State private var isShowingSendTo = false
@@ -223,7 +233,6 @@ struct ChannelView: View {
     @State private var keyboardHeight: CGFloat = 0
     @State private var showAlert = false
     @State private var npub = ""
-    @State private var lead: Lead?
     
     var landmarks: [Landmark] = AppData().landmarks
     
@@ -237,23 +246,6 @@ struct ChannelView: View {
     
     func findSpotForChannelId(_ channelId: String) -> Spot? {
         return spots.first { $0.channelId == channelId }
-    }
-    
-    func initializeLead(channelId: String) -> Lead {
-        let lead = lobby.findLead(byChannelId: channelId) ??
-        Lead(name: "Private Group Chat",
-             icon: "💬",
-             coordinate: AppData().landmarks[0].locationCoordinate,
-             channelId: channelId,
-             event: nil,
-             channel: Channel(
-                name: "Private Channel",
-                about: "Private Channel",
-                picture: "",
-                relays: [Constants.RELAY_URL_PRIMAL]
-             )
-        )
-        return lead
     }
     
     // MARK: onMessageTap delegates
@@ -280,7 +272,6 @@ struct ChannelView: View {
     
     func reload() {
         self.feedDelegate.updateSubscription()
-        self.lead = initializeLead(channelId: navigation.channelId)
     }
     
     func openLink(_ channelId: String) {
@@ -324,7 +315,7 @@ struct ChannelView: View {
                 }
                 .navigationBarBackButtonHidden()
                 .sheet(isPresented: $navigation.isShowingEditChannel) {
-                    if let lead = lead {
+                    if let lead = self.feedDelegate.lead {
                         EditChannel(lead: lead, channel: lead.channel)
                     }
                 }
@@ -340,7 +331,7 @@ struct ChannelView: View {
                             Button(action: {
                                 navigation.isShowingEditChannel.toggle()
                             }) {
-                                if let lead = self.lead {
+                                if let lead = self.feedDelegate.lead {
                                     if let landmark = findLandmark(lead.channelId) {
                                         HStack {
                                             landmark.image
