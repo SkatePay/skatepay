@@ -57,6 +57,7 @@ struct SkateView: View {
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var locationManager = LocationManager.shared
     @ObservedObject var lobby = Lobby.shared
+    @ObservedObject var wallet = Wallet.shared
     
     @State private var showingAlertForMarkClear = false
     @State private var showingAlertForSpotBookmark = false
@@ -148,6 +149,10 @@ struct SkateView: View {
             }
         }
     }
+   
+    func findSpotForChannelId(_ channelId: String) -> Spot? {
+        return spots.first { $0.channelId == channelId }
+    }
     
     var body: some View {
         VStack {
@@ -169,8 +174,16 @@ struct SkateView: View {
                     ForEach(lobby.leads) { lead in
                         Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
                             ZStack {
+                                let color: Color = {
+                                    if let event = lead.event, wallet.isMe(hex: event.pubkey) {
+                                        return Color.orange
+                                    } else {
+                                        return Color.indigo
+                                    }
+                                }()
+                                
                                 Circle()
-                                    .foregroundStyle(.indigo.opacity(0.5))
+                                    .foregroundStyle(color.opacity(0.5))
                                     .frame(width: 80, height: 80)
                                 
                                 Text(lead.icon)
@@ -178,7 +191,7 @@ struct SkateView: View {
                                     .symbolEffect(.variableColor)
                                     .padding()
                                     .foregroundStyle(.white)
-                                    .background(Color.indigo)
+                                    .background(color)
                                     .clipShape(Circle())
                             }
                             .gesture(
@@ -350,9 +363,12 @@ struct SkateView: View {
             handleGoToSpotNotification(notification)
         }
         .onReceive(NotificationCenter.default.publisher(for: .joinChat)) { notification in
-            locationManager.panMapToCachedCoordinate()
-            
             if let channelId = notification.userInfo?["channelId"] as? String {
+                if let spot = findSpotForChannelId(channelId) {
+                    navigation.coordinate = spot.locationCoordinate
+                }
+
+                locationManager.panMapToCachedCoordinate()
                 navigation.goToChannelWithId(channelId)
             }
         }

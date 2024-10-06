@@ -17,6 +17,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var context
 
     @ObservedObject var lobby = Lobby.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @Binding var host: Host
 
@@ -32,8 +33,8 @@ struct SettingsView: View {
         NavigationView {
             VStack {
                 Image("user-funkadelic")
-                    .resizable() // Makes the image resizable
-                    .aspectRatio(contentMode: .fit) // Keeps the aspect ratio while fitting the image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
                     .frame(width: 200, height: 200)
                 List {
                     Section ("NOSTR") {
@@ -115,6 +116,8 @@ struct SettingsView: View {
                                 
                                 self.lobby.clear()
                                 clearAllUserDefaults()
+                                
+                                navigation.hasAcknowledgedEULA = false
                             }
                         }
                         Button("Cancel", role: .cancel) { }
