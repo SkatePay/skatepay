@@ -96,53 +96,64 @@ struct SkateView: View {
             }
             
             if !navigation.marks.isEmpty {
-                // Marker Controller
                 VStack {
                     Spacer()
                     
                     VStack(spacing: 20) {
-                        Button(action: {
-                            navigation.isShowingCreateChannel.toggle()
-                        }) {
-                            Image(systemName: "message.circle.fill")
+                        HStack {
+                            Text("Start Channel")
+                                .font(.caption)
                                 .foregroundColor(.white)
-                                .padding()
-                                .background(Color.black.opacity(0.7))
-                                .clipShape(Circle())
+                            
+                            Button(action: {
+                                navigation.isShowingCreateChannel.toggle()
+                            }) {
+                                Image(systemName: "message.circle.fill")
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.black.opacity(0.7))
+                                    .clipShape(Circle())
+                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                         
-                        Button(action: {
-                            Task {
-                                for mark in navigation.marks {
-                                    let spot = Spot(
-                                        name: mark.name,
-                                        address: "",
-                                        state: "",
-                                        note: "",
-                                        latitude: mark.coordinate.latitude,
-                                        longitude: mark.coordinate.longitude
-                                    )
-                                    context.insert(spot)
+                        HStack {
+                            Text("Save Spot")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                            
+                            Button(action: {
+                                Task {
+                                    for mark in navigation.marks {
+                                        let spot = Spot(
+                                            name: mark.name,
+                                            address: "",
+                                            state: "",
+                                            note: "",
+                                            latitude: mark.coordinate.latitude,
+                                            longitude: mark.coordinate.longitude
+                                        )
+                                        context.insert(spot)
+                                        navigation.goToSpot(spot: spot)
+                                    }
+                                }
+                                showingAlertForSpotBookmark.toggle()
+                            }) {
+                                Image(systemName: "bookmark.circle.fill")
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.black.opacity(0.7))
+                                    .clipShape(Circle())
+                            }
+                            .alert("Spot bookmarked", isPresented: $showingAlertForSpotBookmark) {
+                                Button("OK", role: .cancel) {
+                                    navigation.marks = []
                                 }
                             }
-                            showingAlertForSpotBookmark.toggle()
-                        }) {
-                            Image(systemName: "signpost.right.and.left.circle.fill")
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.black.opacity(0.7))
-                                .clipShape(Circle())
                         }
-                        .alert("Spot bookmarked", isPresented: $showingAlertForSpotBookmark) {
-                            Button("OK", role: .cancel) {
-                                navigation.coordinate = navigation.marks[0].coordinate
-                                locationManager.panMapToCachedCoordinate()
-                                navigation.marks = []
-                            }
-                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                     .padding(.trailing, 20)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
                     
                     Spacer()
                 }
@@ -197,10 +208,10 @@ struct SkateView: View {
                             .gesture(
                                 LongPressGesture(minimumDuration: 1.0)
                                     .onEnded { _ in
-                                        //                                           handleLongPress(lead: lead)
+//                                           handleLongPress(lead: lead)
                                     }
                                     .onChanged { state in
-                                        navigation.joinChat(channelId: lead.channelId)
+                                        navigation.joinChannel(channelId: lead.channelId)
                                     }
                                 
                             )
@@ -221,7 +232,6 @@ struct SkateView: View {
                 }
                 .overlay(
                     overlayView()
-                        .opacity(isShowingLoadingOverlay ? 1 : 0)
                         .animation(.easeInOut(duration: 0.3), value: isShowingLoadingOverlay)
                 )
             }
@@ -362,7 +372,7 @@ struct SkateView: View {
         .onReceive(NotificationCenter.default.publisher(for: .goToSpot)) { notification in
             handleGoToSpotNotification(notification)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .joinChat)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: .joinChannel)) { notification in
             if let channelId = notification.userInfo?["channelId"] as? String {
                 if let spot = findSpotForChannelId(channelId) {
                     navigation.coordinate = spot.locationCoordinate

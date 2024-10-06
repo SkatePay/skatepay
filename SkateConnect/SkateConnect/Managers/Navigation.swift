@@ -8,13 +8,14 @@
 import ConnectFramework
 import CoreLocation
 import Foundation
+import NostrSDK
 import SwiftUI
 
 extension Notification.Name {
     static let goToLandmark = Notification.Name("goToLandmark")
     static let goToCoordinate = Notification.Name("goToCoordinate")
     static let goToSpot = Notification.Name("goToSpot")
-    static let joinChat = Notification.Name("joinChat")
+    static let joinChannel = Notification.Name("joinChannel")
     static let muteUser = Notification.Name("muteUser")
     static let barcodeScanned = Notification.Name("barcodeScanned")
     static let uploadVideo = Notification.Name("uploadVideo")
@@ -27,6 +28,8 @@ class Navigation: ObservableObject {
     @Published var tab: Tab = .map
     
     @Published var channelId: String = ""
+    @Published var channel: NostrEvent?
+    
     @Published var marks: [Mark] = []
     
     @Published var landmark: Landmark?
@@ -79,9 +82,9 @@ class Navigation: ObservableObject {
         isShowingSearch = false
     }
     
-    func joinChat(channelId: String) {
+    func joinChannel(channelId: String) {
         NotificationCenter.default.post(
-            name: .joinChat,
+            name: .joinChannel,
             object: self,
             userInfo: ["channelId": channelId]
         )

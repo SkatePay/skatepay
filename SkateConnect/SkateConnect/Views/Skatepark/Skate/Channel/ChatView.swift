@@ -66,8 +66,13 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
         let message = messagesDataSource.messageForItem(at: indexPath, in: messagesCollectionView)
         
         if case MessageKind.linkPreview(let linkItem) = message.kind {
-            let channelId = linkItem.teaser
-            onTapLink(channelId)
+            let pathComponents = linkItem.url.pathComponents
+            
+            if let channelId = pathComponents.last {
+                onTapLink(channelId)
+            } else {
+                print("Failed to extract channel ID")
+            }
         } else {
             print("Message tapped")
         }
@@ -106,7 +111,6 @@ func processContent(content: String) -> ContentType {
             text = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
         } else if let range = text.range(of: "channel_invite:") {
             let channelId = String(text[range.upperBound...])
-            print(channelId)
             return .invite(channelId)
         }
     } catch {
@@ -211,6 +215,10 @@ struct ChatView: UIViewControllerRepresentable {
         
         func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
         -> UIColor {
+            if case MessageKind.linkPreview(_) = message.kind {
+                return UIColor.systemPurple
+            }
+            
             if (message.sender.senderId == AppData().getSupport().npub) {
                 return UIColor.systemOrange
             } else if (message.sender.senderId == currentUser.senderId) {

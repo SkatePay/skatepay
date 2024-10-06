@@ -176,6 +176,8 @@ struct CameraView: View {
                     cameraViewModel.showZoomHint = false
                 }
             }
+            
+            cameraViewModel.channelId = navigation.channelId
         }
         .alert("Video posted.", isPresented: $cameraViewModel.showingAlert) {
             Button("Ok", role: .cancel) {
@@ -222,7 +224,10 @@ struct CameraPreview: UIViewRepresentable {
         }
     }
 }
+
 class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingDelegate {
+    @Published var channelId: String = ""
+    
     @Published var isRecording = false
     @Published var isVideoRecorded = false
     @Published var showingPreview = false
@@ -431,7 +436,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
         try await serviceHandler.uploadFile(
             bucket: Constants.S3_BUCKET,
             key: objName,
-            fileUrl: imageURL
+            fileUrl: imageURL,
+            tagging: channelId.isEmpty ? "" : "channel=\(channelId)"
         )
         print("Image uploaded to S3: \(objName)")
     }
@@ -451,7 +457,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
         try await serviceHandler.uploadFile(
             bucket: Constants.S3_BUCKET,
             key: objName,
-            fileUrl: videoURL
+            fileUrl: videoURL,
+            tagging: channelId.isEmpty ? "" : "channel=\(channelId)"
         )
         
         // Simulate upload...

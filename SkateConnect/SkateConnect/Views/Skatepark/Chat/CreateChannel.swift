@@ -14,7 +14,7 @@ import CoreLocation
 func createLead(from event: NostrEvent) -> Lead? {
     var lead: Lead?
     
-    if let channel = parseChannel(from: event.content) {
+    if let channel = parseChannel(from: event) {
         let about = channel.about
         
         do {
@@ -128,7 +128,7 @@ struct CreateChannel: View, EventCreating {
                     
                     if let channelId = self.event?.id {
                         navigation.coordinate = navigation.marks[0].coordinate
-                        navigation.joinChat(channelId: channelId)
+                        navigation.joinChannel(channelId: channelId)
                     }
                     navigation.marks = []
                 }

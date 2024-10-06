@@ -18,6 +18,7 @@ public struct Constants {
     public static let PICTURE_RABOTA_TOKEN = "https://bafybeierdzfqbppjdv36nnhiiyuwdsccag7la6juvzm4c732q2bmfcvice.ipfs.w3s.link/rabotaToken.png"
     
     public static let API_URL_SKATEPARK = "https://api.skatepark.chat"
+    public static let CHANNEL_URL_SKATEPARK = "https://support.skatepark.chat/channel"
     public static let S3_BUCKET = "skateconnect"
 }
 

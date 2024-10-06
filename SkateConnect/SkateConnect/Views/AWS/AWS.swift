@@ -144,7 +144,7 @@ public class S3ServiceHandler {
         }
     }
 
-    public func uploadFile(bucket: String, key: String, fileUrl: URL) async throws {
+    public func uploadFile(bucket: String, key: String, fileUrl: URL, tagging: String = "") async throws {
         do {
             let fileData = try Data(contentsOf: fileUrl)
             let dataStream = ByteStream.data(fileData)
@@ -153,7 +153,8 @@ public class S3ServiceHandler {
                 acl: S3ClientTypes.ObjectCannedACL.publicRead,
                 body: dataStream,
                 bucket: bucket,
-                key: key
+                key: key,
+                tagging: tagging
             )
 
             _ = try await s3Client.putObject(input: input)

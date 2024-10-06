@@ -6,6 +6,7 @@
 //
 
 import ConnectFramework
+import CryptoKit
 import Foundation
 import MessageKit
 import NostrSDK
@@ -90,23 +91,39 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
         case .video(let videoURL):
             return MockMessage(thumbnail: videoURL, user: user, messageId: event.id, date: event.createdDate)
-        case .invite(let channelId):
-            if let url = URL(string: "https://support.skatepark.chat"),
-               let image = UIImage(named: "user-skatepay") {
-                let linkItem = MockLinkItem(
-                    text: "🌐 Channel Invite",
-                    attributedText: nil,
-                    url: url,
-                    title: "Enter Channel 🚪",
-                    teaser: channelId,
-                    thumbnailImage: image
-                )
-                return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
-            } else {
-                // Handle the error for invalid URL or missing image
-                print("Failed to initialize URL or image")
-                return MockMessage(text: channelId, user: user, messageId: event.id, date: event.createdDate)
+        case .invite(let encryptedString):
+            guard let invite = decryptChannelInviteFromString(encryptedString: encryptedString) else {
+                print("Failed to decrypt channel invite")
+                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
             }
+            
+            guard let image = UIImage(named: "user-skatepay") else {
+                print("Failed to load image")
+                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
+            }
+            
+            guard let event = invite.event, let lead = createLead(from: event) else {
+                print("Failed to create lead from event")
+                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
+            }
+            
+            guard let channel = lead.channel,
+                  let url = URL(string: "\(Constants.CHANNEL_URL_SKATEPARK)/\(event.id)"),
+                  let description = channel.aboutDecoded?.description else {
+                print("Failed to generate URL or decode channel description")
+                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
+            }
+
+            let linkItem = MockLinkItem(
+                text: "\(lead.icon) Channel Invite",
+                attributedText: nil,
+                url: url,
+                title: "🪧 \(lead.name)",
+                teaser: description,
+                thumbnailImage: image
+            )
+            
+            return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
         }
     }
     
@@ -157,13 +174,14 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
     private func handleEvent(_ event: NostrEvent) {
         if let message = parseEventIntoMessage(event: event) {
             if event.kind == .channelCreation {
-                 DispatchQueue.main.async {
-                     self.lead = createLead(from: event)
-                 }
-                 
-                 guard let lead = lead else { return }
-                 self.dataManager.saveSpotForLead(lead)
-             }
+                DispatchQueue.main.async {
+                    self.lead = createLead(from: event)
+                }
+                
+                guard let lead = lead else { return }
+                self.dataManager.saveSpotForLead(lead)
+                navigation.channel = event
+            }
             
             if event.kind == .channelMessage {
                 guard let publicKey = PublicKey(hex: event.pubkey) else {
@@ -223,16 +241,17 @@ struct ChannelView: View {
     @Query(sort: \Spot.channelId) private var spots: [Spot]
     
     @ObservedObject var dataManager = DataManager.shared
-    
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var feedDelegate = FeedDelegate.shared
     @ObservedObject var locationManager = LocationManager.shared
     
-    @State private var isShowingSendTo = false
+    @State private var isShowingToolBoxView = false
     
     @State private var keyboardHeight: CGFloat = 0
-    @State private var showAlert = false
     @State private var npub = ""
+    
+    @State private var showingConfirmationAlert = false
+    @State private var selectedChannelId: String? = nil
     
     var landmarks: [Landmark] = AppData().landmarks
     
@@ -283,6 +302,11 @@ struct ChannelView: View {
         navigation.goToChannelWithId(channelId)
         self.reload()
     }
+        
+    func onTapLink(_ channelId: String) {
+        selectedChannelId = channelId
+        showingConfirmationAlert = true
+    }
     
     private func observeNotification() {
         NotificationCenter.default.addObserver(
@@ -300,81 +324,93 @@ struct ChannelView: View {
                 messages: $feedDelegate.messages,
                 onTapAvatar: showMenu,
                 onTapVideo: openVideoPlayer,
-                onTapLink: openLink
+                onTapLink: onTapLink
             )
-                .onAppear {
-                    setupKeyboardObservers()
-                    feedDelegate.getBlacklist = getBlacklist
-                    
-                    self.reload()
+            .onAppear {
+                setupKeyboardObservers()
+                feedDelegate.getBlacklist = getBlacklist
+                
+                self.reload()
+            }
+            .onAppear(perform: observeNotification)
+            .onDisappear {
+                self.feedDelegate.cleanUp()
+                NotificationCenter.default.removeObserver(self)
+            }
+            .navigationBarBackButtonHidden()
+            .sheet(isPresented: $navigation.isShowingEditChannel) {
+                if let lead = self.feedDelegate.lead {
+                    EditChannel(lead: lead, channel: lead.channel)
                 }
-                .onAppear(perform: observeNotification)
-                .onDisappear {
-                    self.feedDelegate.cleanUp()
-                    NotificationCenter.default.removeObserver(self)
-                }
-                .navigationBarBackButtonHidden()
-                .sheet(isPresented: $navigation.isShowingEditChannel) {
-                    if let lead = self.feedDelegate.lead {
-                        EditChannel(lead: lead, channel: lead.channel)
-                    }
-                }
-                .navigationBarItems(
-                    leading:
-                        HStack {
-                            Button(action: {
-                                dismiss()
-                            }) {
-                                Image(systemName: "arrow.left")
-                            }
-                            
-                            Button(action: {
-                                navigation.isShowingEditChannel.toggle()
-                            }) {
-                                if let lead = self.feedDelegate.lead {
-                                    if let landmark = findLandmark(lead.channelId) {
-                                        HStack {
-                                            landmark.image
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 35, height: 35)
-                                                .clipShape(Circle())
-                                            
-                                            VStack(alignment: .leading, spacing: 0) {
-                                                Text("\(landmark.name)")
-                                                    .fontWeight(.semibold)
-                                                    .font(.headline)
-                                            }
-                                        }
-                                    } else {
-                                        if let channel = lead.channel {
-                                            Text("\(channel.name)")
+            }
+            .navigationBarItems(
+                leading:
+                    HStack {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "arrow.left")
+                        }
+                        
+                        Button(action: {
+                            navigation.isShowingEditChannel.toggle()
+                        }) {
+                            if let lead = self.feedDelegate.lead {
+                                if let landmark = findLandmark(lead.channelId) {
+                                    HStack {
+                                        landmark.image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 35, height: 35)
+                                            .clipShape(Circle())
+                                        
+                                        VStack(alignment: .leading, spacing: 0) {
+                                            Text("\(landmark.name)")
                                                 .fontWeight(.semibold)
                                                 .font(.headline)
                                         }
                                     }
+                                } else {
+                                    if let channel = lead.channel {
+                                        Text("\(channel.name)")
+                                            .fontWeight(.semibold)
+                                            .font(.headline)
+                                    }
                                 }
                             }
-                        },
-                    trailing:
-                        HStack(spacing: 16) {
-                            Button(action: {
-                                self.isShowingSendTo.toggle()
-                            }) {
-                                Image(systemName: "person.crop.rectangle")
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            Button(action: {
-                                self.navigation.isShowingCameraView = true
-                            }) {
-                                Image(systemName: "camera.on.rectangle.fill")
-                                    .foregroundColor(.blue)
-                            }
                         }
-                )
+                    },
+                trailing:
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            self.isShowingToolBoxView.toggle()
+                        }) {
+                            Image(systemName: "network")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Button(action: {
+                            self.navigation.isShowingCameraView = true
+                        }) {
+                            Image(systemName: "camera.on.rectangle.fill")
+                                .foregroundColor(.blue)
+                        }
+                    }
+            )
         }
-        .sheet(isPresented: $isShowingSendTo) {
+        .alert(isPresented: $showingConfirmationAlert) {
+            Alert(
+                title: Text("Confirmation"),
+                message: Text("Are you sure you want to join this channel?"),
+                primaryButton: .default(Text("Yes")) {
+                    if let channelId = selectedChannelId {
+                        openLink(channelId)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+        .sheet(isPresented: $isShowingToolBoxView) {
             ToolBoxView()
                 .presentationDetents([.medium])
         }
