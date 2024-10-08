@@ -22,7 +22,7 @@ class AppData {
     }
 }
 
-@MainActor
+//@MainActor
 class DataManager: ObservableObject {
     static let shared = DataManager()
     
@@ -118,7 +118,7 @@ class DataManager: ObservableObject {
             )
             return try modelContext.fetch(fetchDescriptor)
         } catch {
-            print("Failed to fetch and sort Spots: \(error)")
+            print("Failed to fetch and sort Friends: \(error)")
             return []
         }
     }
@@ -126,5 +126,20 @@ class DataManager: ObservableObject {
     func findFriend(_ npub: String) -> Friend? {
         return fetchFriends().first(where: { $0.npub == npub })
     }
+    
+    // MARK: Foes
+    func fetchFoes() -> [Foe] {
+        do {
+            let fetchDescriptor = FetchDescriptor<Foe>(
+                sortBy: [SortDescriptor(\.npub, order: .reverse)]
+            )
+            return try modelContext.fetch(fetchDescriptor)
+        } catch {
+            print("Failed to fetch and sort Foes: \(error)")
+            return []
+        }
+    }
+    
+    // MARK: Leads
     
 }

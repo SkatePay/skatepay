@@ -98,31 +98,52 @@ enum ContentType {
 
 func processContent(content: String) -> ContentType {
     var text = content
+    
     do {
         let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: content.data(using: .utf8)!)
         text = decodedStructure.content
-        if decodedStructure.kind == .video {
+        
+        switch decodedStructure.kind {
+        case .video:
+            // Convert .mov to .jpg for the thumbnail
             let urlString = decodedStructure.content.replacingOccurrences(of: ".mov", with: ".jpg")
             if let url = URL(string: urlString) {
                 return .video(url)
             } else {
-                print("Invalid URL string: \(urlString)")
+                print("Invalid video thumbnail URL string: \(urlString)")
+                return .text(decodedStructure.content) // Fallback to text
             }
-        } else if decodedStructure.kind == .photo {
+        
+        case .photo:
+            // Handle photo content
             if let url = URL(string: decodedStructure.content) {
                 return .photo(url)
             } else {
-                print("Invalid URL string: \(decodedStructure.content)")
+                print("Invalid photo URL string: \(decodedStructure.content)")
+                return .text(decodedStructure.content) // Fallback to text
             }
-        } else  if decodedStructure.kind == .subscriber {
-            text = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
-        } else if let range = text.range(of: "channel_invite:") {
-            let channelId = String(text[range.upperBound...])
-            return .invite(channelId)
+        
+        case .subscriber:
+            // Format the subscriber text
+            let formattedText = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
+            return .text(formattedText)
+        
+        default:
+            // If no other kind is matched, fall through to check for channel_invite or return raw text
+            break
         }
+        
     } catch {
-        print("Decoding or URL conversion error: \(error)")
+        print("Decoding error: \(error)")
     }
+    
+    // Handle channel_invite in the text as a fallback
+    if let range = text.range(of: "channel_invite:") {
+        let channelId = String(text[range.upperBound...])
+        return .invite(channelId)
+    }
+    
+    // Return the original text if no special cases are matched
     return .text(text)
 }
 

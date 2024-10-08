@@ -12,58 +12,12 @@ import NostrSDK
 import SwiftData
 import SwiftUI
 
-struct MarqueeText: View {
-    let text: String
-    @State private var offsetX: CGFloat = UIScreen.main.bounds.width
-    
-    var body: some View {
-        Text(text)
-            .font(.headline)
-            .bold()
-            .foregroundColor(.white)
-            .offset(x: offsetX)
-            .onAppear {
-                let baseAnimation = Animation.linear(duration: 8.0).repeatForever(autoreverses: false)
-                withAnimation(baseAnimation) {
-                    offsetX = -UIScreen.main.bounds.width
-                }
-            }
-    }
-}
-
-struct DebugView<Content: View>: View {
-    let content: Content
-    let id = UUID()
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-        print("Creating DebugView with ID: \(id)")
-    }
-    
-    var body: some View {
-        content.onAppear {
-            print("DebugView with ID: \(id) appeared")
-        }
-    }
-}
-
 struct SkateView: View {
     @Environment(\.modelContext) private var context
     
     @Query private var spots: [Spot]
     
-    @ObservedObject private var apiService = API.shared
-    @ObservedObject private var dataManager = DataManager.shared
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var locationManager = LocationManager.shared
-    @ObservedObject var lobby = Lobby.shared
-    @ObservedObject var wallet = Wallet.shared
-    
-    @State private var showingAlertForMarkClear = false
-    @State private var showingAlertForSpotBookmark = false
-    @State private var isShowingLoadingOverlay = true
-    
-    @State var pinCoordinate: CLLocationCoordinate2D?
+    @ObservedObject private var stateManager = StateManager()  // Using StateManager
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
@@ -72,15 +26,15 @@ struct SkateView: View {
     func overlayView() -> some View {
         ZStack {
             GeometryReader { geometry in
-                if isShowingLoadingOverlay {
+                if stateManager.isShowingLoadingOverlay {
                     HStack {
-                        MarqueeText(text: apiService.debugOutput())
+                        MarqueeText(text: stateManager.apiService.debugOutput())
                         
                         Spacer()
                         
                         Button(action: {
                             withAnimation {
-                                isShowingLoadingOverlay = false
+                                stateManager.isShowingLoadingOverlay = false
                             }
                         }) {
                             Image(systemName: "xmark.circle.fill")
@@ -95,7 +49,7 @@ struct SkateView: View {
                 }
             }
             
-            if !navigation.marks.isEmpty {
+            if !stateManager.navigation.marks.isEmpty {
                 VStack {
                     Spacer()
                     
@@ -106,7 +60,7 @@ struct SkateView: View {
                                 .foregroundColor(.white)
                             
                             Button(action: {
-                                navigation.isShowingCreateChannel.toggle()
+                                stateManager.navigation.isShowingCreateChannel.toggle()
                             }) {
                                 Image(systemName: "message.circle.fill")
                                     .foregroundColor(.white)
@@ -124,7 +78,7 @@ struct SkateView: View {
                             
                             Button(action: {
                                 Task {
-                                    for mark in navigation.marks {
+                                    for mark in stateManager.navigation.marks {
                                         let spot = Spot(
                                             name: mark.name,
                                             address: "",
@@ -134,10 +88,10 @@ struct SkateView: View {
                                             longitude: mark.coordinate.longitude
                                         )
                                         context.insert(spot)
-                                        navigation.goToSpot(spot: spot)
+                                        stateManager.navigation.goToSpot(spot: spot)
                                     }
                                 }
-                                showingAlertForSpotBookmark.toggle()
+                                stateManager.showingAlertForSpotBookmark.toggle()
                             }) {
                                 Image(systemName: "bookmark.circle.fill")
                                     .foregroundColor(.white)
@@ -145,13 +99,31 @@ struct SkateView: View {
                                     .background(Color.black.opacity(0.7))
                                     .clipShape(Circle())
                             }
-                            .alert("Spot bookmarked", isPresented: $showingAlertForSpotBookmark) {
+                            .alert("Spot bookmarked", isPresented: $stateManager.showingAlertForSpotBookmark) {
                                 Button("OK", role: .cancel) {
-                                    navigation.marks = []
+                                    stateManager.navigation.marks = []
                                 }
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)
+                        
+                        HStack {
+                            Text("Clear Mark")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                            
+                            Button(action: {
+                                stateManager.navigation.marks = []
+                            }) {
+                                Image(systemName: "clear.fill")
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.black.opacity(0.7))
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        
                     }
                     .padding(.trailing, 20)
                     
@@ -160,33 +132,29 @@ struct SkateView: View {
             }
         }
     }
-   
-    func findSpotForChannelId(_ channelId: String) -> Spot? {
-        return spots.first { $0.channelId == channelId }
-    }
     
     var body: some View {
         VStack {
             MapReader { proxy in
-                Map(position: $locationManager.mapPosition) {
+                Map(position: $stateManager.locationManager.mapPosition) {
                     UserAnnotation()
                     
-                    if let coordinate = self.pinCoordinate {
+                    if let coordinate = stateManager.pinCoordinate {
                         Annotation("❌", coordinate: coordinate) {
                         }
                     }
                     
                     // Marks
-                    ForEach(navigation.marks) { mark in
+                    ForEach(stateManager.navigation.marks) { mark in
                         Marker(mark.name, coordinate: mark.coordinate)
                             .tint(.orange)
                     }
                     // Leads
-                    ForEach(lobby.leads) { lead in
-                        Annotation(lead.name, coordinate:  lead.coordinate, anchor: .bottom) {
+                    ForEach(stateManager.lobby.leads) { lead in
+                        Annotation(lead.name, coordinate: lead.coordinate, anchor: .bottom) {
                             ZStack {
                                 let color: Color = {
-                                    if let event = lead.event, wallet.isMe(hex: event.pubkey) {
+                                    if let event = lead.event, stateManager.wallet.isMe(hex: event.pubkey) {
                                         return Color.orange
                                     } else {
                                         return Color.indigo
@@ -208,38 +176,36 @@ struct SkateView: View {
                             .gesture(
                                 LongPressGesture(minimumDuration: 1.0)
                                     .onEnded { _ in
-//                                           handleLongPress(lead: lead)
                                     }
                                     .onChanged { state in
-                                        navigation.joinChannel(channelId: lead.channelId)
+                                        stateManager.navigation.joinChannel(channelId: lead.channelId)
                                     }
-                                
                             )
                         }
                     }
                 }
                 .onMapCameraChange(frequency: .continuous) { context in
-                    locationManager.updateMapRegionOnUserInteraction(region: context.region)
+                    stateManager.locationManager.updateMapRegionOnUserInteraction(region: context.region)
                 }
                 .onAppear{
-                    locationManager.checkIfLocationIsEnabled()
+                    stateManager.locationManager.checkIfLocationIsEnabled()
                 }
                 .onTapGesture { position in
                     if let coordinate = proxy.convert(position, from: .local) {
-                        navigation.marks = []
-                        addMarker(at: coordinate)
+                        stateManager.navigation.marks = []
+                        stateManager.addMarker(at: coordinate, spots: spots)
                     }
                 }
                 .overlay(
                     overlayView()
-                        .animation(.easeInOut(duration: 0.3), value: isShowingLoadingOverlay)
+                        .animation(.easeInOut(duration: 0.3), value: stateManager.isShowingLoadingOverlay)
                 )
             }
             
             HStack(spacing: 20) {
                 Button(action: {
-                    if let location = locationManager.currentLocation?.coordinate {
-                        locationManager.updateMapRegion(with: location)
+                    if let location = stateManager.locationManager.currentLocation?.coordinate {
+                        stateManager.locationManager.updateMapRegion(with: location)
                     } else {
                         print("Current location not available.")
                     }
@@ -253,7 +219,7 @@ struct SkateView: View {
                 }
                 
                 Button(action: {
-                    navigation.isShowingDirectory = true
+                    stateManager.navigation.isShowingDirectory = true
                     
                 }) {
                     Text("Skateparks")
@@ -264,7 +230,7 @@ struct SkateView: View {
                 }
                 
                 Button(action: {
-                    navigation.isShowingSearch.toggle()
+                    stateManager.navigation.isShowingSearch.toggle()
                     
                 }) {
                     Text("🔎")
@@ -273,26 +239,11 @@ struct SkateView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
-                
-                if (!navigation.marks.isEmpty) {
-                    Button(action: {
-                        navigation.marks = []
-                    }) {
-                        Text("Clear Mark")
-                            .padding(8)
-                            .background(Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                    }
-                    .alert("Mark cleared.", isPresented: $showingAlertForMarkClear) {
-                        Button("Ok", role: .cancel) { }
-                    }
-                }
             }
             .padding()
         }
-        .fullScreenCover(isPresented: $navigation.isShowingChannelView) {
-            if navigation.channelId.isEmpty {
+        .fullScreenCover(isPresented: $stateManager.navigation.isShowingChannelView) {
+            if stateManager.navigation.channelId.isEmpty {
                 Text("No lead available at this index.")
             } else {
                 DebugView() {
@@ -303,14 +254,14 @@ struct SkateView: View {
                 
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingDirectory) {
+        .fullScreenCover(isPresented: $stateManager.navigation.isShowingDirectory) {
             DebugView() {
                 NavigationView {
                     LandmarkDirectory()
                         .navigationBarTitle("🏁 Skateparks")
                         .navigationBarItems(leading:
                                                 Button(action: {
-                            navigation.isShowingDirectory = false
+                            stateManager.navigation.isShowingDirectory = false
                         }) {
                             HStack {
                                 Image(systemName: "arrow.left")
@@ -321,13 +272,13 @@ struct SkateView: View {
                 }
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingSearch) {
+        .fullScreenCover(isPresented: $stateManager.navigation.isShowingSearch) {
             NavigationView {
                 SearchView()
                     .navigationBarTitle("🎯 Explore Network 🕸️")
                     .navigationBarItems(leading:
                                             Button(action: {
-                        navigation.isShowingSearch = false
+                        stateManager.navigation.isShowingSearch = false
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
@@ -337,12 +288,12 @@ struct SkateView: View {
                     })
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingCreateChannel) {
+        .fullScreenCover(isPresented: $stateManager.navigation.isShowingCreateChannel) {
             NavigationView {
-                CreateChannel(mark: navigation.marks[0])
+                CreateChannel(mark: stateManager.navigation.marks[0])
                     .navigationBarItems(leading:
                                             Button(action: {
-                        navigation.isShowingCreateChannel = false
+                        stateManager.navigation.isShowingCreateChannel = false
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
@@ -354,82 +305,43 @@ struct SkateView: View {
         .onReceive(NotificationCenter.default.publisher(for: .newChannelCreated)) { notification in
             if let event = notification.object as? NostrEvent {
                 let lead = createLead(from: event)
-                self.dataManager.saveSpotForLead(lead)
+                stateManager.dataManager.saveSpotForLead(lead)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToLandmark)) { _ in
-            if  let locationCoordinate = navigation.landmark?.locationCoordinate {
-                locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+            if let locationCoordinate = stateManager.navigation.landmark?.locationCoordinate {
+                stateManager.locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
-            if  let locationCoordinate = navigation.coordinate {
-                locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+            if let locationCoordinate = stateManager.navigation.coordinate {
+                stateManager.locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 
-                addMarker(at: locationCoordinate)
+                stateManager.addMarker(at: locationCoordinate, spots: spots)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToSpot)) { notification in
-            handleGoToSpotNotification(notification)
+            stateManager.handleGoToSpotNotification(notification)
         }
         .onReceive(NotificationCenter.default.publisher(for: .joinChannel)) { notification in
             if let channelId = notification.userInfo?["channelId"] as? String {
-                if let spot = findSpotForChannelId(channelId) {
-                    navigation.coordinate = spot.locationCoordinate
+                if let spot = stateManager.dataManager.findSpotForChannelId(channelId) {
+                    stateManager.navigation.coordinate = spot.locationCoordinate
                 }
 
-                locationManager.panMapToCachedCoordinate()
-                navigation.goToChannelWithId(channelId)
+                stateManager.locationManager.panMapToCachedCoordinate()
+                stateManager.navigation.goToChannelWithId(channelId)
             }
         }
         .task() {
             DispatchQueue.main.async {
-                self.locationManager.checkIfLocationIsEnabled()
+                stateManager.locationManager.checkIfLocationIsEnabled()
             }
             
-            self.apiService.fetchLeads()
-            self.lobby.setupLeads(spots: spots)
+            stateManager.apiService.fetchLeads()
+            stateManager.lobby.setupLeads(spots: spots)
             
-            self.apiService.fetchKeys()
-        }
-    }
-    
-    
-    func handleGoToSpotNotification(_ notification: Notification) {
-        guard let spot = notification.object as? Spot else {
-            print("Received goToSpot notification, but no valid Spot object was found.")
-            return
-        }
-        
-        let locationCoordinate = spot.locationCoordinate
-        locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
-        
-        if spot.channelId.isEmpty {
-            self.pinCoordinate = spot.locationCoordinate
-        }
-    }
-    
-    func addMarker(at coordinate: CLLocationCoordinate2D) {
-        let mark = Mark(name: "Marker \(spots.count + 1)", coordinate: coordinate)
-        navigation.marks.append(mark)
-        
-        let nearbyLandmarks = getNearbyLandmarks(for: coordinate)
-        if !nearbyLandmarks.isEmpty {
-            print("Nearby landmarks: \(nearbyLandmarks.map { $0.name })")
-        } else {
-            print("No nearby landmarks")
-        }
-    }
-    
-    func getNearbyLandmarks(for coordinate: CLLocationCoordinate2D) -> [Landmark] {
-        let markerLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let landmarks = AppData().landmarks
-        
-        return landmarks.filter { landmark in
-            let landmarkLocation = CLLocation(latitude: landmark.locationCoordinate.latitude, longitude: landmark.locationCoordinate.longitude)
-            let distance = markerLocation.distance(from: landmarkLocation)
-            
-            return distance <= 32
+            stateManager.apiService.fetchKeys()
         }
     }
 }

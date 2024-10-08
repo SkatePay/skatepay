@@ -90,6 +90,9 @@
 		C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04602CB47DFA003FCA1B /* UploadManager.swift */; };
 		C6DC04642CB4B930003FCA1B /* InputBarAccessoryView in Frameworks */ = {isa = PBXBuildFile; productRef = C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */; };
 		C6DC04662CB4D8ED003FCA1B /* MessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04652CB4D8ED003FCA1B /* MessageHandler.swift */; };
+		C6DC04682CB5B720003FCA1B /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04672CB5B720003FCA1B /* UI.swift */; };
+		C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04692CB5BA00003FCA1B /* StateManager.swift */; };
+		C6DC046C2CB5BFB0003FCA1B /* ChannelEventService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046B2CB5BFB0003FCA1B /* ChannelEventService.swift */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -226,6 +229,9 @@
 		C6DC045D2CB47AAB003FCA1B /* FilePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePicker.swift; sourceTree = "<group>"; };
 		C6DC04602CB47DFA003FCA1B /* UploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadManager.swift; sourceTree = "<group>"; };
 		C6DC04652CB4D8ED003FCA1B /* MessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHandler.swift; sourceTree = "<group>"; };
+		C6DC04672CB5B720003FCA1B /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
+		C6DC04692CB5BA00003FCA1B /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
+		C6DC046B2CB5BFB0003FCA1B /* ChannelEventService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelEventService.swift; sourceTree = "<group>"; };
 		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
 		C6DCF46E2C93E32F00CA21ED /* Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filters.swift; sourceTree = "<group>"; };
 		C6DCF4722C94000F00CA21ED /* EditChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChannel.swift; sourceTree = "<group>"; };
@@ -383,6 +389,7 @@
 				C62501052C93C1340026C334 /* ChannelView.swift */,
 				C62501062C93C1340026C334 /* SpotDetail.swift */,
 				C66E09622C9657A400C9F8F1 /* ChatView.swift */,
+				C6DC046B2CB5BFB0003FCA1B /* ChannelEventService.swift */,
 			);
 			path = Channel;
 			sourceTree = "<group>";
@@ -430,6 +437,8 @@
 				C62501162C93C1340026C334 /* SkateView.swift */,
 				C6DCF4782C951B7700CA21ED /* SearchView.swift */,
 				C6E237122CAF51CC00CBCFA6 /* ToolBoxView.swift */,
+				C6DC04672CB5B720003FCA1B /* UI.swift */,
+				C6DC04692CB5BA00003FCA1B /* StateManager.swift */,
 			);
 			path = Skate;
 			sourceTree = "<group>";
@@ -890,6 +899,8 @@
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */,
+				C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */,
+				C6DC046C2CB5BFB0003FCA1B /* ChannelEventService.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
 				C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */,
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
@@ -908,6 +919,7 @@
 				C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */,
 				C66AFE992CA7B8A6000CD716 /* VideoEditorView.swift in Sources */,
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,
+				C6DC04682CB5B720003FCA1B /* UI.swift in Sources */,
 				C625014F2C93C1340026C334 /* Contacts.swift in Sources */,
 				C625016E2C93C1340026C334 /* User.swift in Sources */,
 				C66E09672C96583800C9F8F1 /* SampleData.swift in Sources */,
