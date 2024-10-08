@@ -190,7 +190,7 @@ struct LobbyView: View {
                     activity
                 }
             }
-            .navigationTitle("⛺️ Lobby")
+            .navigationTitle("🏛️ Lobby")
             .toolbar {
                 Button {
                     isShowingProfile.toggle()

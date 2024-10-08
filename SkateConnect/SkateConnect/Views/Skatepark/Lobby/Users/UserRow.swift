@@ -74,7 +74,7 @@ struct UserRow: View {
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
-                            Text("⛺️ Lobby")
+                            Text("🏛️ Lobby")
                             Spacer()
                         }
                     })

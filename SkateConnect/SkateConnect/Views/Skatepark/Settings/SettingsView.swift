@@ -29,6 +29,14 @@ struct SettingsView: View {
 
     let keychainForNostr = NostrKeychainStorage()
     
+    var appVersion: String {
+        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+           let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            return "Version \(version) (\(build))"
+        }
+        return "Unknown Version"
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -36,6 +44,13 @@ struct SettingsView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 200, height: 200)
+                
+                Text(appVersion)
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                
                 List {
                     Section ("NOSTR") {
                         if let publicKey = keychainForNostr.account?.publicKey.npub {

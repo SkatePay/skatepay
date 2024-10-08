@@ -60,7 +60,6 @@
 		C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
-		C668FC4C2C967A9F00612BEA /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC4B2C967A9F00612BEA /* ExyteChat */; };
 		C668FC4F2C967AAA00612BEA /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC4E2C967AAA00612BEA /* KeychainSwift */; };
 		C668FC522C967AB600612BEA /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC512C967AB600612BEA /* NostrSDK */; };
 		C668FC582C967D6A00612BEA /* MessageKit in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC572C967D6A00612BEA /* MessageKit */; };
@@ -87,6 +86,10 @@
 		C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6D1F2DB2C9FC3A700FF428F /* NostrSDK */; };
 		C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */; };
 		C6D1F2E02C9FC52A00FF428F /* ScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DF2C9FC52A00FF428F /* ScannerView.swift */; };
+		C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC045D2CB47AAB003FCA1B /* FilePicker.swift */; };
+		C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04602CB47DFA003FCA1B /* UploadManager.swift */; };
+		C6DC04642CB4B930003FCA1B /* InputBarAccessoryView in Frameworks */ = {isa = PBXBuildFile; productRef = C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */; };
+		C6DC04662CB4D8ED003FCA1B /* MessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04652CB4D8ED003FCA1B /* MessageHandler.swift */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -220,6 +223,9 @@
 		C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScanner.swift; sourceTree = "<group>"; };
 		C6D1F2DF2C9FC52A00FF428F /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
+		C6DC045D2CB47AAB003FCA1B /* FilePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePicker.swift; sourceTree = "<group>"; };
+		C6DC04602CB47DFA003FCA1B /* UploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadManager.swift; sourceTree = "<group>"; };
+		C6DC04652CB4D8ED003FCA1B /* MessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHandler.swift; sourceTree = "<group>"; };
 		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
 		C6DCF46E2C93E32F00CA21ED /* Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filters.swift; sourceTree = "<group>"; };
 		C6DCF4722C94000F00CA21ED /* EditChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChannel.swift; sourceTree = "<group>"; };
@@ -246,9 +252,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				C66AFE902CA74DFB000CD716 /* Kingfisher in Frameworks */,
+				C6DC04642CB4B930003FCA1B /* InputBarAccessoryView in Frameworks */,
 				C66AFE832CA61671000CD716 /* AWSS3 in Frameworks */,
 				C69153CB2C9E27E80075ED6C /* NostrSDK in Frameworks */,
-				C668FC4C2C967A9F00612BEA /* ExyteChat in Frameworks */,
 				C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */,
 				C66AFE812CA61671000CD716 /* AWSCognitoIdentityProvider in Frameworks */,
 				C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */,
@@ -346,6 +352,7 @@
 			children = (
 				C62500F82C93C1340026C334 /* CreateChannel.swift */,
 				C62500F92C93C1340026C334 /* DirectMessage.swift */,
+				C6DC04652CB4D8ED003FCA1B /* MessageHandler.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -465,6 +472,7 @@
 		C62501232C93C1340026C334 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C6DC045F2CB47DDC003FCA1B /* Files */,
 				C6E237112CAC75DD00CBCFA6 /* Video */,
 				C66AFE842CA61C65000CD716 /* AWS */,
 				C62B84F12CA5D4100086AEE0 /* Camera */,
@@ -573,6 +581,15 @@
 				C672932D2C93BED9000191B2 /* ConnectFrameworkTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C6DC045F2CB47DDC003FCA1B /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				C6DC045D2CB47AAB003FCA1B /* FilePicker.swift */,
+				C6DC04602CB47DFA003FCA1B /* UploadManager.swift */,
+			);
+			path = Files;
 			sourceTree = "<group>";
 		};
 		C6DDD7172C936DAE000BE2A4 = {
@@ -688,7 +705,6 @@
 			packageProductDependencies = (
 				C69DC22B2C96121E00A7ED67 /* NostrSDK */,
 				C668FC482C967A9600612BEA /* SolanaSwift */,
-				C668FC4B2C967A9F00612BEA /* ExyteChat */,
 				C668FC4E2C967AAA00612BEA /* KeychainSwift */,
 				C668FC512C967AB600612BEA /* NostrSDK */,
 				C668FC572C967D6A00612BEA /* MessageKit */,
@@ -697,6 +713,7 @@
 				C66AFE802CA61671000CD716 /* AWSCognitoIdentityProvider */,
 				C66AFE822CA61671000CD716 /* AWSS3 */,
 				C66AFE8F2CA74DFB000CD716 /* Kingfisher */,
+				C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */,
 			);
 			productName = SkateConnect;
 			productReference = C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */;
@@ -772,12 +789,12 @@
 			mainGroup = C6DDD7172C936DAE000BE2A4;
 			packageReferences = (
 				C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */,
-				C668FC4A2C967A9F00612BEA /* XCRemoteSwiftPackageReference "Chat" */,
 				C668FC4D2C967AAA00612BEA /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				C668FC562C967D6A00612BEA /* XCRemoteSwiftPackageReference "MessageKit" */,
 				C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 				C66AFE7F2CA61671000CD716 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 				C66AFE8E2CA74DFB000CD716 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
 			);
 			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
 			projectDirPath = "";
@@ -846,6 +863,7 @@
 			files = (
 				C62501542C93C1340026C334 /* LandmarkRow.swift in Sources */,
 				C62501592C93C1340026C334 /* SolanaKeychainStorage.swift in Sources */,
+				C6DC04662CB4D8ED003FCA1B /* MessageHandler.swift in Sources */,
 				C6E237132CAF51CC00CBCFA6 /* ToolBoxView.swift in Sources */,
 				C625016C2C93C1340026C334 /* Landmark.swift in Sources */,
 				C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */,
@@ -871,6 +889,7 @@
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
+				C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
 				C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */,
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
@@ -883,6 +902,7 @@
 				C6E237152CB24B8F00CBCFA6 /* Wallet.swift in Sources */,
 				C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */,
 				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,
+				C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */,
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
 				C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */,
@@ -1270,14 +1290,6 @@
 				kind = branch;
 			};
 		};
-		C668FC4A2C967A9F00612BEA /* XCRemoteSwiftPackageReference "Chat" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/exyte/Chat.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.5;
-			};
-		};
 		C668FC4D2C967AAA00612BEA /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
@@ -1318,6 +1330,14 @@
 				kind = branch;
 			};
 		};
+		C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nathantannar4/InputBarAccessoryView.git";
+			requirement = {
+				kind = exactVersion;
+				version = 6.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1325,11 +1345,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */;
 			productName = SolanaSwift;
-		};
-		C668FC4B2C967A9F00612BEA /* ExyteChat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C668FC4A2C967A9F00612BEA /* XCRemoteSwiftPackageReference "Chat" */;
-			productName = ExyteChat;
 		};
 		C668FC4E2C967AAA00612BEA /* KeychainSwift */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1372,6 +1387,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
 			productName = NostrSDK;
+		};
+		C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */;
+			productName = InputBarAccessoryView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

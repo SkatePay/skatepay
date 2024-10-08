@@ -25,6 +25,7 @@ struct ContentStructure: Codable {
 
 enum Kind: String, Codable {
     case video
+    case photo
     case message
     case subscriber
 }
@@ -91,6 +92,8 @@ class FeedDelegate: ObservableObject, RelayDelegate, EventCreating {
             return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
         case .video(let videoURL):
             return MockMessage(thumbnail: videoURL, user: user, messageId: event.id, date: event.createdDate)
+        case .photo(let imageUrl):
+            return MockMessage(imageURL: imageUrl, user: user, messageId: event.id, date: event.createdDate)
         case .invite(let encryptedString):
             guard let invite = decryptChannelInviteFromString(encryptedString: encryptedString) else {
                 print("Failed to decrypt channel invite")
@@ -255,10 +258,6 @@ struct ChannelView: View {
     
     var landmarks: [Landmark] = AppData().landmarks
     
-    func getBlacklist() -> [String] {
-        return foes.map({$0.npub})
-    }
-    
     func findLandmark(_ eventId: String) -> Landmark? {
         return landmarks.first { $0.eventId == eventId }
     }
@@ -270,17 +269,7 @@ struct ChannelView: View {
     // MARK: onMessageTap delegates
     @State private var videoURL: URL?
     
-    func openVideoPlayer(_ message: MessageType) {
-        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
-            
-            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-            
-            self.videoURL = URL(string: videoURLString)
-            navigation.isShowingVideoPlayer.toggle()
-        }
-    }
-    
-    func showMenu(_ senderId: String) {
+    private func showMenu(_ senderId: String) {
         if senderId.isEmpty {
             print("unknown sender")
         } else {
@@ -289,11 +278,16 @@ struct ChannelView: View {
         }
     }
     
-    func reload() {
-        self.feedDelegate.updateSubscription()
+    private func openVideoPlayer(_ message: MessageType) {
+        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
+            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
+            
+            self.videoURL = URL(string: videoURLString)
+            navigation.isShowingVideoPlayer.toggle()
+        }
     }
     
-    func openLink(_ channelId: String) {
+    private func openLink(_ channelId: String) {
         if let spot = findSpotForChannelId(channelId) {
             navigation.coordinate = spot.locationCoordinate
             locationManager.panMapToCachedCoordinate()
@@ -303,19 +297,17 @@ struct ChannelView: View {
         self.reload()
     }
         
-    func onTapLink(_ channelId: String) {
+    private func onTapLink(_ channelId: String) {
         selectedChannelId = channelId
         showingConfirmationAlert = true
     }
     
-    private func observeNotification() {
-        NotificationCenter.default.addObserver(
-            forName: .muteUser,
-            object: nil,
-            queue: .main
-        ) { _ in
-            self.feedDelegate.updateSubscription()
-        }
+    private func onSend(text: String) {
+        feedDelegate.publishDraft(text: text)
+    }
+    
+    func reload() {
+        self.feedDelegate.updateSubscription()
     }
     
     var body: some View {
@@ -324,10 +316,10 @@ struct ChannelView: View {
                 messages: $feedDelegate.messages,
                 onTapAvatar: showMenu,
                 onTapVideo: openVideoPlayer,
-                onTapLink: onTapLink
+                onTapLink: onTapLink,
+                onSend: onSend
             )
             .onAppear {
-                setupKeyboardObservers()
                 feedDelegate.getBlacklist = getBlacklist
                 
                 self.reload()
@@ -448,66 +440,40 @@ struct ChannelView: View {
                 feedDelegate.publishDraft(text: assetURL, kind: .video)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .uploadImage)) { notification in
+            if let assetURL = notification.userInfo?["assetURL"] as? String {
+                feedDelegate.publishDraft(text: assetURL, kind: .photo)
+            }
+        }
         .padding(.bottom, keyboardHeight)
         .modifier(IgnoresSafeArea()) //fixes issue with IBAV placement when keyboard appear
     }
     
-    // MARK: Keyboard Delegates
+    // MARK: Blacklist
+    func getBlacklist() -> [String] {
+        return foes.map({$0.npub})
+    }
     
-    private func setupKeyboardObservers() {
+    private func observeNotification() {
         NotificationCenter.default.addObserver(
-            forName: UIResponder.keyboardWillShowNotification,
-            object: nil,
-            queue: .main
-        ) { notification in
-            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
-                let keyboardRectangle = keyboardFrame.cgRectValue
-                keyboardHeight = keyboardRectangle.height
-            }
-        }
-        
-        NotificationCenter.default.addObserver(
-            forName: UIResponder.keyboardWillHideNotification,
+            forName: .muteUser,
             object: nil,
             queue: .main
         ) { _ in
-            keyboardHeight = 0
-        }
-    }
-    
-    private struct IgnoresSafeArea: ViewModifier {
-        func body(content: Content) -> some View {
-            if #available(iOS 14.0, *) {
-                content.ignoresSafeArea(.keyboard, edges: .bottom)
-            } else {
-                content
-            }
+            self.feedDelegate.updateSubscription()
         }
     }
 }
 
-struct OnkeyboardAppearHandler: ViewModifier {
-    var handler: (Bool) -> Void
+struct IgnoresSafeArea: ViewModifier {
     func body(content: Content) -> some View {
-        content
-            .onAppear {
-                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
-                    handler(true)
-                }
-                
-                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                    handler(false)
-                }
-            }
+        if #available(iOS 14.0, *) {
+            content.ignoresSafeArea(.keyboard, edges: .bottom)
+        } else {
+            content
+        }
     }
 }
-
-extension View {
-    public func onKeyboardAppear(handler: @escaping (Bool) -> Void) -> some View {
-        modifier(OnkeyboardAppearHandler(handler: handler))
-    }
-}
-
 #Preview {
     ChannelView()
 }

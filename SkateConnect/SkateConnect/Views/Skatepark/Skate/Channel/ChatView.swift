@@ -92,6 +92,7 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
 enum ContentType {
     case text(String)
     case video(URL)
+    case photo(URL)
     case invite(String)
 }
 
@@ -107,7 +108,13 @@ func processContent(content: String) -> ContentType {
             } else {
                 print("Invalid URL string: \(urlString)")
             }
-        } else if decodedStructure.kind == .subscriber {
+        } else if decodedStructure.kind == .photo {
+            if let url = URL(string: decodedStructure.content) {
+                return .photo(url)
+            } else {
+                print("Invalid URL string: \(decodedStructure.content)")
+            }
+        } else  if decodedStructure.kind == .subscriber {
             text = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
         } else if let range = text.range(of: "channel_invite:") {
             let channelId = String(text[range.upperBound...])
@@ -120,52 +127,43 @@ func processContent(content: String) -> ContentType {
 }
 
 struct ChatView: UIViewControllerRepresentable {
-    // MARK: Internal
-    
+    let keychainForNostr = NostrKeychainStorage()
+
+    func getCurrentUser() -> MockUser {
+        guard let account = keychainForNostr.account else { return MockUser(senderId: "000002", displayName: "You") }
+        return MockUser(senderId: account.publicKey.npub, displayName: "You")
+    }
     
     final class Coordinator: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate, InputBarAccessoryViewDelegate {
-        // MARK: Lifecycle
+        var parent: ChatView
+        let onSend: (String) -> Void
         
-        let keychainForNostr = NostrKeychainStorage()
-        
-        @ObservedObject var feedDelegate = FeedDelegate.shared
-        
-        var currentUser = MockUser(senderId: "000002", displayName: "You")
-        
-        init(messages: Binding<[MessageType]>) {
-            self.messages = messages
-            
-            let keychainForNostr = NostrKeychainStorage()
-            
-            guard let account = keychainForNostr.account else { return }
-            currentUser.senderId = account.publicKey.npub
+        init(_ parent: ChatView, onSend: @escaping (String) -> Void) {
+            self.parent = parent
+            self.onSend = onSend
         }
-        
-        // MARK: Internal
-        
+                                
         let formatter: DateFormatter = {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
             return formatter
         }()
-        
-        var messages: Binding<[MessageType]>
-        
+                
         func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
-            feedDelegate.publishDraft(text: text)
+            onSend(text)
             inputBar.inputTextView.text = ""
         }
         
         var currentSender: SenderType {
-            currentUser
+            parent.getCurrentUser()
         }
         
         func messageForItem(at indexPath: IndexPath, in _: MessagesCollectionView) -> MessageType {
-            messages.wrappedValue[indexPath.section]
+            return parent.messages[indexPath.section]
         }
         
         func numberOfSections(in _: MessagesCollectionView) -> Int {
-            messages.wrappedValue.count
+            return parent.messages.count
         }
         
         func photoCell(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
@@ -221,7 +219,7 @@ struct ChatView: UIViewControllerRepresentable {
             
             if (message.sender.senderId == AppData().getSupport().npub) {
                 return UIColor.systemOrange
-            } else if (message.sender.senderId == currentUser.senderId) {
+            } else if (message.sender.senderId == parent.getCurrentUser().senderId) {
                 return UIColor.systemGreen
             } else {
                 return UIColor.darkGray
@@ -236,6 +234,7 @@ struct ChatView: UIViewControllerRepresentable {
             0
         }
         
+        @MainActor
         func configureMediaMessageImageView(
             _ imageView: UIImageView,
             for message: MessageType,
@@ -244,16 +243,13 @@ struct ChatView: UIViewControllerRepresentable {
         {
             if case MessageKind.photo(let media) = message.kind, let imageURL = media.url {
                 imageView.kf.setImage(with: imageURL)
-            }
-            if case MessageKind.video(let media) = message.kind, let imageURL = media.url {
+            } else if case MessageKind.video(let media) = message.kind, let imageURL = media.url {
                 imageView.kf.setImage(with: imageURL)
             }
             else {
                 imageView.kf.cancelDownloadTask()
             }
         }
-        
-        
     }
     
     @State var initialized = false
@@ -262,6 +258,7 @@ struct ChatView: UIViewControllerRepresentable {
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
     let onTapLink: (String) -> Void
+    let onSend: (String) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
         let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo, onTapLink: onTapLink)
@@ -273,7 +270,7 @@ struct ChatView: UIViewControllerRepresentable {
         messagesVC.messageInputBar.delegate = context.coordinator
         messagesVC.messageInputBar.inputTextView.autocorrectionType = .no
         messagesVC.scrollsToLastItemOnKeyboardBeginsEditing = false // default false
-        messagesVC.maintainPositionOnInputBarHeightChanged = true // default false
+        messagesVC.maintainPositionOnInputBarHeightChanged = false // default false
         messagesVC.showMessageTimestampOnSwipeLeft = true // default false
         
         return messagesVC
@@ -285,7 +282,7 @@ struct ChatView: UIViewControllerRepresentable {
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(messages: $messages)
+        Coordinator(self, onSend: onSend)
     }
     
     // MARK: Private

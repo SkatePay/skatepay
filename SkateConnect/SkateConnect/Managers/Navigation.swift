@@ -18,6 +18,7 @@ extension Notification.Name {
     static let joinChannel = Notification.Name("joinChannel")
     static let muteUser = Notification.Name("muteUser")
     static let barcodeScanned = Notification.Name("barcodeScanned")
+    static let uploadImage = Notification.Name("uploadImage")
     static let uploadVideo = Notification.Name("uploadVideo")
 }
 
@@ -119,6 +120,17 @@ class Navigation: ObservableObject {
         
         NotificationCenter.default.post(
             name: .uploadVideo,
+            object: self,
+            userInfo: ["assetURL": assetURL]
+        )
+    }
+    
+    func completeUpload(imageURL: URL) {
+        let filename = imageURL.lastPathComponent
+        let assetURL = "https://\(Constants.S3_BUCKET).s3.us-west-2.amazonaws.com/\(filename)"
+        
+        NotificationCenter.default.post(
+            name: .uploadImage,
             object: self,
             userInfo: ["assetURL": assetURL]
         )
