@@ -71,14 +71,14 @@ class DataManager: ObservableObject {
     }
     
     // MARK: Spots
-    func findSpot(_ eventId: String) -> Spot? {
-        return fetchSortedSpots().first { $0.channelId == eventId }
+    func findSpotForChannelId(_ channelId: String) -> Spot? {
+        return fetchSortedSpots().first { $0.channelId == channelId }
     }
     
     func saveSpotForLead(_ lead: Lead?) {
         if let lead = lead {
             // Find the spot associated with the lead's eventId
-            if let spot = findSpot(lead.channelId) {
+            if let spot = findSpotForChannelId(lead.channelId) {
                 // Handle existing spot if needed
                 print("Spot already exists for eventId: \(spot.channelId)")
             } else {

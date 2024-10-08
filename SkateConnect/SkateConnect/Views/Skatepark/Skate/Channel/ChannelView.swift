@@ -262,10 +262,6 @@ struct ChannelView: View {
         return landmarks.first { $0.eventId == eventId }
     }
     
-    func findSpotForChannelId(_ channelId: String) -> Spot? {
-        return spots.first { $0.channelId == channelId }
-    }
-    
     // MARK: onMessageTap delegates
     @State private var videoURL: URL?
     
@@ -288,7 +284,7 @@ struct ChannelView: View {
     }
     
     private func openLink(_ channelId: String) {
-        if let spot = findSpotForChannelId(channelId) {
+        if let spot = dataManager.findSpotForChannelId(channelId) {
             navigation.coordinate = spot.locationCoordinate
             locationManager.panMapToCachedCoordinate()
         }

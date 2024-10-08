@@ -37,7 +37,8 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @ObservedObject var network = Network.shared
     @ObservedObject var dataManager = DataManager.shared
     @ObservedObject var navigation = Navigation.shared
-    
+    @ObservedObject var locationManager = LocationManager.shared
+
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var chatDelegate = DirectMessageDelegate()
@@ -52,6 +53,9 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     
     @State private var showAlertForReporting = false
     @State private var showAlertForAddingPark = false
+    
+    @State private var showingConfirmationAlert = false
+    @State private var selectedChannelId: String? = nil
     
     private var user: User
     private var message: String
@@ -96,22 +100,22 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     }
     
     private func openLink(_ channelId: String) {
-//        if let spot = findSpotForChannelId(channelId) {
-//            navigation.coordinate = spot.locationCoordinate
-//            locationManager.panMapToCachedCoordinate()
-//        }
-//
-//        navigation.goToChannelWithId(channelId)
+        if let spot = dataManager.findSpotForChannelId(channelId) {
+            navigation.coordinate = spot.locationCoordinate
+            locationManager.panMapToCachedCoordinate()
+        }
+
+        navigation.goToChannelWithId(channelId)
 //        self.reload()
     }
         
     private func onTapLink(_ channelId: String) {
-//        selectedChannelId = channelId
-//        showingConfirmationAlert = true
+        selectedChannelId = channelId
+        showingConfirmationAlert = true
     }
     
     private func onSend(text: String) {
-        publishEvent(content: text)
+        publishEvent(text: text)
     }
     
     var body: some View {
@@ -189,11 +193,23 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     })
             }
         }
+        .alert(isPresented: $showingConfirmationAlert) {
+            Alert(
+                title: Text("Confirmation"),
+                message: Text("Are you sure you want to join this channel?"),
+                primaryButton: .default(Text("Yes")) {
+                    if let channelId = selectedChannelId {
+                        openLink(channelId)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
         .alert("Confirm Report", isPresented: $showAlertForReporting) {
             Button("No", role: .cancel) {
             }
             Button("Yes") {
-                publishEvent(content: "Hi, I would like to report \(friendlyKey(npub: message)).")
+                publishEvent(text: "Hi, I would like to report \(friendlyKey(npub: message)).")
             }
         } message: {
             Text("Do you want to continue with the report on \(friendlyKey(npub: message))?")
@@ -202,7 +218,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
             Button("No", role: .cancel) {
             }
             Button("Yes") {
-                publishEvent(content: "Hi, I would like to add my park to your directory. Please tell me how to do that.")
+                publishEvent(text: "Hi, I would like to add my park to your directory. Please tell me how to do that.")
             }
         } message: {
             Text("Do you want to see your park on SkateConnect?")
@@ -258,15 +274,22 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         return filter
     }
     
-    private func publishEvent(content: String) {
-        guard let recipientPublicKey = recipientPublicKey(),
-              let senderKeyPair = myKeypair() else {
-            return
-        }
+    private func publishEvent(text: String) {
+        guard let account = keychainForNostr.account else { return }
+
+        guard let recipientPublicKey = recipientPublicKey() else { return }
+        
         do {
+            let contentStructure = ContentStructure(content: text, kind: .message)
+            
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let data = try encoder.encode(contentStructure)
+            let content  = String(data: data, encoding: .utf8) ?? text
+            
             let directMessage = try legacyEncryptedDirectMessage(withContent: content,
                                                                  toRecipient: recipientPublicKey,
-                                                                 signedBy: senderKeyPair)
+                                                                 signedBy: account)
             relayPool.publishEvent(directMessage)
         } catch {
             print(error.localizedDescription)
