@@ -10,10 +10,6 @@ import Foundation
 class ChannelManager: ObservableObject {
     @Published var isShowingChannelView = false
     @Published var channelId: String = ""
-
-    init() {
-        print("ChannelManager initialized")
-    }
     
     func openChannel(channelId: String) {
         self.channelId = channelId

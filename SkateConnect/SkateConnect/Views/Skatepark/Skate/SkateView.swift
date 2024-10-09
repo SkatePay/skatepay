@@ -180,6 +180,7 @@ struct SkateView: View {
                                     .onEnded { _ in
                                     }
                                     .onChanged { state in
+                                        stateManager.panMapToCachedCoordinate(lead.coordinate)
                                         channelManager.openChannel(channelId: lead.channelId)
                                     }
                             )
@@ -206,8 +207,8 @@ struct SkateView: View {
             
             HStack(spacing: 20) {
                 Button(action: {
-                    if let location = stateManager.locationManager.currentLocation?.coordinate {
-                        stateManager.locationManager.updateMapRegion(with: location)
+                    if let coordinate = stateManager.locationManager.currentLocation?.coordinate {
+                        stateManager.panMapToCachedCoordinate(coordinate)
                     } else {
                         print("Current location not available.")
                     }
@@ -233,7 +234,6 @@ struct SkateView: View {
                 
                 Button(action: {
                     stateManager.navigation.isShowingSearch.toggle()
-                    
                 }) {
                     Text("🔎")
                         .padding(8)
@@ -248,8 +248,13 @@ struct SkateView: View {
             if channelManager.channelId.isEmpty {
                 Text("No lead available at this index.")
             } else {
-                NavigationView {
-                    ChannelView(channelId: channelManager.channelId)
+                DebugView() {
+                    NavigationView {
+                        ChannelView(channelId: channelManager.channelId)
+                            .onDisappear {
+                                stateManager.locationManager.panMapToCachedCoordinate()
+                            }
+                    }
                 }
             }
         }

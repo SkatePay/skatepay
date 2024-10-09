@@ -229,8 +229,6 @@ struct ChatAreaView: View {
 }
 
 struct ChannelView: View {
-    let channelId: String
-
     @Environment(\.dismiss) private var dismiss
     
     @Query(sort: \Foe.npub) private var foes: [Foe]
@@ -239,15 +237,17 @@ struct ChannelView: View {
     @ObservedObject var dataManager = DataManager.shared
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var feedDelegate = FeedDelegate.shared
-    @ObservedObject var locationManager = LocationManager.shared
     
+    @State var channelId: String
     @State private var isShowingToolBoxView = false
     
     @State private var keyboardHeight: CGFloat = 0
     @State private var npubForSelectedUser = ""
     
+    @State private var isShowingUserDetail = false
     @State private var showingConfirmationAlert = false
     @State private var selectedChannelId: String? = nil
+    @State private var videoURL: URL?
     
     var landmarks: [Landmark] = AppData().landmarks
     
@@ -255,19 +255,15 @@ struct ChannelView: View {
         return landmarks.first { $0.eventId == eventId }
     }
     
-    // MARK: onMessageTap delegates
-    @State private var videoURL: URL?
-    
     private func openInvite() {
         guard let channelId = selectedChannelId else { return }
         
         if let spot = dataManager.findSpotForChannelId(channelId) {
             navigation.coordinate = spot.locationCoordinate
-            locationManager.panMapToCachedCoordinate()
         }
 
-        navigation.goToChannelWithId(channelId)
-        self.reload()
+        self.channelId = channelId
+        reload()
     }
         
     func reload() {
@@ -284,7 +280,7 @@ struct ChannelView: View {
                         print("unknown sender")
                     } else {
                         self.npubForSelectedUser = senderId
-                        navigation.isShowingUserDetail.toggle()
+                        isShowingUserDetail.toggle()
                     }
                 },
                 onTapVideo: { message in
@@ -388,14 +384,14 @@ struct ChannelView: View {
             ToolBoxView()
                 .presentationDetents([.medium])
         }
-        .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
+        .fullScreenCover(isPresented: $isShowingUserDetail) {
             let user = getUser(npub: self.npubForSelectedUser)
             
             NavigationView {
                 UserDetail(user: user)
                     .navigationBarItems(leading:
                                             Button(action: {
-                        navigation.isShowingUserDetail = false
+                        isShowingUserDetail = false
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")

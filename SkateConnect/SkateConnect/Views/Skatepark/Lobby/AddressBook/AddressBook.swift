@@ -31,6 +31,7 @@ struct AddressBook: View {
     
     @ObservedObject var lobby = Lobby.shared
     @ObservedObject var navigation = Navigation.shared
+    @ObservedObject var locationManager = LocationManager.shared
 
     @StateObject private var channelSelection = ChannelSelectionManager()
 

@@ -47,6 +47,11 @@ class StateManager: ObservableObject {
         }
     }
 
+    func panMapToCachedCoordinate(_ coordinate: CLLocationCoordinate2D) {
+        self.navigation.coordinate = coordinate
+        self.locationManager.panMapToCachedCoordinate()
+    }
+
     // Handle spot notification
     func handleGoToSpotNotification(_ notification: Notification) {
         guard let spot = notification.object as? Spot else {

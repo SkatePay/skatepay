@@ -8,6 +8,7 @@
 import InputBarAccessoryView
 import Kingfisher
 import MessageKit
+import NostrSDK
 import SwiftUI
 import UIKit
 
@@ -159,9 +160,14 @@ struct ChatView: UIViewControllerRepresentable {
         var parent: ChatView
         let onSend: (String) -> Void
         
+        var supportUser: User?
+        var currenUser: MockUser?
+        
         init(_ parent: ChatView, onSend: @escaping (String) -> Void) {
             self.parent = parent
             self.onSend = onSend
+            self.supportUser = AppData().getSupport()
+            self.currenUser = parent.getCurrentUser()
         }
                                 
         let formatter: DateFormatter = {
@@ -176,7 +182,7 @@ struct ChatView: UIViewControllerRepresentable {
         }
         
         var currentSender: SenderType {
-            parent.getCurrentUser()
+            currenUser!
         }
         
         func messageForItem(at indexPath: IndexPath, in _: MessagesCollectionView) -> MessageType {
@@ -195,7 +201,7 @@ struct ChatView: UIViewControllerRepresentable {
         func messageTopLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
             var name = message.sender.displayName
 
-            if (message.sender.senderId == AppData().getSupport().npub) {
+            if (message.sender.senderId == self.supportUser?.npub) {
                 name = AppData().getSupport().name
             }
 
@@ -222,10 +228,11 @@ struct ChatView: UIViewControllerRepresentable {
         }
         
         func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in _: MessagesCollectionView) {
-            if (message.sender.senderId == AppData().getSupport().npub) {
-                let supportImageName = AppData().getSupport().imageName
-                let avatar = Avatar(image: UIImage(named: supportImageName), initials: "SC")
-                avatarView.set(avatar: avatar)
+            if (message.sender.senderId == self.supportUser?.npub) {
+                if let supportImageName = self.supportUser?.imageName {
+                    let avatar = Avatar(image: UIImage(named: supportImageName), initials: "SC")
+                    avatarView.set(avatar: avatar)
+                }
             } else {
                 let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
                 avatarView.set(avatar: avatar)
@@ -238,9 +245,9 @@ struct ChatView: UIViewControllerRepresentable {
                 return UIColor.systemPurple
             }
             
-            if (message.sender.senderId == AppData().getSupport().npub) {
+            if (message.sender.senderId == self.supportUser?.npub) {
                 return UIColor.systemOrange
-            } else if (message.sender.senderId == parent.getCurrentUser().senderId) {
+            } else if (message.sender.senderId == currenUser?.senderId) {
                 return UIColor.systemGreen
             } else {
                 return UIColor.darkGray

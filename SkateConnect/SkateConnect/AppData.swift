@@ -140,6 +140,10 @@ class DataManager: ObservableObject {
         }
     }
     
+    func findFoes(_ npub: String) -> Foe? {
+        return fetchFoes().first(where: { $0.npub == npub })
+    }
+    
     // MARK: Leads
     
 }

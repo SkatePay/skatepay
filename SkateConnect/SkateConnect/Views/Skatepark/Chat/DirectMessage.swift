@@ -37,13 +37,14 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @ObservedObject var network = Network.shared
     @ObservedObject var dataManager = DataManager.shared
     @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var locationManager = LocationManager.shared
 
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var chatDelegate = DirectMessageDelegate()
     @ObservedObject var messageHandler = MessageHandler()
     
+    @StateObject var channelManager = ChannelManager()
+
     @State private var eventsCancellable: AnyCancellable?
     
     @State private var errorString: String?
@@ -55,6 +56,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var showAlertForAddingPark = false
     
     @State private var showingConfirmationAlert = false
+    
     @State private var selectedChannelId: String? = nil
     @State private var npubForSelectedUser = ""
     
@@ -82,51 +84,15 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     
     @State private var videoURL: URL?
     
-    private func showMenu(_ senderId: String) {
-//        if senderId.isEmpty {
-//            print("unknown sender")
-//        } else {
-//            self.npub = senderId
-//            navigation.isShowingUserDetail.toggle()
-//        }
-    }
-    
-    private func openVideoPlayer(_ message: MessageType) {
-//        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
-//            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-//            
-//            self.videoURL = URL(string: videoURLString)
-//            navigation.isShowingVideoPlayer.toggle()
-//        }
-    }
-    
     private func openLink(_ channelId: String) {
-        if let spot = dataManager.findSpotForChannelId(channelId) {
-            navigation.coordinate = spot.locationCoordinate
-            locationManager.panMapToCachedCoordinate()
-        }
-
-        navigation.goToChannelWithId(channelId)
-//        self.reload()
+        channelManager.openChannel(channelId: channelId)
     }
         
-//    private func onTapLink(_ channelId: String) {
-//        selectedChannelId = channelId
-//        showingConfirmationAlert = true
-//    }
-    
     private func onSend(text: String) {
         publishEvent(text: text)
     }
     
     var body: some View {
-//        ChatView(
-//            messages: $messageHandler.messages,
-//            onTapAvatar: showMenu,
-//            onTapVideo: openVideoPlayer,
-//            onTapLink: onTapLink,
-//            onSend: onSend
-//        )
         ChatAreaView(
             messages: $messageHandler.messages,
             onTapAvatar: { senderId in
@@ -218,6 +184,11 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                             Spacer()
                         }
                     })
+            }
+        }
+        .fullScreenCover(isPresented: $channelManager.isShowingChannelView) {
+            NavigationView {
+                ChannelView(channelId: channelManager.channelId)
             }
         }
         .alert(isPresented: $showingConfirmationAlert) {
