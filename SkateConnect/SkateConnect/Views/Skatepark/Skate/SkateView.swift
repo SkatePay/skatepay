@@ -17,7 +17,9 @@ struct SkateView: View {
     
     @Query private var spots: [Spot]
     
-    @ObservedObject private var stateManager = StateManager()  // Using StateManager
+    @StateObject var channelManager = ChannelManager()
+    
+    @ObservedObject private var stateManager = StateManager()
     
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
@@ -178,7 +180,7 @@ struct SkateView: View {
                                     .onEnded { _ in
                                     }
                                     .onChanged { state in
-                                        stateManager.navigation.joinChannel(channelId: lead.channelId)
+                                        channelManager.openChannel(channelId: lead.channelId)
                                     }
                             )
                         }
@@ -242,16 +244,13 @@ struct SkateView: View {
             }
             .padding()
         }
-        .fullScreenCover(isPresented: $stateManager.navigation.isShowingChannelView) {
-            if stateManager.navigation.channelId.isEmpty {
+        .fullScreenCover(isPresented: $channelManager.isShowingChannelView) {
+            if channelManager.channelId.isEmpty {
                 Text("No lead available at this index.")
             } else {
-                DebugView() {
-                    NavigationView {
-                        ChannelView()
-                    }
+                NavigationView {
+                    ChannelView(channelId: channelManager.channelId)
                 }
-                
             }
         }
         .fullScreenCover(isPresented: $stateManager.navigation.isShowingDirectory) {

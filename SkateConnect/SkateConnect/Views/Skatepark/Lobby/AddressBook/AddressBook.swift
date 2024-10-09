@@ -122,7 +122,7 @@ struct AddressBook: View {
                         Text("No channel available.")
                     } else {
                         NavigationView {
-                            ChannelView()
+                            ChannelView(channelId: spot.channelId)
                         }
                     }
                 }

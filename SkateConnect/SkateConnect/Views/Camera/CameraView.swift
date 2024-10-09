@@ -13,7 +13,7 @@ import AWSCognitoIdentityProvider
 
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     
     @ObservedObject var navigation = Navigation.shared
     
@@ -48,7 +48,7 @@ struct CameraView: View {
             VStack {
                 HStack {
                     Button(action: {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }) {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.white)
@@ -183,7 +183,7 @@ struct CameraView: View {
             Button("Ok", role: .cancel) {
                 if let videoURL = self.cameraViewModel.videoURL {
                     navigation.completeUpload(videoURL: videoURL)
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 }
             }
         }

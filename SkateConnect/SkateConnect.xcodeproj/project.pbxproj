@@ -93,6 +93,7 @@
 		C6DC04682CB5B720003FCA1B /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04672CB5B720003FCA1B /* UI.swift */; };
 		C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04692CB5BA00003FCA1B /* StateManager.swift */; };
 		C6DC046C2CB5BFB0003FCA1B /* ChannelEventService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046B2CB5BFB0003FCA1B /* ChannelEventService.swift */; };
+		C6DC046E2CB5FD69003FCA1B /* ChannelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046D2CB5FD69003FCA1B /* ChannelManager.swift */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -232,6 +233,7 @@
 		C6DC04672CB5B720003FCA1B /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
 		C6DC04692CB5BA00003FCA1B /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
 		C6DC046B2CB5BFB0003FCA1B /* ChannelEventService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelEventService.swift; sourceTree = "<group>"; };
+		C6DC046D2CB5FD69003FCA1B /* ChannelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelManager.swift; sourceTree = "<group>"; };
 		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
 		C6DCF46E2C93E32F00CA21ED /* Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filters.swift; sourceTree = "<group>"; };
 		C6DCF4722C94000F00CA21ED /* EditChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChannel.swift; sourceTree = "<group>"; };
@@ -559,6 +561,7 @@
 				C66AFE8B2CA63755000CD716 /* Navigation.swift */,
 				C66AFE912CA7812C000CD716 /* Network.swift */,
 				C6C94AE82CA8D731008ECA86 /* API.swift */,
+				C6DC046D2CB5FD69003FCA1B /* ChannelManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -917,6 +920,7 @@
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
 				C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */,
+				C6DC046E2CB5FD69003FCA1B /* ChannelManager.swift in Sources */,
 				C66AFE992CA7B8A6000CD716 /* VideoEditorView.swift in Sources */,
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,
 				C6DC04682CB5B720003FCA1B /* UI.swift in Sources */,

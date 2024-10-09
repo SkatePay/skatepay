@@ -49,13 +49,49 @@ class FeedDelegate: ObservableObject {
     }
 
     // MARK: - Subscribe to Channel Events
-    public func updateSubscription() {
+    public func subscribeToChannelWithId(_channelId: String) {
         cleanUp()
 
         // Subscribe to channel events via event service
-        eventService.subscribeToChannelEvents(channelId: navigation.channelId) { [weak self] event in
+        eventService.subscribeToChannelEvents(channelId: _channelId) { [weak self] events in
             guard let self = self else { return }
-            self.handleEvent(event)
+            self.handleEvents(events)
+        }
+    }
+
+    // MARK: - Handle Multiple Events in Bulk
+    private func handleEvents(_ events: [NostrEvent]) {
+        let newMessages: [MessageType] = []
+        
+        for event in events {
+            if let message = parseEventIntoMessage(event: event) {
+                if event.kind == .channelCreation {
+                    DispatchQueue.main.async {
+                        self.lead = createLead(from: event)
+                    }
+                    guard let lead = lead else { continue }
+                    self.dataManager.saveSpotForLead(lead)
+                    navigation.channel = event
+                }
+                
+                // Only add channel messages to newMessages array
+                if event.kind == .channelMessage {
+                    guard let publicKey = PublicKey(hex: event.pubkey) else { continue }
+                    if getBlacklist().contains(publicKey.npub) { continue }
+                    
+                    // Append messages depending on whether we are fetching stored events or live events
+                    if eventService.fetchingStoredEvents {
+                        messages.insert(message, at: 0)  // Prepend historical messages
+                    } else {
+                        messages.append(message)  // Append live messages
+                    }
+                }
+            }
+        }
+
+        // Batch update the messages array with new messages
+        DispatchQueue.main.async {
+            self.messages.append(contentsOf: newMessages)
         }
     }
 
@@ -193,6 +229,8 @@ struct ChatAreaView: View {
 }
 
 struct ChannelView: View {
+    let channelId: String
+
     @Environment(\.dismiss) private var dismiss
     
     @Query(sort: \Foe.npub) private var foes: [Foe]
@@ -206,7 +244,7 @@ struct ChannelView: View {
     @State private var isShowingToolBoxView = false
     
     @State private var keyboardHeight: CGFloat = 0
-    @State private var npub = ""
+    @State private var npubForSelectedUser = ""
     
     @State private var showingConfirmationAlert = false
     @State private var selectedChannelId: String? = nil
@@ -233,7 +271,8 @@ struct ChannelView: View {
     }
         
     func reload() {
-        self.feedDelegate.updateSubscription()
+        self.navigation.channelId = channelId
+        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId)
     }
     
     var body: some View {
@@ -244,7 +283,7 @@ struct ChannelView: View {
                     if senderId.isEmpty {
                         print("unknown sender")
                     } else {
-                        self.npub = senderId
+                        self.npubForSelectedUser = senderId
                         navigation.isShowingUserDetail.toggle()
                     }
                 },
@@ -261,10 +300,12 @@ struct ChannelView: View {
                     showingConfirmationAlert = true
                 },
                 onSend: { text in
+                    navigation.channelId = channelId
                     feedDelegate.publishDraft(text: text)
                 }
             )
             .onAppear {
+                self.navigation.channelId = channelId
                 self.reload()
             }
             .onAppear(perform: observeNotification)
@@ -348,7 +389,7 @@ struct ChannelView: View {
                 .presentationDetents([.medium])
         }
         .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
-            let user = getUser(npub: self.npub)
+            let user = getUser(npub: self.npubForSelectedUser)
             
             NavigationView {
                 UserDetail(user: user)
@@ -401,7 +442,7 @@ struct ChannelView: View {
             object: nil,
             queue: .main
         ) { _ in
-            self.feedDelegate.updateSubscription()
+            self.feedDelegate.subscribeToChannelWithId(_channelId: self.channelId)
         }
     }
 }
@@ -416,5 +457,5 @@ struct IgnoresSafeArea: ViewModifier {
     }
 }
 #Preview {
-    ChannelView()
+    ChannelView(channelId: "")
 }

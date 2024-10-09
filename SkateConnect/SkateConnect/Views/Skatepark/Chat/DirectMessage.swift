@@ -56,6 +56,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     
     @State private var showingConfirmationAlert = false
     @State private var selectedChannelId: String? = nil
+    @State private var npubForSelectedUser = ""
     
     private var user: User
     private var message: String
@@ -109,22 +110,48 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
 //        self.reload()
     }
         
-    private func onTapLink(_ channelId: String) {
-        selectedChannelId = channelId
-        showingConfirmationAlert = true
-    }
+//    private func onTapLink(_ channelId: String) {
+//        selectedChannelId = channelId
+//        showingConfirmationAlert = true
+//    }
     
     private func onSend(text: String) {
         publishEvent(text: text)
     }
     
     var body: some View {
-        ChatView(
+//        ChatView(
+//            messages: $messageHandler.messages,
+//            onTapAvatar: showMenu,
+//            onTapVideo: openVideoPlayer,
+//            onTapLink: onTapLink,
+//            onSend: onSend
+//        )
+        ChatAreaView(
             messages: $messageHandler.messages,
-            onTapAvatar: showMenu,
-            onTapVideo: openVideoPlayer,
-            onTapLink: onTapLink,
-            onSend: onSend
+            onTapAvatar: { senderId in
+                if senderId.isEmpty {
+                    print("unknown sender")
+                } else {
+                    npubForSelectedUser = senderId
+                    navigation.isShowingUserDetail.toggle()
+                }
+            },
+            onTapVideo: { message in
+                if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
+                    let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
+                    
+                    self.videoURL = URL(string: videoURLString)
+                    navigation.isShowingVideoPlayer.toggle()
+                }
+            },
+            onTapLink: { channelId in
+                selectedChannelId = channelId
+                showingConfirmationAlert = true
+            },
+            onSend: { text in
+                publishEvent(text: text)
+            }
         )
         .navigationBarBackButtonHidden()
         .navigationBarItems(
