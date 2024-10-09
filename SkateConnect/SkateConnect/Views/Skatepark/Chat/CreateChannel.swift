@@ -72,7 +72,12 @@ struct CreateChannel: View, EventCreating {
         Form {
             Section("Name") {
                 TextField("name", text: $name)
+                Text("Suggestions: My Spot, To Do, Session #7, etc.")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .italic()
             }
+
             
             Section("Icon") {
                 Picker("Select One", selection: $icon) {

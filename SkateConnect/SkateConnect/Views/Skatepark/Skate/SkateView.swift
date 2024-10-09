@@ -248,32 +248,28 @@ struct SkateView: View {
             if channelManager.channelId.isEmpty {
                 Text("No lead available at this index.")
             } else {
-                DebugView() {
-                    NavigationView {
-                        ChannelView(channelId: channelManager.channelId)
-                            .onDisappear {
-                                stateManager.locationManager.panMapToCachedCoordinate()
-                            }
-                    }
+                NavigationView {
+                    ChannelView(channelId: channelManager.channelId)
+                        .onDisappear {
+                            stateManager.locationManager.panMapToCachedCoordinate()
+                        }
                 }
             }
         }
         .fullScreenCover(isPresented: $stateManager.navigation.isShowingDirectory) {
-            DebugView() {
-                NavigationView {
-                    LandmarkDirectory()
-                        .navigationBarTitle("🏁 Skateparks")
-                        .navigationBarItems(leading:
-                                                Button(action: {
-                            stateManager.navigation.isShowingDirectory = false
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.left")
-                                Text("Map")
-                                Spacer()
-                            }
-                        })
-                }
+            NavigationView {
+                LandmarkDirectory()
+                    .navigationBarTitle("🏁 Skateparks")
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        stateManager.navigation.isShowingDirectory = false
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.left")
+                            Text("Map")
+                            Spacer()
+                        }
+                    })
             }
         }
         .fullScreenCover(isPresented: $stateManager.navigation.isShowingSearch) {

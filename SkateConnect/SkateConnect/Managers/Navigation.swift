@@ -31,6 +31,8 @@ class Navigation: ObservableObject {
     @Published var channelId: String = ""
     @Published var channel: NostrEvent?
     
+    @Published var selectedUser: User?
+    
     @Published var marks: [Mark] = []
     
     @Published var landmark: Landmark?
@@ -42,6 +44,7 @@ class Navigation: ObservableObject {
     @Published var isShowingSearch = false
     
     @Published var isShowingUserDetail = false
+    @Published var isShowingFilters = false
     
     @Published var isShowingBarcodeScanner = false
     

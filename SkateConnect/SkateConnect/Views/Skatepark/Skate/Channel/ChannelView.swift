@@ -227,7 +227,9 @@ struct ChatAreaView: View {
         )
     }
 }
-
+class SelectedUserManager: ObservableObject {
+    @Published var npub: String = ""
+}
 struct ChannelView: View {
     @Environment(\.dismiss) private var dismiss
     
@@ -242,9 +244,11 @@ struct ChannelView: View {
     @State private var isShowingToolBoxView = false
     
     @State private var keyboardHeight: CGFloat = 0
-    @State private var npubForSelectedUser = ""
     
+    @StateObject var selectedUserManager = SelectedUserManager() // Local state management
+
     @State private var isShowingUserDetail = false
+    
     @State private var showingConfirmationAlert = false
     @State private var selectedChannelId: String? = nil
     @State private var videoURL: URL?
@@ -276,12 +280,8 @@ struct ChannelView: View {
             ChatAreaView(
                 messages: $feedDelegate.messages,
                 onTapAvatar: { senderId in
-                    if senderId.isEmpty {
-                        print("unknown sender")
-                    } else {
-                        self.npubForSelectedUser = senderId
-                        isShowingUserDetail.toggle()
-                    }
+                    selectedUserManager.npub = senderId
+                    isShowingUserDetail.toggle()
                 },
                 onTapVideo: { message in
                     if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
@@ -385,10 +385,8 @@ struct ChannelView: View {
                 .presentationDetents([.medium])
         }
         .fullScreenCover(isPresented: $isShowingUserDetail) {
-            let user = getUser(npub: self.npubForSelectedUser)
-            
             NavigationView {
-                UserDetail(user: user)
+                UserDetail(user: getUser(npub: selectedUserManager.npub))
                     .navigationBarItems(leading:
                                             Button(action: {
                         isShowingUserDetail = false

@@ -36,14 +36,14 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
 
     @ObservedObject var network = Network.shared
     @ObservedObject var dataManager = DataManager.shared
-    @ObservedObject var navigation = Navigation.shared
 
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var chatDelegate = DirectMessageDelegate()
     @ObservedObject var messageHandler = MessageHandler()
     
-    @StateObject var channelManager = ChannelManager()
+    // Local state for managing channel view
+    @State private var isShowingChannelView = false
 
     @State private var eventsCancellable: AnyCancellable?
     
@@ -51,6 +51,8 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var subscriptionId: String?
     
     @State private var isShowingUserDetail = false
+    @State private var isShowingCameraView = false
+    @State private var isShowingVideoPlayer = false
     
     @State private var showAlertForReporting = false
     @State private var showAlertForAddingPark = false
@@ -58,8 +60,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var showingConfirmationAlert = false
     
     @State private var selectedChannelId: String? = nil
-    @State private var npubForSelectedUser = ""
-    
+
     private var user: User
     private var message: String
     
@@ -85,7 +86,8 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var videoURL: URL?
     
     private func openLink(_ channelId: String) {
-        channelManager.openChannel(channelId: channelId)
+        self.selectedChannelId = channelId
+        self.isShowingChannelView = true
     }
         
     private func onSend(text: String) {
@@ -99,8 +101,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                 if senderId.isEmpty {
                     print("unknown sender")
                 } else {
-                    npubForSelectedUser = senderId
-                    navigation.isShowingUserDetail.toggle()
+                    isShowingUserDetail.toggle()
                 }
             },
             onTapVideo: { message in
@@ -108,7 +109,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
                     
                     self.videoURL = URL(string: videoURLString)
-                    navigation.isShowingVideoPlayer.toggle()
+                    isShowingVideoPlayer.toggle()
                 }
             },
             onTapLink: { channelId in
@@ -130,7 +131,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     }
                     
                     Button(action: {
-                        if (!navigation.isShowingUserDetail) {
+                        if (!isShowingUserDetail) {
                             self.isShowingUserDetail.toggle()
                         }
                     }) {
@@ -164,7 +165,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     }
                     
                     Button(action: {
-                        self.navigation.isShowingCameraView = true
+                        isShowingCameraView = true
                     }) {
                         Image(systemName: "camera.on.rectangle.fill")
                             .foregroundColor(.blue)
@@ -186,9 +187,11 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     })
             }
         }
-        .fullScreenCover(isPresented: $channelManager.isShowingChannelView) {
-            NavigationView {
-                ChannelView(channelId: channelManager.channelId)
+        .fullScreenCover(isPresented: $isShowingChannelView) {
+            if let channelId = selectedChannelId {
+                NavigationView {
+                    ChannelView(channelId: channelId)
+                }
             }
         }
         .alert(isPresented: $showingConfirmationAlert) {
@@ -294,8 +297,9 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         }
     }
     
-    private func updateSubscription() {        
+    private func updateSubscription() {
         chatDelegate.fetchingStoredEvents = true
+        
         
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)

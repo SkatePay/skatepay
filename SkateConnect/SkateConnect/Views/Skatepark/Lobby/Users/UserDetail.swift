@@ -12,7 +12,6 @@ import SwiftUI
 struct UserDetail: View {
     @Environment(\.modelContext) private var context
     @ObservedObject var network = Network.shared
-    @ObservedObject var navigation = Navigation.shared
     
     @Query(sort: \Friend.npub) private var friends: [Friend]
     @Query(sort: \Foe.npub) private var foes: [Foe]
@@ -72,19 +71,16 @@ struct UserDetail: View {
                     if (!isSupport()) {
                         FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
                     }
-                    
-                    if (!navigation.isShowingChatView) {
-                        Button(action: { isShowingChatView.toggle() }) {
-                            Label("Chat", systemImage: "message")
-                                .padding(8)
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        .fullScreenCover(isPresented: $isShowingChatView) {
-                            NavigationView {
-                                DirectMessage(user: user)
-                            }
+                    Button(action: { isShowingChatView.toggle() }) {
+                        Label("Chat", systemImage: "message")
+                            .padding(8)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    .fullScreenCover(isPresented: $isShowingChatView) {
+                        NavigationView {
+                            DirectMessage(user: user)
                         }
                     }
                 }

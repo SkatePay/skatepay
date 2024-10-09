@@ -221,7 +221,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             case .legacyEncryptedDirectMessage:
                 handleDirectMessage(event)
             case .channelMessage:
-            handleChannelMessage(event)
+                handleChannelMessage(event)
             default:
                 print("Unhandled event kind: \(event.kind)")
         }
