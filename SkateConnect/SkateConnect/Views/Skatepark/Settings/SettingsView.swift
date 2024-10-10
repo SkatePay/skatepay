@@ -26,7 +26,8 @@ struct SettingsView: View {
     @State private var npub: String?
     
     @State private var showingConfirmation = false
-
+    @State private var showingQRCodeView = false
+    
     let keychainForNostr = NostrKeychainStorage()
     
     var appVersion: String {
@@ -56,6 +57,15 @@ struct SettingsView: View {
                         if let publicKey = keychainForNostr.account?.publicKey.npub {
                             Text("\(publicKey)")
                                 .contextMenu {
+                                    if let npub = keychainForNostr.account?.publicKey.npub {
+                                        Button(action: {
+                                            self.npub = npub
+                                            showingQRCodeView.toggle()
+                                        }) {
+                                            Text("Show QR")
+                                        }
+                                    }
+                                    
                                     if let npub = keychainForNostr.account?.publicKey.npub {
                                         Button(action: {
                                             UIPasteboard.general.string = npub
@@ -141,6 +151,11 @@ struct SettingsView: View {
                     }
                 }
                 .navigationTitle("🛠️ Settings")
+            }
+            .sheet(isPresented: $showingQRCodeView) {
+                if let npub = npub {
+                    QRCodeView(npub: npub)
+                }
             }
         }
     }

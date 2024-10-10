@@ -94,6 +94,7 @@
 		C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04692CB5BA00003FCA1B /* StateManager.swift */; };
 		C6DC046C2CB5BFB0003FCA1B /* ChannelEventService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046B2CB5BFB0003FCA1B /* ChannelEventService.swift */; };
 		C6DC046E2CB5FD69003FCA1B /* ChannelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046D2CB5FD69003FCA1B /* ChannelManager.swift */; };
+		C6DC04702CB75010003FCA1B /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046F2CB75010003FCA1B /* QRCodeView.swift */; };
 		C6DCF46D2C93DEB200CA21ED /* Foe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46C2C93DEB200CA21ED /* Foe.swift */; };
 		C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF46E2C93E32F00CA21ED /* Filters.swift */; };
 		C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCF4722C94000F00CA21ED /* EditChannel.swift */; };
@@ -234,6 +235,7 @@
 		C6DC04692CB5BA00003FCA1B /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
 		C6DC046B2CB5BFB0003FCA1B /* ChannelEventService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelEventService.swift; sourceTree = "<group>"; };
 		C6DC046D2CB5FD69003FCA1B /* ChannelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelManager.swift; sourceTree = "<group>"; };
+		C6DC046F2CB75010003FCA1B /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
 		C6DCF46C2C93DEB200CA21ED /* Foe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foe.swift; sourceTree = "<group>"; };
 		C6DCF46E2C93E32F00CA21ED /* Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filters.swift; sourceTree = "<group>"; };
 		C6DCF4722C94000F00CA21ED /* EditChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChannel.swift; sourceTree = "<group>"; };
@@ -693,6 +695,7 @@
 				C625011C2C93C1340026C334 /* ImportIdentity.swift */,
 				C625011A2C93C1340026C334 /* Keychain */,
 				C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */,
+				C6DC046F2CB75010003FCA1B /* QRCodeView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -885,6 +888,7 @@
 				C62501412C93C1340026C334 /* DirectMessage.swift in Sources */,
 				C66E09662C96583800C9F8F1 /* Lorem.swift in Sources */,
 				C62501522C93C1340026C334 /* LandmarkDetail.swift in Sources */,
+				C6DC04702CB75010003FCA1B /* QRCodeView.swift in Sources */,
 				C6C94AE72CA885B1008ECA86 /* Lobby.swift in Sources */,
 				C62501682C93C1340026C334 /* Spot.swift in Sources */,
 				C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */,
