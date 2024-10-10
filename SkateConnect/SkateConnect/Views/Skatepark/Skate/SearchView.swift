@@ -47,7 +47,7 @@ struct SearchView: View {
                             navigation.coordinate = coordinates
                         }
                         
-                        navigation.joinChat(channelId: channelId)
+                        navigation.joinChannel(channelId: channelId)
                     }
                 }
             }

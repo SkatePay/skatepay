@@ -124,12 +124,12 @@ struct LobbyView: View {
                     Button(action: {
                         navigation.isShowingAddressBook.toggle()
                     }) {
-                        Text("📘 Address Book")
+                        Text("📡 Channels")
                     }
                     .fullScreenCover(isPresented: $navigation.isShowingAddressBook) {
                         NavigationView {
                             AddressBook()
-                                .navigationBarTitle("Address Book")
+                                .navigationBarTitle("Channels")
                                 .navigationBarItems(leading:
                                                         Button(action: {
                                     navigation.isShowingAddressBook = false
@@ -168,7 +168,7 @@ struct LobbyView: View {
                     Button(action: {
                         navigation.isShowingCreateMessage.toggle()
                     }) {
-                        Text("🖋️ Message")
+                        Text("✉️ Message")
                     }
                     .fullScreenCover(isPresented: $navigation.isShowingCreateMessage) {
                         NavigationView {
@@ -190,7 +190,7 @@ struct LobbyView: View {
                     activity
                 }
             }
-            .navigationTitle("⛺️ Lobby")
+            .navigationTitle("🏛️ Lobby")
             .toolbar {
                 Button {
                     isShowingProfile.toggle()

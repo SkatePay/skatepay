@@ -17,6 +17,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var context
 
     @ObservedObject var lobby = Lobby.shared
+    @ObservedObject var navigation = Navigation.shared
 
     @Binding var host: Host
 
@@ -25,21 +26,46 @@ struct SettingsView: View {
     @State private var npub: String?
     
     @State private var showingConfirmation = false
-
+    @State private var showingQRCodeView = false
+    
     let keychainForNostr = NostrKeychainStorage()
+    
+    var appVersion: String {
+        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+           let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            return "Version \(version) (\(build))"
+        }
+        return "Unknown Version"
+    }
     
     var body: some View {
         NavigationView {
             VStack {
                 Image("user-funkadelic")
-                    .resizable() // Makes the image resizable
-                    .aspectRatio(contentMode: .fit) // Keeps the aspect ratio while fitting the image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
                     .frame(width: 200, height: 200)
+                
+                Text(appVersion)
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                
                 List {
                     Section ("NOSTR") {
                         if let publicKey = keychainForNostr.account?.publicKey.npub {
                             Text("\(publicKey)")
                                 .contextMenu {
+                                    if let npub = keychainForNostr.account?.publicKey.npub {
+                                        Button(action: {
+                                            self.npub = npub
+                                            showingQRCodeView.toggle()
+                                        }) {
+                                            Text("Show QR")
+                                        }
+                                    }
+                                    
                                     if let npub = keychainForNostr.account?.publicKey.npub {
                                         Button(action: {
                                             UIPasteboard.general.string = npub
@@ -115,6 +141,8 @@ struct SettingsView: View {
                                 
                                 self.lobby.clear()
                                 clearAllUserDefaults()
+                                
+                                navigation.hasAcknowledgedEULA = false
                             }
                         }
                         Button("Cancel", role: .cancel) { }
@@ -123,6 +151,11 @@ struct SettingsView: View {
                     }
                 }
                 .navigationTitle("🛠️ Settings")
+            }
+            .sheet(isPresented: $showingQRCodeView) {
+                if let npub = npub {
+                    QRCodeView(npub: npub)
+                }
             }
         }
     }

@@ -13,7 +13,7 @@ import AWSCognitoIdentityProvider
 
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     
     @ObservedObject var navigation = Navigation.shared
     
@@ -48,7 +48,7 @@ struct CameraView: View {
             VStack {
                 HStack {
                     Button(action: {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }) {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.white)
@@ -176,12 +176,14 @@ struct CameraView: View {
                     cameraViewModel.showZoomHint = false
                 }
             }
+            
+            cameraViewModel.channelId = navigation.channelId
         }
         .alert("Video posted.", isPresented: $cameraViewModel.showingAlert) {
             Button("Ok", role: .cancel) {
                 if let videoURL = self.cameraViewModel.videoURL {
                     navigation.completeUpload(videoURL: videoURL)
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 }
             }
         }
@@ -222,7 +224,10 @@ struct CameraPreview: UIViewRepresentable {
         }
     }
 }
+
 class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingDelegate {
+    @Published var channelId: String = ""
+    
     @Published var isRecording = false
     @Published var isVideoRecorded = false
     @Published var showingPreview = false
@@ -242,6 +247,12 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
     var videoURL: URL?
     
     let keychainForAws = AwsKeychainStorage()
+    private let uploadManager: UploadManager
+
+    override init() {
+        uploadManager = UploadManager(keychainForAws: keychainForAws)
+        super.init()
+    }
     
     // MARK: - Check Permissions and Setup
     func checkPermissionsAndSetup() {
@@ -338,6 +349,22 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
         isVideoRecorded = true
         videoURL = outputFileURL
     }
+   
+    func uploadFiles(imageURL: URL) async throws {
+        isUploading = true
+        
+        // Use the UploadManager to upload the image and video
+        Task {
+            try await uploadManager.uploadImage(imageURL: imageURL, channelId: channelId)
+            if let videoURL = videoURL {
+                try await uploadManager.uploadVideo(videoURL: videoURL, channelId: channelId)
+            }
+        }
+        
+        isUploading = false
+        showingPreview = false
+        showingAlert = true
+    }
     
     // MARK: - Zoom Functionality
     func zoom(factor: CGFloat) {
@@ -403,68 +430,5 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
         }
         
         session.commitConfiguration()
-    }
-    
-    
-    // MARK: - Simulate Video Upload
-    func uploadFiles(imageURL: URL) async throws {
-        Task {
-            try await uploadImage(imageURL: imageURL)
-            try await uploadVideo()
-        }
-        
-        showingPreview = false
-        isUploading = false
-        showingAlert = true
-    }
-    
-    // Upload image to S3
-    func uploadImage(imageURL: URL) async throws {
-        
-        let serviceHandler = try await S3ServiceHandler(
-            region: "us-west-2",
-            accessKeyId: keychainForAws.keys?.S3_ACCESS_KEY_ID,
-            secretAccessKey: keychainForAws.keys?.S3_SECRET_ACCESS_KEY
-        )
-        
-        let objName = imageURL.lastPathComponent
-        try await serviceHandler.uploadFile(
-            bucket: Constants.S3_BUCKET,
-            key: objName,
-            fileUrl: imageURL
-        )
-        print("Image uploaded to S3: \(objName)")
-    }
-    
-    func uploadVideo() async throws {
-        let serviceHandler = try await S3ServiceHandler(
-            region: "us-west-2",
-            accessKeyId: keychainForAws.keys?.S3_ACCESS_KEY_ID,
-            secretAccessKey: keychainForAws.keys?.S3_SECRET_ACCESS_KEY
-        )
-        
-        guard let videoURL = videoURL else { return }
-        print("Uploading video from URL: \(videoURL)")
-        
-        let objName = videoURL.lastPathComponent
-        
-        try await serviceHandler.uploadFile(
-            bucket: Constants.S3_BUCKET,
-            key: objName,
-            fileUrl: videoURL
-        )
-        
-        // Simulate upload...
-        isVideoRecorded = false
-    }
-    
-    func requestTemporaryToken(bucket: String) async throws -> String {
-        let url = URL(string: "\(Constants.API_URL_SKATEPARK)/token?bucket=\(bucket)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        let (data, _) = try await URLSession.shared.data(for: request)
-        let json = try JSONSerialization.jsonObject(with: data, options: [])
-        return (json as! [String: String])["token"]!
     }
 }

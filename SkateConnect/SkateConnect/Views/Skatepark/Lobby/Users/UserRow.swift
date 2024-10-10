@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct UserRow: View {
-    @ObservedObject var navigation = Navigation.shared
-    
     @State private var isShowingFilters = false
     @State private var selectedUser: User? = nil
     
@@ -38,7 +36,6 @@ struct UserRow: View {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(users) { user in
                         Button(action: {
-                            navigation.isShowingUserDetail.toggle()
                             selectedUser = user
                         }) {
                             UserItem(user: user)
@@ -54,7 +51,6 @@ struct UserRow: View {
                     .navigationBarItems(leading:
                                             Button(action: {
                         selectedUser = nil
-                        navigation.isShowingUserDetail = false
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
@@ -74,7 +70,7 @@ struct UserRow: View {
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
-                            Text("⛺️ Lobby")
+                            Text("🏛️ Lobby")
                             Spacer()
                         }
                     })

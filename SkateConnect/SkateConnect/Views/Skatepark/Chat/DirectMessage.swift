@@ -7,13 +7,13 @@
 
 import Combine
 import ConnectFramework
-import ExyteChat
 import Foundation
+import MessageKit
 import NostrSDK
 import SwiftUI
 import UIKit
 
-class ChatDelegate: ObservableObject, RelayDelegate {
+class DirectMessageDelegate: ObservableObject, RelayDelegate {
     @Published var fetchingStoredEvents = true
     
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
@@ -32,27 +32,35 @@ class ChatDelegate: ObservableObject, RelayDelegate {
 }
 
 struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
-    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.dismiss) private var dismiss
 
     @ObservedObject var network = Network.shared
     @ObservedObject var dataManager = DataManager.shared
-    @ObservedObject var navigation = Navigation.shared
-    
+
     let keychainForNostr = NostrKeychainStorage()
     
-    @ObservedObject var chatDelegate = ChatDelegate()
+    @ObservedObject var chatDelegate = DirectMessageDelegate()
+    @ObservedObject var messageHandler = MessageHandler()
     
-    @State private var messages: [Message] = []
+    // Local state for managing channel view
+    @State private var isShowingChannelView = false
+
     @State private var eventsCancellable: AnyCancellable?
     
     @State private var errorString: String?
     @State private var subscriptionId: String?
     
     @State private var isShowingUserDetail = false
+    @State private var isShowingCameraView = false
+    @State private var isShowingVideoPlayer = false
     
     @State private var showAlertForReporting = false
     @State private var showAlertForAddingPark = false
     
+    @State private var showingConfirmationAlert = false
+    
+    @State private var selectedChannelId: String? = nil
+
     private var user: User
     private var message: String
     
@@ -75,49 +83,95 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         return user.image
     }
     
+    @State private var videoURL: URL?
+    
+    private func openLink(_ channelId: String) {
+        self.selectedChannelId = channelId
+        self.isShowingChannelView = true
+    }
+        
+    private func onSend(text: String) {
+        publishEvent(text: text)
+    }
+    
     var body: some View {
-        ExyteChat.ChatView(messages: messages, chatType: .conversation) { draft in
-            publishDraft(draft: draft)
-        }
-        .enableLoadMore(pageSize: 3) { message in
-        }
-        .messageUseMarkdown(messageUseMarkdown: true)
+        ChatAreaView(
+            messages: $messageHandler.messages,
+            onTapAvatar: { senderId in
+                if senderId.isEmpty {
+                    print("unknown sender")
+                } else {
+                    isShowingUserDetail.toggle()
+                }
+            },
+            onTapVideo: { message in
+                if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
+                    let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
+                    
+                    self.videoURL = URL(string: videoURLString)
+                    isShowingVideoPlayer.toggle()
+                }
+            },
+            onTapLink: { channelId in
+                selectedChannelId = channelId
+                showingConfirmationAlert = true
+            },
+            onSend: { text in
+                publishEvent(text: text)
+            }
+        )
         .navigationBarBackButtonHidden()
-        .toolbar{
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button { presentationMode.wrappedValue.dismiss() } label: {
-                    Image("backArrow", bundle: .current)
-                }
-            }
-            
-            ToolbarItem(placement: .principal) {
-                Button(action: {
-                    if (!navigation.isShowingUserDetail) {
-                        self.isShowingUserDetail.toggle()
+        .navigationBarItems(
+            leading:
+                HStack {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "arrow.left")
                     }
-                }) {
-                    HStack {
-                        Image("user-skatepay")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 35, height: 35)
-                            .clipShape(Circle())
-                        
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(formatName())
-                                .fontWeight(.semibold)
-                                .font(.headline)
-                                .foregroundColor(.black)
-                            Text(connected ? "online" : "offline")
-                                .font(.footnote)
-                                .foregroundColor(Color(hex: "AFB3B8"))
+                    
+                    Button(action: {
+                        if (!isShowingUserDetail) {
+                            self.isShowingUserDetail.toggle()
                         }
-                        Spacer()
+                    }) {
+                        HStack {
+                            Image("user-skatepay")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 35, height: 35)
+                                .clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(formatName())
+                                    .fontWeight(.semibold)
+                                    .font(.headline)
+                                Text(connected ? "online" : "offline")
+                                    .font(.footnote)
+                                    .foregroundColor(Color(hex: "AFB3B8"))
+                            }
+                            Spacer()
+                        }
+                        .padding(.leading, 10)
                     }
-                    .padding(.leading, 10)
+                },
+            trailing:
+                HStack(spacing: 16) {
+                    Button(action: {
+//                        self.isShowingToolBoxView.toggle()
+                    }) {
+                        Image(systemName: "network")
+                            .foregroundColor(.blue)
+                    }
+                    
+                    Button(action: {
+                        isShowingCameraView = true
+                    }) {
+                        Image(systemName: "camera.on.rectangle.fill")
+                            .foregroundColor(.blue)
+                    }
                 }
-            }
-        }
+        )
         .fullScreenCover(isPresented: $isShowingUserDetail) {
             NavigationView {
                 UserDetail(user: getUser(npub: user.npub))
@@ -133,11 +187,30 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     })
             }
         }
+        .fullScreenCover(isPresented: $isShowingChannelView) {
+            if let channelId = selectedChannelId {
+                NavigationView {
+                    ChannelView(channelId: channelId)
+                }
+            }
+        }
+        .alert(isPresented: $showingConfirmationAlert) {
+            Alert(
+                title: Text("Confirmation"),
+                message: Text("Are you sure you want to join this channel?"),
+                primaryButton: .default(Text("Yes")) {
+                    if let channelId = selectedChannelId {
+                        openLink(channelId)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
         .alert("Confirm Report", isPresented: $showAlertForReporting) {
             Button("No", role: .cancel) {
             }
             Button("Yes") {
-                publishEvent(content: "Hi, I would like to report \(friendlyKey(npub: message)).")
+                publishEvent(text: "Hi, I would like to report \(friendlyKey(npub: message)).")
             }
         } message: {
             Text("Do you want to continue with the report on \(friendlyKey(npub: message))?")
@@ -146,7 +219,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
             Button("No", role: .cancel) {
             }
             Button("Yes") {
-                publishEvent(content: "Hi, I would like to add my park to your directory. Please tell me how to do that.")
+                publishEvent(text: "Hi, I would like to add my park to your directory. Please tell me how to do that.")
             }
         } message: {
             Text("Do you want to see your park on SkateConnect?")
@@ -169,6 +242,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                 relayPool.closeSubscription(with: subscriptionId)
             }
         }
+        .modifier(IgnoresSafeArea()) //fixes issue with IBAV placement when keyboard appear
     }
     
     private var relayPool: RelayPool {
@@ -181,26 +255,6 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     
     private func recipientPublicKey() -> PublicKey? {
         return PublicKey(npub: user.npub)
-    }
-    
-    private func parseEvent(event: NostrEvent) -> Message? {
-        var publicKey = PublicKey(hex: event.pubkey)
-                
-        let isCurrentUser = publicKey != recipientPublicKey()
-        publicKey = isCurrentUser ? recipientPublicKey() : publicKey
-
-        do {
-            let text = try legacyDecrypt(encryptedContent: event.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
-            
-            return Message(
-                id: event.id,
-                user: ExyteChat.User(id: String(event.createdAt), name: event.pubkey, avatarURL: nil, isCurrentUser: isCurrentUser),
-                createdAt: event.createdDate,
-                text: text
-            )
-        } catch {
-            return nil
-        }
     }
     
     private var currentFilter: Filter? {
@@ -221,28 +275,31 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         return filter
     }
     
-    private func publishEvent(content: String) {
-        guard let recipientPublicKey = recipientPublicKey(),
-              let senderKeyPair = myKeypair() else {
-            return
-        }
+    private func publishEvent(text: String) {
+        guard let account = keychainForNostr.account else { return }
+
+        guard let recipientPublicKey = recipientPublicKey() else { return }
+        
         do {
+            let contentStructure = ContentStructure(content: text, kind: .message)
+            
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let data = try encoder.encode(contentStructure)
+            let content  = String(data: data, encoding: .utf8) ?? text
+            
             let directMessage = try legacyEncryptedDirectMessage(withContent: content,
                                                                  toRecipient: recipientPublicKey,
-                                                                 signedBy: senderKeyPair)
+                                                                 signedBy: account)
             relayPool.publishEvent(directMessage)
         } catch {
             print(error.localizedDescription)
         }
     }
     
-    private func publishDraft(draft: DraftMessage) {
-        let content = draft.text
-        publishEvent(content: content)
-    }
-    
-    private func updateSubscription() {        
+    private func updateSubscription() {
         chatDelegate.fetchingStoredEvents = true
+        
         
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
@@ -263,14 +320,32 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
             }
             .removeDuplicates()
             .sink { event in
-                if let element = parseEvent(event: event) {
+                if let message = parseEventIntoMessage(event: event) {
                     if(self.chatDelegate.fetchingStoredEvents) {
-                        messages.insert(element, at: 0)
+                        messageHandler.messages.insert(message, at: 0)
                     } else {
-                        messages.append(element)
+                        messageHandler.messages.append(message)
                     }
                 }
             }
+    }
+    
+    private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
+        var publicKey = PublicKey(hex: event.pubkey)
+                
+        let isCurrentUser = publicKey != recipientPublicKey()
+        publicKey = isCurrentUser ? recipientPublicKey() : publicKey
+
+        do {
+            let text = try legacyDecrypt(encryptedContent: event.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
+            
+            let builder = NostrEvent.Builder(nostrEvent: event)
+            let decryptedEvent =  builder.content(text).build(pubkey: event.pubkey)
+            
+            return messageHandler.parseEventIntoMessage(event: decryptedEvent)
+        } catch {
+            return nil
+        }
     }
 }
 

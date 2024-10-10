@@ -21,6 +21,7 @@ struct UserItem: View {
                 .cornerRadius(1)
             Text(user.name)
                 .foregroundStyle(.primary)
+                .foregroundColor(.orange)
                 .font(.caption)
         }
         .padding(.leading, 15)

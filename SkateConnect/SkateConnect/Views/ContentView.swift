@@ -88,10 +88,6 @@ struct ContentView: View {
                 self.incomingMessagesCount = self.lobby.dms.count
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .receivedChannelMessage)) { notification in
-            if let event = notification.object as? NostrEvent {
-            }
-        }
         .task {
             context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().getSupport().npub, solanaAddress: AppData().users[0].solanaAddress,  note: "Support Team"))
         }

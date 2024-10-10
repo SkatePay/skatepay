@@ -31,6 +31,7 @@ struct AddressBook: View {
     
     @ObservedObject var lobby = Lobby.shared
     @ObservedObject var navigation = Navigation.shared
+    @ObservedObject var locationManager = LocationManager.shared
 
     @StateObject private var channelSelection = ChannelSelectionManager()
 
@@ -87,6 +88,7 @@ struct AddressBook: View {
                             if !spot.channelId.isEmpty {
                                 Button(action: {
                                     channelSelection.spot = spot
+                                    navigation.channelId = spot.channelId
                                     isShowingChannelView = true
                                 }) {
                                     Text("Open channel")

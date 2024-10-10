@@ -22,7 +22,7 @@ class AppData {
     }
 }
 
-@MainActor
+//@MainActor
 class DataManager: ObservableObject {
     static let shared = DataManager()
     
@@ -71,14 +71,14 @@ class DataManager: ObservableObject {
     }
     
     // MARK: Spots
-    func findSpot(_ eventId: String) -> Spot? {
-        return fetchSortedSpots().first { $0.channelId == eventId }
+    func findSpotForChannelId(_ channelId: String) -> Spot? {
+        return fetchSortedSpots().first { $0.channelId == channelId }
     }
     
     func saveSpotForLead(_ lead: Lead?) {
         if let lead = lead {
             // Find the spot associated with the lead's eventId
-            if let spot = findSpot(lead.channelId) {
+            if let spot = findSpotForChannelId(lead.channelId) {
                 // Handle existing spot if needed
                 print("Spot already exists for eventId: \(spot.channelId)")
             } else {
@@ -118,7 +118,7 @@ class DataManager: ObservableObject {
             )
             return try modelContext.fetch(fetchDescriptor)
         } catch {
-            print("Failed to fetch and sort Spots: \(error)")
+            print("Failed to fetch and sort Friends: \(error)")
             return []
         }
     }
@@ -126,5 +126,24 @@ class DataManager: ObservableObject {
     func findFriend(_ npub: String) -> Friend? {
         return fetchFriends().first(where: { $0.npub == npub })
     }
+    
+    // MARK: Foes
+    func fetchFoes() -> [Foe] {
+        do {
+            let fetchDescriptor = FetchDescriptor<Foe>(
+                sortBy: [SortDescriptor(\.npub, order: .reverse)]
+            )
+            return try modelContext.fetch(fetchDescriptor)
+        } catch {
+            print("Failed to fetch and sort Foes: \(error)")
+            return []
+        }
+    }
+    
+    func findFoes(_ npub: String) -> Foe? {
+        return fetchFoes().first(where: { $0.npub == npub })
+    }
+    
+    // MARK: Leads
     
 }

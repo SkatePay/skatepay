@@ -103,7 +103,6 @@ class API: ObservableObject {
 
     func debugOutput() -> String {
         if let error = error {
-            print(error)
             return error.localizedDescription
         }
         return isLoading ? "Loading..." : "🚹 Welcome to SkateConnect, 🇺🇸!"

@@ -37,6 +37,8 @@ public struct Defaults {
 }
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    static let shared = LocationManager()
+
     private var locationManager: CLLocationManager?
     
     @ObservedObject var navigation = Navigation.shared
@@ -167,6 +169,13 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         if currentLocation == nil || (location.coordinate.latitude != currentLocation?.coordinate.latitude ||
                                       location.coordinate.longitude != currentLocation?.coordinate.longitude) {
             currentLocation = location // Update only if there's a meaningful change
+        }
+    }
+    
+    func panMapToCachedCoordinate() {
+        if let coordinate = navigation.coordinate {
+            updateMapRegion(with: CLLocationCoordinate2D(
+                    latitude: coordinate.latitude, longitude: coordinate.longitude))
         }
     }
 }

@@ -8,6 +8,7 @@
 import InputBarAccessoryView
 import Kingfisher
 import MessageKit
+import NostrSDK
 import SwiftUI
 import UIKit
 
@@ -17,9 +18,15 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
+    let onTapLink: (String) -> Void
     
-    init(onTapAvatar: @escaping (String) -> Void, onTapVideo: @escaping (MessageType) -> Void) {
+    init(
+        onTapAvatar: @escaping (String) -> Void,
+        onTapVideo: @escaping (MessageType) -> Void,
+        onTapLink: @escaping (String) -> Void
+    ) {
         self.onTapAvatar = onTapAvatar
+        self.onTapLink = onTapLink
         self.onTapVideo = onTapVideo
         
         super.init(nibName: nil, bundle: nil)
@@ -31,7 +38,6 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        // Because SwiftUI wont automatically make our controller the first responder, we need to do it on viewDidAppear
         becomeFirstResponder()
         messagesCollectionView.scrollToLastItem(animated: true)
     }
@@ -55,8 +61,22 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
         onTapAvatar(sender.senderId)
     }
     
-    func didTapMessage(in _: MessageCollectionViewCell) {
-        print("Message tapped")
+    func didTapMessage(in cell: MessageCollectionViewCell) {
+        guard let indexPath = messagesCollectionView.indexPath(for: cell) else { return }
+        guard let messagesDataSource = messagesCollectionView.messagesDataSource else { return }
+        let message = messagesDataSource.messageForItem(at: indexPath, in: messagesCollectionView)
+        
+        if case MessageKind.linkPreview(let linkItem) = message.kind {
+            let pathComponents = linkItem.url.pathComponents
+            
+            if let channelId = pathComponents.last {
+                onTapLink(channelId)
+            } else {
+                print("Failed to extract channel ID")
+            }
+        } else {
+            print("Message tapped")
+        }
     }
     
     func didTapImage(in cell: MessageCollectionViewCell) {
@@ -73,76 +93,104 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
 enum ContentType {
     case text(String)
     case video(URL)
+    case photo(URL)
+    case invite(String)
 }
 
 func processContent(content: String) -> ContentType {
     var text = content
+    
     do {
         let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: content.data(using: .utf8)!)
         text = decodedStructure.content
-        if decodedStructure.kind == .video {
+        
+        switch decodedStructure.kind {
+        case .video:
+            // Convert .mov to .jpg for the thumbnail
             let urlString = decodedStructure.content.replacingOccurrences(of: ".mov", with: ".jpg")
             if let url = URL(string: urlString) {
                 return .video(url)
             } else {
-                print("Invalid URL string: \(urlString)")
+                print("Invalid video thumbnail URL string: \(urlString)")
+                return .text(decodedStructure.content) // Fallback to text
             }
-        } else if decodedStructure.kind == .subscriber {
-            text = "🔥 \(friendlyKey(npub: text)) joined. 🛹"
+        
+        case .photo:
+            // Handle photo content
+            if let url = URL(string: decodedStructure.content) {
+                return .photo(url)
+            } else {
+                print("Invalid photo URL string: \(decodedStructure.content)")
+                return .text(decodedStructure.content) // Fallback to text
+            }
+        
+        case .subscriber:
+            // Format the subscriber text
+            let formattedText = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
+            return .text(formattedText)
+        
+        default:
+            // If no other kind is matched, fall through to check for channel_invite or return raw text
+            break
         }
+        
     } catch {
-        print("Decoding or URL conversion error: \(error)")
+        print("Decoding error: \(error)")
     }
+    
+    // Handle channel_invite in the text as a fallback
+    if let range = text.range(of: "channel_invite:") {
+        let channelId = String(text[range.upperBound...])
+        return .invite(channelId)
+    }
+    
+    // Return the original text if no special cases are matched
     return .text(text)
 }
 
 struct ChatView: UIViewControllerRepresentable {
-    // MARK: Internal
-    
+    let keychainForNostr = NostrKeychainStorage()
+
+    func getCurrentUser() -> MockUser {
+        guard let account = keychainForNostr.account else { return MockUser(senderId: "000002", displayName: "You") }
+        return MockUser(senderId: account.publicKey.npub, displayName: "You")
+    }
     
     final class Coordinator: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate, InputBarAccessoryViewDelegate {
-        // MARK: Lifecycle
+        var parent: ChatView
+        let onSend: (String) -> Void
         
-        let keychainForNostr = NostrKeychainStorage()
+        var supportUser: User?
+        var currenUser: MockUser?
         
-        @ObservedObject var feedDelegate = FeedDelegate.shared
-        
-        var currentUser = MockUser(senderId: "000002", displayName: "You")
-        
-        init(messages: Binding<[MessageType]>) {
-            self.messages = messages
-            
-            let keychainForNostr = NostrKeychainStorage()
-            
-            guard let account = keychainForNostr.account else { return }
-            currentUser.senderId = account.publicKey.npub
+        init(_ parent: ChatView, onSend: @escaping (String) -> Void) {
+            self.parent = parent
+            self.onSend = onSend
+            self.supportUser = AppData().getSupport()
+            self.currenUser = parent.getCurrentUser()
         }
-        
-        // MARK: Internal
-        
+                                
         let formatter: DateFormatter = {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
             return formatter
         }()
-        
-        var messages: Binding<[MessageType]>
-        
+                
         func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
-            feedDelegate.publishDraft(text: text)
+            onSend(text)
             inputBar.inputTextView.text = ""
         }
         
         var currentSender: SenderType {
-            currentUser
+            currenUser!
         }
         
         func messageForItem(at indexPath: IndexPath, in _: MessagesCollectionView) -> MessageType {
-            messages.wrappedValue[indexPath.section]
+            return parent.messages[indexPath.section]
         }
         
         func numberOfSections(in _: MessagesCollectionView) -> Int {
-            messages.wrappedValue.count
+            return parent.messages.count
         }
         
         func photoCell(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
@@ -153,7 +201,7 @@ struct ChatView: UIViewControllerRepresentable {
         func messageTopLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
             var name = message.sender.displayName
 
-            if (message.sender.senderId == AppData().getSupport().npub) {
+            if (message.sender.senderId == self.supportUser?.npub) {
                 name = AppData().getSupport().name
             }
 
@@ -180,10 +228,11 @@ struct ChatView: UIViewControllerRepresentable {
         }
         
         func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in _: MessagesCollectionView) {
-            if (message.sender.senderId == AppData().getSupport().npub) {
-                let supportImageName = AppData().getSupport().imageName
-                let avatar = Avatar(image: UIImage(named: supportImageName), initials: "SC")
-                avatarView.set(avatar: avatar)
+            if (message.sender.senderId == self.supportUser?.npub) {
+                if let supportImageName = self.supportUser?.imageName {
+                    let avatar = Avatar(image: UIImage(named: supportImageName), initials: "SC")
+                    avatarView.set(avatar: avatar)
+                }
             } else {
                 let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
                 avatarView.set(avatar: avatar)
@@ -192,9 +241,13 @@ struct ChatView: UIViewControllerRepresentable {
         
         func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
         -> UIColor {
-            if (message.sender.senderId == AppData().getSupport().npub) {
+            if case MessageKind.linkPreview(_) = message.kind {
+                return UIColor.systemPurple
+            }
+            
+            if (message.sender.senderId == self.supportUser?.npub) {
                 return UIColor.systemOrange
-            } else if (message.sender.senderId == currentUser.senderId) {
+            } else if (message.sender.senderId == currenUser?.senderId) {
                 return UIColor.systemGreen
             } else {
                 return UIColor.darkGray
@@ -209,6 +262,7 @@ struct ChatView: UIViewControllerRepresentable {
             0
         }
         
+        @MainActor
         func configureMediaMessageImageView(
             _ imageView: UIImageView,
             for message: MessageType,
@@ -217,16 +271,13 @@ struct ChatView: UIViewControllerRepresentable {
         {
             if case MessageKind.photo(let media) = message.kind, let imageURL = media.url {
                 imageView.kf.setImage(with: imageURL)
-            }
-            if case MessageKind.video(let media) = message.kind, let imageURL = media.url {
+            } else if case MessageKind.video(let media) = message.kind, let imageURL = media.url {
                 imageView.kf.setImage(with: imageURL)
             }
             else {
                 imageView.kf.cancelDownloadTask()
             }
         }
-        
-        
     }
     
     @State var initialized = false
@@ -234,9 +285,11 @@ struct ChatView: UIViewControllerRepresentable {
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
+    let onTapLink: (String) -> Void
+    let onSend: (String) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
-        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo)
+        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo, onTapLink: onTapLink)
         
         messagesVC.messagesCollectionView.messagesDisplayDelegate = context.coordinator
         messagesVC.messagesCollectionView.messagesLayoutDelegate = context.coordinator
@@ -245,7 +298,7 @@ struct ChatView: UIViewControllerRepresentable {
         messagesVC.messageInputBar.delegate = context.coordinator
         messagesVC.messageInputBar.inputTextView.autocorrectionType = .no
         messagesVC.scrollsToLastItemOnKeyboardBeginsEditing = false // default false
-        messagesVC.maintainPositionOnInputBarHeightChanged = true // default false
+        messagesVC.maintainPositionOnInputBarHeightChanged = false // default false
         messagesVC.showMessageTimestampOnSwipeLeft = true // default false
         
         return messagesVC
@@ -257,7 +310,7 @@ struct ChatView: UIViewControllerRepresentable {
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(messages: $messages)
+        Coordinator(self, onSend: onSend)
     }
     
     // MARK: Private

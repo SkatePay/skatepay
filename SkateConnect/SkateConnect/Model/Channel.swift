@@ -16,17 +16,31 @@ struct Channel: Codable {
     let about: String
     let picture: String
     let relays: [String]
+    var event: NostrEvent?
+
+    var aboutDecoded: AboutStructure? {
+        guard let data = about.data(using: .utf8) else { return nil }
+        
+        do {
+            let decodedAbout = try JSONDecoder().decode(AboutStructure.self, from: data)
+            return decodedAbout
+        } catch {
+            print("Failed to decode 'about': \(error)")
+            return nil
+        }
+    }
 }
 
-func parseChannel(from jsonString: String) -> Channel? {
-    guard let data = jsonString.data(using: .utf8) else {
+func parseChannel(from event: NostrEvent) -> Channel? {
+    guard let data = event.content.data(using: .utf8) else {
         print("Failed to convert string to data")
         return nil
     }
     
     do {
         let decoder = JSONDecoder()
-        let channel = try decoder.decode(Channel.self, from: data)
+        var channel = try decoder.decode(Channel.self, from: data)
+        channel.event = event
         return channel
     } catch {
         print("Error decoding JSON: \(error)")
@@ -66,5 +80,8 @@ enum ChannelType: String, CaseIterable, Identifiable {
     case game = "🏆"
     case job = "🧹"
     case skate = "🛹"
+    case repair = "🛠️"
+    case idea = "💡"
+    
     var id: String { rawValue }
 }

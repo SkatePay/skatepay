@@ -11,41 +11,36 @@ import SwiftUI
 
 struct UserDetail: View {
     @Environment(\.modelContext) private var context
-    
     @ObservedObject var network = Network.shared
-    @ObservedObject var navigation = Navigation.shared
-
+    
     @Query(sort: \Friend.npub) private var friends: [Friend]
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
     @State private var showReport = false
-    @State var showingConnector = false
-    
     @State private var isShowingChatView = false
     @State private var isDebugging = false
+    @State private var showingConnector = false
     
     var user: User
     
-    private var relayPool: RelayPool {
-        return network.getRelayPool()
+    var connected: Bool {
+        network.getRelayPool().relays.contains(where: { $0.url == URL(string: user.relayUrl) })
     }
     
     func isFriend() -> Bool {
-        return friends.contains(where: { $0.npub == user.npub })
+        friends.contains(where: { $0.npub == user.npub })
     }
     
     func isFoe() -> Bool {
-        return foes.contains(where: { $0.npub == user.npub })
+        foes.contains(where: { $0.npub == user.npub })
     }
-    
-    var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
     
     private func isSupport() -> Bool {
-        return user.npub == AppData().getSupport().npub
+        user.npub == AppData().getSupport().npub
     }
     
-    private func getMonkey () -> String {
-        return isStringOneOfThree(user.name)
+    private func getMonkey() -> String {
+        isStringOneOfThree(user.name)
     }
     
     var body: some View {
@@ -65,89 +60,27 @@ struct UserDetail: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .contextMenu {
-                        Button(action: {
+                        Button("Copy") {
                             UIPasteboard.general.string = user.npub
-                        }) {
-                            Text("Copy")
                         }
                     }
                 
                 Divider()
                 
                 HStack(spacing: 20) {
-                    // Button to add to contacts
-                    
                     if (!isSupport()) {
-                        if (isFriend()) {
-                            Button(action: {
-                                if let friend = friends.first(where: { $0.npub == user.npub }) {
-                                    context.delete(friend)
-                                }
-                            }) {
-                                Text("Remove from Friends")
-                                    .padding(8)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
-                            }
-                        } else {
-                            Button(action: {
-                                let friend = Friend(name: friendlyKey(npub: user.npub), birthday: Date.now, npub: user.npub, note: "")
-                                context.insert(friend)
-                            }) {
-                                Text("+1 Contacts")
-                                    .padding(8)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
-                            }
-                        }
-                        
-                        if (isFoe()) {
-                            // Button to ignore
-                            Button(action: {
-                                if let foe = foes.first(where: { $0.npub == user.npub }) {
-                                    context.delete(foe)
-                                }
-                            }) {
-                                Text("Unmute 🙊")
-                                    .padding(8)
-                                    .background(Color.gray)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
-                            }
-                        } else {
-                            // Button to ignore
-                            Button(action: {
-                                let foe = Foe(npub: user.npub, birthday: Date.now, note: "")
-                                context.insert(foe)
-                                
-                                NotificationCenter.default.post(name: .muteUser, object: nil)
-                            }) {
-                                Text("Ignore 🙈")
-                                    .padding(8)
-                                    .background(Color.gray)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
-                            }
-                        }
+                        FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
                     }
-                    
-                    // Navigation link for direct chat
-                    if (!navigation.isShowingChatView) {
-                        Button(action: {
-                            isShowingChatView.toggle()
-                        }) {
-                            Label("Chat", systemImage: "message")
-                                .padding(8)
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        .fullScreenCover(isPresented: $isShowingChatView) {
-                            NavigationView {
-                                DirectMessage(user: user)
-                            }
+                    Button(action: { isShowingChatView.toggle() }) {
+                        Label("Chat", systemImage: "message")
+                            .padding(8)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    .fullScreenCover(isPresented: $isShowingChatView) {
+                        NavigationView {
+                            DirectMessage(user: user)
                         }
                     }
                 }
@@ -159,9 +92,7 @@ struct UserDetail: View {
                     .font(.title2)
                     .gesture(
                         LongPressGesture(minimumDuration: 1.0)
-                            .onEnded { _ in
-                                self.isDebugging = true
-                            }
+                            .onEnded { _ in self.isDebugging = true }
                     )
                 
                 Text(user.note)
@@ -169,17 +100,14 @@ struct UserDetail: View {
                     .foregroundStyle(.secondary)
                     .padding()
                     .contextMenu {
-                        Button(action: {
+                        Button("Copy") {
                             UIPasteboard.general.string = user.npub
-                        }) {
-                            Text("Copy")
                         }
                     }
                 
                 if (isDebugging) {
-                        Text("Relay")
-                        .font(.title2)
-                        Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")" )
+                    Text("Relay").font(.title2)
+                    Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")")
                 }
                 
                 Divider()
@@ -187,29 +115,82 @@ struct UserDetail: View {
                 if (!isSupport()) {
                     HStack(spacing: 20) {
                         Spacer()
-                        Button(action: {
+                        Button("Report User 🚩") {
                             showReport = true
-                        }) {
-                            Text("Report User 🚩")
-                                .padding(8)
-                                .background(Color.red)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
                         }
+                        .padding(8)
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                     }
                 }
             }
             .padding()
-            
             Spacer()
         }
         .fullScreenCover(isPresented: $showReport) {
-                NavigationView {
-                    DirectMessage(user: AppData().users[0], message: "\(user.npub)")
-                }
+            NavigationView {
+                DirectMessage(user: AppData().users[0], message: "\(user.npub)")
+            }
         }
         .navigationTitle(user.name)
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct FriendFoeButtons: View {
+    var user: User
+    var isFriend: Bool
+    var isFoe: Bool
+    @Environment(\.modelContext) private var context
+    
+    @ObservedObject var dataManager = DataManager.shared
+    
+    var body: some View {
+        HStack {
+            if isFriend {
+                Button("Remove from Friends") {
+                    if let friend = dataManager.findFriend(user.npub) {
+                        context.delete(friend)
+                    }
+                }
+                .padding(8)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            } else {
+                Button("+1 Contacts") {
+                    let friend = Friend(name: friendlyKey(npub: user.npub), birthday: Date.now, npub: user.npub, note: "")
+                    context.insert(friend)
+                }
+                .padding(8)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+            
+            if isFoe {
+                Button("Unmute 🙊") {
+                    if let foe = dataManager.findFoes(user.npub) {
+                        context.delete(foe)
+                    }
+                }
+                .padding(8)
+                .background(Color.gray)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            } else {
+                Button("Ignore 🙈") {
+                    let foe = Foe(npub: user.npub, birthday: Date.now, note: "")
+                    context.insert(foe)
+                    NotificationCenter.default.post(name: .muteUser, object: nil)
+                }
+                .padding(8)
+                .background(Color.gray)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+        }
     }
 }
 
@@ -218,3 +199,4 @@ struct UserDetail: View {
     return UserDetail(user: modelData.users[0])
         .environment(modelData).environmentObject(HostStore())
 }
+
