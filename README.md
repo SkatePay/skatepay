@@ -4,6 +4,9 @@ A [nostr][nostr] chat + crypto wallet client for iPhone.
 
 [nostr]: https://github.com/fiatjaf/nostr
 
+## Download from App Store
+- [SkateConnect](https://apps.apple.com/us/app/skateconnect/id6677058833)
+
 ## Overview
 - [Gitbook](https://support.skatepark.chat)
 
