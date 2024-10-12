@@ -124,7 +124,7 @@ struct LobbyView: View {
                     Button(action: {
                         navigation.isShowingAddressBook.toggle()
                     }) {
-                        Text("📡 Channels")
+                        Text("⛺️ Spots")
                     }
                     .fullScreenCover(isPresented: $navigation.isShowingAddressBook) {
                         NavigationView {

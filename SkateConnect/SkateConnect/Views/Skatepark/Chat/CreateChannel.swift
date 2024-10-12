@@ -11,36 +11,6 @@ import SwiftUI
 import SwiftData
 import CoreLocation
 
-func createLead(from event: NostrEvent) -> Lead? {
-    var lead: Lead?
-    
-    if let channel = parseChannel(from: event) {
-        let about = channel.about
-        
-        do {
-            let decoder = JSONDecoder()
-            let decodedStructure = try decoder.decode(AboutStructure.self, from: about.data(using: .utf8)!)
-            
-            var icon = "📺"
-            if let note = decodedStructure.note {
-                icon = note
-            }
-            
-            lead = Lead(
-                name: channel.name,
-                icon: icon,
-                coordinate: decodedStructure.location,
-                channelId: event.id,
-                event: event,
-                channel: channel
-            )
-        } catch {
-            print("Error decoding: \(error)")
-        }
-    }
-    return lead
-}
-
 struct CreateChannel: View, EventCreating {
     @Environment(\.presentationMode) var presentationMode
 

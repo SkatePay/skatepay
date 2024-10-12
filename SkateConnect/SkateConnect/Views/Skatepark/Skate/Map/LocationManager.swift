@@ -29,6 +29,33 @@ struct Lead: Identifiable, Equatable, Codable {
     var channelId: String
     var event: NostrEvent?
     var channel: Channel?
+    
+    // Optional colorHex to handle missing field during decoding
+    var colorHex: String?
+    
+    var color: Color {
+        get {
+            Color(hex: colorHex ?? "#FF0000") ?? .red
+        }
+        set {
+            colorHex = newValue.toHex()
+        }
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, icon, coordinate, channelId, event, channel, colorHex
+    }
+    
+    init(id: UUID = UUID(), name: String, icon: String, coordinate: CLLocationCoordinate2D, channelId: String, event: NostrEvent?, channel: Channel?, color: Color) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.coordinate = coordinate
+        self.channelId = channelId
+        self.event = event
+        self.channel = channel
+        self.colorHex = color.toHex()
+    }
 }
 
 public struct Defaults {
@@ -179,3 +206,4 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
 }
+

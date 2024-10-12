@@ -1,5 +1,5 @@
 //
-//  AppData.swift
+//  DataManager.swift
 //  SkatePay
 //
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
@@ -75,38 +75,58 @@ class DataManager: ObservableObject {
         return fetchSortedSpots().first { $0.channelId == channelId }
     }
     
-    func saveSpotForLead(_ lead: Lead?) {
-        if let lead = lead {
-            // Find the spot associated with the lead's eventId
-            if let spot = findSpotForChannelId(lead.channelId) {
-                // Handle existing spot if needed
-                print("Spot already exists for eventId: \(spot.channelId)")
-            } else {
-                let note = lead.icon
-                let spot = Spot(
-                    name: lead.name,
-                    address: "",
-                    state: "",
-                    note: note,
-                    latitude: lead.coordinate.latitude,
-                    longitude: lead.coordinate.longitude,
-                    channelId: lead.channelId
-                )
-                
-                self.insertSpot(spot)
-                print("New spot inserted for eventId: \(lead.channelId)")
-            }
+    func saveSpotForLead(_ lead: Lead, note: String = "") {
+        var bufferedLead = lead
+        
+        if let spot = findSpotForChannelId(lead.channelId) {
+            print("Spot already exists for eventId: \(spot.channelId) \(spot.note)")
             
-            self.lobby.upsertIntoLeads(lead)
+            let note = spot.note.split(separator: ":").last.map(String.init) ?? ""
+            bufferedLead.color = convertNoteToColor(note)
         } else {
-            print("No lead provided, cannot save spot.")
+            let spot = Spot(
+                name: lead.name,
+                address: "",
+                state: "",
+                icon: lead.icon,
+                note: lead.icon + ":" + note,
+                latitude: lead.coordinate.latitude,
+                longitude: lead.coordinate.longitude,
+                channelId: lead.channelId
+            )
+            
+            self.insertSpot(spot)
+            bufferedLead.color = convertNoteToColor(note)
+            print("New spot inserted for eventId: \(lead.channelId)")
         }
         
+        self.lobby.upsertIntoLeads(bufferedLead)
     }
     
-    func createSpots(leads: [Lead]) {
+    func removeSpotForChannelId(_ channelId: String) {
+        do {
+            if let spotToRemove = findSpotForChannelId(channelId) {
+                modelContext.delete(spotToRemove)
+                try modelContext.save()
+
+                // Re-fetch sorted spots and update the lobby leads
+                let spots = fetchSortedSpots()
+                            
+                self.lobby.setupLeads(spots: spots)
+                self.lobby.removeLeadByChannelId(channelId)
+                
+                print("Spot with channelId \(channelId) removed.")
+            } else {
+                print("Spot with channelId \(channelId) not found.")
+            }
+        } catch {
+            print("Failed to remove spot: \(error)")
+        }
+    }
+    
+    func createPublicSpots(leads: [Lead]) {
         for lead in leads {
-            saveSpotForLead(lead)
+            saveSpotForLead(lead, note: "public")
         }
     }
     

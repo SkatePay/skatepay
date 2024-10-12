@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; };
 		C624DDCB2C939F920073F30F /* ConnectFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		C62500D52C93C11A0026C334 /* AppData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500D42C93C11A0026C334 /* AppData.swift */; };
+		C62500D52C93C11A0026C334 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500D42C93C11A0026C334 /* DataManager.swift */; };
 		C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500D62C93C1210026C334 /* AnyToken.swift */; };
 		C62500DD2C93C1210026C334 /* SolanaAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500D72C93C1210026C334 /* SolanaAccount.swift */; };
 		C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500D82C93C1210026C334 /* SolanaToken.swift */; };
@@ -159,7 +159,7 @@
 
 /* Begin PBXFileReference section */
 		C624DDC92C939F920073F30F /* ConnectFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ConnectFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C62500D42C93C11A0026C334 /* AppData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppData.swift; sourceTree = "<group>"; };
+		C62500D42C93C11A0026C334 /* DataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		C62500D62C93C1210026C334 /* AnyToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyToken.swift; sourceTree = "<group>"; };
 		C62500D72C93C1210026C334 /* SolanaAccount.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaAccount.swift; sourceTree = "<group>"; };
 		C62500D82C93C1210026C334 /* SolanaToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaToken.swift; sourceTree = "<group>"; };
@@ -560,6 +560,7 @@
 		C66AFE8A2CA63749000CD716 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				C62500D42C93C11A0026C334 /* DataManager.swift */,
 				C66AFE8B2CA63755000CD716 /* Navigation.swift */,
 				C66AFE912CA7812C000CD716 /* Network.swift */,
 				C6C94AE82CA8D731008ECA86 /* API.swift */,
@@ -632,7 +633,6 @@
 			isa = PBXGroup;
 			children = (
 				C66AFE8A2CA63749000CD716 /* Managers */,
-				C62500D42C93C11A0026C334 /* AppData.swift */,
 				C6DDD7292C936DAF000BE2A4 /* Assets.xcassets */,
 				C62500DB2C93C1210026C334 /* Blockchain */,
 				C62500E32C93C1250026C334 /* Extensions */,
@@ -938,7 +938,7 @@
 				C625014A2C93C1340026C334 /* ChannelView.swift in Sources */,
 				C62501502C93C1340026C334 /* CreateMessage.swift in Sources */,
 				C66AFE922CA7812C000CD716 /* Network.swift in Sources */,
-				C62500D52C93C11A0026C334 /* AppData.swift in Sources */,
+				C62500D52C93C11A0026C334 /* DataManager.swift in Sources */,
 				C625015D2C93C1340026C334 /* TransferToken.swift in Sources */,
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,

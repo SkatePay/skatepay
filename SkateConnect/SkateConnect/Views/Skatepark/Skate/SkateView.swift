@@ -15,12 +15,17 @@ import SwiftUI
 struct SkateView: View {
     @Environment(\.modelContext) private var context
     
+    @State private var showMenu = false
+    @State private var selectedLead: Lead? = nil
+    
     @Query private var spots: [Spot]
     
     @StateObject var channelManager = ChannelManager()
     
     @ObservedObject private var stateManager = StateManager()
-    
+
+    let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium) // Haptic feedback generator
+
     func handleLongPress(lead: Lead) {
         print("Long press detected on lead: \(lead.name)")
     }
@@ -85,7 +90,8 @@ struct SkateView: View {
                                             name: mark.name,
                                             address: "",
                                             state: "",
-                                            note: "",
+                                            icon: "",
+                                            note: "private",
                                             latitude: mark.coordinate.latitude,
                                             longitude: mark.coordinate.longitude
                                         )
@@ -151,20 +157,13 @@ struct SkateView: View {
                         Marker(mark.name, coordinate: mark.coordinate)
                             .tint(.orange)
                     }
+                    
                     // Leads
                     ForEach(stateManager.lobby.leads) { lead in
                         Annotation(lead.name, coordinate: lead.coordinate, anchor: .bottom) {
                             ZStack {
-                                let color: Color = {
-                                    if let event = lead.event, stateManager.wallet.isMe(hex: event.pubkey) {
-                                        return Color.orange
-                                    } else {
-                                        return Color.indigo
-                                    }
-                                }()
-                                
                                 Circle()
-                                    .foregroundStyle(color.opacity(0.5))
+                                    .foregroundStyle(lead.color.opacity(0.5))
                                     .frame(width: 80, height: 80)
                                 
                                 Text(lead.icon)
@@ -172,18 +171,48 @@ struct SkateView: View {
                                     .symbolEffect(.variableColor)
                                     .padding()
                                     .foregroundStyle(.white)
-                                    .background(color)
+                                    .background(lead.color)
                                     .clipShape(Circle())
                             }
                             .gesture(
-                                LongPressGesture(minimumDuration: 1.0)
-                                    .onEnded { _ in
-                                    }
-                                    .onChanged { state in
-                                        stateManager.panMapToCachedCoordinate(lead.coordinate)
-                                        channelManager.openChannel(channelId: lead.channelId)
+                                LongPressGesture(minimumDuration: 1.5)
+                                    .simultaneously(with: DragGesture(minimumDistance: 0))
+                                    .onEnded { value in
+                                        // Trigger haptic feedback
+                                            
+                                        feedbackGenerator.impactOccurred()
+                                        
+                                        // Set the selected lead and show the menu
+                                        self.selectedLead = lead
+                                        self.showMenu = true
+                                    
                                     }
                             )
+                            .actionSheet(isPresented: $showMenu) {
+                                guard let lead = selectedLead else {
+                                    return ActionSheet(title: Text("Error"), message: Text("No lead selected."), buttons: [.cancel()])
+                                }
+                                
+                                return ActionSheet(
+                                    title: Text("\(lead.name)"),
+                                    message: Text("Choose an action for this channel."),
+                                    buttons: [
+                                        .default(Text("Open")) {
+                                            // Handle opening the channel
+                                            stateManager.panMapToCachedCoordinate(lead.coordinate)
+                                            channelManager.openChannel(channelId: lead.channelId)
+                                        },
+                                        .default(Text("Camera")) {
+                                            // Handle camera action
+                                            stateManager.navigation.isShowingCameraView = true
+                                        },
+                                        .destructive(Text("Remove")) {
+                                            channelManager.deleteChannelWithId(lead.channelId)
+                                            stateManager.dataManager.removeSpotForChannelId(lead.channelId)
+                                        },
+                                        .cancel()
+                                    ]
+                                )                            }
                         }
                     }
                 }
@@ -197,6 +226,8 @@ struct SkateView: View {
                     if let coordinate = proxy.convert(position, from: .local) {
                         stateManager.navigation.marks = []
                         stateManager.addMarker(at: coordinate, spots: spots)
+
+                        stateManager.locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude))
                     }
                 }
                 .overlay(
@@ -302,10 +333,18 @@ struct SkateView: View {
                     })
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .newChannelCreated)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForOutbound)) { notification in
             if let event = notification.object as? NostrEvent {
-                let lead = createLead(from: event)
-                stateManager.dataManager.saveSpotForLead(lead)
+                if let lead = createLead(from: event) {
+                    stateManager.dataManager.saveSpotForLead(lead)
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForInbound)) { notification in
+            if let event = notification.object as? NostrEvent {
+                if let lead = createLead(from: event) {
+                    stateManager.dataManager.saveSpotForLead(lead, note: "invite")
+                }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToLandmark)) { _ in

@@ -43,17 +43,18 @@ class FeedDelegate: ObservableObject {
     private var eventsCancellable: AnyCancellable?
     
     private let keychainForNostr = NostrKeychainStorage()
-    
+        
     init() {
         eventService = ChannelEventService()
     }
 
     // MARK: - Subscribe to Channel Events
-    public func subscribeToChannelWithId(_channelId: String) {
+    public func subscribeToChannelWithId(_channelId: String, leadType: LeadType = .outbound) {
+        
         cleanUp()
 
         // Subscribe to channel events via event service
-        eventService.subscribeToChannelEvents(channelId: _channelId) { [weak self] events in
+        eventService.subscribeToChannelEvents(channelId: _channelId, leadType: leadType) { [weak self] events in
             guard let self = self else { return }
             self.handleEvents(events)
         }
@@ -66,12 +67,11 @@ class FeedDelegate: ObservableObject {
         for event in events {
             if let message = parseEventIntoMessage(event: event) {
                 if event.kind == .channelCreation {
+                    navigation.channel = event
+
                     DispatchQueue.main.async {
                         self.lead = createLead(from: event)
                     }
-                    guard let lead = lead else { continue }
-                    self.dataManager.saveSpotForLead(lead)
-                    navigation.channel = event
                 }
                 
                 // Only add channel messages to newMessages array
@@ -94,43 +94,7 @@ class FeedDelegate: ObservableObject {
             self.messages.append(contentsOf: newMessages)
         }
     }
-
-    // MARK: - Handle Events from Channel
-    private func handleEvent(_ event: NostrEvent) {
-        // Parse event into a message object
-        if let message = parseEventIntoMessage(event: event) {
-            if event.kind == .channelCreation {
-                // Channel creation event; update lead
-                DispatchQueue.main.async {
-                    self.lead = createLead(from: event)
-                }
-
-                guard let lead = lead else { return }
-                self.dataManager.saveSpotForLead(lead)
-                navigation.channel = event
-            }
-
-            if event.kind == .channelMessage {
-                // Channel message event
-                guard let publicKey = PublicKey(hex: event.pubkey) else {
-                    return
-                }
-                
-                // Check blacklist
-                if getBlacklist().contains(publicKey.npub) {
-                    return
-                }
-
-                // Append messages depending on whether we are fetching stored events or live events
-                if eventService.fetchingStoredEvents {
-                    messages.insert(message, at: 0)  // Prepend historical messages
-                } else {
-                    messages.append(message)  // Append live messages
-                }
-            }
-        }
-    }
-
+    
     // MARK: - Publish Draft Message
     public func publishDraft(text: String, kind: Kind = .message) {
         // Delegate to ChannelEventService for publishing the message
@@ -227,9 +191,16 @@ struct ChatAreaView: View {
         )
     }
 }
+
 class SelectedUserManager: ObservableObject {
     @Published var npub: String = ""
 }
+
+enum LeadType: String {
+    case outbound = "outbound"
+    case inbound = "inbound"
+}
+
 struct ChannelView: View {
     @Environment(\.dismiss) private var dismiss
     
@@ -267,12 +238,12 @@ struct ChannelView: View {
         }
 
         self.channelId = channelId
-        reload()
+        setup(leadType: .inbound)
     }
         
-    func reload() {
+    func setup(leadType: LeadType = .outbound) {
         self.navigation.channelId = channelId
-        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId)
+        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId, leadType: leadType)
     }
     
     var body: some View {
@@ -302,7 +273,7 @@ struct ChannelView: View {
             )
             .onAppear {
                 self.navigation.channelId = channelId
-                self.reload()
+                self.setup()
             }
             .onAppear(perform: observeNotification)
             .onDisappear {

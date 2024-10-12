@@ -28,7 +28,9 @@ class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
     private var bufferCompletion: (([NostrEvent]) -> Void)?
 
     // MARK: - Subscribe to Event Streams
-    func subscribeToChannelEvents(channelId: String, completion: @escaping ([NostrEvent]) -> Void){
+    func subscribeToChannelEvents(channelId: String, leadType: LeadType = .outbound, completion: @escaping ([NostrEvent]) -> Void){
+        
+        self.network.leadType = leadType
         self.bufferCompletion = completion  // Save the completion for later use
         
         let filterForMetadata = Filter(ids: [channelId], kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])!

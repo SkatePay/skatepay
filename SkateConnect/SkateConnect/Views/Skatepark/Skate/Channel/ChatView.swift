@@ -242,13 +242,13 @@ struct ChatView: UIViewControllerRepresentable {
         func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
         -> UIColor {
             if case MessageKind.linkPreview(_) = message.kind {
-                return UIColor.systemPurple
+                return UIColor.systemPink
             }
             
             if (message.sender.senderId == self.supportUser?.npub) {
                 return UIColor.systemOrange
             } else if (message.sender.senderId == currenUser?.senderId) {
-                return UIColor.systemGreen
+                return UIColor.systemBlue
             } else {
                 return UIColor.darkGray
             }

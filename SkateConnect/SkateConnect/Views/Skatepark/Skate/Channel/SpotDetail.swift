@@ -59,6 +59,6 @@ struct SpotDetail: View {
     let data = AppData()
     let spots = AppData().landmarks;
 
-    return SpotDetail(spot: Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, note: ""))
+    return SpotDetail(spot: Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, icon: "", note: ""))
         .environment(data)
 }

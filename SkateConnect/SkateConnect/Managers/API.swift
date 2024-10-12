@@ -49,12 +49,13 @@ class API: ObservableObject {
                 self?.isLoading = false
                 switch completion {
                 case .failure(let error):
+                    print(error)
                     self?.error = error
                 case .finished:
                     break
                 }
             } receiveValue: { [weak self] leads in
-                self?.dataManager.createSpots(leads: leads)
+                self?.dataManager.createPublicSpots(leads: leads)
                 self?.error = nil // Clear any previous errors if successful
             }
             .store(in: &subscriptions)

@@ -12,18 +12,20 @@ import NostrSDK
 import SwiftUI
 import SwiftData
 
-
-
 class Network: ObservableObject, RelayDelegate, EventCreating {
     static let shared = Network()
     
     @Published var relayPool: RelayPool?
     
+    // A map to store channel-related events by channel ID
+    private var channelEvents: [String: [NostrEvent]] = [:]
+    
     private var activeSubscriptions: [String] = []
     private var eventsCancellable: AnyCancellable?
-    
     private var cancellables = Set<AnyCancellable>()
 
+    var leadType = LeadType.outbound
+    
     let keychainForNostr = NostrKeychainStorage()
 
     @ObservedObject var lobby = Lobby.shared
@@ -78,66 +80,6 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         }
     }
     
-    func requestOnboardingInfo() async {
-        let defaults = UserDefaults.standard
-        let hasRequestedOnboardingInfo = "hasRequestedOnboardingInfo"
-        
-        // Check if the function has run before
-        if !defaults.bool(forKey: hasRequestedOnboardingInfo) {
-            guard let account = keychainForNostr.account else {
-                print("Error: Failed to create Filter")
-                return
-            }
-            
-            guard let recipientPublicKey = PublicKey(npub: AppData().getSupport().npub) else {
-                print("Failed to create PublicKey from npub.")
-                return
-            }
-            
-            let content = "I'm online."
-            do {
-                let directMessage = try legacyEncryptedDirectMessage(withContent: content,
-                                                                     toRecipient: recipientPublicKey,
-                                                                     signedBy: account)
-                getRelayPool().publishEvent(directMessage)
-                defaults.set(true, forKey: hasRequestedOnboardingInfo)
-            } catch {
-                print(error.localizedDescription)
-            }
-        } else {
-            print("Onboarding info request has already been sent.")
-        }
-    }
-    
-    func announceBirthday() {
-        if (self.lobby.leads.isEmpty) { return }
-            
-        guard let account = keychainForNostr.account else { return }
-        
-        let eventId = self.lobby.leads[0].channelId
-        
-        do {
-            if let npub = keychainForNostr.account?.publicKey.npub {
-                let contentStructure = ContentStructure(content: npub, kind: .subscriber)
-                
-                let encoder = JSONEncoder()
-                encoder.outputFormatting = .prettyPrinted
-                let data = try encoder.encode(contentStructure)
-                if let content  = String(data: data, encoding: .utf8) {
-                    let event = try createChannelMessageEvent(
-                        withContent: content,
-                        eventId: eventId,
-                        relayUrl: Constants.RELAY_URL_PRIMAL,
-                        signedBy: account
-                    )
-                    getRelayPool().publishEvent(event)
-                }
-            }
-        } catch {
-            print("Failed to publish draft: \(error.localizedDescription)")
-        }
-    }
-    
     // MARK: - RelayDelegate
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         switch state {
@@ -153,8 +95,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             return
         }
     }
-    func relay(_ relay: Relay, didReceive event: RelayEvent) {
-    }
+    func relay(_ relay: Relay, didReceive event: RelayEvent) {}
     func relay(_ relay: Relay, didReceive response: RelayResponse) {
         DispatchQueue.main.async {
             guard case .eose(_) = response else {
@@ -210,11 +151,19 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
                 return $0.event
             }
             .removeDuplicates()
-            .sink(receiveValue: handleEvent)
+            .sink(receiveValue: handleIncomingEvent)
     }
 
     // Function to handle relay events
-    private func handleEvent(_ event: NostrEvent) {
+    private func handleIncomingEvent(_ event: NostrEvent) {
+        if event.kind == .channelCreation {
+            // Collect events by channelId
+            let channelId = event.id
+            var events = channelEvents[channelId] ?? []
+            events.append(event)
+            channelEvents[channelId] = events
+        }
+        
         switch event.kind {
             case .channelCreation:
                 handleChannelCreation(event)
@@ -227,9 +176,14 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         }
     }
     
+    // MARK: - Notifications
     // Process channel creation event
     private func handleChannelCreation(_ event: NostrEvent) {
-        NotificationCenter.default.post(name: .newChannelCreated, object: event)
+        if (self.leadType == LeadType.outbound) {
+            NotificationCenter.default.post(name: .createdChannelForOutbound, object: event)
+        } else {
+            NotificationCenter.default.post(name: .createdChannelForInbound, object: event)
+        }
     }
     
     // Process direct message event
@@ -241,10 +195,64 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     private func handleChannelMessage(_ event: NostrEvent) {
         NotificationCenter.default.post(name: .receivedChannelMessage, object: event)
     }
+    
+    // MARK: - Public Methods
+    func requestOnboardingInfo() async {
+        let defaults = UserDefaults.standard
+        let hasRequestedOnboardingInfo = "hasRequestedOnboardingInfo"
+        
+        // Check if the function has run before
+        if !defaults.bool(forKey: hasRequestedOnboardingInfo) {
+            guard let account = keychainForNostr.account else {
+                print("Error: Failed to create Filter")
+                return
+            }
+            
+            guard let recipientPublicKey = PublicKey(npub: AppData().getSupport().npub) else {
+                print("Failed to create PublicKey from npub.")
+                return
+            }
+            
+            let content = "I'm online."
+            do {
+                let directMessage = try legacyEncryptedDirectMessage(withContent: content,
+                                                                     toRecipient: recipientPublicKey,
+                                                                     signedBy: account)
+                getRelayPool().publishEvent(directMessage)
+                defaults.set(true, forKey: hasRequestedOnboardingInfo)
+            } catch {
+                print(error.localizedDescription)
+            }
+        } else {
+            print("Onboarding info request has already been sent.")
+        }
+    }
+    
+    // MARK: - Channel Deletion
+    func submitDeleteChannelRequestForChannelId(_ channelId: String) {
+        guard let account = keychainForNostr.account else {
+            print("Error: Failed to create Filter")
+            return
+        }
+        
+        // Fetch all related channel events
+        guard let relatedEvents = channelEvents[channelId], !relatedEvents.isEmpty else {
+            print("No events found for the channel.")
+            return
+        }
+        
+        do {
+            let channelDeletionRequest = try delete(events: relatedEvents, signedBy: account)
+            getRelayPool().publishEvent(channelDeletionRequest)
+        } catch {
+            print("Error creating or publishing channel deletion request: \(error.localizedDescription)")
+        }
+    }
 }
 
 extension Notification.Name {
-    static let newChannelCreated = Notification.Name("newChannelCreated")
+    static let createdChannelForInbound = Notification.Name("createdChannelForInbound")
+    static let createdChannelForOutbound = Notification.Name("createdChannelForOutbound")
     static let receivedDirectMessage = Notification.Name("receivedDirectMessage")
     static let receivedChannelMessage = Notification.Name("receivedChannelMessage")
 }

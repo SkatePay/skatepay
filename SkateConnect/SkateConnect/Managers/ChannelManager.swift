@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import SwiftUI
 
 class ChannelManager: ObservableObject {
+    @ObservedObject var network = Network.shared
+
     @Published var isShowingChannelView = false
     @Published var channelId: String = ""
     
@@ -25,5 +28,9 @@ class ChannelManager: ObservableObject {
     func closeChannel() {
         self.isShowingChannelView = false
         self.channelId = ""
+    }
+    
+    func deleteChannelWithId(_ channelId: String) {
+        network.submitDeleteChannelRequestForChannelId(channelId)
     }
 }

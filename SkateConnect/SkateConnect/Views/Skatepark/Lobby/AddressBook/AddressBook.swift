@@ -52,7 +52,7 @@ struct AddressBook: View {
     
     func deleteSpot(_ spot: Spot) {
         if !spot.channelId.isEmpty {
-            lobby.removeLead(byChannelId: spot.channelId)
+            lobby.removeLeadByChannelId(spot.channelId)
         }
         context.delete(spot)
     }
@@ -145,15 +145,20 @@ struct AddressBook: View {
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Add") {
-                        let spot = Spot(name: name, address: "", state: "", note: "", latitude: latitude, longitude: longitude)
+                        let spot = Spot(name: name, address: "", state: "", icon: "", note: "", latitude: latitude, longitude: longitude)
                         context.insert(spot)
                     }
                     .bold()
+                    .disabled(!readyToAdd())
                 }
                 .padding()
                 .background(.bar)
             }
         }
+    }
+    
+    private func readyToAdd() -> Bool {
+        (!name.isEmpty)
     }
 }
 

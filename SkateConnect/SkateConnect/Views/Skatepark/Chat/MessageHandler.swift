@@ -62,7 +62,7 @@ class MessageHandler: ObservableObject {
                 return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
             }
             
-            guard let event = invite.event, let lead = createLead(from: event) else {
+            guard let event = invite.event, let lead = createLead(from: event, note: "invite") else {
                 print("Failed to create lead from event")
                 return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
             }
