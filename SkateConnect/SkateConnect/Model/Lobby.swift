@@ -69,11 +69,11 @@ func convertNoteToColor(_ note: String) -> Color {
     let color: Color
     switch note {
     case "invite":
-        color = Color(uiColor: UIColor.systemPink)
+        color = Color(uiColor: UIColor.systemIndigo)
     case "public":
-        color = Color(uiColor: UIColor.systemPurple)
+        color = Color(uiColor: UIColor.systemOrange)
     case "private":
-        color = .orange
+        color = .purple
     default:
         color = Color(uiColor: UIColor.systemBlue)
     }

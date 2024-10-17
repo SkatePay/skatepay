@@ -69,7 +69,7 @@ struct SkateView: View {
                             Button(action: {
                                 stateManager.navigation.isShowingCreateChannel.toggle()
                             }) {
-                                Image(systemName: "message.circle.fill")
+                                Image(systemName: "shareplay")
                                     .foregroundColor(.white)
                                     .padding()
                                     .background(Color.black.opacity(0.7))
@@ -141,6 +141,56 @@ struct SkateView: View {
         }
     }
     
+    func createActionSheetForLead(_ lead: Lead) -> ActionSheet {
+        
+        let spot = stateManager.dataManager.findSpotForChannelId(lead.channelId)
+        
+        var canBeRemoved = true
+        
+        // Safely unwrap the spot and check the note after the colon
+        if let spot = spot, let note = spot.note.split(separator: ":").last.map(String.init) {
+            if note == "public" {
+                canBeRemoved = false
+            }
+        }
+
+        return ActionSheet(
+            title: Text("\(lead.name)"),
+            message: Text("Choose an action for this channel."),
+            buttons: [
+                .default(Text("Open")) {
+                    // Handle opening the channel
+                    stateManager.panMapToCachedCoordinate(lead.coordinate)
+                    channelManager.openChannel(channelId: lead.channelId)
+                },
+                .default(Text("Camera")) {
+                    // Handle camera action
+                    stateManager.navigation.isShowingCameraView = true
+                    stateManager.navigation.channelId = lead.channelId
+                },
+                .default(Text("Share")) {
+                    shareChannel(lead.channelId)
+                },
+                .default(Text("Open in Maps")) {
+                    let coordinate = lead.coordinate
+
+                    let locationString = "\(coordinate.latitude),\(coordinate.longitude)"
+                    if let url = URL(string: "http://maps.apple.com/?daddr=\(locationString)&dirflg=d") {
+                        if UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                        }
+                    }
+                },
+                // Conditionally include the Remove button
+                canBeRemoved ? .destructive(Text("Remove")) {
+                    channelManager.deleteChannelWithId(lead.channelId)
+                    stateManager.dataManager.removeSpotForChannelId(lead.channelId)
+                } : nil,
+                .cancel()
+            ].compactMap { $0 } // Remove any nil values
+        )
+    }
+    
     var body: some View {
         VStack {
             MapReader { proxy in
@@ -193,26 +243,8 @@ struct SkateView: View {
                                     return ActionSheet(title: Text("Error"), message: Text("No lead selected."), buttons: [.cancel()])
                                 }
                                 
-                                return ActionSheet(
-                                    title: Text("\(lead.name)"),
-                                    message: Text("Choose an action for this channel."),
-                                    buttons: [
-                                        .default(Text("Open")) {
-                                            // Handle opening the channel
-                                            stateManager.panMapToCachedCoordinate(lead.coordinate)
-                                            channelManager.openChannel(channelId: lead.channelId)
-                                        },
-                                        .default(Text("Camera")) {
-                                            // Handle camera action
-                                            stateManager.navigation.isShowingCameraView = true
-                                        },
-                                        .destructive(Text("Remove")) {
-                                            channelManager.deleteChannelWithId(lead.channelId)
-                                            stateManager.dataManager.removeSpotForChannelId(lead.channelId)
-                                        },
-                                        .cancel()
-                                    ]
-                                )                            }
+                                return createActionSheetForLead(lead)
+                            }
                         }
                     }
                 }
@@ -285,6 +317,11 @@ struct SkateView: View {
                             stateManager.locationManager.panMapToCachedCoordinate()
                         }
                 }
+            }
+        }
+        .fullScreenCover(isPresented: $stateManager.navigation.isShowingCameraView) {
+            NavigationView {
+                CameraView()
             }
         }
         .fullScreenCover(isPresented: $stateManager.navigation.isShowingDirectory) {

@@ -148,6 +148,25 @@ func processContent(content: String) -> ContentType {
     return .text(text)
 }
 
+struct ChatAreaView: View {
+    @Binding var messages: [MessageType]
+
+    let onTapAvatar: (String) -> Void
+    let onTapVideo: (MessageType) -> Void
+    let onTapLink: (String) -> Void
+    let onSend: (String) -> Void
+
+    var body: some View {
+        ChatView(
+            messages: $messages,
+            onTapAvatar: onTapAvatar,
+            onTapVideo: onTapVideo,
+            onTapLink: onTapLink,
+            onSend: onSend
+        )
+    }
+}
+
 struct ChatView: UIViewControllerRepresentable {
     let keychainForNostr = NostrKeychainStorage()
 
@@ -242,7 +261,7 @@ struct ChatView: UIViewControllerRepresentable {
         func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
         -> UIColor {
             if case MessageKind.linkPreview(_) = message.kind {
-                return UIColor.systemPink
+                return UIColor.systemIndigo
             }
             
             if (message.sender.senderId == self.supportUser?.npub) {

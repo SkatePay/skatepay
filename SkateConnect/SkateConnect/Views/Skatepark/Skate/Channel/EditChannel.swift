@@ -101,6 +101,12 @@ struct EditChannel: View {
                         Text("\(lead.channelId)")
                             .contextMenu {
                                 Button(action: {
+                                    UIPasteboard.general.string = lead.channelId
+                                }) {
+                                    Text("Share Channel")
+                                }
+                                
+                                Button(action: {
                                     UIPasteboard.general.string = "channel_invite:\(createInviteString())"
                                     isInviteCopied = true
                                     

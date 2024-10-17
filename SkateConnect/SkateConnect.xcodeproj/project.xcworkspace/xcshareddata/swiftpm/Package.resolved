@@ -1,5 +1,5 @@
 {
-  "originHash" : "8788e92f55915e688f8f5dffe24f2d801a817eb22df8ce9a1b9140ed93ca695b",
+  "originHash" : "4c0dbabb0a21b551c8eba0d36b8475d5f828e67c4e27d4f86b6b9fa96f3bc885",
   "pins" : [
     {
       "identity" : "aws-crt-swift",
@@ -67,10 +67,10 @@
     {
       "identity" : "nostr-sdk-ios",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SkatePay/nostr-sdk-ios",
+      "location" : "https://github.com/SkatePay/nostr-sdk-ios/",
       "state" : {
         "branch" : "yurchenko/nip-28",
-        "revision" : "9fc355bc346e60c53dbdb14cdd5c7e1b66e88d69"
+        "revision" : "ac7372531871daee6be25f3b0bbcedce52ccd2da"
       }
     },
     {

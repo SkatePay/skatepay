@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C60A779E2CC0BDDE0030705E /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C60A779D2CC0BDDE0030705E /* NostrSDK */; };
+		C60A77A12CC0C7560030705E /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C60A77A02CC0C7560030705E /* NostrSDK */; };
+		C60A77A42CC0C7740030705E /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C60A77A32CC0C7740030705E /* NostrSDK */; };
 		C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; };
 		C624DDCB2C939F920073F30F /* ConnectFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C62500D52C93C11A0026C334 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500D42C93C11A0026C334 /* DataManager.swift */; };
@@ -59,6 +62,7 @@
 		C62B84F32CA5D4230086AEE0 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F22CA5D4230086AEE0 /* CameraView.swift */; };
 		C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
+		C65B0A722CBA478600CB32B2 /* GlobalListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65B0A712CBA478600CB32B2 /* GlobalListener.swift */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
 		C668FC4F2C967AAA00612BEA /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC4E2C967AAA00612BEA /* KeychainSwift */; };
 		C668FC522C967AB600612BEA /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC512C967AB600612BEA /* NostrSDK */; };
@@ -83,7 +87,6 @@
 		C6C94AE92CA8D731008ECA86 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AE82CA8D731008ECA86 /* API.swift */; };
 		C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AEA2CA8DAE8008ECA86 /* AwsKeychainStorage.swift */; };
 		C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */; };
-		C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6D1F2DB2C9FC3A700FF428F /* NostrSDK */; };
 		C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */; };
 		C6D1F2E02C9FC52A00FF428F /* ScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DF2C9FC52A00FF428F /* ScannerView.swift */; };
 		C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC045D2CB47AAB003FCA1B /* FilePicker.swift */; };
@@ -110,6 +113,7 @@
 		C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959B2C93CF350006FBF0 /* CircleImage.swift */; };
 		C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */; };
 		C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F495A02C93D3C10006FBF0 /* WalletManager.swift */; };
+		C6F7CAFD2CC0CA92004245BF /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6F7CAFC2CC0CA92004245BF /* NostrSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -158,6 +162,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C60A779B2CBDDAF10030705E /* SkateConnect.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SkateConnect.entitlements; sourceTree = "<group>"; };
 		C624DDC92C939F920073F30F /* ConnectFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ConnectFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C62500D42C93C11A0026C334 /* DataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		C62500D62C93C1210026C334 /* AnyToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyToken.swift; sourceTree = "<group>"; };
@@ -210,6 +215,7 @@
 		C62B84F22CA5D4230086AEE0 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
 		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
+		C65B0A712CBA478600CB32B2 /* GlobalListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalListener.swift; sourceTree = "<group>"; };
 		C66AFE852CA61C76000CD716 /* AWS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AWS.swift; sourceTree = "<group>"; };
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
 		C66AFE912CA7812C000CD716 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
@@ -263,16 +269,19 @@
 			files = (
 				C66AFE902CA74DFB000CD716 /* Kingfisher in Frameworks */,
 				C6DC04642CB4B930003FCA1B /* InputBarAccessoryView in Frameworks */,
+				C60A77A12CC0C7560030705E /* NostrSDK in Frameworks */,
 				C66AFE832CA61671000CD716 /* AWSS3 in Frameworks */,
 				C69153CB2C9E27E80075ED6C /* NostrSDK in Frameworks */,
-				C6D1F2DC2C9FC3A700FF428F /* NostrSDK in Frameworks */,
 				C66AFE812CA61671000CD716 /* AWSCognitoIdentityProvider in Frameworks */,
 				C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */,
 				C668FC522C967AB600612BEA /* NostrSDK in Frameworks */,
 				C668FC582C967D6A00612BEA /* MessageKit in Frameworks */,
+				C60A779E2CC0BDDE0030705E /* NostrSDK in Frameworks */,
 				C668FC4F2C967AAA00612BEA /* KeychainSwift in Frameworks */,
 				C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */,
+				C60A77A42CC0C7740030705E /* NostrSDK in Frameworks */,
 				C69DC22C2C96121E00A7ED67 /* NostrSDK in Frameworks */,
+				C6F7CAFD2CC0CA92004245BF /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,6 +574,7 @@
 				C66AFE912CA7812C000CD716 /* Network.swift */,
 				C6C94AE82CA8D731008ECA86 /* API.swift */,
 				C6DC046D2CB5FD69003FCA1B /* ChannelManager.swift */,
+				C65B0A712CBA478600CB32B2 /* GlobalListener.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -632,6 +642,7 @@
 		C6DDD7222C936DAE000BE2A4 /* SkateConnect */ = {
 			isa = PBXGroup;
 			children = (
+				C60A779B2CBDDAF10030705E /* SkateConnect.entitlements */,
 				C66AFE8A2CA63749000CD716 /* Managers */,
 				C6DDD7292C936DAF000BE2A4 /* Assets.xcassets */,
 				C62500DB2C93C1210026C334 /* Blockchain */,
@@ -724,11 +735,14 @@
 				C668FC512C967AB600612BEA /* NostrSDK */,
 				C668FC572C967D6A00612BEA /* MessageKit */,
 				C69153CA2C9E27E80075ED6C /* NostrSDK */,
-				C6D1F2DB2C9FC3A700FF428F /* NostrSDK */,
 				C66AFE802CA61671000CD716 /* AWSCognitoIdentityProvider */,
 				C66AFE822CA61671000CD716 /* AWSS3 */,
 				C66AFE8F2CA74DFB000CD716 /* Kingfisher */,
 				C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */,
+				C60A779D2CC0BDDE0030705E /* NostrSDK */,
+				C60A77A02CC0C7560030705E /* NostrSDK */,
+				C60A77A32CC0C7740030705E /* NostrSDK */,
+				C6F7CAFC2CC0CA92004245BF /* NostrSDK */,
 			);
 			productName = SkateConnect;
 			productReference = C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */;
@@ -806,10 +820,10 @@
 				C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */,
 				C668FC4D2C967AAA00612BEA /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				C668FC562C967D6A00612BEA /* XCRemoteSwiftPackageReference "MessageKit" */,
-				C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 				C66AFE7F2CA61671000CD716 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 				C66AFE8E2CA74DFB000CD716 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
+				C6F7CAFB2CC0CA92004245BF /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 			);
 			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
 			projectDirPath = "";
@@ -938,6 +952,7 @@
 				C625014A2C93C1340026C334 /* ChannelView.swift in Sources */,
 				C62501502C93C1340026C334 /* CreateMessage.swift in Sources */,
 				C66AFE922CA7812C000CD716 /* Network.swift in Sources */,
+				C65B0A722CBA478600CB32B2 /* GlobalListener.swift in Sources */,
 				C62500D52C93C11A0026C334 /* DataManager.swift in Sources */,
 				C625015D2C93C1340026C334 /* TransferToken.swift in Sources */,
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
@@ -1121,6 +1136,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SkateConnect/SkateConnect.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SkateConnect/Preview Content\"";
@@ -1129,10 +1145,16 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SkateConnect/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSCameraUsageDescription = "SkateConnect uses the camera to scan QR codes and to enhance user experience with AR features.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "SkateConnect uses your location even when the app is in the background to offer continuous location-based services, like tracking your journey or providing real-time updates on nearby options.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SkateConnect uses your location to provide location-based services, such as finding nearby locations or enhancing our AR features with real-world positioning.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SkateConnect uses the microphone for voice commands to facilitate voice notes and to improve user interaction with our AI assistant feature.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SkateConnect uses the photo library to let you share screenshots of the app development issues with tech support.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1155,6 +1177,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SkateConnect/SkateConnect.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SkateConnect/Preview Content\"";
@@ -1163,10 +1186,16 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SkateConnect/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSCameraUsageDescription = "SkateConnect uses the camera to scan QR codes and to enhance user experience with AR features.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "SkateConnect uses your location even when the app is in the background to offer continuous location-based services, like tracking your journey or providing real-time updates on nearby options.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SkateConnect uses your location to provide location-based services, such as finding nearby locations or enhancing our AR features with real-world positioning.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SkateConnect uses the microphone for voice commands to facilitate voice notes and to improve user interaction with our AI assistant feature.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SkateConnect uses the photo library to let you share screenshots of the app development issues with tech support.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1342,14 +1371,6 @@
 				minimumVersion = 8.0.3;
 			};
 		};
-		C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SkatePay/nostr-sdk-ios";
-			requirement = {
-				branch = "yurchenko/nip-28";
-				kind = branch;
-			};
-		};
 		C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nathantannar4/InputBarAccessoryView.git";
@@ -1358,9 +1379,29 @@
 				version = 6.3.0;
 			};
 		};
+		C6F7CAFB2CC0CA92004245BF /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SkatePay/nostr-sdk-ios/";
+			requirement = {
+				branch = "yurchenko/nip-28";
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C60A779D2CC0BDDE0030705E /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C60A77A02CC0C7560030705E /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		C60A77A32CC0C7740030705E /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
 		C668FC482C967A9600612BEA /* SolanaSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */;
@@ -1403,15 +1444,15 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = NostrSDK;
 		};
-		C6D1F2DB2C9FC3A700FF428F /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C6D1F2DA2C9FC3A700FF428F /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
-			productName = NostrSDK;
-		};
 		C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */;
 			productName = InputBarAccessoryView;
+		};
+		C6F7CAFC2CC0CA92004245BF /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6F7CAFB2CC0CA92004245BF /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
+			productName = NostrSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

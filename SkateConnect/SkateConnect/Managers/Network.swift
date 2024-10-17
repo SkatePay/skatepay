@@ -28,8 +28,8 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     
     let keychainForNostr = NostrKeychainStorage()
 
-    @ObservedObject var lobby = Lobby.shared
-
+//    private var eventService = ChannelEventService()
+    
     init() {
         connect()
         
@@ -246,6 +246,33 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             getRelayPool().publishEvent(channelDeletionRequest)
         } catch {
             print("Error creating or publishing channel deletion request: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Post Nostr Event
+    public func publishVideoEvent(channelId: String, kind: Kind = .message, content: String) {
+        guard let account = keychainForNostr.account else {
+            print("No Nostr account available for publishing")
+            return
+        }
+
+        do {
+            let contentStructure = ContentStructure(content: content, kind: kind)
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(contentStructure)
+            let contentString = String(data: data, encoding: .utf8) ?? content
+            
+            let event = try createChannelMessageEvent(
+                withContent: contentString,
+                eventId: channelId,
+                relayUrl: Constants.RELAY_URL_PRIMAL,
+                hashtag: "video",
+                signedBy: account
+            )
+
+            getRelayPool().publishEvent(event)
+        } catch {
+            print("Failed to publish message: \(error.localizedDescription)")
         }
     }
 }

@@ -43,23 +43,23 @@ class FeedDelegate: ObservableObject {
     private var eventsCancellable: AnyCancellable?
     
     private let keychainForNostr = NostrKeychainStorage()
-        
+    
     init() {
         eventService = ChannelEventService()
     }
-
+    
     // MARK: - Subscribe to Channel Events
     public func subscribeToChannelWithId(_channelId: String, leadType: LeadType = .outbound) {
         
         cleanUp()
-
+        
         // Subscribe to channel events via event service
         eventService.subscribeToChannelEvents(channelId: _channelId, leadType: leadType) { [weak self] events in
             guard let self = self else { return }
             self.handleEvents(events)
         }
     }
-
+    
     // MARK: - Handle Multiple Events in Bulk
     private func handleEvents(_ events: [NostrEvent]) {
         let newMessages: [MessageType] = []
@@ -68,7 +68,7 @@ class FeedDelegate: ObservableObject {
             if let message = parseEventIntoMessage(event: event) {
                 if event.kind == .channelCreation {
                     navigation.channel = event
-
+                    
                     DispatchQueue.main.async {
                         self.lead = createLead(from: event)
                     }
@@ -88,7 +88,7 @@ class FeedDelegate: ObservableObject {
                 }
             }
         }
-
+        
         // Batch update the messages array with new messages
         DispatchQueue.main.async {
             self.messages.append(contentsOf: newMessages)
@@ -100,14 +100,14 @@ class FeedDelegate: ObservableObject {
         // Delegate to ChannelEventService for publishing the message
         eventService.publishMessage(text, channelId: navigation.channelId, kind: kind)
     }
-
+    
     // MARK: - Clean Up Subscriptions
     public func cleanUp() {
         // Remove all stored messages and cancel any existing subscriptions
         messages.removeAll()
         eventService.cleanUp()
     }
-
+    
     // MARK: - Parse Nostr Event into MessageType
     private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
         let publicKey = PublicKey(hex: event.pubkey)
@@ -118,7 +118,7 @@ class FeedDelegate: ObservableObject {
         
         let content = processContent(content: event.content)
         let user = MockUser(senderId: npub, displayName: displayName)
-
+        
         switch content {
         case .text(let text):
             // Handle text message
@@ -135,24 +135,24 @@ class FeedDelegate: ObservableObject {
                 print("Failed to decrypt channel invite")
                 return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
             }
-
+            
             guard let image = UIImage(named: "user-skatepay") else {
                 print("Failed to load image")
                 return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
             }
-
+            
             guard let event = invite.event, let lead = createLead(from: event) else {
                 print("Failed to create lead from event")
                 return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
             }
-
+            
             guard let channel = lead.channel,
                   let url = URL(string: "\(Constants.CHANNEL_URL_SKATEPARK)/\(event.id)"),
                   let description = channel.aboutDecoded?.description else {
                 print("Failed to generate URL or decode channel description")
                 return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
             }
-
+            
             let linkItem = MockLinkItem(
                 text: "\(lead.icon) Channel Invite",
                 attributedText: nil,
@@ -161,34 +161,15 @@ class FeedDelegate: ObservableObject {
                 teaser: description,
                 thumbnailImage: image
             )
-
+            
             return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
         }
     }
-
+    
     // MARK: - Blacklist Handling
     func getBlacklist() -> [String] {
         // Get list of blacklisted users (foes)
         return dataManager.fetchFoes().map { $0.npub }
-    }
-}
-
-struct ChatAreaView: View {
-    @Binding var messages: [MessageType]
-
-    let onTapAvatar: (String) -> Void
-    let onTapVideo: (MessageType) -> Void
-    let onTapLink: (String) -> Void
-    let onSend: (String) -> Void
-
-    var body: some View {
-        ChatView(
-            messages: $messages,
-            onTapAvatar: onTapAvatar,
-            onTapVideo: onTapVideo,
-            onTapLink: onTapLink,
-            onSend: onSend
-        )
     }
 }
 
@@ -217,34 +198,17 @@ struct ChannelView: View {
     @State private var keyboardHeight: CGFloat = 0
     
     @StateObject var selectedUserManager = SelectedUserManager() // Local state management
-
+    
     @State private var isShowingUserDetail = false
     
     @State private var showingConfirmationAlert = false
     @State private var selectedChannelId: String? = nil
     @State private var videoURL: URL?
     
+    @State private var showMediaActionSheet = false
+    @State private var selectedMediaURL: URL?
+    
     var landmarks: [Landmark] = AppData().landmarks
-    
-    func findLandmark(_ eventId: String) -> Landmark? {
-        return landmarks.first { $0.eventId == eventId }
-    }
-    
-    private func openInvite() {
-        guard let channelId = selectedChannelId else { return }
-        
-        if let spot = dataManager.findSpotForChannelId(channelId) {
-            navigation.coordinate = spot.locationCoordinate
-        }
-
-        self.channelId = channelId
-        setup(leadType: .inbound)
-    }
-        
-    func setup(leadType: LeadType = .outbound) {
-        self.navigation.channelId = channelId
-        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId, leadType: leadType)
-    }
     
     var body: some View {
         VStack {
@@ -258,8 +222,11 @@ struct ChannelView: View {
                     if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
                         let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
                         
-                        self.videoURL = URL(string: videoURLString)
-                        navigation.isShowingVideoPlayer.toggle()
+                        //                        self.videoURL = URL(string: videoURLString)
+                        //                        navigation.isShowingVideoPlayer.toggle()
+                        
+                        self.selectedMediaURL = URL(string: videoURLString)
+                        showMediaActionSheet.toggle() // Trigger the action sheet
                     }
                 },
                 onTapLink: { channelId in
@@ -274,6 +241,9 @@ struct ChannelView: View {
             .onAppear {
                 self.navigation.channelId = channelId
                 self.setup()
+            }
+            .actionSheet(isPresented: $showMediaActionSheet) {
+                createMediaActionSheet(for: selectedMediaURL)
             }
             .onAppear(perform: observeNotification)
             .onDisappear {
@@ -399,6 +369,60 @@ struct ChannelView: View {
     // MARK: Blacklist
     func getBlacklist() -> [String] {
         return foes.map({$0.npub})
+    }
+    
+    func findLandmark(_ eventId: String) -> Landmark? {
+        return landmarks.first { $0.eventId == eventId }
+    }
+    
+    private func openInvite() {
+        guard let channelId = selectedChannelId else { return }
+        
+        if let spot = dataManager.findSpotForChannelId(channelId) {
+            navigation.coordinate = spot.locationCoordinate
+        }
+        
+        self.channelId = channelId
+        setup(leadType: .inbound)
+    }
+    
+    // Function to create the ActionSheet for Play, Download, and Share
+    private func createMediaActionSheet(for url: URL?) -> ActionSheet {
+        return ActionSheet(
+            title: Text("Media Options"),
+            message: Text("Choose an action for the media."),
+            buttons: [
+                .default(Text("Play")) {
+                    if let videoURL = url {
+                        self.videoURL = videoURL
+                        navigation.isShowingVideoPlayer.toggle() // Play the video
+                    }
+                },
+                .default(Text("Download")) {
+                    if let videoURL = url {
+                        downloadVideo(from: videoURL) // Handle downloading the video
+                    }
+                },
+                .default(Text("Share")) {
+                    if let videoURL = url {
+                        shareVideo(videoURL) // Handle sharing the video
+                    }
+                },
+                .cancel()
+            ]
+        )
+    }
+    
+    // Function to handle video download
+    private func downloadVideo(from url: URL) {
+        // Implementation for downloading the video
+        print("Downloading video from \(url)")
+        // Add your video download logic here
+    }
+    
+    func setup(leadType: LeadType = .outbound) {
+        self.navigation.channelId = channelId
+        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId, leadType: leadType)
     }
     
     private func observeNotification() {

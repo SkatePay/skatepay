@@ -124,7 +124,8 @@ class Navigation: ObservableObject {
         NotificationCenter.default.post(
             name: .uploadVideo,
             object: self,
-            userInfo: ["assetURL": assetURL]
+            userInfo: ["channelId": channelId,
+                       "assetURL": assetURL]
         )
     }
     
