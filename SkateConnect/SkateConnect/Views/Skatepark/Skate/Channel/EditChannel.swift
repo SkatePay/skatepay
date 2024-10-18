@@ -63,7 +63,12 @@ struct EditChannel: View {
     }
     
     private func createInviteString() -> String {
-        var inviteString = navigation.channelId
+        guard let channelId = navigation.channelId else {
+            print("Error: Channel ID is nil.")
+            return ""
+        }
+        
+        var inviteString = channelId
         
         if let event = navigation.channel {
             inviteString = event.id
@@ -101,9 +106,9 @@ struct EditChannel: View {
                         Text("\(lead.channelId)")
                             .contextMenu {
                                 Button(action: {
-                                    UIPasteboard.general.string = lead.channelId
+                                    shareChannel(lead.channelId)
                                 }) {
-                                    Text("Share Channel")
+                                    Text("Open in Browser")
                                 }
                                 
                                 Button(action: {
@@ -176,9 +181,7 @@ struct EditChannel: View {
                 .padding(.top, 10)
                 .transition(.opacity)
         }
-        
     }
-    
 }
 
 #Preview {

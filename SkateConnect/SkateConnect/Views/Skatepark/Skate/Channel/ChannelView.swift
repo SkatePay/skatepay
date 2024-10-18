@@ -97,8 +97,14 @@ class FeedDelegate: ObservableObject {
     
     // MARK: - Publish Draft Message
     public func publishDraft(text: String, kind: Kind = .message) {
+        // Ensure channelId is not nil
+        guard let channelId = navigation.channelId else {
+            print("Error: Channel ID is nil.")
+            return
+        }
+        
         // Delegate to ChannelEventService for publishing the message
-        eventService.publishMessage(text, channelId: navigation.channelId, kind: kind)
+        eventService.publishMessage(text, channelId: channelId, kind: kind)
     }
     
     // MARK: - Clean Up Subscriptions

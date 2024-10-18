@@ -177,7 +177,12 @@ struct CameraView: View {
                 }
             }
             
-            cameraViewModel.channelId = navigation.channelId
+            guard let channelId = navigation.channelId else {
+                print("Error: Channel ID is nil.")
+                return
+            }
+            
+            cameraViewModel.channelId = channelId
         }
         .alert("Video posted.", isPresented: $cameraViewModel.showingAlert) {
             Button("Ok", role: .cancel) {

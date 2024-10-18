@@ -270,7 +270,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         
         let authors = [hex, account.publicKey.hex]
                 
-        let filter = Filter(authors: authors.compactMap{ $0 }, kinds: [4], tags: ["p" : [account.publicKey.hex, hex]])
+        let filter = Filter(authors: authors.compactMap{ $0 }, kinds: [4], tags: ["p" : [account.publicKey.hex, hex]], limit: 64)
         
         return filter
     }

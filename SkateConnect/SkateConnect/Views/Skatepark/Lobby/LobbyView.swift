@@ -71,7 +71,7 @@ struct LobbyView: View {
     }
     
     var activity: some View {
-        Section("Activity") {
+        Section("Events") {
             let npubs = parseActivity()
             
             if npubs.isEmpty {

@@ -35,7 +35,7 @@ struct SkateConnectApp: App {
     }
     
     func handleDeepLink(_ url: URL) {
-        guard url.host == Constants.LANDING_PAGE_SKATEPARK else { return }
+        guard url.host == Constants.LANDING_PAGE_HOST else { return }
 
         let pathComponents = url.pathComponents
 
@@ -53,8 +53,7 @@ struct SkateConnectApp: App {
             if let channelIndex = pathComponents.firstIndex(of: "channel"),
                channelIndex + 1 < pathComponents.count {
                 let channelID = pathComponents[channelIndex + 1]
-//                navigateToChannelView(with: channelID)
-                print(channelID)
+                navigation.viewChannel(channelId: channelID)
             }
         }
     }

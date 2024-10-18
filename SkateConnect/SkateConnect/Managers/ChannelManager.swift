@@ -12,22 +12,16 @@ class ChannelManager: ObservableObject {
     @ObservedObject var network = Network.shared
 
     @Published var isShowingChannelView = false
-    @Published var channelId: String = ""
+    @Published var channelId: String?
     
     func openChannel(channelId: String) {
         self.channelId = channelId
         self.isShowingChannelView = true
-        
-//        NotificationCenter.default.post(
-//            name: .joinChannel,
-//            object: self,
-//            userInfo: ["channelId": channelId]
-//        )
     }
 
     func closeChannel() {
         self.isShowingChannelView = false
-        self.channelId = ""
+        self.channelId = nil
     }
     
     func deleteChannelWithId(_ channelId: String) {

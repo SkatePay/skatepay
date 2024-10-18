@@ -17,6 +17,8 @@ struct SkateView: View {
     
     @State private var showMenu = false
     @State private var selectedLead: Lead? = nil
+    @State private var isInviteCopied = false
+    @State private var isLinkCopied = false
     
     @Query private var spots: [Spot]
     
@@ -53,6 +55,47 @@ struct SkateView: View {
                     .background(Color.black.opacity(0.5))
                     .frame(maxWidth: .infinity)
                     .position(x: geometry.size.width / 2, y: 16)
+                }
+                
+                // Centered "Invite copied!" message
+                if isInviteCopied {
+                    Text("Invite copied! Paste in DM or a channel.")
+                        .font(.headline)
+                        .foregroundColor(.green)
+                        .padding()
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .transition(.opacity)
+                        .zIndex(1) // Bring this view on top
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                        .onAppear {
+                            // Hide after 2 seconds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    isInviteCopied = false
+                                }
+                            }
+                        }
+                }
+                
+                if isLinkCopied {
+                    Text("Link copied. Share it with friends!")
+                        .font(.headline)
+                        .foregroundColor(.green)
+                        .padding()
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .transition(.opacity)
+                        .zIndex(1) // Bring this view on top
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                        .onAppear {
+                            // Hide after 2 seconds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    isLinkCopied = false
+                                }
+                            }
+                        }
                 }
             }
             
@@ -139,6 +182,7 @@ struct SkateView: View {
                 }
             }
         }
+        .animation(.easeInOut, value: isInviteCopied)
     }
     
     func createActionSheetForLead(_ lead: Lead) -> ActionSheet {
@@ -168,9 +212,28 @@ struct SkateView: View {
                     stateManager.navigation.isShowingCameraView = true
                     stateManager.navigation.channelId = lead.channelId
                 },
-                .default(Text("Share")) {
-                    shareChannel(lead.channelId)
+                .default(Text("Copy Link")) {
+                    let customUrlString = "\(Constants.LANDING_PAGE_SKATEPARK)/channel/\(lead.channelId)"
+                    UIPasteboard.general.string = customUrlString
+                    
+                    isLinkCopied = true
                 },
+                (lead.event != nil) ? .default(Text("Copy Invite")) {
+                    var inviteString = lead.channelId
+                    
+                    if let event = lead.event {
+                        if var channel = parseChannel(from: event) {
+                            channel.event = event
+                            if let ecryptedString = encryptChannelInviteToString(channel: channel) {
+                                inviteString = ecryptedString
+                            }
+                        }
+                    }
+
+                    UIPasteboard.general.string = "channel_invite:\(inviteString)"
+                    
+                    isInviteCopied = true
+                } : nil,
                 .default(Text("Open in Maps")) {
                     let coordinate = lead.coordinate
 

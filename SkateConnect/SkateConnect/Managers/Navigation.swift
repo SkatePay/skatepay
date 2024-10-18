@@ -28,7 +28,7 @@ class Navigation: ObservableObject {
     @Published var path = NavigationPath()
     @Published var tab: Tab = .map
     
-    @Published var channelId: String = ""
+    @Published var channelId: String?
     @Published var channel: NostrEvent?
     
     @Published var selectedUser: User?
@@ -93,6 +93,10 @@ class Navigation: ObservableObject {
             userInfo: ["channelId": channelId]
         )
         isShowingSearch = false
+    }
+    
+    func viewChannel(channelId: String) {
+        self.channelId = channelId
     }
     
     func goToSpot(spot: Spot) {
