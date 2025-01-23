@@ -185,5 +185,5 @@ struct EditChannel: View {
 }
 
 #Preview {
-    EditChannel(lead: nil, channel: Channel(name: "", about: "", picture: "", relays: [Constants.RELAY_URL_PRIMAL], event: nil))
+    EditChannel(lead: nil, channel: Channel(name: "", about: "", picture: "", relays: [Constants.RELAY_URL_SKATEPARK], event: nil))
 }

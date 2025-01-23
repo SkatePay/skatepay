@@ -1,5 +1,5 @@
 {
-  "originHash" : "ccedcfb403fff427033522e0de4c2ab4c464ea4fa2ce5ecf816ea53b1271badc",
+  "originHash" : "440ef8dc19b2a3d3f3426f4843e0d544e6d5e69b8b65a21463ea2bd98bfa722c",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/InputBarAccessoryView",
       "state" : {
-        "revision" : "093bdc71dc26bfcdaa71352d5ff0cd84b9b8d427",
-        "version" : "6.4.0"
+        "revision" : "17ced92a5dccb36512b408b6276353631d7cbe57",
+        "version" : "6.3.0"
       }
     },
     {

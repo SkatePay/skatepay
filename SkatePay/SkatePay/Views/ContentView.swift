@@ -36,7 +36,7 @@ class ContentViewModel: ObservableObject, RelayDelegate, LegacyDirectMessageEncr
     let keychainForNostr = NostrKeychainStorage()
     
     var relayPool = try! RelayPool(relayURLs: [
-        URL(string: Constants.RELAY_URL_PRIMAL)!
+        URL(string: Constants.RELAY_URL_SKATEPARK)!
     ])
         
     private var subscriptionForGroup, subscriptionForDirect: String?

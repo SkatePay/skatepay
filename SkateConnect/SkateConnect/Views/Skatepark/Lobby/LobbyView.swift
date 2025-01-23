@@ -235,7 +235,7 @@ struct LobbyView: View {
             "name": "\(friendlyKey(npub: userSelection.npub))",
             "npub": "\(userSelection.npub)",
             "solanaAddress": "",
-            "relayUrl": "\(Constants.RELAY_URL_PRIMAL)",
+            "relayUrl": "\(Constants.RELAY_URL_SKATEPARK)",
             "isFavorite": false,
             "imageName": "user-ghost",
             "note": ""

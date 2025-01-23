@@ -82,7 +82,7 @@ struct CreateChannel: View, EventCreating {
                             name: name,
                             about: about,
                             picture: Constants.PICTURE_RABOTA_TOKEN,
-                            relays: [Constants.RELAY_URL_PRIMAL])
+                            relays: [Constants.RELAY_URL_SKATEPARK])
                         
                         let builder = try? CreateChannelEvent.Builder().channelMetadata(metadata)
                             

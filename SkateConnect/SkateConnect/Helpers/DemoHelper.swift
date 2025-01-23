@@ -14,7 +14,7 @@ struct DemoHelper {
         Binding.constant("")
     }
     static var previewRelay: Binding<Relay?> {
-        let urlString = Constants.RELAY_URL_PRIMAL
+        let urlString = Constants.RELAY_URL_SKATEPARK
 
         guard let url = URL(string: urlString) else {
             fatalError("Invalid URL: \(urlString)")

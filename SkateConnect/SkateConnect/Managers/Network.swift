@@ -45,7 +45,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     func connect() {
         do {
             self.relayPool = try RelayPool(relayURLs: [
-                URL(string: Constants.RELAY_URL_PRIMAL)!], delegate: self)
+                URL(string: Constants.RELAY_URL_SKATEPARK)!], delegate: self)
         } catch {
             print("Error initializing RelayPool: \(error)")
         }
@@ -265,7 +265,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             let event = try createChannelMessageEvent(
                 withContent: contentString,
                 eventId: channelId,
-                relayUrl: Constants.RELAY_URL_PRIMAL,
+                relayUrl: Constants.RELAY_URL_SKATEPARK,
                 hashtag: "video",
                 signedBy: account
             )

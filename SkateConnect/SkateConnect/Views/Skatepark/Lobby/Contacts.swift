@@ -160,7 +160,7 @@ func getUser(npub: String) -> User {
         name: friendlyKey(npub: npub),
         npub: npub,
         solanaAddress: "SolanaAddress1...",
-        relayUrl: Constants.RELAY_URL_PRIMAL,
+        relayUrl: Constants.RELAY_URL_SKATEPARK,
         isFavorite: false,
         note: "Not provided.",
         imageName: "user-skatepay"

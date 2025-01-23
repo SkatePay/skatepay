@@ -42,16 +42,6 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
         messagesCollectionView.scrollToLastItem(animated: true)
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        print("User started editing the text field.")
-        // You can perform any actions here when the cursor enters the text field
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        print("User finished editing the text field.")
-        // You can perform any actions here when the cursor leaves the text field
-    }
-    
     func didTapAvatar(in cell: MessageCollectionViewCell) {
         guard let indexPath = messagesCollectionView.indexPath(for: cell) else { return }
         guard let messagesDataSource = messagesCollectionView.messagesDataSource else { return }
@@ -90,64 +80,6 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
 
 // MARK: - MessagesView
 
-enum ContentType {
-    case text(String)
-    case video(URL)
-    case photo(URL)
-    case invite(String)
-}
-
-func processContent(content: String) -> ContentType {
-    var text = content
-    
-    do {
-        let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: content.data(using: .utf8)!)
-        text = decodedStructure.content
-        
-        switch decodedStructure.kind {
-        case .video:
-            // Convert .mov to .jpg for the thumbnail
-            let urlString = decodedStructure.content.replacingOccurrences(of: ".mov", with: ".jpg")
-            if let url = URL(string: urlString) {
-                return .video(url)
-            } else {
-                print("Invalid video thumbnail URL string: \(urlString)")
-                return .text(decodedStructure.content) // Fallback to text
-            }
-        
-        case .photo:
-            // Handle photo content
-            if let url = URL(string: decodedStructure.content) {
-                return .photo(url)
-            } else {
-                print("Invalid photo URL string: \(decodedStructure.content)")
-                return .text(decodedStructure.content) // Fallback to text
-            }
-        
-        case .subscriber:
-            // Format the subscriber text
-            let formattedText = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
-            return .text(formattedText)
-        
-        default:
-            // If no other kind is matched, fall through to check for channel_invite or return raw text
-            break
-        }
-        
-    } catch {
-        print("Decoding error: \(error)")
-    }
-    
-    // Handle channel_invite in the text as a fallback
-    if let range = text.range(of: "channel_invite:") {
-        let channelId = String(text[range.upperBound...])
-        return .invite(channelId)
-    }
-    
-    // Return the original text if no special cases are matched
-    return .text(text)
-}
-
 struct ChatAreaView: View {
     @Binding var messages: [MessageType]
 
@@ -155,7 +87,7 @@ struct ChatAreaView: View {
     let onTapVideo: (MessageType) -> Void
     let onTapLink: (String) -> Void
     let onSend: (String) -> Void
-
+    
     var body: some View {
         ChatView(
             messages: $messages,
@@ -168,11 +100,56 @@ struct ChatAreaView: View {
 }
 
 struct ChatView: UIViewControllerRepresentable {
+    @State var initialized = false
+    
+    @Binding var messages: [MessageType]
+    
     let keychainForNostr = NostrKeychainStorage()
-
+    
     func getCurrentUser() -> MockUser {
         guard let account = keychainForNostr.account else { return MockUser(senderId: "000002", displayName: "You") }
         return MockUser(senderId: account.publicKey.npub, displayName: "You")
+    }
+    
+    let onTapAvatar: (String) -> Void
+    let onTapVideo: (MessageType) -> Void
+    let onTapLink: (String) -> Void
+    let onSend: (String) -> Void
+    
+    func makeUIViewController(context: Context) -> MessagesViewController {
+        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo, onTapLink: onTapLink)
+        
+        messagesVC.messagesCollectionView.messagesDisplayDelegate = context.coordinator
+        messagesVC.messagesCollectionView.messagesLayoutDelegate = context.coordinator
+        messagesVC.messagesCollectionView.messagesDataSource = context.coordinator
+        messagesVC.messagesCollectionView.messageCellDelegate = messagesVC
+        messagesVC.messageInputBar.delegate = context.coordinator
+        messagesVC.messageInputBar.inputTextView.autocorrectionType = .no
+        messagesVC.scrollsToLastItemOnKeyboardBeginsEditing = false // default false
+        messagesVC.maintainPositionOnInputBarHeightChanged = false // default false
+        messagesVC.showMessageTimestampOnSwipeLeft = true // default false
+        
+        context.coordinator.updateFirstMessagesOfDay(messages)
+
+        return messagesVC
+    }
+    
+    func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {
+        uiViewController.messagesCollectionView.reloadData()
+        scrollToBottom(uiViewController)
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self, onSend: onSend)
+    }
+    
+    // MARK: Private
+    
+    private func scrollToBottom(_ uiViewController: MessagesViewController) {
+        DispatchQueue.main.async {
+            uiViewController.messagesCollectionView.scrollToLastItem(animated: self.initialized)
+            self.initialized = true
+        }
     }
     
     final class Coordinator: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate, InputBarAccessoryViewDelegate {
@@ -182,19 +159,39 @@ struct ChatView: UIViewControllerRepresentable {
         var supportUser: User?
         var currenUser: MockUser?
         
+        private var firstMessagesOfDay: [IndexPath: Date] = [:]
+
         init(_ parent: ChatView, onSend: @escaping (String) -> Void) {
             self.parent = parent
             self.onSend = onSend
             self.supportUser = AppData().getSupport()
             self.currenUser = parent.getCurrentUser()
         }
-                                
+        
+        // MARK: - Update First Messages of the Day
+        
+        func updateFirstMessagesOfDay(_ messages: [MessageType]) {
+            firstMessagesOfDay.removeAll()
+            var lastDate: Date?
+            
+            for (index, message) in messages.enumerated() {
+                let messageDate = Calendar.current.startOfDay(for: message.sentDate)
+                
+                if lastDate == nil || lastDate != messageDate {
+                    let indexPath = IndexPath(item: 0, section: index)
+                    firstMessagesOfDay[indexPath] = messageDate
+                }
+                
+                lastDate = messageDate
+            }
+        }
+        
         let formatter: DateFormatter = {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
             return formatter
         }()
-                
+        
         func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
             onSend(text)
             inputBar.inputTextView.text = ""
@@ -217,24 +214,45 @@ struct ChatView: UIViewControllerRepresentable {
             return nil
         }
         
+        func textCell(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> UICollectionViewCell? {
+            nil
+        }
+        
+        // MARK: - MessagesLayoutDelegate
+        
+        func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in _: MessagesCollectionView) -> CGFloat {
+            return firstMessagesOfDay.keys.contains(indexPath) ? 30 : 0
+        }
+        
+        func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+            if let messageDate = firstMessagesOfDay[indexPath] {
+                return NSAttributedString(
+                    string: MessageKitDateFormatter.shared.string(from: messageDate),
+                    attributes: [
+                        .font: UIFont.boldSystemFont(ofSize: 12),
+                        .foregroundColor: UIColor.gray
+                    ]
+                )
+            }
+            return nil
+        }
+        
+        
         func messageTopLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
             var name = message.sender.displayName
-
+            
             if (message.sender.senderId == self.supportUser?.npub) {
                 name = AppData().getSupport().name
             }
-
+            
             return NSAttributedString(
                 string: name,
                 attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption1)])
         }
         
-        //        func messageBottomLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
-        //            let dateString = formatter.string(from: message.sentDate)
-        //            return NSAttributedString(
-        //                string: dateString,
-        //                attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)])
-        //        }
+        func messageBottomLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
+            return nil
+        }
         
         func messageTimestampLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
             let sentDate = message.sentDate
@@ -273,8 +291,8 @@ struct ChatView: UIViewControllerRepresentable {
             }
         }
         
-        func messageTopLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
-            16
+       func messageTopLabelHeight(for message: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
+            return 16
         }
         
         func messageBottomLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
@@ -299,45 +317,6 @@ struct ChatView: UIViewControllerRepresentable {
         }
     }
     
-    @State var initialized = false
-    @Binding var messages: [MessageType]
     
-    let onTapAvatar: (String) -> Void
-    let onTapVideo: (MessageType) -> Void
-    let onTapLink: (String) -> Void
-    let onSend: (String) -> Void
     
-    func makeUIViewController(context: Context) -> MessagesViewController {
-        let messagesVC = MessageSwiftUIVC(onTapAvatar: onTapAvatar, onTapVideo: onTapVideo, onTapLink: onTapLink)
-        
-        messagesVC.messagesCollectionView.messagesDisplayDelegate = context.coordinator
-        messagesVC.messagesCollectionView.messagesLayoutDelegate = context.coordinator
-        messagesVC.messagesCollectionView.messagesDataSource = context.coordinator
-        messagesVC.messagesCollectionView.messageCellDelegate = messagesVC
-        messagesVC.messageInputBar.delegate = context.coordinator
-        messagesVC.messageInputBar.inputTextView.autocorrectionType = .no
-        messagesVC.scrollsToLastItemOnKeyboardBeginsEditing = false // default false
-        messagesVC.maintainPositionOnInputBarHeightChanged = false // default false
-        messagesVC.showMessageTimestampOnSwipeLeft = true // default false
-        
-        return messagesVC
-    }
-    
-    func updateUIViewController(_ uiViewController: MessagesViewController, context _: Context) {
-        uiViewController.messagesCollectionView.reloadData()
-        scrollToBottom(uiViewController)
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self, onSend: onSend)
-    }
-    
-    // MARK: Private
-    
-    private func scrollToBottom(_ uiViewController: MessagesViewController) {
-        DispatchQueue.main.async {
-            uiViewController.messagesCollectionView.scrollToLastItem(animated: self.initialized)
-            self.initialized = true
-        }
-    }
 }

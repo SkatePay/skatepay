@@ -97,6 +97,7 @@ class Navigation: ObservableObject {
     
     func viewChannel(channelId: String) {
         self.channelId = channelId
+        ChannelViewManager.shared.openChannel(channelId: channelId)
     }
     
     func goToSpot(spot: Spot) {

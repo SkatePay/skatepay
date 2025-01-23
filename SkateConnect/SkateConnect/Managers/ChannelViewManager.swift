@@ -8,13 +8,29 @@
 import Foundation
 import SwiftUI
 
-class ChannelManager: ObservableObject {
+class ChannelViewManager: ObservableObject {
+    static let shared = ChannelViewManager()
+
     @ObservedObject var network = Network.shared
 
-    @Published var isShowingChannelView = false
+    @Published var isShowingChannelView = false {
+        didSet {
+            print("isShowingChannelView updated to: \(isShowingChannelView)")
+        }
+    }
+    
     @Published var channelId: String?
     
+    init() {
+        print("ChannelViewManager initialized at \(Date())")
+    }
+    
     func openChannel(channelId: String) {
+        guard self.channelId != channelId || !self.isShowingChannelView else {
+            print("Channel already open: \(channelId)")
+            return
+        }
+        
         self.channelId = channelId
         self.isShowingChannelView = true
     }

@@ -62,7 +62,7 @@ class FeedDelegate: ObservableObject {
     
     // MARK: - Handle Multiple Events in Bulk
     private func handleEvents(_ events: [NostrEvent]) {
-        let newMessages: [MessageType] = []
+        var newMessages: [MessageType] = []
         
         for event in events {
             if let message = parseEventIntoMessage(event: event) {
@@ -81,9 +81,9 @@ class FeedDelegate: ObservableObject {
                     
                     // Append messages depending on whether we are fetching stored events or live events
                     if eventService.fetchingStoredEvents {
-                        messages.insert(message, at: 0)  // Prepend historical messages
+                        newMessages.insert(message, at: 0)  // Prepend historical messages
                     } else {
-                        messages.append(message)  // Append live messages
+                        newMessages.append(message)  // Append live messages
                     }
                 }
             }

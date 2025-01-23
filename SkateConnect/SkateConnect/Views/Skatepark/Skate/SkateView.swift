@@ -22,10 +22,14 @@ struct SkateView: View {
     
     @Query private var spots: [Spot]
     
-    @StateObject var channelManager = ChannelManager()
+    @StateObject var channelManager = ChannelViewManager.shared
     
     @ObservedObject private var stateManager = StateManager()
 
+    init() {
+        print("SkateView initialized at \(Date())")
+    }
+    
     let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium) // Haptic feedback generator
 
     func handleLongPress(lead: Lead) {
@@ -371,14 +375,15 @@ struct SkateView: View {
             .padding()
         }
         .fullScreenCover(isPresented: $channelManager.isShowingChannelView) {
-            if channelManager.channelId.isEmpty {
-                Text("No lead available at this index.")
-            } else {
+            if let channelId = channelManager.channelId {
                 NavigationView {
-                    ChannelView(channelId: channelManager.channelId)
-                        .onDisappear {
-                            stateManager.locationManager.panMapToCachedCoordinate()
-                        }
+                    DebugView {
+                        ChannelView(channelId: channelId)
+                            .onDisappear {
+                                stateManager.locationManager.panMapToCachedCoordinate()
+                                channelManager.isShowingChannelView = false // Reset state
+                            }
+                    }
                 }
             }
         }
@@ -484,6 +489,19 @@ struct SkateView: View {
         }
     }
 }
+
+//struct SkateView: View {
+//    init() {
+//        print("SkateView initialized at \(Date())")
+//    }
+//    
+//    var body: some View {
+//        VStack {
+//            
+//            }
+//        }
+//}
+
 
 #Preview {
     SkateView().environment(AppData())

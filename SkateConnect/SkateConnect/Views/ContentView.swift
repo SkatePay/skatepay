@@ -28,7 +28,6 @@ class ContentViewModel: ObservableObject {
 
 struct ContentView: View {
     @Environment(\.modelContext) private var context
-    @EnvironmentObject var channelManager: ChannelManager
 
     @ObservedObject var navigation = Navigation.shared
     @ObservedObject var network = Network.shared
@@ -41,6 +40,12 @@ struct ContentView: View {
 
     let keychainForNostr = NostrKeychainStorage()
     
+    init() {
+        print("ContentView initialized at \(Date())")
+    }
+    
+    private let skateView = SkateView()
+
     var body: some View {
         TabView(selection: $navigation.tab) {
             LobbyView()
@@ -50,8 +55,7 @@ struct ContentView: View {
                 .badge(incomingMessagesCount > 0 ? incomingMessagesCount : 0)
                 .tag(Tab.lobby)
             
-            
-            SkateView()
+            skateView
                 .tabItem {
                     Label("Map", systemImage: "map")
                 }
@@ -78,14 +82,6 @@ struct ContentView: View {
                     }
                     .environmentObject(viewModel)
                     .tag(Tab.settings)
-            }
-        }
-        .fullScreenCover(isPresented: $channelManager.isShowingChannelView) {
-            if let channelId = channelManager.channelId {
-                ChannelView(channelId: channelId)
-                    .onDisappear {
-                        channelManager.closeChannel()
-                    }
             }
         }
         .onAppear {

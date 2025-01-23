@@ -98,7 +98,7 @@ class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
             let event = try createChannelMessageEvent(
                 withContent: contentString,
                 eventId: channelId,
-                relayUrl: Constants.RELAY_URL_PRIMAL,
+                relayUrl: Constants.RELAY_URL_SKATEPARK,
                 signedBy: account
             )
 

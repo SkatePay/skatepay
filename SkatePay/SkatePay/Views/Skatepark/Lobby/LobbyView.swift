@@ -100,7 +100,7 @@ struct LobbyView: View {
                 "name": "ghost",
                 "npub": "\(npub)",
                 "solanaAddress": "",
-                "relayUrl": "\(Constants.RELAY_URL_PRIMAL)",
+                "relayUrl": "\(Constants.RELAY_URL_SKATEPARK)",
                 "isFavorite": false,
                 "imageName": "user-ghost"
             }
