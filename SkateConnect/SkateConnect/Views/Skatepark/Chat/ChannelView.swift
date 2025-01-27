@@ -185,7 +185,11 @@ struct ChannelView: View {
         }
         .sheet(isPresented: $isShowingToolBoxView) {
             ToolBoxView()
+                .environmentObject(navigation)
                 .presentationDetents([.medium])
+                .onAppear {
+                    navigation.channelId = channelId
+                }
         }
         .fullScreenCover(isPresented: $navigation.isShowingCameraView) {
             NavigationView {
@@ -198,11 +202,6 @@ struct ChannelView: View {
                 NavigationView {
                     VideoPreviewView(url: videoURL)
                 }
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .uploadVideo)) { notification in
-            if let assetURL = notification.userInfo?["assetURL"] as? String {
-                feedDelegate.publishDraft(text: assetURL, kind: .video)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .uploadImage)) { notification in

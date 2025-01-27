@@ -10,7 +10,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ToolBoxView: View {    
-    @ObservedObject var navigation = Navigation.shared
+    @EnvironmentObject var navigation: Navigation
 
     @State private var showingFilePicker = false
     @State private var selectedMediaURL: URL? = nil
