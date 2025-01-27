@@ -78,8 +78,6 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     @Published var mapPosition = MapCameraPosition.region(MKCoordinateRegion())
     
-    private var isLocationManagerInitialized = false 
-
     override init() {
         super.init()
         
@@ -143,16 +141,11 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     // Ensure location services are only checked once, and state changes are throttled
     func checkIfLocationIsEnabled() {
-        if isLocationManagerInitialized {
-            return // Prevent initializing location manager multiple times
-        }
-        
         if CLLocationManager.locationServicesEnabled() {
             locationManager = CLLocationManager()
             locationManager?.desiredAccuracy = kCLLocationAccuracyBest
             locationManager?.delegate = self
-            locationManager?.startUpdatingLocation() // Start updating location only if not already started
-            isLocationManagerInitialized = true // Mark as initialized
+            locationManager?.startUpdatingLocation()
         } else {
             print("Location services are disabled. Show an alert to the user.")
         }
@@ -190,9 +183,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     // Update the current location and handle state updates efficiently
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if ((navigation?.isLocationUpdatePaused) != nil) {
-            return
-        }
+            
+        if (navigation?.activeView == .map && navigation?.activeSheet == ActiveSheet.none) { return }
             
         guard let location = locations.last else { return }
         

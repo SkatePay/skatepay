@@ -165,7 +165,7 @@ struct ChannelView: View {
                         }
                         
                         Button(action: {
-                            navigation.isShowingCameraView = true
+                            navigation.activeSheet = .camera
                         }) {
                             Image(systemName: "camera.on.rectangle.fill")
                                 .foregroundColor(.blue)
@@ -191,7 +191,10 @@ struct ChannelView: View {
                     navigation.channelId = channelId
                 }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingCameraView) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .camera },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 CameraView()
                     .environmentObject(navigation)

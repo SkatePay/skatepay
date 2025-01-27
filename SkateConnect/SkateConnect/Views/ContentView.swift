@@ -47,12 +47,6 @@ struct ContentView: View {
     
     let keychainForNostr = NostrKeychainStorage()
     
-    init() {
-        print(
-            "ContentView initialized at \(Date())"
-        )
-    }
-    
     var body: some View {
         TabView(
             selection: $navigation.tab
@@ -63,6 +57,9 @@ struct ContentView: View {
                         "Lobby",
                         systemImage: "star"
                     )
+                }
+                .onAppear {
+                    navigation.activeView = .lobby
                 }
                 .environmentObject(dataManager)
                 .environmentObject(lobby)
@@ -81,6 +78,9 @@ struct ContentView: View {
                         "Map",
                         systemImage: "map"
                     )
+                }
+                .onAppear {
+                    navigation.activeView = .map
                 }
                 .environmentObject(apiService)
                 .environmentObject(channelViewManager)
@@ -123,6 +123,9 @@ struct ContentView: View {
                         systemImage: "gearshape"
                     )
                 }
+                .onAppear {
+                    navigation.activeView = .settings
+                }
                 .environmentObject(eulaManager)
                 .environmentObject(lobby)
                 .environmentObject(navigation)
@@ -143,9 +146,7 @@ struct ContentView: View {
                     UserDetail(
                         user: user
                     )
-                    .environmentObject(
-                        navigation
-                    )
+                    .environmentObject(navigation)
                     .environmentObject(network)
                     .navigationBarItems(leading:
                                             Button(action: {

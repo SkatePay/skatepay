@@ -44,6 +44,7 @@ struct SkateConnectApp: App {
                     .environmentObject(network)
                     .environmentObject(stateManager)
                     .onAppear {
+                        channelViewManager.setNavigation(navigation: navigation)
                         channelViewManager.setNetwork(network: network)
                         locationManager.setNavigation(navigation: navigation)
                     }

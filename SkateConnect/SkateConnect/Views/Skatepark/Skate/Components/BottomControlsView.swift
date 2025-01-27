@@ -34,9 +34,7 @@ struct BottomControlsView: View {
             }
             
             Button(action: {
-                DispatchQueue.main.async {
-                    navigation.isShowingDirectory = true
-                }
+                navigation.activeSheet = .directory
             }) {
                 Text("Skateparks")
                     .padding(8)
@@ -46,7 +44,7 @@ struct BottomControlsView: View {
             }
             
             Button(action: {
-                navigation.isShowingSearch.toggle()
+                navigation.activeSheet = .search
             }) {
                 Text("🔎")
                     .padding(8)

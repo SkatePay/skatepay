@@ -31,10 +31,6 @@ struct SkateView: View {
     
     @Query private var spots: [Spot]
     
-    init() {
-        print("SkateView initialized at \(Date())")
-    }
-    
     let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
     
     func createActionSheetForLead(_ lead: Lead) -> ActionSheet {
@@ -60,8 +56,7 @@ struct SkateView: View {
                     channelViewManager.openChannel(channelId: lead.channelId)
                 },
                 .default(Text("Camera")) {
-                    // Handle camera action
-                    navigation.isShowingCameraView = true
+                    navigation.activeSheet = .camera
                     navigation.channelId = lead.channelId
                 },
                 .default(Text("Copy Link")) {
@@ -118,8 +113,11 @@ struct SkateView: View {
             BottomControlsView()
                 .environmentObject(locationManager)
         }
-        .fullScreenCover(isPresented: $channelViewManager.isShowingChannelView) {
-            if let channelId = channelViewManager.channelId {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .channel },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
+            if let channelId = navigation.channelId {
                 NavigationView {
                     DebugView {
                         ChannelView(channelId: channelId)
@@ -133,13 +131,19 @@ struct SkateView: View {
                 }
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingCameraView) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .camera },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 CameraView()
                     .environmentObject(navigation)
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingDirectory) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .directory },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 LandmarkDirectory()
                     .environmentObject(dataManager)
@@ -148,7 +152,7 @@ struct SkateView: View {
                     .navigationBarTitle("🏁 Skateparks")
                     .navigationBarItems(leading:
                                             Button(action: {
-                        navigation.isShowingDirectory = false
+                        navigation.activeSheet = .none
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
@@ -158,14 +162,17 @@ struct SkateView: View {
                     })
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingSearch) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .search },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 SearchView()
                     .environmentObject(navigation)
                     .navigationBarTitle("🎯 Explore Network 🕸️")
                     .navigationBarItems(leading:
                                             Button(action: {
-                       navigation.isShowingSearch = false
+                        navigation.activeSheet = .none
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
@@ -175,7 +182,10 @@ struct SkateView: View {
                     })
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingCreateChannel) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .createChannel },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 CreateChannel(mark: stateManager.marks[0])
                     .environmentObject(navigation)
@@ -183,7 +193,7 @@ struct SkateView: View {
                     .environmentObject(stateManager)
                     .navigationBarItems(leading:
                                             Button(action: {
-                        navigation.isShowingCreateChannel = false
+                        navigation.activeSheet = .none
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
@@ -228,7 +238,7 @@ struct SkateView: View {
                 }
                 
                 locationManager.panMapToCachedCoordinate()
-                navigation.goToChannelWithId(channelId)
+                channelViewManager.openChannel(channelId: channelId)
             }
         }
         .task() {

@@ -113,13 +113,11 @@ struct SkateMapView: View {
             message: Text("Choose an action for this channel."),
             buttons: [
                 .default(Text("Open")) {
-                    // Handle opening the channel
                     locationManager.panMapToCachedCoordinate(lead.coordinate)
                     channelViewManager.openChannel(channelId: lead.channelId)
                 },
                 .default(Text("Camera")) {
-                    // Handle camera action
-                    navigation.isShowingCameraView = true
+                    navigation.activeSheet = .camera
                     navigation.channelId = lead.channelId
                 },
                 .default(Text("Copy Link")) {

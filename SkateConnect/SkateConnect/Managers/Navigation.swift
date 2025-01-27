@@ -22,10 +22,38 @@ extension Notification.Name {
     static let uploadVideo = Notification.Name("uploadVideo")
 }
 
+enum ActiveView {
+    case map
+    case lobby
+    case settings
+    case other
+}
+
+enum ActiveSheet {
+    case addressBook
+    case barcodeScanner
+    case camera
+    case channel
+    case contacts
+    case createMessage
+    case createChannel
+    case directMessage
+    case directory
+    case filters
+    case none
+    case videoPlayer
+    case search
+    case userDetail
+}
+
+
 class Navigation: ObservableObject {
     static let shared = Navigation()
     
     @Published var tab: Tab = .map
+    
+    @Published var activeView: ActiveView = .other
+    @Published var activeSheet: ActiveSheet = .none
     
     @Published var path = NavigationPath()
 
@@ -36,23 +64,11 @@ class Navigation: ObservableObject {
     
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?
-    
-    @Published var isShowingDirectory = false
-    
-    @Published var isShowingChannelView = false
-    @Published var isShowingSearch = false
-    
-    @Published var isShowingFilters = false
-    
-    @Published var isShowingBarcodeScanner = false
-    
-    @Published var isShowingCameraView = false
-    
+                            
     @Published var isShowingAddressBook = false
     @Published var isShowingContacts = false
     @Published var isShowingCreateMessage = false
     
-    @Published var isShowingCreateChannel = false
     @Published var isShowingChatView = false
     @Published var isShowingEditChannel = false
     
@@ -63,21 +79,19 @@ class Navigation: ObservableObject {
     @Published var selectedUserNpub: String?
     
     var isLocationUpdatePaused: Bool {
-        return isShowingChannelView || isShowingSearch ||
-               isShowingUserDetail || isShowingBarcodeScanner || isShowingCameraView ||
-               isShowingAddressBook || isShowingContacts || isShowingCreateMessage ||
-               isShowingCreateChannel || isShowingChatView || isShowingEditChannel || isShowingDirectory || isShowingVideoPlayer
+        return isShowingUserDetail ||
+               isShowingAddressBook || isShowingContacts || isShowingCreateMessage || isShowingChatView || isShowingEditChannel || isShowingVideoPlayer
     }
     
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)
-        isShowingDirectory = false
+        activeSheet = .none
     }
     
     func recoverFromSearch() {
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
-        isShowingSearch = false
+        activeSheet = .none
     }
     
     func joinChannel(channelId: String) {
@@ -86,7 +100,7 @@ class Navigation: ObservableObject {
             object: self,
             userInfo: ["channelId": channelId]
         )
-        isShowingSearch = false
+        activeSheet = .none
     }
     
     func goToSpot(spot: Spot) {
@@ -106,14 +120,11 @@ class Navigation: ObservableObject {
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
     }
     
-    func  goToChannelWithId(_ channelId: String) {
-        self.channelId = channelId
-        self.isShowingChannelView = true
-    }
-    
     func completeUpload(videoURL: URL) {
         let filename = videoURL.lastPathComponent
         let assetURL = "https://\(Constants.S3_BUCKET).s3.us-west-2.amazonaws.com/\(filename)"
+        
+        guard let channelId = channelId else { return }
         
         NotificationCenter.default.post(
             name: .uploadVideo,

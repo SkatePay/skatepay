@@ -99,7 +99,7 @@ struct CreateChannel: View, EventCreating {
             }
             .alert("Channel created", isPresented: $isShowingConfirmation) {
                 Button("OK", role: .cancel) {
-                    navigation.isShowingCreateChannel = false
+                    navigation.activeSheet = .none
                     
                     if let channelId = self.event?.id {
                         navigation.coordinate = stateManager.marks[0].coordinate

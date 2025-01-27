@@ -90,7 +90,7 @@ struct Contacts: View {
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Scan Barcode") {
-                        navigation.isShowingBarcodeScanner = true
+                        navigation.activeSheet = .barcodeScanner
                     }
                     
                     if (hasWallet()) {
@@ -108,27 +108,13 @@ struct Contacts: View {
                 .background(.bar)
             }
         }
-//        .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
-//            let user = getUser(npub: selectedUserManager.npub)
-//            
-//            NavigationView {
-//                UserDetail(user: user)
-//                    .navigationBarItems(leading:
-//                                            Button(action: {
-//                        navigation.isShowingUserDetail = false
-//                    }) {
-//                        HStack {
-//                            Image(systemName: "arrow.left")
-//                            Text("Contacts")
-//                            Spacer()
-//                        }
-//                    })
-//            }
-//            .transition(.move(edge: .trailing))
-//        }
-        .fullScreenCover(isPresented: $navigation.isShowingBarcodeScanner) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .barcodeScanner },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 BarcodeScanner()
+                    .environmentObject(navigation)
             }
         }
         .animation(.easeInOut, value: navigation.isShowingUserDetail)

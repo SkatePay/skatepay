@@ -51,7 +51,6 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var errorString: String?
     @State private var subscriptionId: String?
     
-//    @State private var isShowingUserDetail = false
     @State private var isShowingCameraView = false
     @State private var isShowingVideoPlayer = false
     
@@ -173,21 +172,6 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     }
                 }
         )
-//        .fullScreenCover(isPresented: $isShowingUserDetail) {
-//            NavigationView {
-//                UserDetail(user: getUser(npub: user.npub))
-//                    .navigationBarItems(leading:
-//                                            Button(action: {
-//                        isShowingUserDetail = false
-//                    }) {
-//                        HStack {
-//                            Image(systemName: "arrow.left")
-//                            Text("Chat")
-//                            Spacer()
-//                        }
-//                    })
-//            }
-//        }
         .fullScreenCover(isPresented: $isShowingChannelView) {
             if let channelId = selectedChannelId {
                 NavigationView {

@@ -48,6 +48,7 @@ struct CameraView: View {
             VStack {
                 HStack {
                     Button(action: {
+                        navigation.activeSheet = .none
                         dismiss()
                     }) {
                         Image(systemName: "chevron.left")

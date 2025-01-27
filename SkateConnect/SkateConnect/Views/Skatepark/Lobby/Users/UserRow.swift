@@ -10,9 +10,7 @@ import SwiftUI
 struct UserRow: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var navigation: Navigation
-    
-    @State private var isShowingFilters = false
-    
+        
     var users: [User]
     
     var body: some View {
@@ -24,7 +22,7 @@ struct UserRow: View {
                     .padding(.top, 5)
                 Spacer()
                 Button(action: {
-                    isShowingFilters = true
+                    navigation.activeSheet = .filters
                 }) {
                     Text("Ignore")
                         .foregroundColor(.blue)
@@ -48,29 +46,16 @@ struct UserRow: View {
             }
             .frame(height: 120)
         }
-//        .fullScreenCover(isPresented: $isShowingUserDetail) { 
-//            NavigationView {
-//                UserDetail(user: getUser(npub: selectedUserManager.npub))
-//                    .environmentObject(navigation)
-//                    .navigationBarItems(leading:
-//                                            Button(action: {
-//                        isShowingUserDetail = false
-//                    }) {
-//                        HStack {
-//                            Image(systemName: "arrow.left")
-//                            Text("Lobby")
-//                            Spacer()
-//                        }
-//                    })
-//            }
-//        }
-        .fullScreenCover(isPresented: $isShowingFilters) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .filters },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 Filters()
                     .navigationBarTitle("Filters")
                     .navigationBarItems(leading:
                                             Button(action: {
-                        isShowingFilters = false
+                        navigation.activeSheet = .none
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")

@@ -9,36 +9,25 @@ import Foundation
 import SwiftUI
 
 class ChannelViewManager: ObservableObject {
-    static let shared = ChannelViewManager()
-
+    @Published private var navigation: Navigation?
     @Published private var network: Network?
     
-    @Published var isShowingChannelView = false
-    
-    @Published var channelId: String?
-    
-    init() {
-        print("ChannelViewManager initialized at \(Date())")
+    func setNavigation(navigation: Navigation) {
+        self.navigation = navigation
     }
     
     func setNetwork(network: Network) {
         self.network = network
     }
+    
     func openChannel(channelId: String) {
-        guard self.channelId != channelId || !self.isShowingChannelView else {
-            print("Channel already open: \(channelId)")
-            return
-        }
-        
-        self.channelId = channelId
-        self.isShowingChannelView = true
-        
-        print("Open Channel triggered for ID:", channelId)
+        navigation?.channelId = channelId
+        navigation?.activeSheet = .channel
     }
 
     func closeChannel() {
-        self.isShowingChannelView = false
-        self.channelId = nil
+        navigation?.activeSheet = .none
+        navigation?.channelId = nil
     }
     
     func deleteChannelWithId(_ channelId: String) {

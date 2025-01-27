@@ -10,9 +10,12 @@ import AVFoundation
 import Vision
 
 struct BarcodeScanner: View {
-    @State private var scannedText = ""
     @Environment(\.dismiss) private var dismiss
     
+    @EnvironmentObject var navigation: Navigation
+    
+    @State private var scannedText = ""
+
     var body: some View {
         VStack {
             if !scannedText.isEmpty {
