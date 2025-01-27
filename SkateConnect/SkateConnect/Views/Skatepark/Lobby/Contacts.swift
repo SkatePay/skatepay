@@ -10,15 +10,11 @@ import NostrSDK
 import SwiftUI
 import SwiftData
 
-class UserSelectionManager: ObservableObject {
-    @Published var npub: String = ""
-}
-
 struct Contacts: View {
     @Query(sort: \Friend.name) private var friends: [Friend]
     @Environment(\.modelContext) private var context
     
-    @ObservedObject var navigation = Navigation.shared
+    @EnvironmentObject var navigation: Navigation
 
     @State private var newName = ""
     @State private var newDate = Date.now
@@ -28,8 +24,6 @@ struct Contacts: View {
     
     @State private var selectedPublicKey: String = ""
     
-    @StateObject private var userSelection = UserSelectionManager()
-
     func findFriendByPublicKey(_ npub: String) -> Friend? {
         return friends.first { $0.npub == npub }
     }
@@ -47,8 +41,8 @@ struct Contacts: View {
                         .contextMenu {
                             Button(action: {
                                 Task {
-                                    userSelection.npub = friend.npub
-                                    navigation.isShowingUserDetail.toggle()
+                                    navigation.selectedUserNpub = friend.npub
+                                    navigation.isShowingUserDetail = true
                                 }
                             }) {
                                 Text("Open")
@@ -114,27 +108,24 @@ struct Contacts: View {
                 .background(.bar)
             }
         }
-        .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
-            // Need this to consolidate with friends and hardcoded users
-            if let friend = findFriendByPublicKey(userSelection.npub) {
-                let user = getUser(npub: userSelection.npub)
-                
-                NavigationView {
-                    UserDetail(user: user)
-                        .navigationBarItems(leading:
-                                                Button(action: {
-                            navigation.isShowingUserDetail = false
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.left")
-                                Text("Contacts")
-                                Spacer()
-                            }
-                        })
-                }
-                .transition(.move(edge: .trailing))
-            }
-        }
+//        .fullScreenCover(isPresented: $navigation.isShowingUserDetail) {
+//            let user = getUser(npub: selectedUserManager.npub)
+//            
+//            NavigationView {
+//                UserDetail(user: user)
+//                    .navigationBarItems(leading:
+//                                            Button(action: {
+//                        navigation.isShowingUserDetail = false
+//                    }) {
+//                        HStack {
+//                            Image(systemName: "arrow.left")
+//                            Text("Contacts")
+//                            Spacer()
+//                        }
+//                    })
+//            }
+//            .transition(.move(edge: .trailing))
+//        }
         .fullScreenCover(isPresented: $navigation.isShowingBarcodeScanner) {
             NavigationView {
                 BarcodeScanner()

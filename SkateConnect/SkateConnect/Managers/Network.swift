@@ -12,9 +12,56 @@ import NostrSDK
 import SwiftUI
 import SwiftData
 
-class Network: ObservableObject, RelayDelegate, EventCreating {
-    static let shared = Network()
+func shareVideo(_ videoUrl: URL) {
+    // Implementation for sharing the video
+    print("Sharing video URL: \(videoUrl)")
+
+    if let url = URL(string: videoUrl.absoluteString) {
+        let fileNameWithoutExtension = url.deletingPathExtension().lastPathComponent
+        print("File name without extension: \(fileNameWithoutExtension)")
+        
+        // Construct the custom URL
+        let customUrlString = "\(Constants.LANDING_PAGE_SKATEPARK)/video/\(fileNameWithoutExtension)"
+        
+        // Ensure it's a valid URL
+        if let customUrl = URL(string: customUrlString) {
+            print("Custom URL: \(customUrl)")
+            
+            // Open the custom URL
+            if UIApplication.shared.canOpenURL(customUrl) {
+                UIApplication.shared.open(customUrl, options: [:], completionHandler: nil)
+            } else {
+                print("Unable to open URL: \(customUrl)")
+            }
+        } else {
+            print("Invalid custom URL")
+        }
+    }
+}
+
+func shareChannel(_ channelId: String) {
+    // Implementation for sharing channel
+    print("Sharing channel with id: \(channelId)")
     
+    // Construct the custom URL
+    let customUrlString = "\(Constants.LANDING_PAGE_SKATEPARK)/channel/\(channelId)"
+    
+    // Ensure it's a valid URL
+    if let customUrl = URL(string: customUrlString) {
+        print("Custom URL: \(customUrl)")
+        
+        // Open the custom URL
+        if UIApplication.shared.canOpenURL(customUrl) {
+            UIApplication.shared.open(customUrl, options: [:], completionHandler: nil)
+        } else {
+            print("Unable to open URL: \(customUrl)")
+        }
+    } else {
+        print("Invalid custom URL")
+    }
+}
+
+class Network: ObservableObject, RelayDelegate, EventCreating {
     @Published var relayPool: RelayPool?
     
     // A map to store channel-related events by channel ID
@@ -23,13 +70,11 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     private var activeSubscriptions: [String] = []
     private var eventsCancellable: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
-
+    
     var leadType = LeadType.outbound
     
     let keychainForNostr = NostrKeychainStorage()
-
-//    private var eventService = ChannelEventService()
-    
+        
     init() {
         connect()
         
@@ -40,6 +85,8 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
                 self?.connect()
             }
             .store(in: &cancellables)
+        
+        startListening()
     }
     
     func connect() {
@@ -63,19 +110,19 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         
         for (_, relay) in relays.enumerated() {
             switch relay.state {
-                case .notConnected:
-                    print("Attempting to reconnect to relay: \(relay.url)")
-                case .connecting:
-                    print("Relay is currently connecting. Please wait.")
-                case .connected:
-                    continue
-                case .error(let error):
-                    print("An error occurred with the relay: \(error.localizedDescription)")
-
-                    if error.localizedDescription == "The operation couldn’t be completed. Socket is not connected" ||
-                        error.localizedDescription == "The Internet connection appears to be offline." {
-                        self.connect()
-                    }
+            case .notConnected:
+                print("Attempting to reconnect to relay: \(relay.url)")
+            case .connecting:
+                print("Relay is currently connecting. Please wait.")
+            case .connected:
+                continue
+            case .error(let error):
+                print("An error occurred with the relay: \(error.localizedDescription)")
+                
+                if error.localizedDescription == "The operation couldn’t be completed. Socket is not connected" ||
+                    error.localizedDescription == "The Internet connection appears to be offline." {
+                    self.connect()
+                }
             }
         }
     }
@@ -83,7 +130,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     // MARK: - RelayDelegate
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
         switch state {
-            case .connected:
+        case .connected:
             Task {
                 await self.updateSubscriptions()
             }
@@ -131,7 +178,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         for subscription in activeSubscriptions {
             getRelayPool().closeSubscription(with: subscription)
         }
-
+        
         // Set up new subscriptions based on provided filters
         if let unwrappedFilter = filterForChannels {
             let newSubscription = getRelayPool().subscribe(with: unwrappedFilter)
@@ -153,7 +200,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             .removeDuplicates()
             .sink(receiveValue: handleIncomingEvent)
     }
-
+    
     // Function to handle relay events
     private func handleIncomingEvent(_ event: NostrEvent) {
         if event.kind == .channelCreation {
@@ -165,14 +212,14 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         }
         
         switch event.kind {
-            case .channelCreation:
-                handleChannelCreation(event)
-            case .legacyEncryptedDirectMessage:
-                handleDirectMessage(event)
-            case .channelMessage:
-                handleChannelMessage(event)
-            default:
-                print("Unhandled event kind: \(event.kind)")
+        case .channelCreation:
+            handleChannelCreation(event)
+        case .legacyEncryptedDirectMessage:
+            handleDirectMessage(event)
+        case .channelMessage:
+            handleChannelMessage(event)
+        default:
+            print("Unhandled event kind: \(event.kind)")
         }
     }
     
@@ -255,7 +302,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             print("No Nostr account available for publishing")
             return
         }
-
+        
         do {
             let contentStructure = ContentStructure(content: content, kind: kind)
             let encoder = JSONEncoder()
@@ -269,11 +316,29 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
                 hashtag: "video",
                 signedBy: account
             )
-
+            
             getRelayPool().publishEvent(event)
         } catch {
             print("Failed to publish message: \(error.localizedDescription)")
         }
+    }
+    
+    private func startListening() {
+        // Listen for uploadVideo notifications globally
+        NotificationCenter.default.publisher(for: .uploadVideo)
+            .sink { notification in
+                if let assetURL = notification.userInfo?["assetURL"] as? String, let channelId = notification.userInfo?["channelId"] as? String  {
+                    self.handleUploadVideo(channelId: channelId, assetURL: assetURL)
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Add more listeners here if needed
+    }
+    
+    private func handleUploadVideo(channelId: String, assetURL: String) {
+        self.publishVideoEvent(channelId: channelId, kind: .video, content: assetURL)
+        print("Video uploaded: \(assetURL)")
     }
 }
 

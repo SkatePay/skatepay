@@ -27,12 +27,13 @@ class ChannelSelectionManager: ObservableObject {
 struct AddressBook: View {
     @Environment(\.modelContext) private var context
     
+    @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var lobby: Lobby
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+
     @Query private var spots: [Spot]
     
-    @ObservedObject var lobby = Lobby.shared
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var locationManager = LocationManager.shared
-
     @StateObject private var channelSelection = ChannelSelectionManager()
 
     @State private var showFavoritesOnly = false
@@ -68,7 +69,7 @@ struct AddressBook: View {
                     Text(spot.name)
                         .contextMenu {
                             Button(action: {
-                                self.navigation.goToSpot(spot: spot)
+                                navigation.goToSpot(spot: spot)
                             }) {
                                 Text("Go to spot")
                             }
@@ -124,6 +125,9 @@ struct AddressBook: View {
                     } else {
                         NavigationView {
                             ChannelView(channelId: spot.channelId)
+                                .environmentObject(dataManager)
+                                .environmentObject(navigation)
+                                .environmentObject(network)
                         }
                     }
                 }

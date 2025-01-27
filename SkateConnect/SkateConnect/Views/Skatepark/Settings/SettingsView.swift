@@ -16,9 +16,11 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.modelContext) private var context
 
-    @ObservedObject var lobby = Lobby.shared
-    @ObservedObject var navigation = Navigation.shared
-
+    @EnvironmentObject var eulaManager: EULAManager
+    @EnvironmentObject var lobby: Lobby
+    @EnvironmentObject var network: Network
+    @EnvironmentObject var navigation: Navigation
+    
     @Binding var host: Host
 
     @State private var keypair: Keypair?
@@ -109,6 +111,7 @@ struct SettingsView: View {
                         }
                         NavigationLink {
                             ConnectRelay()
+                                .environmentObject(network)
                         } label: {
                             Text("📡 Relays")
                         }
@@ -142,7 +145,7 @@ struct SettingsView: View {
                                 self.lobby.clear()
                                 clearAllUserDefaults()
                                 
-                                navigation.hasAcknowledgedEULA = false
+                                eulaManager.resetEULA()
                             }
                         }
                         Button("Cancel", role: .cancel) { }

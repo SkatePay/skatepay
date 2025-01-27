@@ -49,7 +49,7 @@ func decryptChannelInviteFromString(encryptedString: String) -> Channel? {
 struct EditChannel: View {
     @Environment(\.modelContext) private var context
     
-    @ObservedObject var navigation = Navigation.shared
+    @EnvironmentObject var navigation: Navigation
     @State private var isInviteCopied = false
     
     let keychainForNostr = NostrKeychainStorage()

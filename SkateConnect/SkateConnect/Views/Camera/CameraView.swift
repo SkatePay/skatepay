@@ -15,8 +15,8 @@ struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
     @Environment(\.dismiss) var dismiss
     
-    @ObservedObject var navigation = Navigation.shared
-    
+    @EnvironmentObject var navigation: Navigation
+
     // Sensitivity factor to control zoom speed
     let zoomSensitivity: CGFloat = 0.3
     

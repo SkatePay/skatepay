@@ -10,7 +10,7 @@ import SwiftUI
 struct LandmarkDetail: View {
     @Environment(AppData.self) var modelData
 
-    @ObservedObject var navigation = Navigation.shared
+    @EnvironmentObject var navigation: Navigation
 
     var landmark: Landmark
 

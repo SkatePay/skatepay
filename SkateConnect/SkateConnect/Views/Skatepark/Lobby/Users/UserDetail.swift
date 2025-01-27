@@ -11,13 +11,15 @@ import SwiftUI
 
 struct UserDetail: View {
     @Environment(\.modelContext) private var context
-    @ObservedObject var network = Network.shared
     
+    @EnvironmentObject private var dataManager: DataManager
+    @EnvironmentObject private var navigation: Navigation
+    @EnvironmentObject private var network: Network
+        
     @Query(sort: \Friend.npub) private var friends: [Friend]
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
     @State private var showReport = false
-    @State private var isShowingChatView = false
     @State private var isDebugging = false
     @State private var showingConnector = false
     
@@ -71,16 +73,19 @@ struct UserDetail: View {
                     if (!isSupport()) {
                         FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
                     }
-                    Button(action: { isShowingChatView.toggle() }) {
+                    Button(action: { navigation.isShowingChatView.toggle() }) {
                         Label("Chat", systemImage: "message")
                             .padding(8)
                             .background(Color.green)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .fullScreenCover(isPresented: $isShowingChatView) {
+                    .fullScreenCover(isPresented: $navigation.isShowingChatView) {
                         NavigationView {
                             DirectMessage(user: user)
+                                .environmentObject(dataManager)
+                                .environmentObject(navigation)
+                                .environmentObject(network)
                         }
                     }
                 }
@@ -131,6 +136,9 @@ struct UserDetail: View {
         .fullScreenCover(isPresented: $showReport) {
             NavigationView {
                 DirectMessage(user: AppData().users[0], message: "\(user.npub)")
+                    .environmentObject(dataManager)
+                    .environmentObject(navigation)
+                    .environmentObject(network)
             }
         }
         .navigationTitle(user.name)

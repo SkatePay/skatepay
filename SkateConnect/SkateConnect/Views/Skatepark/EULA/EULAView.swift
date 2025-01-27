@@ -89,13 +89,12 @@ var eulaText: String {
 
 struct EULAView: View {
     @Environment(\.openURL) private var openURL
-    
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var network = Network.shared
-    
-    @State private var agreeToTerms = false
-    
     @Environment(\.dismiss) private var dismiss
+
+    @EnvironmentObject private var eulaManager: EULAManager
+    @EnvironmentObject private var network: Network
+        
+    @State private var agreeToTerms = false    
 
     var body: some View {
         ScrollView {
@@ -126,7 +125,7 @@ struct EULAView: View {
                             await network.requestOnboardingInfo()
                         }
                         
-                        navigation.acknowledgeEULA()
+                        eulaManager.acknowledgeEULA()
                         
                         dismiss()
                     } else {

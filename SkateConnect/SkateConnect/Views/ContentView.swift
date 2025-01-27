@@ -27,80 +27,206 @@ class ContentViewModel: ObservableObject {
 }
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var context
-
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var network = Network.shared
-    @ObservedObject var lobby = Lobby.shared
-        
+    @Environment(
+        \.modelContext
+    ) private var context
+    
+    @EnvironmentObject private var apiService: API
+    @EnvironmentObject private var channelViewManager: ChannelViewManager
+    @EnvironmentObject private var dataManager: DataManager
+    @EnvironmentObject private var eulaManager: EULAManager
+    @EnvironmentObject private var locationManager: LocationManager
+    @EnvironmentObject private var lobby: Lobby
+    @EnvironmentObject private var navigation: Navigation
+    @EnvironmentObject private var network: Network
+    @EnvironmentObject private var stateManager: StateManager
+    
     @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
-
     @State private var incomingMessagesCount = 0
-
+    
     let keychainForNostr = NostrKeychainStorage()
     
     init() {
-        print("ContentView initialized at \(Date())")
+        print(
+            "ContentView initialized at \(Date())"
+        )
     }
     
-    private let skateView = SkateView()
-
     var body: some View {
-        TabView(selection: $navigation.tab) {
+        TabView(
+            selection: $navigation.tab
+        ) {
             LobbyView()
                 .tabItem {
-                    Label("Lobby", systemImage: "star")
+                    Label(
+                        "Lobby",
+                        systemImage: "star"
+                    )
                 }
-                .badge(incomingMessagesCount > 0 ? incomingMessagesCount : 0)
-                .tag(Tab.lobby)
+                .environmentObject(dataManager)
+                .environmentObject(lobby)
+                .environmentObject(navigation)
+                .environmentObject(network)
+                .badge(
+                    incomingMessagesCount > 0 ? incomingMessagesCount : 0
+                )
+                .tag(
+                    Tab.lobby
+                )
             
-            skateView
+            SkateView()
                 .tabItem {
-                    Label("Map", systemImage: "map")
+                    Label(
+                        "Map",
+                        systemImage: "map"
+                    )
                 }
-                .tag(Tab.map)
+                .environmentObject(apiService)
+                .environmentObject(channelViewManager)
+                .environmentObject(dataManager)
+                .environmentObject(lobby)
+                .environmentObject(locationManager)
+                .environmentObject(navigation)
+                .environmentObject(network)
+                .environmentObject(stateManager)
+                .tag(
+                    Tab.map
+                )
             
-            if (hasWallet()) {
-                WalletView(host: $store.host) {
+            if (
+                hasWallet()
+            ) {
+                WalletView(
+                    host: $store.host
+                ) {
                     Task {
-                        do {
-                            try await store.save(host: store.host)
-                        } catch {
-                            fatalError(error.localizedDescription)
-                        }
+                        await saveHost()
                     }
                 }
                 .tabItem {
-                    Label("Wallet", systemImage: "creditcard.and.123")
+                    Label(
+                        "Wallet",
+                        systemImage: "creditcard.and.123"
+                    )
                 }
-                .tag(Tab.wallet)
+                .tag(
+                    Tab.wallet
+                )
             } else {
-                SettingsView(host: $store.host)
-                    .tabItem {
-                        Label("Settings", systemImage: "gearshape")
-                    }
-                    .environmentObject(viewModel)
-                    .tag(Tab.settings)
+                SettingsView(
+                    host: $store.host
+                )
+                .tabItem {
+                    Label(
+                        "Settings",
+                        systemImage: "gearshape"
+                    )
+                }
+                .environmentObject(eulaManager)
+                .environmentObject(lobby)
+                .environmentObject(navigation)
+                .environmentObject(network)
+                .tag(
+                    Tab.settings
+                )
+            }
+        }
+        .fullScreenCover(
+            isPresented: $navigation.isShowingUserDetail
+        ) {
+            NavigationView {
+                if let npub = navigation.selectedUserNpub {
+                    let user = getUser(
+                        npub: npub
+                    )
+                    UserDetail(
+                        user: user
+                    )
+                    .environmentObject(
+                        navigation
+                    )
+                    .environmentObject(network)
+                    .navigationBarItems(leading:
+                                            Button(action: {
+                        navigation.isShowingUserDetail = false
+                    }) {
+                        HStack {
+                            Image(
+                                systemName: "arrow.left"
+                            )
+                            Text(
+                                "Exit"
+                            )
+                            Spacer()
+                        }
+                    })
+                }
             }
         }
         .onAppear {
             network.reconnectRelaysIfNeeded()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .receivedDirectMessage)) { notification in
-            if let event = notification.object as? NostrEvent {
-                self.lobby.dms.insert(event)
-                self.incomingMessagesCount = self.lobby.dms.count
-            }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: .receivedDirectMessage
+            )
+        ) { notification in
+            handleDirectMessage(
+                notification
+            )
         }
         .task {
-            context.insert(Friend(name: AppData().users[0].name, birthday: Date.now, npub: AppData().getSupport().npub, solanaAddress: AppData().users[0].solanaAddress,  note: "Support Team"))
+            await insertDefaultFriend()
         }
-        .environmentObject(viewModel)
-        .environmentObject(store)
+        .environmentObject(
+            viewModel
+        )
+        .environmentObject(
+            store
+        )
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func handleDirectMessage(
+        _ notification: Notification
+    ) {
+        if let event = notification.object as? NostrEvent {
+            lobby.dms.insert(
+                event
+            )
+            incomingMessagesCount = lobby.dms.count
+        }
+    }
+    
+    private func saveHost() async {
+        do {
+            try await store.save(
+                host: store.host
+            )
+        } catch {
+            fatalError(
+                error.localizedDescription
+            )
+        }
+    }
+    
+    private func insertDefaultFriend() async {
+        context.insert(
+            Friend(
+                name: AppData().users[0].name,
+                birthday: Date.now,
+                npub: AppData().getSupport().npub,
+                solanaAddress: AppData().users[0].solanaAddress,
+                note: "Support Team"
+            )
+        )
     }
 }
 
 #Preview {
-    ContentView().environment(AppData())
+    ContentView().environment(
+        AppData()
+    )
 }

@@ -34,9 +34,10 @@ class DirectMessageDelegate: ObservableObject, RelayDelegate {
 struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.dismiss) private var dismiss
 
-    @ObservedObject var network = Network.shared
-    @ObservedObject var dataManager = DataManager.shared
-
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+    @EnvironmentObject var dataManager: DataManager
+    
     let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject var chatDelegate = DirectMessageDelegate()
@@ -50,7 +51,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var errorString: String?
     @State private var subscriptionId: String?
     
-    @State private var isShowingUserDetail = false
+//    @State private var isShowingUserDetail = false
     @State private var isShowingCameraView = false
     @State private var isShowingVideoPlayer = false
     
@@ -101,7 +102,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                 if senderId.isEmpty {
                     print("unknown sender")
                 } else {
-                    isShowingUserDetail.toggle()
+//                    isShowingUserDetail.toggle()
                 }
             },
             onTapVideo: { message in
@@ -131,9 +132,9 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     }
                     
                     Button(action: {
-                        if (!isShowingUserDetail) {
-                            self.isShowingUserDetail.toggle()
-                        }
+//                        if (!isShowingUserDetail) {
+//                            self.isShowingUserDetail.toggle()
+//                        }
                     }) {
                         HStack {
                             Image("user-skatepay")
@@ -172,25 +173,28 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                     }
                 }
         )
-        .fullScreenCover(isPresented: $isShowingUserDetail) {
-            NavigationView {
-                UserDetail(user: getUser(npub: user.npub))
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        isShowingUserDetail = false
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Chat")
-                            Spacer()
-                        }
-                    })
-            }
-        }
+//        .fullScreenCover(isPresented: $isShowingUserDetail) {
+//            NavigationView {
+//                UserDetail(user: getUser(npub: user.npub))
+//                    .navigationBarItems(leading:
+//                                            Button(action: {
+//                        isShowingUserDetail = false
+//                    }) {
+//                        HStack {
+//                            Image(systemName: "arrow.left")
+//                            Text("Chat")
+//                            Spacer()
+//                        }
+//                    })
+//            }
+//        }
         .fullScreenCover(isPresented: $isShowingChannelView) {
             if let channelId = selectedChannelId {
                 NavigationView {
                     ChannelView(channelId: channelId)
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
                 }
             }
         }

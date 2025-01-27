@@ -64,14 +64,14 @@ public struct Defaults {
 }
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    static let shared = LocationManager()
-
     private var locationManager: CLLocationManager?
+        
+    @Published private var navigation: Navigation?
     
-    @ObservedObject var navigation = Navigation.shared
-
     @Published var currentLocation: CLLocation?
     
+    @Published var pinCoordinate: CLLocationCoordinate2D?
+
     @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude),
                                                   latitudinalMeters: Defaults.latitudinalMeters,
                                                   longitudinalMeters: Defaults.longitudinalMeters)
@@ -82,10 +82,15 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
 
     override init() {
         super.init()
+        
         if let loadedRegion = loadMapRegion() {
             mapRegion = loadedRegion
         }
         mapPosition = MapCameraPosition.region(mapRegion)
+    }
+    
+    func setNavigation(navigation: Navigation) {
+        self.navigation = navigation
     }
     
     // Save map region to UserDefaults
@@ -185,8 +190,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     // Update the current location and handle state updates efficiently
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
-        if (self.navigation.isLocationUpdatePaused) {
+        if ((navigation?.isLocationUpdatePaused) != nil) {
             return
         }
             
@@ -200,9 +204,31 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     func panMapToCachedCoordinate() {
-        if let coordinate = navigation.coordinate {
+        if let coordinate = navigation?.coordinate {
             updateMapRegion(with: CLLocationCoordinate2D(
-                    latitude: coordinate.latitude, longitude: coordinate.longitude))
+                latitude: coordinate.latitude, longitude: coordinate.longitude))
+        }
+    }
+    
+    func panMapToCachedCoordinate(_ coordinate: CLLocationCoordinate2D) {
+        if let navigation = navigation {
+            navigation.coordinate = coordinate
+            self.panMapToCachedCoordinate()
+        }
+    }
+
+    // Handle spot notification
+    func handleGoToSpotNotification(_ notification: Notification) {
+        guard let spot = notification.object as? Spot else {
+            print("Received goToSpot notification, but no valid Spot object was found.")
+            return
+        }
+        
+        let locationCoordinate = spot.locationCoordinate
+        self.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+        
+        if spot.channelId.isEmpty {
+            pinCoordinate = spot.locationCoordinate
         }
     }
 }

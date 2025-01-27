@@ -9,7 +9,7 @@ import NostrSDK
 import SwiftUI
 
 struct ConnectRelay: View {    
-    @ObservedObject var network = Network.shared
+    @EnvironmentObject var network: Network
 
     private var relayPool: RelayPool {
         return network.getRelayPool()

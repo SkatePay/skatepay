@@ -30,155 +30,6 @@ enum Kind: String, Codable {
     case subscriber
 }
 
-class FeedDelegate: ObservableObject {
-    static let shared = FeedDelegate()
-    
-    @Published var messages: [MessageType] = []
-    @Published var lead: Lead?
-    
-    @ObservedObject var dataManager = DataManager.shared
-    @ObservedObject var navigation = Navigation.shared
-    
-    private var eventService = ChannelEventService()
-    private var eventsCancellable: AnyCancellable?
-    
-    private let keychainForNostr = NostrKeychainStorage()
-    
-    init() {
-        eventService = ChannelEventService()
-    }
-    
-    // MARK: - Subscribe to Channel Events
-    public func subscribeToChannelWithId(_channelId: String, leadType: LeadType = .outbound) {
-        
-        cleanUp()
-        
-        // Subscribe to channel events via event service
-        eventService.subscribeToChannelEvents(channelId: _channelId, leadType: leadType) { [weak self] events in
-            guard let self = self else { return }
-            self.handleEvents(events)
-        }
-    }
-    
-    // MARK: - Handle Multiple Events in Bulk
-    private func handleEvents(_ events: [NostrEvent]) {
-        var newMessages: [MessageType] = []
-        
-        for event in events {
-            if let message = parseEventIntoMessage(event: event) {
-                if event.kind == .channelCreation {
-                    navigation.channel = event
-                    
-                    DispatchQueue.main.async {
-                        self.lead = createLead(from: event)
-                    }
-                }
-                
-                // Only add channel messages to newMessages array
-                if event.kind == .channelMessage {
-                    guard let publicKey = PublicKey(hex: event.pubkey) else { continue }
-                    if getBlacklist().contains(publicKey.npub) { continue }
-                    
-                    // Append messages depending on whether we are fetching stored events or live events
-                    if eventService.fetchingStoredEvents {
-                        newMessages.insert(message, at: 0)  // Prepend historical messages
-                    } else {
-                        newMessages.append(message)  // Append live messages
-                    }
-                }
-            }
-        }
-        
-        // Batch update the messages array with new messages
-        DispatchQueue.main.async {
-            self.messages.append(contentsOf: newMessages)
-        }
-    }
-    
-    // MARK: - Publish Draft Message
-    public func publishDraft(text: String, kind: Kind = .message) {
-        // Ensure channelId is not nil
-        guard let channelId = navigation.channelId else {
-            print("Error: Channel ID is nil.")
-            return
-        }
-        
-        // Delegate to ChannelEventService for publishing the message
-        eventService.publishMessage(text, channelId: channelId, kind: kind)
-    }
-    
-    // MARK: - Clean Up Subscriptions
-    public func cleanUp() {
-        // Remove all stored messages and cancel any existing subscriptions
-        messages.removeAll()
-        eventService.cleanUp()
-    }
-    
-    // MARK: - Parse Nostr Event into MessageType
-    private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
-        let publicKey = PublicKey(hex: event.pubkey)
-        let isCurrentUser = publicKey == keychainForNostr.account?.publicKey
-        
-        let npub = publicKey?.npub ?? ""
-        let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
-        
-        let content = processContent(content: event.content)
-        let user = MockUser(senderId: npub, displayName: displayName)
-        
-        switch content {
-        case .text(let text):
-            // Handle text message
-            return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
-        case .video(let videoURL):
-            // Handle video message
-            return MockMessage(thumbnail: videoURL, user: user, messageId: event.id, date: event.createdDate)
-        case .photo(let imageUrl):
-            // Handle photo message
-            return MockMessage(imageURL: imageUrl, user: user, messageId: event.id, date: event.createdDate)
-        case .invite(let encryptedString):
-            // Handle invite message
-            guard let invite = decryptChannelInviteFromString(encryptedString: encryptedString) else {
-                print("Failed to decrypt channel invite")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            guard let image = UIImage(named: "user-skatepay") else {
-                print("Failed to load image")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            guard let event = invite.event, let lead = createLead(from: event) else {
-                print("Failed to create lead from event")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            guard let channel = lead.channel,
-                  let url = URL(string: "\(Constants.CHANNEL_URL_SKATEPARK)/\(event.id)"),
-                  let description = channel.aboutDecoded?.description else {
-                print("Failed to generate URL or decode channel description")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            let linkItem = MockLinkItem(
-                text: "\(lead.icon) Channel Invite",
-                attributedText: nil,
-                url: url,
-                title: "🪧 \(lead.name)",
-                teaser: description,
-                thumbnailImage: image
-            )
-            
-            return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
-        }
-    }
-    
-    // MARK: - Blacklist Handling
-    func getBlacklist() -> [String] {
-        // Get list of blacklisted users (foes)
-        return dataManager.fetchFoes().map { $0.npub }
-    }
-}
-
 class SelectedUserManager: ObservableObject {
     @Published var npub: String = ""
 }
@@ -191,19 +42,19 @@ enum LeadType: String {
 struct ChannelView: View {
     @Environment(\.dismiss) private var dismiss
     
+    @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+    
     @Query(sort: \Foe.npub) private var foes: [Foe]
     @Query(sort: \Spot.channelId) private var spots: [Spot]
-    
-    @ObservedObject var dataManager = DataManager.shared
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var feedDelegate = FeedDelegate.shared
+        
+    @StateObject private var feedDelegate = FeedDelegate()
     
     @State var channelId: String
     @State private var isShowingToolBoxView = false
     
     @State private var keyboardHeight: CGFloat = 0
-    
-    @StateObject var selectedUserManager = SelectedUserManager() // Local state management
     
     @State private var isShowingUserDetail = false
     
@@ -221,8 +72,8 @@ struct ChannelView: View {
             ChatAreaView(
                 messages: $feedDelegate.messages,
                 onTapAvatar: { senderId in
-                    selectedUserManager.npub = senderId
-                    isShowingUserDetail.toggle()
+                    navigation.selectedUserNpub = senderId
+                    navigation.isShowingUserDetail.toggle()
                 },
                 onTapVideo: { message in
                     if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
@@ -245,7 +96,11 @@ struct ChannelView: View {
                 }
             )
             .onAppear {
-                self.navigation.channelId = channelId
+                feedDelegate.setDataManager(dataManager: dataManager)
+                feedDelegate.setNavigation(navigation: navigation)
+                feedDelegate.setNetwork(network: network)
+                
+                navigation.channelId = channelId
                 self.setup()
             }
             .actionSheet(isPresented: $showMediaActionSheet) {
@@ -260,6 +115,7 @@ struct ChannelView: View {
             .sheet(isPresented: $navigation.isShowingEditChannel) {
                 if let lead = self.feedDelegate.lead {
                     EditChannel(lead: lead, channel: lead.channel)
+                        .environmentObject(navigation)
                 }
             }
             .navigationBarItems(
@@ -309,7 +165,7 @@ struct ChannelView: View {
                         }
                         
                         Button(action: {
-                            self.navigation.isShowingCameraView = true
+                            navigation.isShowingCameraView = true
                         }) {
                             Image(systemName: "camera.on.rectangle.fill")
                                 .foregroundColor(.blue)
@@ -331,24 +187,10 @@ struct ChannelView: View {
             ToolBoxView()
                 .presentationDetents([.medium])
         }
-        .fullScreenCover(isPresented: $isShowingUserDetail) {
-            NavigationView {
-                UserDetail(user: getUser(npub: selectedUserManager.npub))
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        isShowingUserDetail = false
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Channel")
-                            Spacer()
-                        }
-                    })
-            }
-        }
         .fullScreenCover(isPresented: $navigation.isShowingCameraView) {
             NavigationView {
                 CameraView()
+                    .environmentObject(navigation)
             }
         }
         .fullScreenCover(isPresented: $navigation.isShowingVideoPlayer) {
@@ -427,7 +269,7 @@ struct ChannelView: View {
     }
     
     func setup(leadType: LeadType = .outbound) {
-        self.navigation.channelId = channelId
+        navigation.channelId = channelId
         self.feedDelegate.subscribeToChannelWithId(_channelId: channelId, leadType: leadType)
     }
     

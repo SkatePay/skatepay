@@ -8,36 +8,49 @@
 import ConnectFramework
 import SwiftUI
 
+class AppState: ObservableObject {
+}
+
 @main
 struct SkateConnectApp: App {
     @State private var modelData = AppData()
-    
-    @ObservedObject var navigation = Navigation.shared
-    @StateObject private var channelViewManager = ChannelViewManager.shared
-    
-    // Instantiate the global listener when the app starts
-    init() {
-        let _ = GlobalListener.shared
-    }
+
+    @StateObject private var apiService = API()
+    @StateObject private var channelViewManager = ChannelViewManager()
+    @StateObject private var dataManager = DataManager()
+    @StateObject private var eulaManager = EULAManager()
+    @StateObject private var locationManager = LocationManager()
+    @StateObject private var lobby = Lobby()
+    @StateObject private var network = Network()
+    @StateObject private var navigation = Navigation()
+    @StateObject private var stateManager = StateManager()
     
     var body: some Scene {
         WindowGroup {
-            if navigation.hasAcknowledgedEULA {
+            if eulaManager.hasAcknowledgedEULA {
                 ContentView()
                     .onOpenURL { url in
                         handleDeepLink(url)
                     }
-                    .fullScreenCover(isPresented: $channelViewManager.isShowingChannelView) {
-                        if let channelId = channelViewManager.channelId {
-                            NavigationView {
-                                ChannelView(channelId: channelId)
-                            }
-                        }
-                    }
                     .modelContainer(for: [Friend.self, Foe.self, Spot.self], inMemory: false)
                     .environment(modelData)
+                    .environmentObject(apiService)
+                    .environmentObject(channelViewManager)
+                    .environmentObject(dataManager)
+                    .environmentObject(eulaManager)
+                    .environmentObject(locationManager)
+                    .environmentObject(lobby)
+                    .environmentObject(navigation)
+                    .environmentObject(network)
+                    .environmentObject(stateManager)
+                    .onAppear {
+                        channelViewManager.setNetwork(network: network)
+                        locationManager.setNavigation(navigation: navigation)
+                    }
             } else {
                 EULAView()
+                    .environmentObject(eulaManager)
+                    .environmentObject(network)
             }
         }
     }

@@ -11,13 +11,9 @@ import SwiftUI
 class ChannelViewManager: ObservableObject {
     static let shared = ChannelViewManager()
 
-    @ObservedObject var network = Network.shared
-
-    @Published var isShowingChannelView = false {
-        didSet {
-            print("isShowingChannelView updated to: \(isShowingChannelView)")
-        }
-    }
+    @Published private var network: Network?
+    
+    @Published var isShowingChannelView = false
     
     @Published var channelId: String?
     
@@ -25,6 +21,9 @@ class ChannelViewManager: ObservableObject {
         print("ChannelViewManager initialized at \(Date())")
     }
     
+    func setNetwork(network: Network) {
+        self.network = network
+    }
     func openChannel(channelId: String) {
         guard self.channelId != channelId || !self.isShowingChannelView else {
             print("Channel already open: \(channelId)")
@@ -33,6 +32,8 @@ class ChannelViewManager: ObservableObject {
         
         self.channelId = channelId
         self.isShowingChannelView = true
+        
+        print("Open Channel triggered for ID:", channelId)
     }
 
     func closeChannel() {
@@ -41,6 +42,6 @@ class ChannelViewManager: ObservableObject {
     }
     
     func deleteChannelWithId(_ channelId: String) {
-        network.submitDeleteChannelRequestForChannelId(channelId)
+        network?.submitDeleteChannelRequestForChannelId(channelId)
     }
 }

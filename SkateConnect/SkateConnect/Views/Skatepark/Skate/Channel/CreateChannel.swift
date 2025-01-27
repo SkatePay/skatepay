@@ -14,12 +14,12 @@ import CoreLocation
 struct CreateChannel: View, EventCreating {
     @Environment(\.presentationMode) var presentationMode
 
-    @ObservedObject var network = Network.shared
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+    @EnvironmentObject var stateManager: StateManager
     
     let keychainForNostr = NostrKeychainStorage()
-    
-    @ObservedObject var navigation = Navigation.shared
-    
+        
     @State private var isShowingConfirmation = false
     
     @State private var name: String = ""
@@ -102,10 +102,10 @@ struct CreateChannel: View, EventCreating {
                     navigation.isShowingCreateChannel = false
                     
                     if let channelId = self.event?.id {
-                        navigation.coordinate = navigation.marks[0].coordinate
+                        navigation.coordinate = stateManager.marks[0].coordinate
                         navigation.joinChannel(channelId: channelId)
                     }
-                    navigation.marks = []
+                    stateManager.marks = []
                 }
             }
             .disabled(!readyToSend())

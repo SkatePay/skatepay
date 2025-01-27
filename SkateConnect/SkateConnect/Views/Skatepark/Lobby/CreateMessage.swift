@@ -10,8 +10,8 @@ import SwiftData
 import NostrSDK
 
 struct CreateMessage: View, EventCreating {
-    @ObservedObject var network = Network.shared
-    @ObservedObject var navigation = Navigation.shared
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
     
     @Query(filter: #Predicate<Friend> { $0.npub != ""  }, sort: \Friend.name)
     private var friends: [Friend]

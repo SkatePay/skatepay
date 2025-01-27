@@ -25,25 +25,23 @@ extension Notification.Name {
 class Navigation: ObservableObject {
     static let shared = Navigation()
     
-    @Published var path = NavigationPath()
     @Published var tab: Tab = .map
     
+    @Published var path = NavigationPath()
+
     @Published var channelId: String?
     @Published var channel: NostrEvent?
     
     @Published var selectedUser: User?
     
-    @Published var marks: [Mark] = []
-    
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?
     
-    @Published var isShowingEULA = false
     @Published var isShowingDirectory = false
+    
     @Published var isShowingChannelView = false
     @Published var isShowingSearch = false
     
-    @Published var isShowingUserDetail = false
     @Published var isShowingFilters = false
     
     @Published var isShowingBarcodeScanner = false
@@ -60,19 +58,15 @@ class Navigation: ObservableObject {
     
     @Published var isShowingVideoPlayer = false
     
+    // UserDetail
+    @Published var isShowingUserDetail = false
+    @Published var selectedUserNpub: String?
+    
     var isLocationUpdatePaused: Bool {
         return isShowingChannelView || isShowingSearch ||
                isShowingUserDetail || isShowingBarcodeScanner || isShowingCameraView ||
                isShowingAddressBook || isShowingContacts || isShowingCreateMessage ||
-               isShowingCreateChannel || isShowingChatView || isShowingEditChannel ||
-               isShowingEULA || isShowingDirectory || isShowingVideoPlayer
-    }
-    
-    @Published var hasAcknowledgedEULA: Bool = UserDefaults.standard.bool(forKey: "hasAcknowledgedEULA")
-
-    func acknowledgeEULA() {
-        hasAcknowledgedEULA = true
-        UserDefaults.standard.set(true, forKey: "hasAcknowledgedEULA")
+               isShowingCreateChannel || isShowingChatView || isShowingEditChannel || isShowingDirectory || isShowingVideoPlayer
     }
     
     func dismissToContentView() {
@@ -93,11 +87,6 @@ class Navigation: ObservableObject {
             userInfo: ["channelId": channelId]
         )
         isShowingSearch = false
-    }
-    
-    func viewChannel(channelId: String) {
-        self.channelId = channelId
-        ChannelViewManager.shared.openChannel(channelId: channelId)
     }
     
     func goToSpot(spot: Spot) {

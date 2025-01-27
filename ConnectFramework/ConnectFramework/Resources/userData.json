@@ -4,7 +4,7 @@
         "name": "Dispatch",
         "npub": "npub14rzvh48d68f3467faxpz6vm2k3af0c6fpg7y6gmh7hfgpjvj9hgqmwr22g",
         "solanaAddress": "",
-        "relayUrl": "wss://relay.primal.net",
+        "relayUrl": "wss://relay.skatepark.chat",
         "imageName": "user-support",
         "isFavorite": true,
         "note": "This is the official support account. We are here to help you address your app related questions."
@@ -14,7 +14,7 @@
         "name": "HQ",
         "npub": "npub1uxp7mwl2mtetc4qmr0y6ck0p0y50c3zhglzzwvvdzf6dvpsjtvvq9gs05r",
         "solanaAddress": "",
-        "relayUrl": "wss://relay.primal.net",
+        "relayUrl": "wss://relay.skatepark.chat",
         "imageName": "user-hub",
         "isFavorite": false,
         "note": ""

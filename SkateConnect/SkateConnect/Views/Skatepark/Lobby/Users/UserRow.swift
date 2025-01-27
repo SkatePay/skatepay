@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct UserRow: View {
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var navigation: Navigation
+    
     @State private var isShowingFilters = false
-    @State private var selectedUser: User? = nil
     
     var users: [User]
     
@@ -36,7 +38,8 @@ struct UserRow: View {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(users) { user in
                         Button(action: {
-                            selectedUser = user
+                            navigation.selectedUserNpub = user.npub
+                            navigation.isShowingUserDetail = true
                         }) {
                             UserItem(user: user)
                         }
@@ -45,21 +48,22 @@ struct UserRow: View {
             }
             .frame(height: 120)
         }
-        .fullScreenCover(item: $selectedUser) { user in
-            NavigationView {
-                UserDetail(user: user)
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        selectedUser = nil
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Lobby")
-                            Spacer()
-                        }
-                    })
-            }
-        }
+//        .fullScreenCover(isPresented: $isShowingUserDetail) { 
+//            NavigationView {
+//                UserDetail(user: getUser(npub: selectedUserManager.npub))
+//                    .environmentObject(navigation)
+//                    .navigationBarItems(leading:
+//                                            Button(action: {
+//                        isShowingUserDetail = false
+//                    }) {
+//                        HStack {
+//                            Image(systemName: "arrow.left")
+//                            Text("Lobby")
+//                            Spacer()
+//                        }
+//                    })
+//            }
+//        }
         .fullScreenCover(isPresented: $isShowingFilters) {
             NavigationView {
                 Filters()

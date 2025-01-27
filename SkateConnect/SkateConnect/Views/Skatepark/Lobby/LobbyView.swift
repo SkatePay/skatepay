@@ -28,17 +28,17 @@ struct LobbyView: View {
     
     @EnvironmentObject var hostStore: HostStore
     
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var dataManager = DataManager.shared
-    @ObservedObject var lobby = Lobby.shared
-    
+    @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var lobby: Lobby
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+        
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
     @State private var isShowingProfile = false
     @State private var isShowingAlert = false
     
-    @StateObject private var userSelection = UserSelectionManager()
-    
+    @StateObject var selectedUserManager = SelectedUserManager() // Local state management
     let keychainForNostr = NostrKeychainStorage()
     
     func isFoe(_ npub: String) -> Bool {
@@ -87,8 +87,9 @@ struct LobbyView: View {
                     }
                     .contextMenu {
                         Button(action: {
-                            userSelection.npub = npub
-                            navigation.isShowingChatView.toggle()
+                            selectedUserManager.npub = npub
+                            navigation.selectedUserNpub = npub
+                            navigation.isShowingUserDetail.toggle()
                         }) {
                             Label("Open", systemImage: "message")
                         }
@@ -119,7 +120,8 @@ struct LobbyView: View {
         NavigationView {
             VStack {
                 List {
-                    UserRow(users: [modelData.users[0]])
+                    UserRow(users: [SkateConnect.getUser(npub: modelData.users[0].npub)])
+                        .environmentObject(navigation)
                     
                     Button(action: {
                         navigation.isShowingAddressBook.toggle()
@@ -129,6 +131,10 @@ struct LobbyView: View {
                     .fullScreenCover(isPresented: $navigation.isShowingAddressBook) {
                         NavigationView {
                             AddressBook()
+                                .environmentObject(dataManager)
+                                .environmentObject(lobby)
+                                .environmentObject(navigation)
+                                .environmentObject(network)
                                 .navigationBarTitle("Channels")
                                 .navigationBarItems(leading:
                                                         Button(action: {
@@ -151,6 +157,7 @@ struct LobbyView: View {
                     .fullScreenCover(isPresented: $navigation.isShowingContacts) {
                         NavigationView {
                             Contacts()
+                                .environmentObject(navigation)
                                 .navigationBarTitle("Friends")
                                 .navigationBarItems(leading:
                                                         Button(action: {
@@ -173,6 +180,8 @@ struct LobbyView: View {
                     .fullScreenCover(isPresented: $navigation.isShowingCreateMessage) {
                         NavigationView {
                             CreateMessage()
+                                .environmentObject(navigation)
+                                .environmentObject(network)
                                 .navigationBarTitle("Direct Message")
                                 .navigationBarItems(leading:
                                                         Button(action: {
@@ -203,11 +212,6 @@ struct LobbyView: View {
             ProfileHost()
                 .environment(modelData)
         }
-        .fullScreenCover(isPresented: $navigation.isShowingChatView) {
-            NavigationView {
-                DirectMessage(user: getUser())
-            }
-        }
         .onAppear() {
             lobby.events = []
             
@@ -232,8 +236,8 @@ struct LobbyView: View {
         let jsonData = """
         {
             "id": 1,
-            "name": "\(friendlyKey(npub: userSelection.npub))",
-            "npub": "\(userSelection.npub)",
+            "name": "\(friendlyKey(npub: selectedUserManager.npub))",
+            "npub": "\(selectedUserManager.npub)",
             "solanaAddress": "",
             "relayUrl": "\(Constants.RELAY_URL_SKATEPARK)",
             "isFavorite": false,
@@ -244,7 +248,7 @@ struct LobbyView: View {
         
         var user = try! JSONDecoder().decode(User.self, from: jsonData)
         
-        if (self.userSelection.npub == AppData().getSupport().npub) {
+        if (self.selectedUserManager.npub == AppData().getSupport().npub) {
             user = AppData().users[0]
         }
         
