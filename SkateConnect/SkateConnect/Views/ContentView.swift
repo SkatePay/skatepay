@@ -34,6 +34,7 @@ struct ContentView: View {
     @EnvironmentObject private var apiService: API
     @EnvironmentObject private var channelViewManager: ChannelViewManager
     @EnvironmentObject private var dataManager: DataManager
+    @EnvironmentObject private var debugManager: DebugManager
     @EnvironmentObject private var eulaManager: EULAManager
     @EnvironmentObject private var locationManager: LocationManager
     @EnvironmentObject private var lobby: Lobby
@@ -95,7 +96,7 @@ struct ContentView: View {
                 )
             
             if (
-                hasWallet()
+                hasWallet() || debugManager.hasEnabledDebug
             ) {
                 WalletView(
                     host: $store.host
@@ -104,6 +105,8 @@ struct ContentView: View {
                         await saveHost()
                     }
                 }
+                .environmentObject(debugManager)
+                .environmentObject(navigation)
                 .tabItem {
                     Label(
                         "Wallet",
@@ -113,27 +116,27 @@ struct ContentView: View {
                 .tag(
                     Tab.wallet
                 )
-            } else {
-                SettingsView(
-                    host: $store.host
-                )
-                .tabItem {
-                    Label(
-                        "Settings",
-                        systemImage: "gearshape"
-                    )
-                }
-                .onAppear {
-                    navigation.activeView = .settings
-                }
-                .environmentObject(eulaManager)
-                .environmentObject(lobby)
-                .environmentObject(navigation)
-                .environmentObject(network)
-                .tag(
-                    Tab.settings
+            }
+            SettingsView(
+                host: $store.host
+            )
+            .tabItem {
+                Label(
+                    "Settings",
+                    systemImage: "gearshape"
                 )
             }
+            .onAppear {
+                navigation.activeView = .settings
+            }
+            .environmentObject(debugManager)
+            .environmentObject(eulaManager)
+            .environmentObject(lobby)
+            .environmentObject(navigation)
+            .environmentObject(network)
+            .tag(
+                Tab.settings
+            )
         }
         .fullScreenCover(
             isPresented: $navigation.isShowingUserDetail

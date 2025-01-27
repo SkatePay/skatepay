@@ -16,10 +16,11 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.modelContext) private var context
 
+    @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var eulaManager: EULAManager
     @EnvironmentObject var lobby: Lobby
-    @EnvironmentObject var network: Network
     @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
     
     @Binding var host: Host
 
@@ -30,6 +31,9 @@ struct SettingsView: View {
     @State private var showingConfirmation = false
     @State private var showingQRCodeView = false
     
+    @State private var imageTapCount = 0
+    @State private var specialFeatureEnabled = false
+
     let keychainForNostr = NostrKeychainStorage()
     
     var appVersion: String {
@@ -47,7 +51,26 @@ struct SettingsView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 200, height: 200)
+                    .onTapGesture {
+                        imageTapCount += 1
+                        if imageTapCount == 3 {
+                            specialFeatureEnabled = true
+                            imageTapCount = 0 // Reset tap count if necessary
+                            
+                            if (debugManager.hasEnabledDebug) {
+                                debugManager.resetDebug()
+                            } else {
+                                debugManager.enableDebug()
+                            }
+                        }
+                    }
                 
+                if debugManager.hasEnabledDebug {
+                    Text("🎉 Special Feature Unlocked! 🎉")
+                        .font(.headline)
+                        .foregroundColor(.green)
+                }
+
                 Text(appVersion)
                     .font(.footnote)
                     .foregroundColor(.gray)

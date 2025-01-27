@@ -12,7 +12,9 @@ import SolanaSwift
 import Combine
 
 struct WalletView: View {
-    @Environment(\.scenePhase) private var scenePhase
+    @EnvironmentObject var debugManager: DebugManager
+    @EnvironmentObject var navigation: Navigation
+    
     @Binding var host: Host
     
     @StateObject private var walletManager = WalletManager()
@@ -167,6 +169,13 @@ struct WalletView: View {
                     }
                 }
                  
+                Button("Disable Wallet") {
+                    Task {
+                        debugManager.resetDebug()
+                        navigation.tab = .settings
+                    }
+                }
+                
                 Button("Reset App") {
                     Task {
                         keychainForNostr.clear()
@@ -174,7 +183,7 @@ struct WalletView: View {
                     }
                 }
             }
-            .navigationTitle("Wallet")
+            .navigationTitle("🪪 Wallet")
         }
     }
 }
