@@ -9,28 +9,57 @@ import SolanaSwift
 import KeychainSwift
 import Foundation
 
-struct SolanaKeychainStorage: SolanaAccountStorage {
-    let tokenKey = "SOLANA_KEYPAIR"
+struct SolanaKeychainStorage {
     let keychain = KeychainSwift()
-
-    func save(_ account: KeyPair) throws {
-        let data = try JSONEncoder().encode(account)
-        keychain.set(data, forKey: tokenKey)
+    let keyPrefix = "SOLANA_KEYPAIR_"
+    
+    // Struct to store both the KeyPair and the network
+    struct WalletData: Codable {
+        let keyPair: KeyPair
+        let network: SolanaSwift.Network
     }
     
-    var account: KeyPair? {
-        guard let data = keychain.getData(tokenKey) else {return nil}
-        
+    // Save a key pair with an alias and network
+    func save(alias: String, account: KeyPair, network: SolanaSwift.Network) throws {
+        let prefixedAlias = keyPrefix + alias
+        let walletData = WalletData(keyPair: account, network: network)
+        let data = try JSONEncoder().encode(walletData)
+        keychain.set(data, forKey: prefixedAlias)
+    }
+    
+    // Retrieve a key pair and its network by alias
+    func get(alias: String) -> (keyPair: KeyPair, network: SolanaSwift.Network)? {
+        let prefixedAlias = keyPrefix + alias
+        guard let data = keychain.getData(prefixedAlias) else { return nil }
         do {
-            let keyPair = try JSONDecoder().decode(KeyPair.self, from: data)
-            return keyPair
+            let walletData = try JSONDecoder().decode(WalletData.self, from: data)
+            return (walletData.keyPair, walletData.network)
         } catch {
-            print(error)
+            print("Error decoding wallet data: \(error)")
         }
         return nil
     }
     
-    func clear() {
-        keychain.delete(tokenKey)
+    // Clear a key pair by alias
+    func clear(alias: String) {
+        let prefixedAlias = keyPrefix + alias
+        keychain.delete(prefixedAlias)
+    }
+    
+    // Get all aliases (without the prefix)
+    func getAllAliases() -> [String] {
+        return keychain.allKeys
+            .filter { $0.hasPrefix(keyPrefix) }
+            .map { String($0.dropFirst(keyPrefix.count)) }
+    }
+    
+    // Get all aliases for a specific network
+    func getAliases(for network: SolanaSwift.Network) -> [String] {
+        return getAllAliases().filter { alias in
+            if let walletData = get(alias: alias) {
+                return walletData.network == network
+            }
+            return false
+        }
     }
 }

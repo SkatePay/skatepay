@@ -27,7 +27,6 @@ class DataManager: ObservableObject {
     @Published private var lobby: Lobby?
     
     private let modelContainer: ModelContainer
-    private let keychainForNostr = NostrKeychainStorage()
     
     init(inMemory: Bool = false) {
         do {

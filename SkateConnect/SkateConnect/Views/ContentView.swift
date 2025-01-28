@@ -41,6 +41,7 @@ struct ContentView: View {
     @EnvironmentObject private var navigation: Navigation
     @EnvironmentObject private var network: Network
     @EnvironmentObject private var stateManager: StateManager
+    @EnvironmentObject private var walletManager: WalletManager
     
     @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
@@ -107,6 +108,7 @@ struct ContentView: View {
                 }
                 .environmentObject(debugManager)
                 .environmentObject(navigation)
+                .environmentObject(walletManager)
                 .tabItem {
                     Label(
                         "Wallet",

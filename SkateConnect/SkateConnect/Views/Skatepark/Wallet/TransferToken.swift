@@ -54,82 +54,82 @@ struct TransferToken: View {
             /// BALANCE
             VStack {
                 Text("Token Balance")
-                ForEach(walletManager.accounts) { tokenAccount in
-                    Text("\(tokenAccount.lamports) $\(tokenAccount.symbol.prefix(3))")
-                        .contextMenu {
-                            Button(action: {
-                                if let url = URL(string: "https://explorer.solana.com/address/\(tokenAccount.mintAddress)?cluster=\(walletManager.network)") {
-                                    openURL(url)
-                                }
-                            }) {
-                                Text("🔎 Open Explorer")
-                            }
-                            Button(action: {
-                                if let url = URL(string: "https://github.com/SkatePay/token") {
-                                    openURL(url)
-                                }
-                                
-                            }) {
-                                Text("ℹ️ Open Information")
-                            }
-                            
-                            Button(action: {
-                                UIPasteboard.general.string = tokenAccount.address
-                            }) {
-                                Text("Copy token address")
-                            }
-                        }
-                    
-                    TextField("Amount", value: $amount, formatter: Formatter.clearForZero)
-                        .multilineTextAlignment(.center)
-                    
-                    Button("Send") {
-                        var address = solanaAddress
-                        if (amount <= 0) {
-                            print("amount is not valid")
-                        } else if (solanaAddress.isEmpty) {
-                            let friend = friends[selectedOption]
-                            address = friend.solanaAddress
-                            
-                            Task {
-                                do {
-                                    if let account = keychainForSolana.account {
-                                        let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
-                                            account: account,
-                                            mintAddress: Constants.SOLANA_MINT_ADDRESS,
-                                            tokenProgramId: PublicKey(string: Constants.SOLANA_TOKEN_PROGRAM_ID),
-                                            decimals: 9,
-                                            from: tokenAccount.address,
-                                            to: address,
-                                            amount: UInt64(amount),
-                                            lamportsPerSignature: 5000,
-                                            minRentExemption: 0
-                                        ).preparedTransaction
-                                        
-//                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
-//                                        print(result)
-//                                        print()
-                                        
-                                        let transactionId: TransactionID = try await walletManager.blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
-                                        
-                                        DispatchQueue.main.async {
-                                            self.showingAlert = true
-                                            self.transactionId = transactionId
-                                        }
-                                    }
-                                    
-                                } catch {
-                                    print(error)
-                                }
-                            }
-                        }
-                    }
-                    .padding()
-                    .alert("Transaction \(self.transactionId.prefix(8)) Submitted.", isPresented: $showingAlert) {
-                        Button("Ok", role: .cancel) {
-                        }
-                    }
-                }
+//                ForEach(walletManager.accounts) { tokenAccount in
+//                    Text("\(tokenAccount.lamports) $\(tokenAccount.symbol.prefix(3))")
+//                        .contextMenu {
+//                            Button(action: {
+//                                if let url = URL(string: "https://explorer.solana.com/address/\(tokenAccount.mintAddress)?cluster=\(walletManager.network)") {
+//                                    openURL(url)
+//                                }
+//                            }) {
+//                                Text("🔎 Open Explorer")
+//                            }
+//                            Button(action: {
+//                                if let url = URL(string: "https://github.com/SkatePay/token") {
+//                                    openURL(url)
+//                                }
+//                                
+//                            }) {
+//                                Text("ℹ️ Open Information")
+//                            }
+//                            
+//                            Button(action: {
+//                                UIPasteboard.general.string = tokenAccount.address
+//                            }) {
+//                                Text("Copy token address")
+//                            }
+//                        }
+//                    
+//                    TextField("Amount", value: $amount, formatter: Formatter.clearForZero)
+//                        .multilineTextAlignment(.center)
+//                    
+//                    Button("Send") {
+//                        var address = solanaAddress
+//                        if (amount <= 0) {
+//                            print("amount is not valid")
+//                        } else if (solanaAddress.isEmpty) {
+//                            let friend = friends[selectedOption]
+//                            address = friend.solanaAddress
+//                            
+//                            Task {
+//                                do {
+//                                    if let account = keychainForSolana.account {
+//                                        let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
+//                                            account: account,
+//                                            mintAddress: Constants.SOLANA_MINT_ADDRESS,
+//                                            tokenProgramId: PublicKey(string: Constants.SOLANA_TOKEN_PROGRAM_ID),
+//                                            decimals: 9,
+//                                            from: tokenAccount.address,
+//                                            to: address,
+//                                            amount: UInt64(amount),
+//                                            lamportsPerSignature: 5000,
+//                                            minRentExemption: 0
+//                                        ).preparedTransaction
+//                                        
+////                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
+////                                        print(result)
+////                                        print()
+//                                        
+//                                        let transactionId: TransactionID = try await walletManager.blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
+//                                        
+//                                        DispatchQueue.main.async {
+//                                            self.showingAlert = true
+//                                            self.transactionId = transactionId
+//                                        }
+//                                    }
+//                                    
+//                                } catch {
+//                                    print(error)
+//                                }
+//                            }
+//                        }
+//                    }
+//                    .padding()
+//                    .alert("Transaction \(self.transactionId.prefix(8)) Submitted.", isPresented: $showingAlert) {
+//                        Button("Ok", role: .cancel) {
+//                        }
+//                    }
+//                }
             }
             
             Section {

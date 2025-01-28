@@ -25,7 +25,8 @@ struct SkateConnectApp: App {
     @StateObject private var network = Network()
     @StateObject private var navigation = Navigation()
     @StateObject private var stateManager = StateManager()
-    
+    @StateObject private var walletManager = WalletManager()
+
     var body: some Scene {
         WindowGroup {
             if eulaManager.hasAcknowledgedEULA {
@@ -45,6 +46,7 @@ struct SkateConnectApp: App {
                     .environmentObject(navigation)
                     .environmentObject(network)
                     .environmentObject(stateManager)
+                    .environmentObject(walletManager)
                     .onAppear {
                         apiService.setDataManager(dataManager: dataManager)
                         channelViewManager.setNavigation(navigation: navigation)

@@ -13,15 +13,18 @@ import Combine
 
 struct WalletView: View {
     @Environment(\.openURL) private var openURL
+    @EnvironmentObject var walletManager: WalletManager
 
     @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
     
     @Binding var host: Host
-    
-    @StateObject private var walletManager = WalletManager()
-    
+        
     @State private var keypair: Keypair?
+    
+    @State private var keyAlias: String = ""
+    @State private var newAlias: String = ""
+    @State private var newPrivateKey: String = ""
     
     let saveAction: ()->Void
     
@@ -56,40 +59,61 @@ struct WalletView: View {
     var body: some View {
         NavigationView {
             List {
+                Section("Network") {
+                     Picker("Network", selection: $walletManager.network) {
+                         Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta)
+                         Text("Testnet").tag(SolanaSwift.Network.testnet)
+                     }
+                     .onChange(of: walletManager.network) {
+                         walletManager.updateApiClient()
+                         walletManager.refreshAliases()
+                         walletManager.fetch()
+                     }
+                 }
+                
+                Section("Select Account") {
+                    Picker("Alias", selection: $keyAlias) {
+                        ForEach(walletManager.aliases, id: \.self) { alias in
+                            Text(alias).tag(alias)
+                        }
+                    }
+                    .onChange(of: keyAlias) {
+                        walletManager.selectedAlias = keyAlias
+                        walletManager.fetch()
+                    }
+                }
+
+                
                 Section("Solana (\(walletManager.network))") {
                     
-                    if let address = keychainForSolana.account?.publicKey.base58EncodedString {
-                        Text("\(address.prefix(8))...\(address.suffix(8))")
-                            .contextMenu {
-                                Button(action: {
-                                    if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(walletManager.network)") {
-                                        openURL(url)
-                                    }
-                                }) {
-                                    Text("🔎 Open Explorer")
-                                }
-                                
-                                Button(action: {
-                                    UIPasteboard.general.string = address
-                                }) {
-                                    Text("Copy public key")
-                                }
-                                
-                                Button(action: {
-                                    let stringForCopyPaste: String
-                                    if let bytes = keychainForSolana.account?.secretKey.bytes {
-                                        stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
-                                    } else {
-                                        stringForCopyPaste = "[]"
+                    if let account = keychainForSolana.get(alias: walletManager.selectedAlias)?.keyPair {
+                        let address = account.publicKey.base58EncodedString
+                            Text("\(address.prefix(8))...\(address.suffix(8))")
+                                .contextMenu {
+                                    Button(action: {
+                                        if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(walletManager.network)") {
+                                            openURL(url)
+                                        }
+                                    }) {
+                                        Text("🔎 Open Explorer")
                                     }
                                     
-                                    UIPasteboard.general.string = stringForCopyPaste
-                                }) {
-                                    Text("Copy secret key")
+                                    Button(action: {
+                                        UIPasteboard.general.string = address
+                                    }) {
+                                        Text("Copy public key")
+                                    }
+                                    
+                                    Button(action: {
+                                        let stringForCopyPaste: String
+                                        let bytes = account.secretKey.bytes
+                                        stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
+                                        
+                                        UIPasteboard.general.string = stringForCopyPaste
+                                    }) {
+                                        Text("Copy secret key")
+                                    }
                                 }
-                            }
-                    } else {
-                        Text("Select [🔑 Keys] to start")
                     }
                     
                     NavigationLink {
@@ -113,10 +137,8 @@ struct WalletView: View {
                     }
                 }
                 
-                Button("Reset Wallet") {
-                    Task {
-                        keychainForSolana.clear()
-                    }
+                Button("Purge All Accounts") {
+                    walletManager.purgeAllAccounts()
                 }
             }
             .navigationTitle("🪪 Wallet")

@@ -9,123 +9,73 @@ import SwiftUI
 import NostrSDK
 import SolanaSwift
 
-struct ImportWallet: View, EventCreating {
-    @Environment(\.openURL) private var openURL
+struct ImportWallet: View {
+    @EnvironmentObject var walletManager: WalletManager
+    
+    @State private var newAlias_Create: String = ""
+    @State private var newAlias_Import: String = ""
+    @State private var privateKey: String = ""
     
     @State private var showingAlert = false
     
-    @State private var privateKey: String = ""
-    
-    let network: SolanaSwift.Network = .testnet
-    @State private var account: SolanaSwift.KeyPair!
-    
-    let keychainForSolana = SolanaKeychainStorage()
-    
-    var interfaceForPublicKey: some View {
-        Form {
-            Section("SOLANA ADDRESS") {
-                Text(keychainForSolana.account?.publicKey.base58EncodedString ?? "" )
-                    .contextMenu {
-                        Button(action: {
-                            let address: String
-                            if let key = keychainForSolana.account?.publicKey.base58EncodedString {
-                                address = key
-                            } else {
-                                address = ""
-                            }
-                            
-                            if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(network)") {
-                                openURL(url)
-                            }
-                        }) {
-                            Text("🔎 Open explorer")
-                        }
-                        
-                        Button(action: {
-                            UIPasteboard.general.string = keychainForSolana.account?.publicKey.base58EncodedString
-                        }) {
-                            Text("Copy public key")
-                        }
-                        
-                        Button(action: {
-                            let stringForCopyPaste: String
-                            if let bytes = keychainForSolana.account?.secretKey.bytes {
-                                stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
-                            } else {
-                                stringForCopyPaste = "[]"
-                            }
-                            
-                            UIPasteboard.general.string = stringForCopyPaste
-                        }) {
-                            Text("Copy secret key")
-                        }
-                    }
-            }
-        }
-    }
-    
-    var interfaceForWalletCreation: some View {
-        Form {
-            Text("New Wallet")
-            
-            Section("Private Key") {
-                TextField("Enter key", text: $privateKey)
-            }
-            
-            Button("Import Wallet") {
-                Task {
-                    if (privateKey.isEmpty) {
-                        keychainForSolana.clear()
-                        return
-                    }
-                    var intArray: [Int] = []
-                    
-                    if (privateKey.count == 88) {
-                        intArray = Base58.decode(privateKey).map { Int($0) }
-                    } else {
-                        let cleanedString = privateKey.dropFirst().dropLast()
-                        intArray = cleanedString.split(separator: ",").compactMap { Int($0) }
-                    }
-                    
-                    let data = Data(intArray.map { UInt8($0) })
-                    
-                    do {
-                        account = try SolanaSwift.KeyPair(secretKey: data)
-                    } catch {
-                        print(error)
-                    }
-                    do {
-                        try keychainForSolana.save(account)
-                        showingAlert = true
-                    } catch {
-                        print(error)
-                    }
-                }
-            }
-            .alert("Wallet Created.", isPresented: $showingAlert) {
-                Button("Ok", role: .cancel) { }
-            }
-            
-            Button("Create Wallet") {
-                Task {
-                    account = try await KeyPair(network: network)
-                    do {
-                        try keychainForSolana.save(account)
-                        showingAlert = true
-                    } catch {
-                        print(error)
-                    }
-                }
-            }
-            
-        }
-    }
-    
     var body: some View {
-        if (keychainForSolana.account != nil) {
-            interfaceForPublicKey
+        Form {
+            Section("Create \(walletManager.network) Wallet") {
+                TextField("Alias", text: $newAlias_Create)
+                Button("Create") {
+                    if !newAlias_Create.isEmpty {
+                        Task {
+                            if let keyPair = try? await KeyPair(network: walletManager.network) {
+                                try? walletManager.keychainForSolana.save(alias: newAlias_Create, account: keyPair, network: walletManager.network)
+                                walletManager.selectedAlias = newAlias_Create
+                                walletManager.refreshAliases() // Refresh the list of aliases
+                                walletManager.fetch()
+                                showingAlert = true
+                            }
+                        }
+                    }
+                }
+                .alert("Wallet Created.", isPresented: $showingAlert) {
+                    Button("Ok", role: .cancel) { }
+                }
+            }
         }
-        interfaceForWalletCreation
+        
+        Form {
+            Section("Import Wallet") {
+                TextField("Alias", text: $newAlias_Import)
+                TextField("Private Key", text: $privateKey)
+                
+                Button("Import") {
+                    if !newAlias_Import.isEmpty && !privateKey.isEmpty {
+                        var intArray: [Int] = []
+
+                        if (privateKey.count == 88) {
+                            intArray = Base58.decode(privateKey).map { Int($0) }
+                        } else {
+                            let cleanedString = privateKey.dropFirst().dropLast()
+                            intArray = cleanedString.split(separator: ",").compactMap { Int($0) }
+                        }
+
+                        let data = Data(intArray.map { UInt8($0) })
+
+                        do {
+                            let keyPair = try KeyPair(secretKey: data)
+                            try? walletManager.keychainForSolana.save(alias: newAlias_Import, account: keyPair, network: walletManager.network)
+                            walletManager.selectedAlias = newAlias_Import
+                            walletManager.refreshAliases() // Refresh the list of aliases
+                            walletManager.fetch()
+                            showingAlert = true
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
+                .alert("Wallet Imported.", isPresented: $showingAlert) {
+                    Button("Ok", role: .cancel) { }
+                }
+            }
+        }
     }
 }
 
