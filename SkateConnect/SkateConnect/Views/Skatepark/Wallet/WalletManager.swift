@@ -6,14 +6,48 @@
 //
 
 import ConnectFramework
+import Foundation
 import SwiftUI
 import NostrSDK
 import SolanaSwift
 import Combine
 
+extension UserDefaults {
+    private enum Keys {
+        static let selectedAlias = "selectedAlias"
+        static let network = "network"
+    }
+    
+    var selectedAlias: String {
+        get { string(forKey: Keys.selectedAlias) ?? "" }
+        set { set(newValue, forKey: Keys.selectedAlias) }
+    }
+    
+    var network: SolanaSwift.Network {
+        get {
+            if let rawValue = string(forKey: Keys.network),
+               let network = SolanaSwift.Network(rawValue: rawValue) {
+                return network
+            }
+            return .testnet // Default value
+        }
+        set { set(newValue.rawValue, forKey: Keys.network) }
+    }
+}
+
 class WalletManager: ObservableObject {
-    @Published var network: SolanaSwift.Network = .testnet
-    @Published var selectedAlias: String = ""
+    @Published var selectedAlias: String = UserDefaults.standard.selectedAlias {
+        didSet {
+            UserDefaults.standard.selectedAlias = selectedAlias
+        }
+    }
+    
+    @Published var network: SolanaSwift.Network = UserDefaults.standard.network {
+        didSet {
+            UserDefaults.standard.network = network
+        }
+    }
+    
     @Published var publicKey: String?
     @Published var aliases: [String] = [] // Add this line
     
@@ -26,19 +60,25 @@ class WalletManager: ObservableObject {
     @Published var blockHeight: UInt64 = 0
     @Published var accounts: [SolanaAccount] = []
     
+    @Published var loading: Bool = false
     init() {
         updateApiClient()
         refreshAliases() // Refresh aliases on initialization
+        fetch()
+    }
+    
+    func getSelectedAccount() -> KeyPair? {
+        return keychainForSolana.get(alias: selectedAlias)?.keyPair
     }
     
     // Refresh the list of aliases
     func refreshAliases() {
         aliases = keychainForSolana.getAliases(for: network)
         
-        if let alias = aliases.first {
-            selectedAlias = alias
-        } else {
-            selectedAlias = ""
+        if (!aliases.contains(selectedAlias)) {
+            if let alias = aliases.first {
+                selectedAlias = alias
+            }
         }
     }
     
@@ -59,6 +99,9 @@ class WalletManager: ObservableObject {
     func fetch() {
         Task {
             do {
+                await MainActor.run {
+                    loading = true
+                }
                 let height = try await solanaApiClient.getBlockHeight()
                 
                 // Get the public key of the selected alias
@@ -81,6 +124,7 @@ class WalletManager: ObservableObject {
                 
                 // Update the UI on the main thread
                 await MainActor.run {
+                    loading = false
                     blockHeight = height
                     balance = amount
                     accounts = resolved

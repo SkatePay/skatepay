@@ -13,19 +13,11 @@ import Combine
 
 struct WalletView: View {
     @Environment(\.openURL) private var openURL
-    @EnvironmentObject var walletManager: WalletManager
 
     @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
-    
-    @Binding var host: Host
-        
-    @State private var keypair: Keypair?
-    
-    @State private var keyAlias: String = ""
-    @State private var newAlias: String = ""
-    @State private var newPrivateKey: String = ""
-    
+    @EnvironmentObject var walletManager: WalletManager
+                
     let saveAction: ()->Void
     
     let keychainForSolana = SolanaKeychainStorage()
@@ -53,6 +45,12 @@ struct WalletView: View {
                         }
                     }
             }
+            NavigationLink {
+                TransferToken()
+                    .environmentObject(walletManager)
+            } label: {
+                Text("💾 Transfer")
+            }
         }
     }
     
@@ -72,20 +70,20 @@ struct WalletView: View {
                  }
                 
                 Section("Select Account") {
-                    Picker("Alias", selection: $keyAlias) {
+                    Picker("Alias", selection: $walletManager.selectedAlias) {
                         ForEach(walletManager.aliases, id: \.self) { alias in
                             Text(alias).tag(alias)
                         }
                     }
-                    .onChange(of: keyAlias) {
-                        walletManager.selectedAlias = keyAlias
+                    .onChange(of: walletManager.selectedAlias) {
+                        walletManager.updateApiClient()
+                        walletManager.refreshAliases()
                         walletManager.fetch()
                     }
                 }
 
                 
                 Section("Solana (\(walletManager.network))") {
-                    
                     if let account = keychainForSolana.get(alias: walletManager.selectedAlias)?.keyPair {
                         let address = account.publicKey.base58EncodedString
                             Text("\(address.prefix(8))...\(address.suffix(8))")
@@ -121,14 +119,21 @@ struct WalletView: View {
                     } label: {
                         Text("🔑 Keys")
                     }
-                    NavigationLink {
-                        TransferToken(manager: WalletManager())
-                    } label: {
-                        Text("💾 Transfer")
-                    }
                 }
                 
-                assetBalance
+                if walletManager.loading {
+                    Section {
+                        VStack {
+                            ProgressView("Loading assets...")
+                                .id(UUID())
+                                .padding()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(maxHeight: .infinity)
+                    }
+                } else {
+                    assetBalance
+                }
                 
                 Button("Disable Wallet") {
                     Task {
@@ -147,5 +152,5 @@ struct WalletView: View {
 }
 
 #Preview {
-    WalletView(host: .constant(Host()), saveAction: {})
+    WalletView(saveAction: {})
 }

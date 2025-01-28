@@ -110,7 +110,6 @@
 		C6DDD7412C936DAF000BE2A4 /* SkateConnectUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */; };
 		C6DDD7432C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */; };
 		C6E237132CAF51CC00CBCFA6 /* ToolBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E237122CAF51CC00CBCFA6 /* ToolBoxView.swift */; };
-		C6E237152CB24B8F00CBCFA6 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E237142CB24B8F00CBCFA6 /* Wallet.swift */; };
 		C6F4959C2C93CF350006FBF0 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959B2C93CF350006FBF0 /* CircleImage.swift */; };
 		C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */; };
 		C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F495A02C93D3C10006FBF0 /* WalletManager.swift */; };
@@ -263,7 +262,6 @@
 		C6DDD7402C936DAF000BE2A4 /* SkateConnectUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITests.swift; sourceTree = "<group>"; };
 		C6DDD7422C936DAF000BE2A4 /* SkateConnectUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateConnectUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C6E237122CAF51CC00CBCFA6 /* ToolBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBoxView.swift; sourceTree = "<group>"; };
-		C6E237142CB24B8F00CBCFA6 /* Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		C6F4959B2C93CF350006FBF0 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 		C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C6F495A02C93D3C10006FBF0 /* WalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManager.swift; sourceTree = "<group>"; };
@@ -480,7 +478,6 @@
 				C625011E2C93C1340026C334 /* TransferToken.swift */,
 				C625011F2C93C1340026C334 /* WalletView.swift */,
 				C6F495A02C93D3C10006FBF0 /* WalletManager.swift */,
-				C6E237142CB24B8F00CBCFA6 /* Wallet.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -944,7 +941,6 @@
 				C62501492C93C1340026C334 /* ProfileSummary.swift in Sources */,
 				C625015B2C93C1340026C334 /* ImportIdentity.swift in Sources */,
 				C66AFE862CA61C76000CD716 /* AWS.swift in Sources */,
-				C6E237152CB24B8F00CBCFA6 /* Wallet.swift in Sources */,
 				C691D4402CC3389000168EEE /* ChatViewModel.swift in Sources */,
 				C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */,
 				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,

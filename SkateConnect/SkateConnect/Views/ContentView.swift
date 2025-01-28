@@ -100,7 +100,6 @@ struct ContentView: View {
                 hasWallet() || debugManager.hasEnabledDebug
             ) {
                 WalletView(
-                    host: $store.host
                 ) {
                     Task {
                         await saveHost()
