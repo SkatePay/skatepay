@@ -181,12 +181,23 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
     
-    // Update the current location and handle state updates efficiently
+    private var lastUpdateTime: Date?
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             
-        if (navigation?.activeView == .map && navigation?.activeSheet == ActiveSheet.none) { return }
+        if !(navigation?.activeView == .map && navigation?.activeSheet == ActiveSheet.none) { return }
             
         guard let location = locations.last else { return }
+        
+        let now = Date()
+        
+        // Check if it's been at least 1 second since the last update
+        if let lastUpdate = lastUpdateTime, now.timeIntervalSince(lastUpdate) < 1 {
+            return
+        }
+        
+        // Update the last update time
+        lastUpdateTime = now
         
         // Throttle the state update to avoid frequent re-renders
         if currentLocation == nil || (location.coordinate.latitude != currentLocation?.coordinate.latitude ||

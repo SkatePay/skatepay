@@ -129,6 +129,7 @@ struct SettingsView: View {
                         
                         NavigationLink {
                             ImportIdentity()
+                                .environmentObject(lobby)
                         } label: {
                             Text("🔑 Keys")
                         }

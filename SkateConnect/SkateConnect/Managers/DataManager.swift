@@ -22,11 +22,9 @@ class AppData {
     }
 }
 
-//@MainActor
+@MainActor
 class DataManager: ObservableObject {
-    static let shared = DataManager()
-    
-    @ObservedObject var lobby = Lobby.shared
+    @Published private var lobby: Lobby?
     
     private let modelContainer: ModelContainer
     private let keychainForNostr = NostrKeychainStorage()
@@ -36,13 +34,16 @@ class DataManager: ObservableObject {
             self.modelContainer = try ModelContainer(for: Friend.self, Foe.self, Spot.self)
         } catch {
             print("Failed to initialize ModelContainer: \(error)")
-            // Handle the error, e.g., crash the app with a fatal error or proceed with a fallback
             fatalError("Failed to initialize ModelContainer")
         }
     }
     
     var modelContext: ModelContext {
         modelContainer.mainContext
+    }
+    
+    func setLobby(lobby: Lobby) {
+        self.lobby = lobby
     }
     
     func insertSpot(_ spot: Spot) {
@@ -52,7 +53,7 @@ class DataManager: ObservableObject {
             
             let spots = fetchSortedSpots()
             
-            lobby.setupLeads(spots: spots)
+            lobby?.setupLeads(spots: spots)
         } catch {
             print("Failed saving: \(error)")
         }
@@ -100,7 +101,7 @@ class DataManager: ObservableObject {
             print("New spot inserted for eventId: \(lead.channelId)")
         }
         
-        self.lobby.upsertIntoLeads(bufferedLead)
+        self.lobby?.upsertIntoLeads(bufferedLead)
     }
     
     func removeSpotForChannelId(_ channelId: String) {
@@ -112,8 +113,8 @@ class DataManager: ObservableObject {
                 // Re-fetch sorted spots and update the lobby leads
                 let spots = fetchSortedSpots()
                             
-                self.lobby.setupLeads(spots: spots)
-                self.lobby.removeLeadByChannelId(channelId)
+                self.lobby?.setupLeads(spots: spots)
+                self.lobby?.removeLeadByChannelId(channelId)
                 
                 print("Spot with channelId \(channelId) removed.")
             } else {
@@ -163,7 +164,4 @@ class DataManager: ObservableObject {
     func findFoes(_ npub: String) -> Foe? {
         return fetchFoes().first(where: { $0.npub == npub })
     }
-    
-    // MARK: Leads
-    
 }

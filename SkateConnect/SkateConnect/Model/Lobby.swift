@@ -11,8 +11,6 @@ import NostrSDK
 import SwiftUI
 
 class Lobby: ObservableObject {
-    static let shared = Lobby()
-    
     @Published var leads: [Lead] = []
     @Published var events: [ActivityEvent] = []
     @Published var dms: Set<NostrEvent> = []

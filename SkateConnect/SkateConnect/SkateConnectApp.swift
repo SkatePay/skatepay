@@ -46,9 +46,11 @@ struct SkateConnectApp: App {
                     .environmentObject(network)
                     .environmentObject(stateManager)
                     .onAppear {
+                        apiService.setDataManager(dataManager: dataManager)
                         channelViewManager.setNavigation(navigation: navigation)
                         channelViewManager.setNetwork(network: network)
                         locationManager.setNavigation(navigation: navigation)
+                        dataManager.setLobby(lobby: lobby)
                     }
             } else {
                 EULAView()

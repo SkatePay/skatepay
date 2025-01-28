@@ -16,15 +16,18 @@ public struct Keys: Codable {
     var S3_SECRET_ACCESS_KEY: String
 }
 
+@MainActor
 class API: ObservableObject {
-    static let shared = API()
-
-    @ObservedObject var dataManager = DataManager.shared
+    @Published private var dataManager: DataManager?
 
     @Published var isLoading = false
     @Published var error: Error?
 
     let keychainForAws = AwsKeychainStorage()
+    
+    func setDataManager(dataManager: DataManager) {
+        self.dataManager = dataManager
+    }
     
     func fetchLeads() {
         guard let url = URL(string: "\(Constants.API_URL_SKATEPARK)/leads") else {
@@ -55,7 +58,7 @@ class API: ObservableObject {
                     break
                 }
             } receiveValue: { [weak self] leads in
-                self?.dataManager.createPublicSpots(leads: leads)
+                self?.dataManager?.createPublicSpots(leads: leads)
                 self?.error = nil // Clear any previous errors if successful
             }
             .store(in: &subscriptions)

@@ -72,6 +72,7 @@ struct UserDetail: View {
                 HStack(spacing: 20) {
                     if (!isSupport()) {
                         FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
+                            .environmentObject(dataManager)
                     }
                     Button(action: { navigation.isShowingChatView.toggle() }) {
                         Label("Chat", systemImage: "message")
@@ -147,12 +148,12 @@ struct UserDetail: View {
 }
 
 struct FriendFoeButtons: View {
+    @Environment(\.modelContext) private var context
+    @EnvironmentObject private var dataManager: DataManager
+
     var user: User
     var isFriend: Bool
     var isFoe: Bool
-    @Environment(\.modelContext) private var context
-    
-    @ObservedObject var dataManager = DataManager.shared
     
     var body: some View {
         HStack {

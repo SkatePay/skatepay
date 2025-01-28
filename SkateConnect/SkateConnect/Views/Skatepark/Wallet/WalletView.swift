@@ -12,6 +12,8 @@ import SolanaSwift
 import Combine
 
 struct WalletView: View {
+    @Environment(\.openURL) private var openURL
+
     @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
     
@@ -20,16 +22,11 @@ struct WalletView: View {
     @StateObject private var walletManager = WalletManager()
     
     @State private var keypair: Keypair?
-    @State private var nsec: String?
-    @State private var npub: String?
     
     let saveAction: ()->Void
     
-    @Environment(\.openURL) private var openURL
-    
     let keychainForSolana = SolanaKeychainStorage()
-    let keychainForNostr = NostrKeychainStorage()
-    
+        
     var assetBalance: some View {
         Section("Asset Balance") {
             Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
@@ -109,66 +106,6 @@ struct WalletView: View {
                 
                 assetBalance
                 
-                Section ("NOSTR") {
-                    if let publicKey = keychainForNostr.account?.publicKey.npub {
-                        Text("\(publicKey.prefix(8))...\(publicKey.suffix(8))")
-                            .contextMenu {
-                                if let npub = keychainForNostr.account?.publicKey.npub {
-                                    Button(action: {
-                                        UIPasteboard.general.string = npub
-                                    }) {
-                                        Text("Copy npub")
-                                    }
-                                }
-                                
-                                if let nsec = keychainForNostr.account?.privateKey.nsec {
-                                    Button(action: {
-                                        UIPasteboard.general.string = nsec
-                                    }) {
-                                        Text("Copy nsec")
-                                    }
-                                }
-                                
-                                if let phex = keychainForNostr.account?.publicKey.hex {
-                                    Button(action: {
-                                        UIPasteboard.general.string = phex
-                                    }) {
-                                        Text("Copy phex")
-                                    }
-                                }
-                                
-                                if let shex = keychainForNostr.account?.privateKey.hex {
-                                    Button(action: {
-                                        UIPasteboard.general.string = shex
-                                    }) {
-                                        Text("Copy shex")
-                                    }
-                                }
-                            }
-                    } else {
-                        Text("Create new keys")
-                    }
-                    
-                    NavigationLink {
-                        ImportIdentity()
-                    } label: {
-                        Text("🔑 Keys")
-                    }
-                    NavigationLink {
-                        ConnectRelay()
-                    } label: {
-                        Text("📡 Relays")
-                    }
-                }
-                
-                Button("💁 Get Help") {
-                    Task {
-                        if let url = URL(string: ProRobot.HELP_URL_SKATEPAY) {
-                            openURL(url)
-                        }
-                    }
-                }
-                 
                 Button("Disable Wallet") {
                     Task {
                         debugManager.resetDebug()
@@ -176,9 +113,8 @@ struct WalletView: View {
                     }
                 }
                 
-                Button("Reset App") {
+                Button("Reset Wallet") {
                     Task {
-                        keychainForNostr.clear()
                         keychainForSolana.clear()
                     }
                 }

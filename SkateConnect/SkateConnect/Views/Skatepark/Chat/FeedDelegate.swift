@@ -12,6 +12,7 @@ import MessageKit
 import NostrSDK
 import SwiftUI
 
+@MainActor
 class FeedDelegate: ObservableObject {
     @Published var messages: [MessageType] = []
     @Published var lead: Lead?

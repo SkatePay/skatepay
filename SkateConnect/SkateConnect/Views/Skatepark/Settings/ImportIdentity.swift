@@ -11,7 +11,7 @@ import SwiftUI
 struct ImportIdentity: View {
     @Environment(\.openURL) private var openURL
 
-    @ObservedObject var lobby = Lobby.shared
+    @EnvironmentObject var lobby: Lobby
 
     @State private var showingAlert = false
     @State private var privateKey: String = ""
