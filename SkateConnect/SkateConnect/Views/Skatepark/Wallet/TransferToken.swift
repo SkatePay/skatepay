@@ -20,6 +20,8 @@ struct TransferToken: View {
     private let keychainForSolana = SolanaKeychainStorage()
     
     @State private var showingAlert = false
+    @State private var loading = false
+    
     @State private var solanaAddress: String = ""
     @State private var selectedOption = 0
     @State private var transactionId: String = ""
@@ -29,11 +31,29 @@ struct TransferToken: View {
         List {
             transferTokenSection
             recipientSection
-            balanceSection
+            
+            if loading {
+                Section {
+                    VStack {
+                        ProgressView("Please wait...")
+                            .id(UUID())
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(maxHeight: .infinity)
+                }
+            } else {
+                balanceSection
+            }
+            
             requestTokensSection
         }
         .alert("Transaction \(self.transactionId.prefix(8)) Submitted.", isPresented: $showingAlert) {
-            Button("Ok", role: .cancel) {}
+            Button("Ok", role: .cancel) {
+                self.walletManager.fetch { isLoading in
+                    loading = isLoading 
+                }
+            }
         }
     }
     
@@ -89,7 +109,7 @@ struct TransferToken: View {
             TextField("Amount", value: $amount, formatter: Formatter.clearForZero)
                 .multilineTextAlignment(.center)
             
-            Button("Send") {
+            Button("Submit") {
                 sendTokens(to: solanaAddress.isEmpty ? friends[selectedOption].solanaAddress : solanaAddress, tokenAccount: tokenAccount)
             }
             .padding()
@@ -114,6 +134,9 @@ struct TransferToken: View {
         
         Task {
             do {
+                await MainActor.run {
+                    loading = true
+                }
                 if let account = walletManager.getSelectedAccount() {
                     let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
                         account: account,
@@ -134,6 +157,7 @@ struct TransferToken: View {
                     let transactionId: TransactionID = try await walletManager.blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
                     
                     DispatchQueue.main.async {
+                        self.loading = false
                         self.showingAlert = true
                         self.transactionId = transactionId
                     }

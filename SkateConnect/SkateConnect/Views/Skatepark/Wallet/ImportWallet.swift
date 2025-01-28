@@ -17,6 +17,7 @@ struct ImportWallet: View {
     @State private var privateKey: String = ""
     
     @State private var showingAlert = false
+    @State private var loading = false
     
     var body: some View {
         Form {
@@ -28,8 +29,11 @@ struct ImportWallet: View {
                             if let keyPair = try? await KeyPair(network: walletManager.network) {
                                 try? walletManager.keychainForSolana.save(alias: newAlias_Create, account: keyPair, network: walletManager.network)
                                 walletManager.selectedAlias = newAlias_Create
-                                walletManager.refreshAliases() // Refresh the list of aliases
-                                walletManager.fetch()
+                                walletManager.refreshAliases()
+                                
+                                walletManager.fetch { isLoading in
+                                    loading = isLoading
+                                }
                                 showingAlert = true
                             }
                         }
@@ -63,8 +67,12 @@ struct ImportWallet: View {
                             let keyPair = try KeyPair(secretKey: data)
                             try? walletManager.keychainForSolana.save(alias: newAlias_Import, account: keyPair, network: walletManager.network)
                             walletManager.selectedAlias = newAlias_Import
-                            walletManager.refreshAliases() // Refresh the list of aliases
-                            walletManager.fetch()
+                            walletManager.refreshAliases()
+
+                            walletManager.fetch { isLoading in
+                                loading = isLoading
+                            }
+
                             showingAlert = true
                         } catch {
                             print(error)

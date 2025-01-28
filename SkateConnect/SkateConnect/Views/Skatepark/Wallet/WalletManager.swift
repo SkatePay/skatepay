@@ -60,11 +60,9 @@ class WalletManager: ObservableObject {
     @Published var blockHeight: UInt64 = 0
     @Published var accounts: [SolanaAccount] = []
     
-    @Published var loading: Bool = false
     init() {
         updateApiClient()
         refreshAliases() // Refresh aliases on initialization
-        fetch()
     }
     
     func getSelectedAccount() -> KeyPair? {
@@ -96,11 +94,11 @@ class WalletManager: ObservableObject {
     }
     
     // Fetch account details (balance, block height, etc.)
-    func fetch() {
+    func fetch(onLoadingStateChange: @escaping (Bool) -> Void) {
         Task {
             do {
                 await MainActor.run {
-                    loading = true
+                    onLoadingStateChange(true)
                 }
                 let height = try await solanaApiClient.getBlockHeight()
                 
@@ -121,12 +119,13 @@ class WalletManager: ObservableObject {
                         commitment: "confirmed"
                     )
                 )
-                
-                // Update the UI on the main thread
+
                 await MainActor.run {
-                    loading = false
+                    onLoadingStateChange(false)
+                    
                     blockHeight = height
                     balance = amount
+                    
                     accounts = resolved
                         .compactMap { accountBalance in
                             guard let pubKey = accountBalance.pubkey else { return nil }
@@ -162,7 +161,6 @@ class WalletManager: ObservableObject {
         self.network = network
         refreshAliases() // Refresh the list of aliases
         updateApiClient()
-        fetch()
     }
     
     // Remove a key pair by alias

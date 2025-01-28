@@ -14,7 +14,8 @@ struct Contacts: View {
     @Query(sort: \Friend.name) private var friends: [Friend]
     @Environment(\.modelContext) private var context
     
-    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject private var debugManager: DebugManager
+    @EnvironmentObject private var navigation: Navigation
 
     @State private var newName = ""
     @State private var newDate = Date.now
@@ -24,6 +25,8 @@ struct Contacts: View {
     
     @State private var selectedPublicKey: String = ""
     
+    @State var showingAlert = false
+
     func findFriendByPublicKey(_ npub: String) -> Friend? {
         return friends.first { $0.npub == npub }
     }
@@ -54,7 +57,7 @@ struct Contacts: View {
                                 Text("Copy npub")
                             }
                             
-                            if (hasWallet()) {
+                            if (hasWallet() || debugManager.hasEnabledDebug) {
                                 Button(action: {
                                     UIPasteboard.general.string = friend.solanaAddress
                                 }) {
@@ -93,7 +96,7 @@ struct Contacts: View {
                         navigation.activeSheet = .barcodeScanner
                     }
                     
-                    if (hasWallet()) {
+                    if (hasWallet() || debugManager.hasEnabledDebug) {
                         TextField("solana account", text: $solanaAddress)
                             .textFieldStyle(.roundedBorder)
                     }
@@ -101,11 +104,18 @@ struct Contacts: View {
                     Button("Save") {
                         let newFriend = Friend(name: newName, birthday: newDate, npub: newNPub, solanaAddress: solanaAddress, note: "")
                         context.insert(newFriend)
+                        
+                        showingAlert = true
                     }
                     .bold()
                 }
                 .padding()
                 .background(.bar)
+            }
+        }
+        .alert("Contact added.", isPresented: $showingAlert) {
+            Button("Ok", role: .cancel) {
+                showingAlert = false
             }
         }
         .fullScreenCover(isPresented: Binding<Bool>(

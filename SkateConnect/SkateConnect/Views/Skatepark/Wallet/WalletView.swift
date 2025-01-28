@@ -17,7 +17,9 @@ struct WalletView: View {
     @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var walletManager: WalletManager
-                
+    
+    @State private var loading = false
+
     let saveAction: ()->Void
     
     let keychainForSolana = SolanaKeychainStorage()
@@ -65,7 +67,9 @@ struct WalletView: View {
                      .onChange(of: walletManager.network) {
                          walletManager.updateApiClient()
                          walletManager.refreshAliases()
-                         walletManager.fetch()
+                         walletManager.fetch { isLoading in
+                            loading = isLoading
+                         }
                      }
                  }
                 
@@ -78,7 +82,9 @@ struct WalletView: View {
                     .onChange(of: walletManager.selectedAlias) {
                         walletManager.updateApiClient()
                         walletManager.refreshAliases()
-                        walletManager.fetch()
+                        walletManager.fetch { isLoading in
+                            loading = isLoading
+                         }
                     }
                 }
 
@@ -121,7 +127,7 @@ struct WalletView: View {
                     }
                 }
                 
-                if walletManager.loading {
+                if loading {
                     Section {
                         VStack {
                             ProgressView("Loading assets...")
@@ -144,6 +150,11 @@ struct WalletView: View {
                 
                 Button("Purge All Accounts") {
                     walletManager.purgeAllAccounts()
+                }
+            }
+            .onAppear() {
+                walletManager.fetch { isLoading in
+                    loading = isLoading
                 }
             }
             .navigationTitle("🪪 Wallet")
