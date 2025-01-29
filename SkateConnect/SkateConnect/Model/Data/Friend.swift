@@ -13,15 +13,15 @@ class Friend {
     @Attribute(.unique) let name: String
     let birthday: Date
     let npub: String
-    let solanaAddress: String
     let note: String
+    @Relationship(deleteRule: .cascade) var cryptoAddresses: [CryptoAddress] = []
      
-    init(name: String, birthday: Date, npub: String = "", solanaAddress: String = "", note: String = "") {
+    init(name: String, birthday: Date, npub: String = "", note: String = "") {
         self.name = name
         self.birthday = birthday
         self.npub = npub
-        self.solanaAddress = solanaAddress
         self.note = note
+        
     }
     
     var isBirthdayToday: Bool {

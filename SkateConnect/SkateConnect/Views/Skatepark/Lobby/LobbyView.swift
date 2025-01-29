@@ -13,8 +13,11 @@ import SwiftUI
 class FriendsViewModel: ObservableObject {
     @Query(sort: \Friend.name) private var friends: [Friend]
     
+    /// Find a `Friend` who has a matching Solana address in their `cryptoAddresses`
     func findFriendBySolanaAddress(_ address: String) -> Friend? {
-        return friends.first { $0.solanaAddress == address }
+        return friends.first { friend in
+            friend.cryptoAddresses.contains { $0.address == address }
+        }
     }
 }
 
@@ -152,7 +155,7 @@ struct LobbyView: View {
                     Button(action: {
                         navigation.isShowingContacts.toggle()
                     }) {
-                        Text("🤝 Friends")
+                        Text("🤜🤛 Friends")
                     }
                     .fullScreenCover(isPresented: $navigation.isShowingContacts) {
                         NavigationView {

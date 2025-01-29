@@ -76,6 +76,8 @@ class WalletManager: ObservableObject {
         if (!aliases.contains(selectedAlias)) {
             if let alias = aliases.first {
                 selectedAlias = alias
+            } else {
+                selectedAlias = ""
             }
         }
     }

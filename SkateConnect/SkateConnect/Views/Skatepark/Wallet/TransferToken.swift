@@ -13,25 +13,26 @@ import SwiftUI
 struct TransferToken: View {
     @Environment(\.openURL) private var openURL
     @EnvironmentObject var walletManager: WalletManager
-    
-    @Query(filter: #Predicate<Friend> { $0.solanaAddress != "" }, sort: \Friend.name)
-    private var friends: [Friend]
-    
-    private let keychainForSolana = SolanaKeychainStorage()
-    
+
+    @Query(sort: \Friend.name)
+    private var allFriends: [Friend]
+
     @State private var showingAlert = false
     @State private var loading = false
-    
+
+    // Recipient state
+    @State private var selectedFriend: Friend?
+    @State private var selectedCryptoAddress: CryptoAddress?
+
     @State private var solanaAddress: String = ""
-    @State private var selectedOption = 0
     @State private var transactionId: String = ""
     @State private var amount = 0
-    
+
     var body: some View {
         List {
             transferTokenSection
             recipientSection
-            
+
             if loading {
                 Section {
                     VStack {
@@ -40,83 +41,156 @@ struct TransferToken: View {
                             .padding()
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .frame(maxHeight: .infinity)
                 }
             } else {
                 balanceSection
             }
-            
+
             requestTokensSection
         }
-        .alert("Transaction \(self.transactionId.prefix(8)) Submitted.", isPresented: $showingAlert) {
+        .alert("Transaction \(transactionId.prefix(8)) Submitted.", isPresented: $showingAlert) {
             Button("Ok", role: .cancel) {
-                self.walletManager.fetch { isLoading in
-                    loading = isLoading 
+                walletManager.fetch { isLoading in
+                    loading = isLoading
+                }
+            }
+        }
+        // Auto-select the first friend and address on load
+        .onAppear {
+            let filteredFriends = allFriends.filter {
+                $0.cryptoAddresses.contains { $0.network == walletManager.network.stringValue }
+            }
+            guard !filteredFriends.isEmpty else { return }
+
+            // If no friend is currently selected, pick the first
+            if selectedFriend == nil {
+                let firstFriend = filteredFriends[0]
+                selectedFriend = firstFriend
+
+                // Also pick the friend's first address on the network
+                let addresses = firstFriend.cryptoAddresses.filter {
+                    $0.network == walletManager.network.stringValue
+                }
+                if let firstAddress = addresses.first {
+                    selectedCryptoAddress = firstAddress
+                    solanaAddress = firstAddress.address
                 }
             }
         }
     }
-    
-    private var transferTokenSection: some View {
+}
+
+// MARK: - Subviews
+
+private extension TransferToken {
+    var transferTokenSection: some View {
         Section {
-            Text("Transfer Token")
+            Text("Transfer Token on \(walletManager.network)")
         }
     }
     
-    private var recipientSection: some View {
+    var recipientSection: some View {
         Section("Recipient") {
-            if friends.isEmpty {
-                Text("Add Friends in Lobby")
+            // Filter to those friends that have at least one matching address for the current network
+            let filteredFriends = allFriends.filter { friend in
+                friend.cryptoAddresses.contains { $0.network == walletManager.network.stringValue }
+            }
+            
+            if filteredFriends.isEmpty {
+                Text("Add Crypto Friends in Lobby")
             } else {
-                Picker("Friend", selection: $selectedOption) {
-                    ForEach(Array(friends.enumerated()), id: \.element.id) { idx, friend in
-                        Text(friend.name).tag(idx)
+                // 1) Friend picker
+                Picker("Friend", selection: $selectedFriend) {
+                    ForEach(filteredFriends, id: \.self) { friend in
+                        Text(friend.name)
+                            .tag(Optional(friend))
                     }
                 }
+                .onChange(of: selectedFriend) {
+                    guard let newFriend = selectedFriend else {
+                        // If user clears the friend, reset
+                        selectedCryptoAddress = nil
+                        solanaAddress = ""
+                        return
+                    }
+                    // Grab all addresses on the current network
+                    let addresses = newFriend.cryptoAddresses.filter {
+                        $0.network == walletManager.network.stringValue
+                    }
+                    // Automatically select the first address if available
+                    if let firstAddress = addresses.first {
+                        selectedCryptoAddress = firstAddress
+                        solanaAddress = firstAddress.address
+                    } else {
+                        selectedCryptoAddress = nil
+                        solanaAddress = ""
+                    } 
+                }
+                
+                // 2) Address picker if the selected friend has multiple addresses
+                if let friend = selectedFriend {
+                    let matchingAddresses = friend.cryptoAddresses.filter {
+                        $0.network == walletManager.network.stringValue
+                    }
+                    if !matchingAddresses.isEmpty {
+                        Picker("Address", selection: $selectedCryptoAddress) {
+                            ForEach(matchingAddresses, id: \.self) { addr in
+                                Text("\(addr.address.prefix(8))...\(addr.address.suffix(8))")
+                                    .tag(Optional(addr))
+                            }
+                        }
+                        .onChange(of: selectedCryptoAddress) {
+                            solanaAddress = selectedCryptoAddress?.address ?? ""
+                        }
+                    }
+                }
+                
+                // 3) Manual override text field
+                TextField("Address", text: $solanaAddress)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
             }
-            TextField("Address", text: $solanaAddress)
         }
     }
     
-    private var balanceSection: some View {
+    var balanceSection: some View {
         Section {
             Text("Token Balance")
             ForEach(walletManager.accounts) { tokenAccount in
-                tokenAccountView(tokenAccount: tokenAccount)
-            }
-        }
-    }
-    
-    private func tokenAccountView(tokenAccount: SolanaAccount) -> some View {
-        VStack {
-            Text("\(tokenAccount.lamports) $\(tokenAccount.symbol.prefix(3))")
-                .contextMenu {
-                    Button("🔎 Open Explorer") {
-                        if let url = URL(string: "https://explorer.solana.com/address/\(tokenAccount.mintAddress)?cluster=\(walletManager.network)") {
-                            openURL(url)
+                VStack {
+                    // Show token balance & context menu
+                    Text("\(tokenAccount.lamports) $\(tokenAccount.symbol.prefix(3))")
+                        .contextMenu {
+                            Button("🔎 Open Explorer") {
+                                if let url = URL(string: "https://explorer.solana.com/address/\(tokenAccount.mintAddress)?cluster=\(walletManager.network)") {
+                                    openURL(url)
+                                }
+                            }
+                            Button("ℹ️ Open Information") {
+                                if let url = URL(string: "https://github.com/SkatePay/token") {
+                                    openURL(url)
+                                }
+                            }
+                            Button("Copy token address") {
+                                UIPasteboard.general.string = tokenAccount.address
+                            }
                         }
+                    
+                    // Amount to send
+                    TextField("Amount", value: $amount, formatter: Formatter.clearForZero)
+                        .multilineTextAlignment(.center)
+                    
+                    // Submit button
+                    Button("Submit") {
+                        sendTokens(to: solanaAddress, tokenAccount: tokenAccount)
                     }
-                    Button("ℹ️ Open Information") {
-                        if let url = URL(string: "https://github.com/SkatePay/token") {
-                            openURL(url)
-                        }
-                    }
-                    Button("Copy token address") {
-                        UIPasteboard.general.string = tokenAccount.address
-                    }
+                    .padding()
                 }
-            
-            TextField("Amount", value: $amount, formatter: Formatter.clearForZero)
-                .multilineTextAlignment(.center)
-            
-            Button("Submit") {
-                sendTokens(to: solanaAddress.isEmpty ? friends[selectedOption].solanaAddress : solanaAddress, tokenAccount: tokenAccount)
             }
-            .padding()
         }
     }
     
-    private var requestTokensSection: some View {
+    var requestTokensSection: some View {
         Section {
             Button("💁🏻‍♀️ Request Tokens") {
                 Task {
@@ -125,20 +199,27 @@ struct TransferToken: View {
             }
         }
     }
-    
-    private func sendTokens(to address: String, tokenAccount: SolanaAccount) {
+}
+
+// MARK: - Actions
+
+private extension TransferToken {
+    func sendTokens(to address: String, tokenAccount: SolanaAccount) {
         guard amount > 0 else {
-            print("Amount is not valid")
+            print("Amount must be greater than zero.")
             return
         }
-        
+
         Task {
             do {
-                await MainActor.run {
-                    loading = true
+                await MainActor.run { loading = true }
+
+                guard let account = walletManager.getSelectedAccount() else {
+                    throw URLError(.badServerResponse)
                 }
-                if let account = walletManager.getSelectedAccount() {
-                    let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient.prepareSendingSPLTokens(
+
+                let preparedTransaction: PreparedTransaction = try await walletManager.blockchainClient
+                    .prepareSendingSPLTokens(
                         account: account,
                         mintAddress: Constants.SOLANA_MINT_ADDRESS,
                         tokenProgramId: PublicKey(string: Constants.SOLANA_TOKEN_PROGRAM_ID),
@@ -148,23 +229,33 @@ struct TransferToken: View {
                         amount: UInt64(amount),
                         lamportsPerSignature: 5000,
                         minRentExemption: 0
-                    ).preparedTransaction
-                    
-//                                        let result: SimulationResult = try await walletManager.blockchainClient.simulateTransaction(preparedTransaction: preparedTransaction)
-//                                        print(result)
-//                                        print()
+                    )
+                    .preparedTransaction
 
-                    let transactionId: TransactionID = try await walletManager.blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
-                    
-                    DispatchQueue.main.async {
-                        self.loading = false
-                        self.showingAlert = true
-                        self.transactionId = transactionId
-                    }
+                let txID = try await walletManager.blockchainClient.sendTransaction(
+                    preparedTransaction: preparedTransaction
+                )
+
+                await MainActor.run {
+                    loading = false
+                    showingAlert = true
+                    transactionId = txID
                 }
             } catch {
-                print(error)
+                print("Error sending tokens:", error)
+                await MainActor.run { loading = false }
             }
+        }
+    }
+}
+
+// MARK: - Helper
+extension SolanaSwift.Network {
+    var stringValue: String {
+        switch self {
+        case .mainnetBeta: return "mainnet-beta"
+        case .testnet:     return "testnet"
+        case .devnet:      return "devnet"
         }
     }
 }

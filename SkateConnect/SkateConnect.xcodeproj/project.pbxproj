@@ -84,6 +84,8 @@
 		C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */; };
 		C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */; };
 		C6A3DCF12D47EF590095A994 /* DebugManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCF02D47EF590095A994 /* DebugManager.swift */; };
+		C6A3DCF32D4AA4EC0095A994 /* CryptoAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */; };
+		C6A3DCF52D4AA5EB0095A994 /* EditCryptoAddressesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCF42D4AA5EB0095A994 /* EditCryptoAddressesView.swift */; };
 		C6C94AE72CA885B1008ECA86 /* Lobby.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AE62CA885B1008ECA86 /* Lobby.swift */; };
 		C6C94AE92CA8D731008ECA86 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AE82CA8D731008ECA86 /* API.swift */; };
 		C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AEA2CA8DAE8008ECA86 /* AwsKeychainStorage.swift */; };
@@ -114,6 +116,7 @@
 		C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */; };
 		C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F495A02C93D3C10006FBF0 /* WalletManager.swift */; };
 		C6F7CAFD2CC0CA92004245BF /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6F7CAFC2CC0CA92004245BF /* NostrSDK */; };
+		C6FAAC702D4AA82D00A532A3 /* MainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FAAC6F2D4AA82D00A532A3 /* MainHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -233,6 +236,8 @@
 		C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomControlsView.swift; sourceTree = "<group>"; };
 		C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateMapView.swift; sourceTree = "<group>"; };
 		C6A3DCF02D47EF590095A994 /* DebugManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugManager.swift; sourceTree = "<group>"; };
+		C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAddress.swift; sourceTree = "<group>"; };
+		C6A3DCF42D4AA5EB0095A994 /* EditCryptoAddressesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCryptoAddressesView.swift; sourceTree = "<group>"; };
 		C6A56C262C93A9510090D3E2 /* ConnectFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConnectFramework.xcodeproj; path = ../ConnectFramework/ConnectFramework.xcodeproj; sourceTree = "<group>"; };
 		C6C94AE62CA885B1008ECA86 /* Lobby.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lobby.swift; sourceTree = "<group>"; };
 		C6C94AE82CA8D731008ECA86 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
@@ -265,6 +270,7 @@
 		C6F4959B2C93CF350006FBF0 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
 		C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C6F495A02C93D3C10006FBF0 /* WalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManager.swift; sourceTree = "<group>"; };
+		C6FAAC6F2D4AA82D00A532A3 /* MainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -335,6 +341,7 @@
 			isa = PBXGroup;
 			children = (
 				C62500E72C93C12A0026C334 /* DemoHelper.swift */,
+				C6FAAC6F2D4AA82D00A532A3 /* MainHelper.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -430,6 +437,7 @@
 				C625010D2C93C1340026C334 /* CreateMessage.swift */,
 				C625010E2C93C1340026C334 /* LobbyView.swift */,
 				C6DCF46E2C93E32F00CA21ED /* Filters.swift */,
+				C6A3DCF42D4AA5EB0095A994 /* EditCryptoAddressesView.swift */,
 			);
 			path = Lobby;
 			sourceTree = "<group>";
@@ -531,6 +539,7 @@
 				C62501352C93C1340026C334 /* User.swift */,
 				C66AFE932CA7A067000CD716 /* Channel.swift */,
 				C6C94AE62CA885B1008ECA86 /* Lobby.swift */,
+				C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -899,6 +908,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C62501542C93C1340026C334 /* LandmarkRow.swift in Sources */,
+				C6A3DCF32D4AA4EC0095A994 /* CryptoAddress.swift in Sources */,
 				C62501592C93C1340026C334 /* SolanaKeychainStorage.swift in Sources */,
 				C6DC04662CB4D8ED003FCA1B /* MessageHandler.swift in Sources */,
 				C6E237132CAF51CC00CBCFA6 /* ToolBoxView.swift in Sources */,
@@ -966,6 +976,7 @@
 				C62500D52C93C11A0026C334 /* DataManager.swift in Sources */,
 				C625015D2C93C1340026C334 /* TransferToken.swift in Sources */,
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
+				C6FAAC702D4AA82D00A532A3 /* MainHelper.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,
 				C6D1F2E02C9FC52A00FF428F /* ScannerView.swift in Sources */,
 				C6C94AE92CA8D731008ECA86 /* API.swift in Sources */,
@@ -980,6 +991,7 @@
 				C62501462C93C1340026C334 /* SpotRow.swift in Sources */,
 				C66AFE942CA7A067000CD716 /* Channel.swift in Sources */,
 				C62500E42C93C1250026C334 /* Color+hex.swift in Sources */,
+				C6A3DCF52D4AA5EB0095A994 /* EditCryptoAddressesView.swift in Sources */,
 				C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */,
 				C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */,
 				C691D43E2CC32AC400168EEE /* ChatHelpers.swift in Sources */,

@@ -223,7 +223,6 @@ struct ContentView: View {
                 name: AppData().users[0].name,
                 birthday: Date.now,
                 npub: AppData().getSupport().npub,
-                solanaAddress: AppData().users[0].solanaAddress,
                 note: "Support Team"
             )
         )

@@ -21,7 +21,7 @@ struct ImportWallet: View {
     
     var body: some View {
         Form {
-            Section("Create \(walletManager.network) Wallet") {
+            Section("Create New \(walletManager.network) Key") {
                 TextField("Alias", text: $newAlias_Create)
                 Button("Create") {
                     if !newAlias_Create.isEmpty {
@@ -39,14 +39,14 @@ struct ImportWallet: View {
                         }
                     }
                 }
-                .alert("Wallet Created.", isPresented: $showingAlert) {
+                .alert("Key Created.", isPresented: $showingAlert) {
                     Button("Ok", role: .cancel) { }
                 }
             }
         }
         
         Form {
-            Section("Import Wallet") {
+            Section("Import Existing Key") {
                 TextField("Alias", text: $newAlias_Import)
                 TextField("Private Key", text: $privateKey)
                 

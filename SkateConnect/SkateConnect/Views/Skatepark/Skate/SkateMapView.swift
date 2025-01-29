@@ -120,11 +120,13 @@ struct SkateMapView: View {
                     navigation.activeSheet = .camera
                     navigation.channelId = lead.channelId
                 },
-                .default(Text("Copy Link")) {
-                    let customUrlString = "\(Constants.LANDING_PAGE_SKATEPARK)/channel/\(lead.channelId)"
-                    UIPasteboard.general.string = customUrlString
+                .default(Text("See on the Web")) {
+                    shareChannel(lead.channelId)
                     
-                    stateManager.isLinkCopied = true
+//                    let customUrlString = "\(Constants.LANDING_PAGE_SKATEPARK)/channel/\(lead.channelId)"
+//                    UIPasteboard.general.string = customUrlString
+//                    
+//                    stateManager.isLinkCopied = true
                 },
                 (lead.event != nil) ? .default(Text("Copy Invite")) {
                     var inviteString = lead.channelId
