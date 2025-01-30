@@ -9,19 +9,28 @@ import SwiftUI
 
 
 struct ProfileSummary: View {
-    var profile: Profile
+    let keychainForNostr = NostrKeychainStorage()
 
+    var profile: Profile
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
-                Text(profile.username)
-                    .bold()
-                    .font(.title)
-
+                if let npub = keychainForNostr.account?.publicKey.npub {
+                    Text(friendlyKey(npub: npub))
+                        .contextMenu {
+                            Button(action: {
+                                UIPasteboard.general.string = friendlyKey(npub: npub)
+                            }) {
+                                Text("Copy")
+                            }
+                        }
+                        .bold()
+                        .font(.title)
+                }
 
                 Text("Notifications: \(profile.prefersNotifications ? "On": "Off" )")
-                Text("Moods: \(profile.seasonalPhoto.rawValue)")
+                Text("Style: \(profile.style.rawValue)")
                 Text("Birthday: ") + Text(profile.birthday, style: .date)
             }
         }

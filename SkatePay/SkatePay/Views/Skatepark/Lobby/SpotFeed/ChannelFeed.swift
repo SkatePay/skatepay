@@ -127,7 +127,7 @@ struct ChannelFeed: View, LegacyDirectMessageEncrypting, EventCreating {
         if let account = keychainForNostr.account {
             do {
                 
-                let event = try createChannelMessageEvent(withContent: draft.text, eventId: eventId, relayUrl: Constants.RELAY_URL_PRIMAL, signedBy: account)
+                let event = try createChannelMessageEvent(withContent: draft.text, eventId: eventId, relayUrl: Constants.RELAY_URL_SKATEPARK, signedBy: account)
                 viewModel.relayPool.publishEvent(event)
             } catch {
                 print(error.localizedDescription)

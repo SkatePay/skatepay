@@ -76,12 +76,14 @@ extension CLLocationCoordinate2D: Codable {
 
 enum ChannelType: String, CaseIterable, Identifiable {
     case broadcast = "📡"
-    case content = "📺"
+    case content = "🎥"
     case game = "🏆"
     case job = "🧹"
     case skate = "🛹"
     case repair = "🛠️"
+    case note = "📝"
     case idea = "💡"
+    case camp = "⛺️"
     
     var id: String { rawValue }
 }

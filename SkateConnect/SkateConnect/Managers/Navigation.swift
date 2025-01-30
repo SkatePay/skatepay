@@ -22,68 +22,75 @@ extension Notification.Name {
     static let uploadVideo = Notification.Name("uploadVideo")
 }
 
+enum ActiveView {
+    case map
+    case lobby
+    case settings
+    case other
+}
+
+enum ActiveSheet {
+    case addressBook
+    case barcodeScanner
+    case camera
+    case channel
+    case contacts
+    case createMessage
+    case createChannel
+    case directMessage
+    case directory
+    case filters
+    case none
+    case videoPlayer
+    case search
+    case userDetail
+}
+
+
 class Navigation: ObservableObject {
     static let shared = Navigation()
     
-    @Published var path = NavigationPath()
     @Published var tab: Tab = .map
     
-    @Published var channelId: String = ""
+    @Published var activeView: ActiveView = .other
+    @Published var activeSheet: ActiveSheet = .none
+    
+    @Published var path = NavigationPath()
+
+    @Published var channelId: String?
     @Published var channel: NostrEvent?
     
     @Published var selectedUser: User?
     
-    @Published var marks: [Mark] = []
-    
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?
-    
-    @Published var isShowingEULA = false
-    @Published var isShowingDirectory = false
-    @Published var isShowingChannelView = false
-    @Published var isShowingSearch = false
-    
-    @Published var isShowingUserDetail = false
-    @Published var isShowingFilters = false
-    
-    @Published var isShowingBarcodeScanner = false
-    
-    @Published var isShowingCameraView = false
-    
+                            
     @Published var isShowingAddressBook = false
     @Published var isShowingContacts = false
     @Published var isShowingCreateMessage = false
     
-    @Published var isShowingCreateChannel = false
-    @Published var isShowingChatView = false
     @Published var isShowingEditChannel = false
     
     @Published var isShowingVideoPlayer = false
     
-    var isLocationUpdatePaused: Bool {
-        return isShowingChannelView || isShowingSearch ||
-               isShowingUserDetail || isShowingBarcodeScanner || isShowingCameraView ||
-               isShowingAddressBook || isShowingContacts || isShowingCreateMessage ||
-               isShowingCreateChannel || isShowingChatView || isShowingEditChannel ||
-               isShowingEULA || isShowingDirectory || isShowingVideoPlayer
-    }
+    // TODO: Need to figure out how to manage previous before deletion since userDetail can be shown on top of an another active sheet
+    @Published var isShowingUserDetail = false
+    @Published var selectedUserNpub: String?
     
-    @Published var hasAcknowledgedEULA: Bool = UserDefaults.standard.bool(forKey: "hasAcknowledgedEULA")
-
-    func acknowledgeEULA() {
-        hasAcknowledgedEULA = true
-        UserDefaults.standard.set(true, forKey: "hasAcknowledgedEULA")
+    var isLocationUpdatePaused: Bool {
+        return isShowingUserDetail ||
+               isShowingAddressBook || isShowingContacts || isShowingCreateMessage || isShowingEditChannel || isShowingVideoPlayer
     }
     
     func dismissToContentView() {
         path = NavigationPath()
         NotificationCenter.default.post(name: .goToLandmark, object: nil)
-        isShowingDirectory = false
+        activeSheet = .none
     }
     
     func recoverFromSearch() {
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
-        isShowingSearch = false
+        activeSheet = .none
     }
     
     func joinChannel(channelId: String) {
@@ -92,7 +99,7 @@ class Navigation: ObservableObject {
             object: self,
             userInfo: ["channelId": channelId]
         )
-        isShowingSearch = false
+        activeSheet = .none
     }
     
     func goToSpot(spot: Spot) {
@@ -112,19 +119,17 @@ class Navigation: ObservableObject {
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
     }
     
-    func  goToChannelWithId(_ channelId: String) {
-        self.channelId = channelId
-        self.isShowingChannelView = true
-    }
-    
     func completeUpload(videoURL: URL) {
         let filename = videoURL.lastPathComponent
         let assetURL = "https://\(Constants.S3_BUCKET).s3.us-west-2.amazonaws.com/\(filename)"
         
+        guard let channelId = channelId else { return }
+        
         NotificationCenter.default.post(
             name: .uploadVideo,
             object: self,
-            userInfo: ["assetURL": assetURL]
+            userInfo: ["channelId": channelId,
+                       "assetURL": assetURL]
         )
     }
     

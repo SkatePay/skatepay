@@ -10,8 +10,8 @@ import SwiftData
 import NostrSDK
 
 struct CreateMessage: View, EventCreating {
-    @ObservedObject var network = Network.shared
-    @ObservedObject var navigation = Navigation.shared
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
     
     @Query(filter: #Predicate<Friend> { $0.npub != ""  }, sort: \Friend.name)
     private var friends: [Friend]
@@ -46,7 +46,7 @@ struct CreateMessage: View, EventCreating {
                               isValid: $recipientPublicKeyIsValid,
                               type: .public)
                 Button("Scan Barcode") {
-                    navigation.isShowingBarcodeScanner = true
+                    navigation.activeSheet = .barcodeScanner
                 }
             }
             
@@ -87,9 +87,13 @@ struct CreateMessage: View, EventCreating {
             }
             .disabled(!readyToSend())
         }
-        .fullScreenCover(isPresented: $navigation.isShowingBarcodeScanner) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .barcodeScanner },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 BarcodeScanner()
+                    .environmentObject(navigation)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in

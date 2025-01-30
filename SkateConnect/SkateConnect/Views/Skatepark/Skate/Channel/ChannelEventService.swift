@@ -11,11 +11,12 @@ import NostrSDK
 import Combine
 
 class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
-    private let network = Network.shared
+    @Published private var network: Network?
+
     private let keychainForNostr = NostrKeychainStorage()
 
-    private var relayPool: RelayPool {
-        return network.getRelayPool()
+    private var relayPool: RelayPool? {
+        return network?.getRelayPool()
     }
 
     private var subscriptionIdForMetadata: String?
@@ -27,17 +28,23 @@ class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
     private var messageBuffer: [NostrEvent] = [] // Buffer for historical messages
     private var bufferCompletion: (([NostrEvent]) -> Void)?
 
-    // MARK: - Subscribe to Event Streams
-    func subscribeToChannelEvents(channelId: String, completion: @escaping ([NostrEvent]) -> Void){
+    func setNetwork(network: Network) {
+        self.network = network
+    }
+    
+    // MARK: - Subscriptions
+    func subscribeToChannelEvents(channelId: String, leadType: LeadType = .outbound, completion: @escaping ([NostrEvent]) -> Void){
+        
+        self.network?.leadType = leadType
         self.bufferCompletion = completion  // Save the completion for later use
         
         let filterForMetadata = Filter(ids: [channelId], kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])!
         let filterForFeed = Filter(kinds: [EventKind.channelMessage.rawValue], tags: ["e": [channelId]], limit: 32)!
         
-        subscriptionIdForMetadata = relayPool.subscribe(with: filterForMetadata)
-        subscriptionIdForPublicMessages = relayPool.subscribe(with: filterForFeed)
+        subscriptionIdForMetadata = relayPool?.subscribe(with: filterForMetadata)
+        subscriptionIdForPublicMessages = relayPool?.subscribe(with: filterForFeed)
         
-        eventsCancellable = relayPool.events
+        eventsCancellable = relayPool?.events
             .receive(on: DispatchQueue.main)
             .map { $0.event }
             .removeDuplicates()
@@ -96,11 +103,10 @@ class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
             let event = try createChannelMessageEvent(
                 withContent: contentString,
                 eventId: channelId,
-                relayUrl: Constants.RELAY_URL_PRIMAL,
                 signedBy: account
             )
 
-            relayPool.publishEvent(event)
+            relayPool?.publishEvent(event)
         } catch {
             print("Failed to publish message: \(error.localizedDescription)")
         }
@@ -108,7 +114,7 @@ class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
 
     func cleanUp() {
         [subscriptionIdForMetadata, subscriptionIdForPublicMessages].compactMap { $0 }.forEach {
-            relayPool.closeSubscription(with: $0)
+            relayPool?.closeSubscription(with: $0)
         }
         
         subscriptionIdForMetadata = nil
@@ -116,7 +122,7 @@ class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
         
         fetchingStoredEvents = true
         
-        relayPool.delegate = self
+        relayPool?.delegate = self
         
         eventsCancellable?.cancel()
     }

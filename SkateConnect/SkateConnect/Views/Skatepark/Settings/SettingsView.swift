@@ -16,9 +16,13 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.modelContext) private var context
 
-    @ObservedObject var lobby = Lobby.shared
-    @ObservedObject var navigation = Navigation.shared
-
+    @EnvironmentObject var debugManager: DebugManager
+    @EnvironmentObject var eulaManager: EULAManager
+    @EnvironmentObject var lobby: Lobby
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+    @EnvironmentObject var walletManager: WalletManager
+    
     @Binding var host: Host
 
     @State private var keypair: Keypair?
@@ -28,6 +32,9 @@ struct SettingsView: View {
     @State private var showingConfirmation = false
     @State private var showingQRCodeView = false
     
+    @State private var imageTapCount = 0
+    @State private var specialFeatureEnabled = false
+
     let keychainForNostr = NostrKeychainStorage()
     
     var appVersion: String {
@@ -45,7 +52,26 @@ struct SettingsView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 200, height: 200)
+                    .onTapGesture {
+                        imageTapCount += 1
+                        if imageTapCount == 3 {
+                            specialFeatureEnabled = true
+                            imageTapCount = 0 // Reset tap count if necessary
+                            
+                            if (debugManager.hasEnabledDebug) {
+                                debugManager.resetDebug()
+                            } else {
+                                debugManager.enableDebug()
+                            }
+                        }
+                    }
                 
+                if debugManager.hasEnabledDebug {
+                    Text("🎉 Special Feature Unlocked! 🎉")
+                        .font(.headline)
+                        .foregroundColor(.green)
+                }
+
                 Text(appVersion)
                     .font(.footnote)
                     .foregroundColor(.gray)
@@ -104,11 +130,13 @@ struct SettingsView: View {
                         
                         NavigationLink {
                             ImportIdentity()
+                                .environmentObject(lobby)
                         } label: {
                             Text("🔑 Keys")
                         }
                         NavigationLink {
                             ConnectRelay()
+                                .environmentObject(network)
                         } label: {
                             Text("📡 Relays")
                         }
@@ -142,7 +170,9 @@ struct SettingsView: View {
                                 self.lobby.clear()
                                 clearAllUserDefaults()
                                 
-                                navigation.hasAcknowledgedEULA = false
+                                eulaManager.resetEULA()
+                                
+                                walletManager.purgeAllAccounts()
                             }
                         }
                         Button("Cancel", role: .cancel) { }

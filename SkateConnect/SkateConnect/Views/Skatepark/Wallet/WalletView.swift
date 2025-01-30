@@ -12,173 +12,225 @@ import SolanaSwift
 import Combine
 
 struct WalletView: View {
-    @Environment(\.scenePhase) private var scenePhase
-    @Binding var host: Host
+    @Environment(\.openURL) private var openURL
+
+    @EnvironmentObject var debugManager: DebugManager
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var walletManager: WalletManager
     
-    @StateObject private var walletManager = WalletManager()
+    @State private var loading = false
     
-    @State private var keypair: Keypair?
-    @State private var nsec: String?
-    @State private var npub: String?
-    
+    @State private var showDropConfirmation = false
+    @State private var aliasToDrop: String? = nil
+
     let saveAction: ()->Void
     
-    @Environment(\.openURL) private var openURL
-    
     let keychainForSolana = SolanaKeychainStorage()
-    let keychainForNostr = NostrKeychainStorage()
-    
-    var assetBalance: some View {
-        Section("Asset Balance") {
-            Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
-            ForEach(walletManager.accounts) { account in
-                Text("\(account.lamports) $\(account.symbol.prefix(3))")
-                    .contextMenu {
-                        Button(action: {
-                            if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(walletManager.network)") {
-                                openURL(url)
+        
+    var body: some View {
+        NavigationView {
+            List {
+                Section("Network") {
+                     Picker("Network", selection: $walletManager.network) {
+                         Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta)
+                         Text("Testnet").tag(SolanaSwift.Network.testnet)
+                     }
+                     .onChange(of: walletManager.network) {
+                         walletManager.updateApiClient()
+                         walletManager.refreshAliases()
+                         walletManager.fetch { isLoading in
+                            loading = isLoading
+                         }
+                     }
+                 }
+                
+                if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
+                    Section("Select Account") {
+                        Picker("Alias", selection: $walletManager.selectedAlias) {
+                            ForEach(walletManager.aliases, id: \.self) { alias in
+                                Text(alias).tag(alias)
                             }
-                        }) {
-                            Text("🔎 Open Explorer")
                         }
-                        Button(action: {
-                            if let url = URL(string: "https://github.com/SkatePay/token") {
-                                openURL(url)
+                        .onChange(of: walletManager.selectedAlias) {
+                            walletManager.updateApiClient()
+                            walletManager.refreshAliases()
+                            walletManager.fetch { isLoading in
+                                loading = isLoading
                             }
-                            
-                        }) {
-                            Text("ℹ️ Open Information")
                         }
                     }
+                }
+                
+                keyPreview
+
+                if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
+                    assetBalance
+                }
+
+                Button("Disable Wallet") {
+                    Task {
+                        debugManager.resetDebug()
+                        navigation.tab = .settings
+                    }
+                }
+                
+                Button("Purge Keys") {
+                    walletManager.purgeAllAccounts()
+                }
+            }
+            .onAppear() {
+                walletManager.fetch { isLoading in
+                    loading = isLoading
+                }
+            }
+            .navigationTitle("🪪 Wallet")
+            .alert("Drop alias?",
+                   isPresented: $showDropConfirmation,
+                   actions: {
+                Button("Cancel", role: .cancel) {}
+                Button("Drop", role: .destructive) {
+                    if let alias = aliasToDrop {
+                        walletManager.removeKey(alias: alias)
+                    }
+                }
+            }, message: {
+                Text("Are you sure you want to remove this alias?")
+            })
+        }
+    }
+}
+
+// MARK: - UI Components
+private extension WalletView {
+    var assetBalance: some View {
+        Section {
+            if loading {
+                VStack {
+                    ProgressView("Loading assets...")
+                        .id(UUID())
+                        .padding()
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxHeight: .infinity)
+            } else {
+                if (walletManager.balance > 0) {
+                    NavigationLink {
+                        TransferAsset(transferType: .sol)
+                            .environmentObject(walletManager)
+                    } label: {
+                        Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
+                    }
+                } else {
+                    Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
+                }
+
+                ForEach(walletManager.accounts) { account in
+                    if account.lamports > 0 {
+                        NavigationLink {
+                            TransferAsset(transferType: .token(account))
+                                .environmentObject(walletManager)
+                        } label: {
+                            Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                        }
+                        .contextMenu {
+                            tokenContextMenu(for: account)
+                        }
+                    } else {
+                        Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                            .contextMenu {
+                                tokenContextMenu(for: account)
+                            }
+                    }
+                }
+            }
+        } header: {
+            HStack {
+                Text("Asset Balance")
+                Spacer()
+                if (!loading) {
+                    Button {
+                        loading = true
+                        walletManager.fetch { isLoading in
+                            loading = isLoading
+                        }
+                    } label: {
+                        Text("🔄")
+                    }
+                }
             }
         }
     }
     
-    var body: some View {
-        NavigationView {
-            List {
-                Section("Solana (\(walletManager.network))") {
-                    
-                    if let address = keychainForSolana.account?.publicKey.base58EncodedString {
-                        Text("\(address.prefix(8))...\(address.suffix(8))")
-                            .contextMenu {
-                                Button(action: {
-                                    if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(walletManager.network)") {
-                                        openURL(url)
-                                    }
-                                }) {
-                                    Text("🔎 Open Explorer")
+    var keyPreview : some View {
+        Section("Solana (\(walletManager.network))") {
+            if let account = keychainForSolana.get(alias: walletManager.selectedAlias)?.keyPair {
+                let address = account.publicKey.base58EncodedString
+                    Text("\(address.prefix(8))...\(address.suffix(8))")
+                        .contextMenu {
+                            Button(action: {
+                                if let url = URL(string: "https://explorer.solana.com/address/\(address)?cluster=\(walletManager.network)") {
+                                    openURL(url)
                                 }
-                                
-                                Button(action: {
-                                    UIPasteboard.general.string = address
-                                }) {
-                                    Text("Copy public key")
-                                }
-                                
-                                Button(action: {
-                                    let stringForCopyPaste: String
-                                    if let bytes = keychainForSolana.account?.secretKey.bytes {
-                                        stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
-                                    } else {
-                                        stringForCopyPaste = "[]"
-                                    }
-                                    
-                                    UIPasteboard.general.string = stringForCopyPaste
-                                }) {
-                                    Text("Copy secret key")
-                                }
+                            }) {
+                                Text("🔎 Open Explorer")
                             }
-                    } else {
-                        Text("Select [🔑 Keys] to start")
-                    }
-                    
-                    NavigationLink {
-                        ImportWallet()
-                    } label: {
-                        Text("🔑 Keys")
-                    }
-                    NavigationLink {
-                        TransferToken(manager: WalletManager())
-                    } label: {
-                        Text("💾 Transfer")
-                    }
-                }
-                
-                assetBalance
-                
-                Section ("NOSTR") {
-                    if let publicKey = keychainForNostr.account?.publicKey.npub {
-                        Text("\(publicKey.prefix(8))...\(publicKey.suffix(8))")
-                            .contextMenu {
-                                if let npub = keychainForNostr.account?.publicKey.npub {
-                                    Button(action: {
-                                        UIPasteboard.general.string = npub
-                                    }) {
-                                        Text("Copy npub")
-                                    }
-                                }
-                                
-                                if let nsec = keychainForNostr.account?.privateKey.nsec {
-                                    Button(action: {
-                                        UIPasteboard.general.string = nsec
-                                    }) {
-                                        Text("Copy nsec")
-                                    }
-                                }
-                                
-                                if let phex = keychainForNostr.account?.publicKey.hex {
-                                    Button(action: {
-                                        UIPasteboard.general.string = phex
-                                    }) {
-                                        Text("Copy phex")
-                                    }
-                                }
-                                
-                                if let shex = keychainForNostr.account?.privateKey.hex {
-                                    Button(action: {
-                                        UIPasteboard.general.string = shex
-                                    }) {
-                                        Text("Copy shex")
-                                    }
-                                }
+                            
+                            Button(action: {
+                                UIPasteboard.general.string = address
+                            }) {
+                                Text("Copy public key")
                             }
-                    } else {
-                        Text("Create new keys")
-                    }
-                    
-                    NavigationLink {
-                        ImportIdentity()
-                    } label: {
-                        Text("🔑 Keys")
-                    }
-                    NavigationLink {
-                        ConnectRelay()
-                    } label: {
-                        Text("📡 Relays")
-                    }
-                }
-                
-                Button("💁 Get Help") {
-                    Task {
-                        if let url = URL(string: ProRobot.HELP_URL_SKATEPAY) {
-                            openURL(url)
+                            
+                            Button(action: {
+                                let stringForCopyPaste: String
+                                let bytes = account.secretKey.bytes
+                                stringForCopyPaste = "[\(bytes.map { String($0) }.joined(separator: ","))]"
+                                
+                                UIPasteboard.general.string = stringForCopyPaste
+                            }) {
+                                Text("Copy secret key")
+                            }
+                            
+                            Button(action: {
+                                   aliasToDrop = walletManager.selectedAlias
+                                   showDropConfirmation = true
+                               }) {
+                                   Text("Drop alias")
+                               }
                         }
-                    }
-                }
-                 
-                Button("Reset App") {
-                    Task {
-                        keychainForNostr.clear()
-                        keychainForSolana.clear()
-                    }
-                }
             }
-            .navigationTitle("Wallet")
+            
+            NavigationLink {
+                ImportWallet()
+            } label: {
+                Text("🔑 Manage Keys")
+            }
+        }
+    }
+}
+
+// MARK: - Context Menu Builder
+private extension WalletView {
+    @ViewBuilder
+    func tokenContextMenu(for account: SolanaAccount) -> some View {
+        Button(action: {
+            if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(walletManager.network)") {
+                openURL(url)
+            }
+        }) {
+            Text("🔎 Open Explorer")
+        }
+        
+        Button(action: {
+            if let url = URL(string: "https://github.com/SkatePay/token") {
+                openURL(url)
+            }
+        }) {
+            Text("ℹ️ Open Information")
         }
     }
 }
 
 #Preview {
-    WalletView(host: .constant(Host()), saveAction: {})
+    WalletView(saveAction: {})
 }

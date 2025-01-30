@@ -13,184 +13,64 @@ import NostrSDK
 import SwiftUI
 import UIKit
 
-class DirectMessageDelegate: ObservableObject, RelayDelegate {
-    @Published var fetchingStoredEvents = true
-    
-    func relayStateDidChange(_ relay: Relay, state: Relay.State) {
-    }
-    func relay(_ relay: Relay, didReceive event: RelayEvent) {
-    }
-    
-    func relay(_ relay: Relay, didReceive response: RelayResponse) {
-        DispatchQueue.main.async {
-            guard case .eose(_) = response else {
-                return
-            }
-            self.fetchingStoredEvents = false
-        }
-    }
-}
-
 struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+    @EnvironmentObject var dataManager: DataManager
 
-    @ObservedObject var network = Network.shared
-    @ObservedObject var dataManager = DataManager.shared
-
-    let keychainForNostr = NostrKeychainStorage()
+    private let keychainForNostr = NostrKeychainStorage()
     
-    @ObservedObject var chatDelegate = DirectMessageDelegate()
-    @ObservedObject var messageHandler = MessageHandler()
-    
-    // Local state for managing channel view
-    @State private var isShowingChannelView = false
-
-    @State private var eventsCancellable: AnyCancellable?
-    
-    @State private var errorString: String?
-    @State private var subscriptionId: String?
-    
-    @State private var isShowingUserDetail = false
-    @State private var isShowingCameraView = false
-    @State private var isShowingVideoPlayer = false
-    
-    @State private var showAlertForReporting = false
-    @State private var showAlertForAddingPark = false
-    
-    @State private var showingConfirmationAlert = false
-    
-    @State private var selectedChannelId: String? = nil
+    @ObservedObject private var messageHandler = MessageHandler()
 
     private var user: User
     private var message: String
+
+    @State private var subscriptionId: String?
+    @State private var eventsCancellable: AnyCancellable?
+
+    @State private var isShowingChannelView = false
+    @State private var isShowingCameraView = false
+    @State private var isShowingVideoPlayer = false
     
-    var connected: Bool { relayPool.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) }
-    
+    @State private var showingConfirmationAlert = false
+    @State private var showAlertForReporting = false
+    @State private var showAlertForAddingPark = false
+
+    @State private var selectedChannelId: String?
+    @State private var videoURL: URL?
+
+    private var relayPool: RelayPool { network.getRelayPool() }
+    private var connected: Bool {
+        relayPool.relays.contains { $0.url == URL(string: user.relayUrl) }
+    }
+
+    func formatName() -> String {
+        dataManager.findFriend(user.npub)?.name ?? friendlyKey(npub: user.npub)
+    }
+
     init(user: User, message: String = "") {
         self.user = user
         self.message = message
     }
-    
-    func formatName() -> String {
-        if let friend = self.dataManager.findFriend(user.npub) {
-            return friend.name
-        } else {
-            return friendlyKey(npub: user.npub)
-        }
-    }
-    
-    func formatImage() -> Image {
-        return user.image
-    }
-    
-    @State private var videoURL: URL?
-    
-    private func openLink(_ channelId: String) {
-        self.selectedChannelId = channelId
-        self.isShowingChannelView = true
-    }
-        
-    private func onSend(text: String) {
-        publishEvent(text: text)
-    }
-    
+
     var body: some View {
         ChatAreaView(
             messages: $messageHandler.messages,
-            onTapAvatar: { senderId in
-                if senderId.isEmpty {
-                    print("unknown sender")
-                } else {
-                    isShowingUserDetail.toggle()
-                }
-            },
-            onTapVideo: { message in
-                if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
-                    let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-                    
-                    self.videoURL = URL(string: videoURLString)
-                    isShowingVideoPlayer.toggle()
-                }
-            },
-            onTapLink: { channelId in
-                selectedChannelId = channelId
-                showingConfirmationAlert = true
-            },
-            onSend: { text in
-                publishEvent(text: text)
-            }
+            onTapAvatar: { _ in print("Avatar tapped") },
+            onTapVideo: handleVideoTap,
+            onTapLink: { channelId in selectedChannelId = channelId; showingConfirmationAlert = true },
+            onSend: publishEvent
         )
         .navigationBarBackButtonHidden()
-        .navigationBarItems(
-            leading:
-                HStack {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "arrow.left")
-                    }
-                    
-                    Button(action: {
-                        if (!isShowingUserDetail) {
-                            self.isShowingUserDetail.toggle()
-                        }
-                    }) {
-                        HStack {
-                            Image("user-skatepay")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 35, height: 35)
-                                .clipShape(Circle())
-                            
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text(formatName())
-                                    .fontWeight(.semibold)
-                                    .font(.headline)
-                                Text(connected ? "online" : "offline")
-                                    .font(.footnote)
-                                    .foregroundColor(Color(hex: "AFB3B8"))
-                            }
-                            Spacer()
-                        }
-                        .padding(.leading, 10)
-                    }
-                },
-            trailing:
-                HStack(spacing: 16) {
-                    Button(action: {
-//                        self.isShowingToolBoxView.toggle()
-                    }) {
-                        Image(systemName: "network")
-                            .foregroundColor(.blue)
-                    }
-                    
-                    Button(action: {
-                        isShowingCameraView = true
-                    }) {
-                        Image(systemName: "camera.on.rectangle.fill")
-                            .foregroundColor(.blue)
-                    }
-                }
-        )
-        .fullScreenCover(isPresented: $isShowingUserDetail) {
-            NavigationView {
-                UserDetail(user: getUser(npub: user.npub))
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        isShowingUserDetail = false
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Chat")
-                            Spacer()
-                        }
-                    })
-            }
-        }
+        .navigationBarItems(leading: backButton, trailing: actionButtons)
         .fullScreenCover(isPresented: $isShowingChannelView) {
             if let channelId = selectedChannelId {
                 NavigationView {
                     ChannelView(channelId: channelId)
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
                 }
             }
         }
@@ -198,152 +78,144 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
             Alert(
                 title: Text("Confirmation"),
                 message: Text("Are you sure you want to join this channel?"),
-                primaryButton: .default(Text("Yes")) {
-                    if let channelId = selectedChannelId {
-                        openLink(channelId)
-                    }
-                },
+                primaryButton: .default(Text("Yes")) { openLink() },
                 secondaryButton: .cancel()
             )
         }
-        .alert("Confirm Report", isPresented: $showAlertForReporting) {
-            Button("No", role: .cancel) {
-            }
-            Button("Yes") {
-                publishEvent(text: "Hi, I would like to report \(friendlyKey(npub: message)).")
-            }
-        } message: {
-            Text("Do you want to continue with the report on \(friendlyKey(npub: message))?")
-        }
-        .alert("Confirm Park Request", isPresented: $showAlertForAddingPark) {
-            Button("No", role: .cancel) {
-            }
-            Button("Yes") {
-                publishEvent(text: "Hi, I would like to add my park to your directory. Please tell me how to do that.")
-            }
-        } message: {
-            Text("Do you want to see your park on SkateConnect?")
-        }
-        .onAppear{
-            updateSubscription()
+        .onAppear { setupSubscription() }
+        .onDisappear { cleanupSubscription() }
+        .modifier(IgnoresSafeArea()) // Fixes keyboard issue
+    }
 
-            if (message.isEmpty) {
-                return
+    private var backButton: some View {
+        HStack {
+            Button(action: {
+                dismiss()
+            }) {
+                Image(systemName: "arrow.left")
             }
+            Button(action: {}) {
+                HStack {
+                    Image("user-skatepay")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 35, height: 35)
+                        .clipShape(Circle())
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(formatName()).fontWeight(.semibold).font(.headline)
+                        Text(connected ? "online" : "offline").font(.footnote).foregroundColor(.gray)
+                    }
+                    Spacer()
+                }
+                .padding(.leading, 10)
+            }
+        }
+    }
 
-            if (message.contains("request")) {
-                showAlertForAddingPark.toggle()
+    private var actionButtons: some View {
+        HStack(spacing: 16) {
+            Button(action: {}) {
+                Image(systemName: "network").foregroundColor(.blue)
+            }
+            Button(action: { isShowingCameraView = true }) {
+                Image(systemName: "camera.on.rectangle.fill").foregroundColor(.blue)
+            }
+        }
+    }
+
+    private func openLink() {
+        isShowingChannelView = true
+    }
+
+    private func handleVideoTap(message: MessageType) {
+        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
+            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
+            videoURL = URL(string: videoURLString)
+            isShowingVideoPlayer.toggle()
+        }
+    }
+}
+
+// Nostr Handling
+private extension DirectMessage {
+    private func setupSubscription() {
+        network.fetchingStoredEvents = true
+
+        subscriptionId.map { relayPool.closeSubscription(with: $0) }
+
+        if let filter = currentFilter {
+            subscriptionId = relayPool.subscribe(with: filter)
+        } else {
+            print("Failed to create filter for subscription")
+        }
+
+        relayPool.delegate = network
+        eventsCancellable = relayPool.events
+            .receive(on: DispatchQueue.main)
+            .map { $0.event }
+            .removeDuplicates()
+            .sink(receiveValue: handleNewEvent)
+    }
+
+    private func cleanupSubscription() {
+        subscriptionId.map { relayPool.closeSubscription(with: $0) }
+    }
+
+    private func handleNewEvent(event: NostrEvent) {
+        if let message = parseEventIntoMessage(event: event) {
+            if network.fetchingStoredEvents {
+                messageHandler.messages.insert(message, at: 0)
             } else {
-                showAlertForReporting.toggle()
+                messageHandler.messages.append(message)
             }
         }
-        .onDisappear{
-            if let subscriptionId {
-                relayPool.closeSubscription(with: subscriptionId)
-            }
-        }
-        .modifier(IgnoresSafeArea()) //fixes issue with IBAV placement when keyboard appear
     }
-    
-    private var relayPool: RelayPool {
-        return network.getRelayPool()
-    }
-    
-    private func myKeypair() -> Keypair? {
-        return Keypair(hex: (keychainForNostr.account?.privateKey.hex)!)
-    }
-    
-    private func recipientPublicKey() -> PublicKey? {
-        return PublicKey(npub: user.npub)
-    }
-    
-    private var currentFilter: Filter? {
-        guard let account = keychainForNostr.account else {
-            print("Error: Failed to create Filter")
-            return nil
-        }
-        
-        guard let hex = recipientPublicKey()?.hex else {
-            print("Error: Failed to create Filter")
-            return nil
-        }
-        
-        let authors = [hex, account.publicKey.hex]
-                
-        let filter = Filter(authors: authors.compactMap{ $0 }, kinds: [4], tags: ["p" : [account.publicKey.hex, hex]])
-        
-        return filter
-    }
-    
-    private func publishEvent(text: String) {
-        guard let account = keychainForNostr.account else { return }
 
-        guard let recipientPublicKey = recipientPublicKey() else { return }
-        
+    private func publishEvent(text: String) {
+        guard let account = keychainForNostr.account,
+              let recipientPublicKey = PublicKey(npub: user.npub) else { return }
+
         do {
             let contentStructure = ContentStructure(content: text, kind: .message)
-            
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = .prettyPrinted
-            let data = try encoder.encode(contentStructure)
-            let content  = String(data: data, encoding: .utf8) ?? text
-            
-            let directMessage = try legacyEncryptedDirectMessage(withContent: content,
-                                                                 toRecipient: recipientPublicKey,
-                                                                 signedBy: account)
+            let jsonData = try JSONEncoder().encode(contentStructure)
+            let content = String(data: jsonData, encoding: .utf8) ?? text
+
+            let directMessage = try legacyEncryptedDirectMessage(
+                withContent: content,
+                toRecipient: recipientPublicKey,
+                signedBy: account
+            )
             relayPool.publishEvent(directMessage)
         } catch {
             print(error.localizedDescription)
         }
     }
-    
-    private func updateSubscription() {
-        chatDelegate.fetchingStoredEvents = true
+
+    var currentFilter: Filter? {
+        guard let account = keychainForNostr.account,
+              let recipientHex = PublicKey(npub: user.npub)?.hex else { return nil }
         
-        
-        if let subscriptionId {
-            relayPool.closeSubscription(with: subscriptionId)
-        }
-        
-        if let unwrappedFilter = currentFilter {
-            subscriptionId = relayPool.subscribe(with: unwrappedFilter)
-        } else {
-            print("currentFilter is nil, unable to subscribe")
-        }
-        
-        relayPool.delegate = self.chatDelegate
-                
-        eventsCancellable = relayPool.events
-            .receive(on: DispatchQueue.main)
-            .map {
-                return $0.event
-            }
-            .removeDuplicates()
-            .sink { event in
-                if let message = parseEventIntoMessage(event: event) {
-                    if(self.chatDelegate.fetchingStoredEvents) {
-                        messageHandler.messages.insert(message, at: 0)
-                    } else {
-                        messageHandler.messages.append(message)
-                    }
-                }
-            }
+        let authors = [recipientHex, account.publicKey.hex]
+        return Filter(authors: authors, kinds: [4], tags: ["p": authors], limit: 64)
     }
-    
-    private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
-        var publicKey = PublicKey(hex: event.pubkey)
-                
-        let isCurrentUser = publicKey != recipientPublicKey()
-        publicKey = isCurrentUser ? recipientPublicKey() : publicKey
+
+    func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
+        guard let myKeypair = keychainForNostr.account,
+              let recipientPublicKey = PublicKey(npub: user.npub) else { return nil }
 
         do {
-            let text = try legacyDecrypt(encryptedContent: event.content, privateKey: myKeypair()!.privateKey, publicKey: publicKey!)
-            
-            let builder = NostrEvent.Builder(nostrEvent: event)
-            let decryptedEvent =  builder.content(text).build(pubkey: event.pubkey)
-            
+            let decryptedText = try legacyDecrypt(
+                encryptedContent: event.content,
+                privateKey: myKeypair.privateKey,
+                publicKey: recipientPublicKey
+            )
+            let decryptedEvent = NostrEvent.Builder(nostrEvent: event)
+                .content(decryptedText)
+                .build(pubkey: event.pubkey)
+
             return messageHandler.parseEventIntoMessage(event: decryptedEvent)
         } catch {
+            print("Decryption failed: \(error.localizedDescription)")
             return nil
         }
     }

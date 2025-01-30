@@ -15,7 +15,6 @@ struct VideoEditorView: View {
     @State private var player: AVPlayer
     @State private var currentFrame: UIImage? // Store the captured frame
     @State private var isUploading: Bool = false // Manage upload state
-    @State private var showingAlert: Bool = false // Show alert on successful upload
     @ObservedObject var cameraViewModel: CameraViewModel // To access the existing video upload logic
     
     init(url: URL?, cameraViewModel: CameraViewModel) {

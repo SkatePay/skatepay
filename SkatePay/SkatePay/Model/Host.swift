@@ -15,7 +15,7 @@ struct Host: Hashable, Codable {
     var nsec: String = ""
     var npub: String = ""
     
-    var relayUrls: [String] = [Constants.RELAY_URL_PRIMAL]
+    var relayUrls: [String] = [Constants.RELAY_URL_SKATEPARK]
     
     private var noValueString = ""
     

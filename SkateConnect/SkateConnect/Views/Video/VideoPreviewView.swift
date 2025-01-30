@@ -138,11 +138,7 @@ struct VideoPreviewView: View {
             }
         }
         .onAppear {
-            if let validURL = url {
-                viewModel.observePlayer(player) // Observe the player's status when the view appears
-            } else {
-                viewModel.errorMessage = "Invalid video URL."
-            }
+            viewModel.observePlayer(player)
         }
     }
 }

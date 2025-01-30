@@ -27,12 +27,13 @@ class ChannelSelectionManager: ObservableObject {
 struct AddressBook: View {
     @Environment(\.modelContext) private var context
     
+    @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var lobby: Lobby
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+
     @Query private var spots: [Spot]
     
-    @ObservedObject var lobby = Lobby.shared
-    @ObservedObject var navigation = Navigation.shared
-    @ObservedObject var locationManager = LocationManager.shared
-
     @StateObject private var channelSelection = ChannelSelectionManager()
 
     @State private var showFavoritesOnly = false
@@ -52,7 +53,7 @@ struct AddressBook: View {
     
     func deleteSpot(_ spot: Spot) {
         if !spot.channelId.isEmpty {
-            lobby.removeLead(byChannelId: spot.channelId)
+            lobby.removeLeadByChannelId(spot.channelId)
         }
         context.delete(spot)
     }
@@ -68,7 +69,7 @@ struct AddressBook: View {
                     Text(spot.name)
                         .contextMenu {
                             Button(action: {
-                                self.navigation.goToSpot(spot: spot)
+                                navigation.goToSpot(spot: spot)
                             }) {
                                 Text("Go to spot")
                             }
@@ -124,6 +125,9 @@ struct AddressBook: View {
                     } else {
                         NavigationView {
                             ChannelView(channelId: spot.channelId)
+                                .environmentObject(dataManager)
+                                .environmentObject(navigation)
+                                .environmentObject(network)
                         }
                     }
                 }
@@ -145,15 +149,20 @@ struct AddressBook: View {
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Add") {
-                        let spot = Spot(name: name, address: "", state: "", note: "", latitude: latitude, longitude: longitude)
+                        let spot = Spot(name: name, address: "", state: "", icon: "", note: "", latitude: latitude, longitude: longitude)
                         context.insert(spot)
                     }
                     .bold()
+                    .disabled(!readyToAdd())
                 }
                 .padding()
                 .background(.bar)
             }
         }
+    }
+    
+    private func readyToAdd() -> Bool {
+        (!name.isEmpty)
     }
 }
 

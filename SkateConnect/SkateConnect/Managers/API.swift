@@ -16,15 +16,18 @@ public struct Keys: Codable {
     var S3_SECRET_ACCESS_KEY: String
 }
 
+@MainActor
 class API: ObservableObject {
-    static let shared = API()
-
-    @ObservedObject var dataManager = DataManager.shared
+    @Published private var dataManager: DataManager?
 
     @Published var isLoading = false
     @Published var error: Error?
 
     let keychainForAws = AwsKeychainStorage()
+    
+    func setDataManager(dataManager: DataManager) {
+        self.dataManager = dataManager
+    }
     
     func fetchLeads() {
         guard let url = URL(string: "\(Constants.API_URL_SKATEPARK)/leads") else {
@@ -49,12 +52,13 @@ class API: ObservableObject {
                 self?.isLoading = false
                 switch completion {
                 case .failure(let error):
+                    print(error)
                     self?.error = error
                 case .finished:
                     break
                 }
             } receiveValue: { [weak self] leads in
-                self?.dataManager.createSpots(leads: leads)
+                self?.dataManager?.createPublicSpots(leads: leads)
                 self?.error = nil // Clear any previous errors if successful
             }
             .store(in: &subscriptions)
@@ -99,13 +103,6 @@ class API: ObservableObject {
                 self.error = nil
             }
             .store(in: &subscriptions)
-    }
-
-    func debugOutput() -> String {
-        if let error = error {
-            return error.localizedDescription
-        }
-        return isLoading ? "Loading..." : "🚹 Welcome to SkateConnect, 🇺🇸!"
     }
 
     private var subscriptions = Set<AnyCancellable>()

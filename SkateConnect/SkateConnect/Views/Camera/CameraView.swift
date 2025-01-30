@@ -15,8 +15,8 @@ struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
     @Environment(\.dismiss) var dismiss
     
-    @ObservedObject var navigation = Navigation.shared
-    
+    @EnvironmentObject var navigation: Navigation
+
     // Sensitivity factor to control zoom speed
     let zoomSensitivity: CGFloat = 0.3
     
@@ -48,6 +48,7 @@ struct CameraView: View {
             VStack {
                 HStack {
                     Button(action: {
+                        navigation.activeSheet = .none
                         dismiss()
                     }) {
                         Image(systemName: "chevron.left")
@@ -177,7 +178,12 @@ struct CameraView: View {
                 }
             }
             
-            cameraViewModel.channelId = navigation.channelId
+            guard let channelId = navigation.channelId else {
+                print("Error: Channel ID is nil.")
+                return
+            }
+            
+            cameraViewModel.channelId = channelId
         }
         .alert("Video posted.", isPresented: $cameraViewModel.showingAlert) {
             Button("Ok", role: .cancel) {

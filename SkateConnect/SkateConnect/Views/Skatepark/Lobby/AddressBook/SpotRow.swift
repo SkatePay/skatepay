@@ -31,7 +31,7 @@ struct SpotRow: View {
     let spots = AppData().landmarks;
         
     return Group {
-        SpotRow(spot: Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, note: "", imageName: "venice-skate-park"))
-        SpotRow(spot: Spot(name: spots[1].name, address: spots[1].address, state: spots[1].state, note: "", imageName: "venice-skate-park"))
+        SpotRow(spot: Spot(name: spots[0].name, address: spots[0].address, state: spots[0].state, icon: "", note: "", imageName: "venice-skate-park"))
+        SpotRow(spot: Spot(name: spots[1].name, address: spots[1].address, state: spots[1].state, icon: "", note: "", imageName: "venice-skate-park"))
     }
 }

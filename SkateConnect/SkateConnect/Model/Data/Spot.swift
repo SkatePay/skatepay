@@ -17,7 +17,8 @@ class Spot {
     let address: String
     let state: String
     
-    let note: String
+    let icon: String = ""
+    let note: String = ""
     
     let isFavorite: Bool
     
@@ -28,11 +29,12 @@ class Spot {
     
     var channelId: String
         
-    init(name: String, address: String, state: String, note: String, isFavorite: Bool = false, latitude: Double = -118.475601, longitude: Double = 33.987164, channelId: String = "", imageName: String = "") {
+    init(name: String, address: String, state: String, icon: String, note: String, isFavorite: Bool = false, latitude: Double = -118.475601, longitude: Double = 33.987164, channelId: String = "", imageName: String = "") {
         self.name = name
         self.address = address
         self.state = state
         self.isFavorite = isFavorite
+        self.icon = icon
         self.note = note
         self.latitude = latitude
         self.longitude = longitude

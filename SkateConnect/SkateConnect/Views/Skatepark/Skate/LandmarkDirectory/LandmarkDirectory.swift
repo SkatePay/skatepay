@@ -11,8 +11,10 @@ import SwiftUI
 struct LandmarkDirectory: View {
     @Environment(AppData.self) var modelData
     
-    @ObservedObject var navigation = Navigation.shared
-
+    @EnvironmentObject private var dataManager: DataManager
+    @EnvironmentObject private var navigation: Navigation
+    @EnvironmentObject private var network: Network
+    
     @State private var showFavoritesOnly = false
     @State private var showAddPark = false
 
@@ -32,6 +34,7 @@ struct LandmarkDirectory: View {
             ForEach(filteredSpots) { landmark in
                 NavigationLink {
                     LandmarkDetail(landmark: landmark)
+                        .environmentObject(navigation)
                 } label: {
                     LandmarkRow(landmark: landmark)
                 }
@@ -50,6 +53,9 @@ struct LandmarkDirectory: View {
         .fullScreenCover(isPresented: $showAddPark) {
                 NavigationView {
                     DirectMessage(user: AppData().users[0], message: "request")
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
                 }
         }
         .navigationBarTitleDisplayMode(.inline)

@@ -29,6 +29,33 @@ struct Lead: Identifiable, Equatable, Codable {
     var channelId: String
     var event: NostrEvent?
     var channel: Channel?
+    
+    // Optional colorHex to handle missing field during decoding
+    var colorHex: String?
+    
+    var color: Color {
+        get {
+            Color(hex: colorHex ?? "#FF0000") ?? .red
+        }
+        set {
+            colorHex = newValue.toHex()
+        }
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, icon, coordinate, channelId, event, channel, colorHex
+    }
+    
+    init(id: UUID = UUID(), name: String, icon: String, coordinate: CLLocationCoordinate2D, channelId: String, event: NostrEvent?, channel: Channel?, color: Color) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.coordinate = coordinate
+        self.channelId = channelId
+        self.event = event
+        self.channel = channel
+        self.colorHex = color.toHex()
+    }
 }
 
 public struct Defaults {
@@ -37,28 +64,31 @@ public struct Defaults {
 }
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    static let shared = LocationManager()
-
     private var locationManager: CLLocationManager?
+        
+    @Published private var navigation: Navigation?
     
-    @ObservedObject var navigation = Navigation.shared
-
     @Published var currentLocation: CLLocation?
     
+    @Published var pinCoordinate: CLLocationCoordinate2D?
+
     @Published var mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: AppData().landmarks[0].locationCoordinate.latitude, longitude: AppData().landmarks[0].locationCoordinate.longitude),
                                                   latitudinalMeters: Defaults.latitudinalMeters,
                                                   longitudinalMeters: Defaults.longitudinalMeters)
     
     @Published var mapPosition = MapCameraPosition.region(MKCoordinateRegion())
     
-    private var isLocationManagerInitialized = false 
-
     override init() {
         super.init()
+        
         if let loadedRegion = loadMapRegion() {
             mapRegion = loadedRegion
         }
         mapPosition = MapCameraPosition.region(mapRegion)
+    }
+    
+    func setNavigation(navigation: Navigation) {
+        self.navigation = navigation
     }
     
     // Save map region to UserDefaults
@@ -111,16 +141,11 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     // Ensure location services are only checked once, and state changes are throttled
     func checkIfLocationIsEnabled() {
-        if isLocationManagerInitialized {
-            return // Prevent initializing location manager multiple times
-        }
-        
         if CLLocationManager.locationServicesEnabled() {
             locationManager = CLLocationManager()
             locationManager?.desiredAccuracy = kCLLocationAccuracyBest
             locationManager?.delegate = self
-            locationManager?.startUpdatingLocation() // Start updating location only if not already started
-            isLocationManagerInitialized = true // Mark as initialized
+            locationManager?.startUpdatingLocation()
         } else {
             print("Location services are disabled. Show an alert to the user.")
         }
@@ -156,14 +181,23 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
     
-    // Update the current location and handle state updates efficiently
+    private var lastUpdateTime: Date?
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
-        if (self.navigation.isLocationUpdatePaused) {
-            return
-        }
+            
+        if !(navigation?.activeView == .map && navigation?.activeSheet == ActiveSheet.none) { return }
             
         guard let location = locations.last else { return }
+        
+        let now = Date()
+        
+        // Check if it's been at least 1 second since the last update
+        if let lastUpdate = lastUpdateTime, now.timeIntervalSince(lastUpdate) < 1 {
+            return
+        }
+        
+        // Update the last update time
+        lastUpdateTime = now
         
         // Throttle the state update to avoid frequent re-renders
         if currentLocation == nil || (location.coordinate.latitude != currentLocation?.coordinate.latitude ||
@@ -173,9 +207,32 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     func panMapToCachedCoordinate() {
-        if let coordinate = navigation.coordinate {
+        if let coordinate = navigation?.coordinate {
             updateMapRegion(with: CLLocationCoordinate2D(
-                    latitude: coordinate.latitude, longitude: coordinate.longitude))
+                latitude: coordinate.latitude, longitude: coordinate.longitude))
+        }
+    }
+    
+    func panMapToCachedCoordinate(_ coordinate: CLLocationCoordinate2D) {
+        if let navigation = navigation {
+            navigation.coordinate = coordinate
+            self.panMapToCachedCoordinate()
+        }
+    }
+
+    // Handle spot notification
+    func handleGoToSpotNotification(_ notification: Notification) {
+        guard let spot = notification.object as? Spot else {
+            print("Received goToSpot notification, but no valid Spot object was found.")
+            return
+        }
+        
+        let locationCoordinate = spot.locationCoordinate
+        self.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+        
+        if spot.channelId.isEmpty {
+            pinCoordinate = spot.locationCoordinate
         }
     }
 }
+

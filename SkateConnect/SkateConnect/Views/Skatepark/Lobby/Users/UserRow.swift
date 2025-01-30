@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct UserRow: View {
-    @State private var isShowingFilters = false
-    @State private var selectedUser: User? = nil
-    
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var navigation: Navigation
+        
     var users: [User]
     
     var body: some View {
@@ -22,7 +22,7 @@ struct UserRow: View {
                     .padding(.top, 5)
                 Spacer()
                 Button(action: {
-                    isShowingFilters = true
+                    navigation.activeSheet = .filters
                 }) {
                     Text("Ignore")
                         .foregroundColor(.blue)
@@ -36,7 +36,8 @@ struct UserRow: View {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(users) { user in
                         Button(action: {
-                            selectedUser = user
+                            navigation.selectedUserNpub = user.npub
+                            navigation.isShowingUserDetail = true
                         }) {
                             UserItem(user: user)
                         }
@@ -45,28 +46,16 @@ struct UserRow: View {
             }
             .frame(height: 120)
         }
-        .fullScreenCover(item: $selectedUser) { user in
-            NavigationView {
-                UserDetail(user: user)
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        selectedUser = nil
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Lobby")
-                            Spacer()
-                        }
-                    })
-            }
-        }
-        .fullScreenCover(isPresented: $isShowingFilters) {
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { navigation.activeSheet == .filters },
+            set: { if !$0 { navigation.activeSheet = .none } }
+        )) {
             NavigationView {
                 Filters()
                     .navigationBarTitle("Filters")
                     .navigationBarItems(leading:
                                             Button(action: {
-                        isShowingFilters = false
+                        navigation.activeSheet = .none
                     }) {
                         HStack {
                             Image(systemName: "arrow.left")
