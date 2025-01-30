@@ -32,7 +32,7 @@ class ChannelEventService: ObservableObject, RelayDelegate, EventCreating {
         self.network = network
     }
     
-    // MARK: - Subscribe to Event Streams
+    // MARK: - Subscriptions
     func subscribeToChannelEvents(channelId: String, leadType: LeadType = .outbound, completion: @escaping ([NostrEvent]) -> Void){
         
         self.network?.leadType = leadType

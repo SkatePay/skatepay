@@ -250,7 +250,6 @@ private extension TransferAsset {
                         minRentExemption: minRentExemption
                     )
                     
-                    // TODO: Calculate if new account
                     let recipientAddress = try PublicKey(string: address)
 
                     let amountInLamports = UInt64(amount) // Amount of SOL to send (in lamports)

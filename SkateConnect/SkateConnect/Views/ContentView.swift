@@ -21,11 +21,6 @@ enum Tab {
     case settings
 }
 
-class ContentViewModel: ObservableObject {
-    @Published var fetchingStoredEvents: Bool = true
-    var mark: Mark?
-}
-
 struct ContentView: View {
     @Environment(
         \.modelContext
@@ -43,7 +38,6 @@ struct ContentView: View {
     @EnvironmentObject private var stateManager: StateManager
     @EnvironmentObject private var walletManager: WalletManager
     
-    @StateObject private var viewModel = ContentViewModel()
     @StateObject private var store = HostStore()
     @State private var incomingMessagesCount = 0
     
@@ -184,9 +178,6 @@ struct ContentView: View {
         .task {
             await insertDefaultFriend()
         }
-        .environmentObject(
-            viewModel
-        )
         .environmentObject(
             store
         )
