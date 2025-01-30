@@ -89,7 +89,6 @@ struct WalletView: View {
                    actions: {
                 Button("Cancel", role: .cancel) {}
                 Button("Drop", role: .destructive) {
-                    // When confirmed, remove the key
                     if let alias = aliasToDrop {
                         walletManager.removeKey(alias: alias)
                     }
@@ -100,7 +99,6 @@ struct WalletView: View {
         }
     }
 }
-
 
 // MARK: - UI Components
 private extension WalletView {
@@ -115,43 +113,42 @@ private extension WalletView {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .frame(maxHeight: .infinity)
             } else {
-                Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
-                ForEach(walletManager.accounts) { account in
-                    Text("\(account.lamports) $\(account.symbol.prefix(3))")
-                        .contextMenu {
-                            Button(action: {
-                                if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(walletManager.network)") {
-                                    openURL(url)
-                                }
-                            }) {
-                                Text("🔎 Open Explorer")
-                            }
-                            Button(action: {
-                                if let url = URL(string: "https://github.com/SkatePay/token") {
-                                    openURL(url)
-                                }
-                            }) {
-                                Text("ℹ️ Open Information")
-                            }
-                        }
+                if (walletManager.balance > 0) {
+                    NavigationLink {
+                        TransferAsset(transferType: .sol)
+                            .environmentObject(walletManager)
+                    } label: {
+                        Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
+                    }
+                } else {
+                    Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
                 }
-                
-                // Existing Transfer button, etc.
-                NavigationLink {
-                    TransferToken()
-                        .environmentObject(walletManager)
-                } label: {
-                    Text("💾 Transfer")
+
+                ForEach(walletManager.accounts) { account in
+                    if account.lamports > 0 {
+                        NavigationLink {
+                            TransferAsset(transferType: .token(account))
+                                .environmentObject(walletManager)
+                        } label: {
+                            Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                        }
+                        .contextMenu {
+                            tokenContextMenu(for: account)
+                        }
+                    } else {
+                        Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                            .contextMenu {
+                                tokenContextMenu(for: account)
+                            }
+                    }
                 }
             }
         } header: {
-            // Custom header
             HStack {
                 Text("Asset Balance")
                 Spacer()
                 if (!loading) {
                     Button {
-                        // Trigger the refresh
                         loading = true
                         walletManager.fetch { isLoading in
                             loading = isLoading
@@ -208,6 +205,28 @@ private extension WalletView {
             } label: {
                 Text("🔑 Manage Keys")
             }
+        }
+    }
+}
+
+// MARK: - Context Menu Builder
+private extension WalletView {
+    @ViewBuilder
+    func tokenContextMenu(for account: SolanaAccount) -> some View {
+        Button(action: {
+            if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(walletManager.network)") {
+                openURL(url)
+            }
+        }) {
+            Text("🔎 Open Explorer")
+        }
+        
+        Button(action: {
+            if let url = URL(string: "https://github.com/SkatePay/token") {
+                openURL(url)
+            }
+        }) {
+            Text("ℹ️ Open Information")
         }
     }
 }

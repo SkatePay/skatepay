@@ -46,7 +46,7 @@
 		C625015A2C93C1340026C334 /* ConnectRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011B2C93C1340026C334 /* ConnectRelay.swift */; };
 		C625015B2C93C1340026C334 /* ImportIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011C2C93C1340026C334 /* ImportIdentity.swift */; };
 		C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011D2C93C1340026C334 /* ImportWallet.swift */; };
-		C625015D2C93C1340026C334 /* TransferToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011E2C93C1340026C334 /* TransferToken.swift */; };
+		C625015D2C93C1340026C334 /* TransferAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011E2C93C1340026C334 /* TransferAsset.swift */; };
 		C625015E2C93C1340026C334 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625011F2C93C1340026C334 /* WalletView.swift */; };
 		C625015F2C93C1340026C334 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501222C93C1340026C334 /* ContentView.swift */; };
 		C62501672C93C1340026C334 /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625012D2C93C1340026C334 /* Friend.swift */; };
@@ -203,7 +203,7 @@
 		C625011B2C93C1340026C334 /* ConnectRelay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectRelay.swift; sourceTree = "<group>"; };
 		C625011C2C93C1340026C334 /* ImportIdentity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportIdentity.swift; sourceTree = "<group>"; };
 		C625011D2C93C1340026C334 /* ImportWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWallet.swift; sourceTree = "<group>"; };
-		C625011E2C93C1340026C334 /* TransferToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferToken.swift; sourceTree = "<group>"; };
+		C625011E2C93C1340026C334 /* TransferAsset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferAsset.swift; sourceTree = "<group>"; };
 		C625011F2C93C1340026C334 /* WalletView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		C62501222C93C1340026C334 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C62501242C93C1340026C334 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -483,7 +483,7 @@
 			isa = PBXGroup;
 			children = (
 				C625011D2C93C1340026C334 /* ImportWallet.swift */,
-				C625011E2C93C1340026C334 /* TransferToken.swift */,
+				C625011E2C93C1340026C334 /* TransferAsset.swift */,
 				C625011F2C93C1340026C334 /* WalletView.swift */,
 				C6F495A02C93D3C10006FBF0 /* WalletManager.swift */,
 			);
@@ -974,7 +974,7 @@
 				C62501502C93C1340026C334 /* CreateMessage.swift in Sources */,
 				C66AFE922CA7812C000CD716 /* Network.swift in Sources */,
 				C62500D52C93C11A0026C334 /* DataManager.swift in Sources */,
-				C625015D2C93C1340026C334 /* TransferToken.swift in Sources */,
+				C625015D2C93C1340026C334 /* TransferAsset.swift in Sources */,
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
 				C6FAAC702D4AA82D00A532A3 /* MainHelper.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,
