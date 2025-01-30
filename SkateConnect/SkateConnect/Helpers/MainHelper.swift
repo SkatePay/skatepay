@@ -76,3 +76,7 @@ func shareChannel(_ channelId: String) {
         print("Invalid custom URL")
     }
 }
+
+func friendlyKey(npub: String) -> String {
+    return "Skater-\(npub.suffix(3))"
+}

@@ -41,7 +41,8 @@ struct LobbyView: View {
     @State private var isShowingProfile = false
     @State private var isShowingAlert = false
     
-    @StateObject var selectedUserManager = SelectedUserManager() // Local state management
+    @StateObject var selectedUserManager = SelectedUserManager()
+    
     let keychainForNostr = NostrKeychainStorage()
     
     func isFoe(_ npub: String) -> Bool {
@@ -214,6 +215,7 @@ struct LobbyView: View {
         .sheet(isPresented: $isShowingProfile) {
             ProfileHost()
                 .environment(modelData)
+                .environmentObject(network)
         }
         .onAppear() {
             lobby.events = []

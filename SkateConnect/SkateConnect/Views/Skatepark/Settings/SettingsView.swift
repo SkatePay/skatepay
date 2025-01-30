@@ -21,6 +21,7 @@ struct SettingsView: View {
     @EnvironmentObject var lobby: Lobby
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
+    @EnvironmentObject var walletManager: WalletManager
     
     @Binding var host: Host
 
@@ -170,6 +171,8 @@ struct SettingsView: View {
                                 clearAllUserDefaults()
                                 
                                 eulaManager.resetEULA()
+                                
+                                walletManager.purgeAllAccounts()
                             }
                         }
                         Button("Cancel", role: .cancel) { }

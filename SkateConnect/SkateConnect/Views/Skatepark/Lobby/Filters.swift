@@ -8,10 +8,6 @@
 import SwiftData
 import SwiftUI
 
-func friendlyKey(npub: String) -> String {
-    return "Skater-\(npub.suffix(3))"
-}
-
 struct Filters: View {
     @Query(sort: \Foe.birthday) private var foes: [Foe]
     @Environment(\.modelContext) private var context

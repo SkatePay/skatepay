@@ -37,7 +37,7 @@ class MessageHandler: ObservableObject {
         guard let publicKey = PublicKey(hex: event.pubkey) else { return nil }
         
         let isCurrentUser = publicKey == keychainForNostr.account?.publicKey
-        let npub = publicKey.npub ?? ""
+        let npub = publicKey.npub
         let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
         let content = processContent(content: event.content)
         let user = MockUser(senderId: npub, displayName: displayName)

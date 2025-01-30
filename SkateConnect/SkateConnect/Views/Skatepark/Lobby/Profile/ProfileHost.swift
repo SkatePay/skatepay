@@ -10,6 +10,8 @@ import SwiftUI
 struct ProfileHost: View {
     @Environment(\.editMode) var editMode
     @Environment(AppData.self) var modelData
+    
+    @EnvironmentObject var network: Network
     @State private var draftProfile = Profile.default
 
     var body: some View {

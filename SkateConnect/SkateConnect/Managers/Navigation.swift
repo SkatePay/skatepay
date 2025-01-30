@@ -69,18 +69,17 @@ class Navigation: ObservableObject {
     @Published var isShowingContacts = false
     @Published var isShowingCreateMessage = false
     
-    @Published var isShowingChatView = false
     @Published var isShowingEditChannel = false
     
     @Published var isShowingVideoPlayer = false
     
-    // UserDetail
+    // TODO: Need to figure out how to manage previous before deletion since userDetail can be shown on top of an another active sheet
     @Published var isShowingUserDetail = false
     @Published var selectedUserNpub: String?
     
     var isLocationUpdatePaused: Bool {
         return isShowingUserDetail ||
-               isShowingAddressBook || isShowingContacts || isShowingCreateMessage || isShowingChatView || isShowingEditChannel || isShowingVideoPlayer
+               isShowingAddressBook || isShowingContacts || isShowingCreateMessage || isShowingEditChannel || isShowingVideoPlayer
     }
     
     func dismissToContentView() {

@@ -30,9 +30,9 @@ struct ProfileEditor: View {
                 Text("Enable Notifications")
             }
             
-            Picker("Mood", selection: $profile.seasonalPhoto) {
-                 ForEach(Profile.Season.allCases) { season in
-                     Text(season.rawValue).tag(season)
+            Picker("Style", selection: $profile.style) {
+                 ForEach(Profile.Style.allCases) { style in
+                     Text(style.rawValue).tag(style)
                  }
             }
             

@@ -17,6 +17,7 @@ struct OverlayView: View {
     
     @EnvironmentObject private var apiService: API
     @EnvironmentObject private var navigation: Navigation
+    @EnvironmentObject private var network: Network
     @EnvironmentObject private var stateManager: StateManager
     
     @Binding var isInviteCopied: Bool
@@ -27,7 +28,7 @@ struct OverlayView: View {
             GeometryReader { geometry in
                 if stateManager.isShowingLoadingOverlay {
                     HStack {
-                        MarqueeText(text: apiService.debugOutput())
+                        MarqueeText(text: debugOutput())
                         
                         Spacer()
                         
@@ -169,5 +170,12 @@ struct OverlayView: View {
             }
         }
         .animation(.easeInOut, value: isInviteCopied)
+    }
+
+    func debugOutput() -> String {
+        if let error = apiService.error {
+            return error.localizedDescription
+        }
+        return apiService.isLoading ? "Loading..." : "🚹 \(network.connected ? "🟢 " : "")Welcome to SkateConnect, 🇺🇸!"
     }
 }

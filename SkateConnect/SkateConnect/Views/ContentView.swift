@@ -163,9 +163,6 @@ struct ContentView: View {
                 }
             }
         }
-        .onAppear {
-            network.reconnectRelaysIfNeeded()
-        }
         .onReceive(
             NotificationCenter.default.publisher(
                 for: .receivedDirectMessage

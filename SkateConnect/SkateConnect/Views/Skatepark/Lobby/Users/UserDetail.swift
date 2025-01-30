@@ -74,14 +74,17 @@ struct UserDetail: View {
                         FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
                             .environmentObject(dataManager)
                     }
-                    Button(action: { navigation.isShowingChatView.toggle() }) {
+                    Button(action: { navigation.activeSheet = .directMessage }) {
                         Label("Chat", systemImage: "message")
                             .padding(8)
                             .background(Color.green)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .fullScreenCover(isPresented: $navigation.isShowingChatView) {
+                    .fullScreenCover(isPresented: Binding<Bool>(
+                        get: { navigation.activeSheet == .directMessage },
+                        set: { if !$0 { navigation.activeSheet = .none } }
+                    )) {
                         NavigationView {
                             DirectMessage(user: user)
                                 .environmentObject(dataManager)

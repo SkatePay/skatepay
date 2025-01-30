@@ -105,13 +105,6 @@ class API: ObservableObject {
             .store(in: &subscriptions)
     }
 
-    func debugOutput() -> String {
-        if let error = error {
-            return error.localizedDescription
-        }
-        return isLoading ? "Loading..." : "🚹 Welcome to SkateConnect, 🇺🇸!"
-    }
-
     private var subscriptions = Set<AnyCancellable>()
 }
 
