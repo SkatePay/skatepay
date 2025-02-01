@@ -34,15 +34,19 @@ enum NavigationPathType: Hashable {
     case barcodeScanner
     case camera
     case channel(channelId: String)
+    case connectRelay
     case contacts
     case createChannel
     case createMessage
     case directMessage(user: User)
     case filters
+    case importIdentity
+    case importWallet
     case landmarkDirectory
     case reportUser(user: User, message: String)
     case restoreData
     case search
+    case transferAsset(transferType: TransferType)
     case userDetail(npub: String)
     case videoPlayer(url: URL)
 }

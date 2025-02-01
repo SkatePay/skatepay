@@ -111,10 +111,9 @@ private extension WalletView {
                 .frame(maxHeight: .infinity)
             } else {
                 if (walletManager.balance > 0) {
-                    NavigationLink {
-                        TransferAsset(transferType: .sol)
-                            .environmentObject(walletManager)
-                    } label: {
+                    Button(action: {
+                        navigation.path.append(NavigationPathType.transferAsset(transferType: .sol))
+                    }) {
                         Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
                     }
                 } else {
@@ -123,10 +122,9 @@ private extension WalletView {
 
                 ForEach(walletManager.accounts) { account in
                     if account.lamports > 0 {
-                        NavigationLink {
-                            TransferAsset(transferType: .token(account))
-                                .environmentObject(walletManager)
-                        } label: {
+                        Button(action: {
+                            navigation.path.append(NavigationPathType.transferAsset(transferType: .token(account)))
+                        }) {
                             Text("\(account.lamports) $\(account.symbol.prefix(3))")
                         }
                         .contextMenu {
@@ -197,9 +195,9 @@ private extension WalletView {
                         }
             }
             
-            NavigationLink {
-                ImportWallet()
-            } label: {
+            Button(action: {
+                navigation.path.append(NavigationPathType.importWallet)
+            }) {
                 Text("🔑 Manage Keys")
             }
         }

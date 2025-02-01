@@ -14,14 +14,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.openURL) private var openURL
-    @Environment(\.modelContext) private var context
 
     @EnvironmentObject var dataManager: DataManager
     @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var eulaManager: EULAManager
-    @EnvironmentObject var lobby: Lobby
     @EnvironmentObject var navigation: Navigation
-    @EnvironmentObject var network: Network
     @EnvironmentObject var walletManager: WalletManager
     
     @Binding var host: Host
@@ -82,68 +79,57 @@ struct SettingsView: View {
             
             List {
                 Section ("NOSTR") {
-                    if let publicKey = keychainForNostr.account?.publicKey.npub {
-                        Text("\(publicKey)")
+                    if let account = keychainForNostr.account {
+                        Text("\(account.publicKey.npub)")
                             .contextMenu {
-                                if let npub = keychainForNostr.account?.publicKey.npub {
-                                    Button(action: {
-                                        self.npub = npub
-                                        showingQRCodeView.toggle()
-                                    }) {
-                                        Text("Show QR")
-                                    }
+                                Button(action: {
+                                    self.npub = account.publicKey.npub
+                                    showingQRCodeView.toggle()
+                                }) {
+                                    Text("Show QR")
                                 }
-                                
-                                if let npub = keychainForNostr.account?.publicKey.npub {
-                                    Button(action: {
-                                        UIPasteboard.general.string = npub
-                                        showCopyNotification = true
-                                    }) {
-                                        Text("Copy npub")
-                                    }
+                            
+                                Button(action: {
+                                    UIPasteboard.general.string = account.publicKey.npub
+                                    showCopyNotification = true
+                                }) {
+                                    Text("Copy npub")
                                 }
-                                
-                                if let nsec = keychainForNostr.account?.privateKey.nsec {
-                                    Button(action: {
-                                        UIPasteboard.general.string = nsec
-                                        showCopyNotification = true
-                                    }) {
-                                        Text("Copy nsec")
-                                    }
+                            
+                                Button(action: {
+                                    UIPasteboard.general.string = account.privateKey.nsec
+                                    showCopyNotification = true
+                                }) {
+                                    Text("Copy nsec")
                                 }
-                                
-                                if let phex = keychainForNostr.account?.publicKey.hex {
-                                    Button(action: {
-                                        UIPasteboard.general.string = phex
-                                        showCopyNotification = true
-                                    }) {
-                                        Text("Copy phex")
-                                    }
+                            
+                                Button(action: {
+                                    UIPasteboard.general.string = account.publicKey.hex
+                                    showCopyNotification = true
+                                }) {
+                                    Text("Copy phex")
                                 }
-                                
-                                if let shex = keychainForNostr.account?.privateKey.hex {
-                                    Button(action: {
-                                        UIPasteboard.general.string = shex
-                                        showCopyNotification = true
-                                    }) {
-                                        Text("Copy shex")
-                                    }
+                            
+                                Button(action: {
+                                    UIPasteboard.general.string = account.privateKey.hex
+                                    showCopyNotification = true
+                                }) {
+                                    Text("Copy shex")
                                 }
-                            }
+                        }
                     } else {
                         Text("Create new keys")
                     }
                     
-                    NavigationLink {
-                        ImportIdentity()
-                            .environmentObject(lobby)
-                    } label: {
+                    Button(action: {
+                        navigation.path.append(NavigationPathType.importIdentity)
+                    }) {
                         Text("🔑 Keys")
                     }
-                    NavigationLink {
-                        ConnectRelay()
-                            .environmentObject(network)
-                    } label: {
+                    
+                    Button(action: {
+                        navigation.path.append(NavigationPathType.connectRelay)
+                    }) {
                         Text("📡 Relays")
                     }
                 }

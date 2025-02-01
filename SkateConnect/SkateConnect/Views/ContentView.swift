@@ -148,6 +148,10 @@ struct ContentView: View {
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()
                         }
+                
+                case .connectRelay:
+                    ConnectRelay()
+                        .environmentObject(network)
                     
                 case .contacts:
                     Contacts()
@@ -176,6 +180,14 @@ struct ContentView: View {
                 case .filters:
                     Filters()
                         .navigationBarTitle("Filters")
+                   
+                case .importIdentity:
+                    ImportIdentity()
+                        .environmentObject(lobby)
+                    
+                case .importWallet:
+                    ImportWallet()
+                        .environmentObject(walletManager)
                     
                 case .landmarkDirectory:
                     LandmarkDirectory()
@@ -207,6 +219,10 @@ struct ContentView: View {
                         .environmentObject(navigation)
                         .environmentObject(network)
 
+                case .transferAsset(let transferType):
+                    TransferAsset(transferType: transferType)
+                        .environmentObject(walletManager)
+                    
                 case .videoPlayer(let url):
                     VideoPreviewView(url: url)
         
