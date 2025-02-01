@@ -98,7 +98,7 @@ struct OverlayView: View {
                                 .foregroundColor(.white)
                             
                             Button(action: {
-                                navigation.activeSheet = .createChannel
+                                navigation.path.append(NavigationPathType.createChannel)
                             }) {
                                 Image(systemName: "shareplay")
                                     .foregroundColor(.white)

@@ -22,11 +22,10 @@ class ChannelViewManager: ObservableObject {
     
     func openChannel(channelId: String) {
         navigation?.channelId = channelId
-        navigation?.activeSheet = .channel
+        navigation?.path.append(NavigationPathType.channel(channelId: channelId))
     }
 
     func closeChannel() {
-        navigation?.activeSheet = .none
         navigation?.channelId = nil
     }
     

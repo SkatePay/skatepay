@@ -117,8 +117,8 @@ struct SkateMapView: View {
                     channelViewManager.openChannel(channelId: lead.channelId)
                 },
                 .default(Text("Camera")) {
-                    navigation.activeSheet = .camera
                     navigation.channelId = lead.channelId
+                    navigation.path.append(NavigationPathType.camera)
                 },
                 .default(Text("See on the Web")) {
                     shareChannel(lead.channelId)

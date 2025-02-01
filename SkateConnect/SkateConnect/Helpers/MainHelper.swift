@@ -9,6 +9,10 @@ import ConnectFramework
 import Foundation
 import SwiftUI
 
+func isSupport(npub: String) -> Bool {
+    return npub == AppData().getSupport().npub
+}
+
 func getUser(npub: String) -> User {
     var user = User(
         id: 1,

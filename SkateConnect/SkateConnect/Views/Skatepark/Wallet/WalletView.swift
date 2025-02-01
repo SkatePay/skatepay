@@ -28,75 +28,72 @@ struct WalletView: View {
     let keychainForSolana = SolanaKeychainStorage()
         
     var body: some View {
-        NavigationView {
-            List {
-                Section("Network") {
-                     Picker("Network", selection: $walletManager.network) {
-                         Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta)
-                         Text("Testnet").tag(SolanaSwift.Network.testnet)
-                     }
-                     .onChange(of: walletManager.network) {
-                         walletManager.updateApiClient()
-                         walletManager.refreshAliases()
-                         walletManager.fetch { isLoading in
-                            loading = isLoading
-                         }
+        List {
+            Section("Network") {
+                 Picker("Network", selection: $walletManager.network) {
+                     Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta)
+                     Text("Testnet").tag(SolanaSwift.Network.testnet)
+                 }
+                 .onChange(of: walletManager.network) {
+                     walletManager.updateApiClient()
+                     walletManager.refreshAliases()
+                     walletManager.fetch { isLoading in
+                        loading = isLoading
                      }
                  }
-                
-                if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
-                    Section("Select Account") {
-                        Picker("Alias", selection: $walletManager.selectedAlias) {
-                            ForEach(walletManager.aliases, id: \.self) { alias in
-                                Text(alias).tag(alias)
-                            }
-                        }
-                        .onChange(of: walletManager.selectedAlias) {
-                            walletManager.updateApiClient()
-                            walletManager.refreshAliases()
-                            walletManager.fetch { isLoading in
-                                loading = isLoading
-                            }
+             }
+            
+            if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
+                Section("Select Account") {
+                    Picker("Alias", selection: $walletManager.selectedAlias) {
+                        ForEach(walletManager.aliases, id: \.self) { alias in
+                            Text(alias).tag(alias)
                         }
                     }
-                }
-                
-                keyPreview
-
-                if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
-                    assetBalance
-                }
-
-                Button("Disable Wallet") {
-                    Task {
-                        debugManager.resetDebug()
-                        navigation.tab = .settings
+                    .onChange(of: walletManager.selectedAlias) {
+                        walletManager.updateApiClient()
+                        walletManager.refreshAliases()
+                        walletManager.fetch { isLoading in
+                            loading = isLoading
+                        }
                     }
                 }
-                
-                Button("Purge Keys") {
-                    walletManager.purgeAllAccounts()
+            }
+            
+            keyPreview
+
+            if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
+                assetBalance
+            }
+
+            Button("Disable Wallet") {
+                Task {
+                    debugManager.resetDebug()
+                    navigation.tab = .settings
                 }
             }
-            .onAppear() {
-                walletManager.fetch { isLoading in
-                    loading = isLoading
-                }
+            
+            Button("Purge Keys") {
+                walletManager.purgeAllAccounts()
             }
-            .navigationTitle("🪪 Wallet")
-            .alert("Drop alias?",
-                   isPresented: $showDropConfirmation,
-                   actions: {
-                Button("Cancel", role: .cancel) {}
-                Button("Drop", role: .destructive) {
-                    if let alias = aliasToDrop {
-                        walletManager.removeKey(alias: alias)
-                    }
-                }
-            }, message: {
-                Text("Are you sure you want to remove this alias?")
-            })
         }
+        .onAppear() {
+            walletManager.fetch { isLoading in
+                loading = isLoading
+            }
+        }
+        .alert("Drop alias?",
+               isPresented: $showDropConfirmation,
+               actions: {
+            Button("Cancel", role: .cancel) {}
+            Button("Drop", role: .destructive) {
+                if let alias = aliasToDrop {
+                    walletManager.removeKey(alias: alias)
+                }
+            }
+        }, message: {
+            Text("Are you sure you want to remove this alias?")
+        })
     }
 }
 
@@ -114,10 +111,9 @@ private extension WalletView {
                 .frame(maxHeight: .infinity)
             } else {
                 if (walletManager.balance > 0) {
-                    NavigationLink {
-                        TransferAsset(transferType: .sol)
-                            .environmentObject(walletManager)
-                    } label: {
+                    Button(action: {
+                        navigation.path.append(NavigationPathType.transferAsset(transferType: .sol))
+                    }) {
                         Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
                     }
                 } else {
@@ -126,10 +122,9 @@ private extension WalletView {
 
                 ForEach(walletManager.accounts) { account in
                     if account.lamports > 0 {
-                        NavigationLink {
-                            TransferAsset(transferType: .token(account))
-                                .environmentObject(walletManager)
-                        } label: {
+                        Button(action: {
+                            navigation.path.append(NavigationPathType.transferAsset(transferType: .token(account)))
+                        }) {
                             Text("\(account.lamports) $\(account.symbol.prefix(3))")
                         }
                         .contextMenu {
@@ -200,9 +195,9 @@ private extension WalletView {
                         }
             }
             
-            NavigationLink {
-                ImportWallet()
-            } label: {
+            Button(action: {
+                navigation.path.append(NavigationPathType.importWallet)
+            }) {
                 Text("🔑 Manage Keys")
             }
         }

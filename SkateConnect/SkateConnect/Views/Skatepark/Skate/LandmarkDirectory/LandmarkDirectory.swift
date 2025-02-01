@@ -41,7 +41,7 @@ struct LandmarkDirectory: View {
             }
             
             Button(action: {
-                showAddPark.toggle()
+                navigation.path.append(NavigationPathType.reportUser(user: AppData().users[0], message: "request"))
             }) {
                 Text("🛹 Add Yours")
                     .padding(8)
@@ -49,14 +49,6 @@ struct LandmarkDirectory: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
-        }
-        .fullScreenCover(isPresented: $showAddPark) {
-                NavigationView {
-                    DirectMessage(user: AppData().users[0], message: "request")
-                        .environmentObject(dataManager)
-                        .environmentObject(navigation)
-                        .environmentObject(network)
-                }
         }
         .navigationBarTitleDisplayMode(.inline)
     }

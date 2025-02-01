@@ -34,7 +34,7 @@ struct BottomControlsView: View {
             }
             
             Button(action: {
-                navigation.activeSheet = .directory
+                navigation.path.append(NavigationPathType.landmarkDirectory)
             }) {
                 Text("Skateparks")
                     .padding(8)
@@ -44,7 +44,7 @@ struct BottomControlsView: View {
             }
             
             Button(action: {
-                navigation.activeSheet = .search
+                navigation.path.append(NavigationPathType.search)
             }) {
                 Text("🔎")
                     .padding(8)

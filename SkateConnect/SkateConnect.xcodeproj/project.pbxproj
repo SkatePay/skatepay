@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C61E6D9B2D4C574D001EDA11 /* RestoreDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61E6D9A2D4C574D001EDA11 /* RestoreDataView.swift */; };
 		C624DDCA2C939F920073F30F /* ConnectFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; };
 		C624DDCB2C939F920073F30F /* ConnectFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C624DDC92C939F920073F30F /* ConnectFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C62500D52C93C11A0026C334 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62500D42C93C11A0026C334 /* DataManager.swift */; };
@@ -165,6 +166,7 @@
 
 /* Begin PBXFileReference section */
 		C60A779B2CBDDAF10030705E /* SkateConnect.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SkateConnect.entitlements; sourceTree = "<group>"; };
+		C61E6D9A2D4C574D001EDA11 /* RestoreDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreDataView.swift; sourceTree = "<group>"; };
 		C624DDC92C939F920073F30F /* ConnectFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ConnectFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C62500D42C93C11A0026C334 /* DataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		C62500D62C93C1210026C334 /* AnyToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyToken.swift; sourceTree = "<group>"; };
@@ -727,6 +729,7 @@
 				C625011A2C93C1340026C334 /* Keychain */,
 				C6F4959E2C93D34E0006FBF0 /* SettingsView.swift */,
 				C6DC046F2CB75010003FCA1B /* QRCodeView.swift */,
+				C61E6D9A2D4C574D001EDA11 /* RestoreDataView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -950,6 +953,7 @@
 				C66AFE862CA61C76000CD716 /* AWS.swift in Sources */,
 				C691D4402CC3389000168EEE /* ChatViewModel.swift in Sources */,
 				C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */,
+				C61E6D9B2D4C574D001EDA11 /* RestoreDataView.swift in Sources */,
 				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,
 				C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */,
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,

@@ -15,6 +15,7 @@ struct SolanaKeychainStorage {
     
     // Struct to store both the KeyPair and the network
     struct WalletData: Codable {
+        let alias: String
         let keyPair: KeyPair
         let network: SolanaSwift.Network
     }
@@ -22,18 +23,18 @@ struct SolanaKeychainStorage {
     // Save a key pair with an alias and network
     func save(alias: String, account: KeyPair, network: SolanaSwift.Network) throws {
         let prefixedAlias = keyPrefix + alias
-        let walletData = WalletData(keyPair: account, network: network)
+        let walletData = WalletData(alias: alias, keyPair: account, network: network)
         let data = try JSONEncoder().encode(walletData)
         keychain.set(data, forKey: prefixedAlias)
     }
     
     // Retrieve a key pair and its network by alias
-    func get(alias: String) -> (keyPair: KeyPair, network: SolanaSwift.Network)? {
+    func get(alias: String) -> (alias: String, keyPair: KeyPair, network: SolanaSwift.Network)? {
         let prefixedAlias = keyPrefix + alias
         guard let data = keychain.getData(prefixedAlias) else { return nil }
         do {
             let walletData = try JSONDecoder().decode(WalletData.self, from: data)
-            return (walletData.keyPair, walletData.network)
+            return (alias, walletData.keyPair, walletData.network)
         } catch {
             print("Error decoding wallet data: \(error)")
         }

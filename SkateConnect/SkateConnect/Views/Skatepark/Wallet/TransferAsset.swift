@@ -10,17 +10,17 @@ import SolanaSwift
 import SwiftData
 import SwiftUI
 
+enum TransferType: Equatable, Hashable {
+    case sol
+    case token(SolanaAccount)
+}
+
+enum RecipientMode {
+    case friend
+    case manual
+}
+
 struct TransferAsset: View {
-    enum TransferType: Equatable {
-        case sol
-        case token(SolanaAccount)
-    }
-
-    enum RecipientMode {
-        case friend
-        case manual
-    }
-
     @Environment(\.openURL) private var openURL
     @EnvironmentObject var walletManager: WalletManager
 

@@ -20,3 +20,16 @@ class Foe {
         self.note = note
     }
 }
+
+struct CodableFoe: Codable {
+    let npub: String
+    let birthday: String  // Convert Date to String
+    let note: String
+
+    // Convert Foe to CodableFoe
+    init(foe: Foe) {
+        self.npub = foe.npub
+        self.birthday = ISO8601DateFormatter().string(from: foe.birthday)
+        self.note = foe.note
+    }
+}

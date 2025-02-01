@@ -19,20 +19,17 @@ struct EditCryptoAddressesView: View {
     @State private var cryptoAddresses: [CryptoAddress] = []
 
     var body: some View {
-        NavigationStack {
-            Form {
-                addNewAddressSection
-                existingAddressesSection
-            }
-            .navigationTitle("Edit Crypto Addresses")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
+        Form {
+            addNewAddressSection
+            existingAddressesSection
+        }
+        .navigationTitle("Edit Crypto Addresses")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Done") {
+                    dismiss()
                 }
             }
-
         }
         .onAppear {
             cryptoAddresses = friend.cryptoAddresses // Ensure UI updates

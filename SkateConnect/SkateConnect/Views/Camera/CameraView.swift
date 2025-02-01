@@ -46,18 +46,7 @@ struct CameraView: View {
                 )
             
             VStack {
-                HStack {
-                    Button(action: {
-                        navigation.activeSheet = .none
-                        dismiss()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Circle().fill(Color.black.opacity(0.5)))
-                    }
-                    .padding(.leading)
-                    
+                HStack {                    
                     if cameraViewModel.showZoomHint {
                         Text("Pinch to zoom")
                             .font(.caption)

@@ -182,7 +182,5 @@ struct CheckboxToggleStyle: ToggleStyle {
 // Preview
 
 #Preview {
-    NavigationView {
-        EULAView()
-    }
+    EULAView()
 }
