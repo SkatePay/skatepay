@@ -29,7 +29,6 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var subscriptionId: String?
     @State private var eventsCancellable: AnyCancellable?
 
-    @State private var isShowingChannelView = false
     @State private var isShowingCameraView = false
     @State private var isShowingVideoPlayer = false
     
@@ -64,16 +63,6 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         )
         .navigationBarBackButtonHidden()
         .navigationBarItems(leading: backButton, trailing: actionButtons)
-        .fullScreenCover(isPresented: $isShowingChannelView) {
-            if let channelId = selectedChannelId {
-                NavigationView {
-                    ChannelView(channelId: channelId)
-                        .environmentObject(dataManager)
-                        .environmentObject(navigation)
-                        .environmentObject(network)
-                }
-            }
-        }
         .alert(isPresented: $showingConfirmationAlert) {
             Alert(
                 title: Text("Confirmation"),
@@ -124,7 +113,9 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     }
 
     private func openLink() {
-        isShowingChannelView = true
+        if let channelId = selectedChannelId {
+            navigation.path.append(NavigationPathType.channel(channelId: channelId))
+        }
     }
 
     private func handleVideoTap(message: MessageType) {

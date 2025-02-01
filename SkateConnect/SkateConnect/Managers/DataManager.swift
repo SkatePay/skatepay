@@ -8,8 +8,10 @@
 import Combine
 import ConnectFramework
 import Foundation
+import NostrSDK
 import SwiftUI
 import SwiftData
+import SolanaSwift
 
 @Observable
 class AppData {
@@ -25,9 +27,12 @@ class AppData {
 @MainActor
 class DataManager: ObservableObject {
     @Published private var lobby: Lobby?
+    @Published private var walletManager: WalletManager?
     
     private let modelContainer: ModelContainer
     
+    let keychainForNostr = NostrKeychainStorage()
+
     init(inMemory: Bool = false) {
         do {
             self.modelContainer = try ModelContainer(for: Friend.self, Foe.self, Spot.self)
@@ -43,6 +48,10 @@ class DataManager: ObservableObject {
     
     func setLobby(lobby: Lobby) {
         self.lobby = lobby
+    }
+    
+    func setWalletManager(walletManager: WalletManager) {
+        self.walletManager = walletManager
     }
     
     func insertSpot(_ spot: Spot) {
@@ -162,5 +171,189 @@ class DataManager: ObservableObject {
     
     func findFoes(_ npub: String) -> Foe? {
         return fetchFoes().first(where: { $0.npub == npub })
+    }
+}
+
+enum LeadType: String {
+    case outbound = "outbound"
+    case inbound = "inbound"
+}
+
+struct ContentStructure: Codable {
+    let content: String
+    let kind: Kind
+}
+
+enum Kind: String, Codable {
+    case video
+    case photo
+    case message
+    case subscriber
+}
+
+
+struct BackupData: Codable {
+    let spots: [CodableSpot]
+    let friends: [CodableFriend]
+    let foes: [CodableFoe]
+    let solanaKeyPairs: [SolanaKeychainStorage.WalletData]
+    let nostrKeyPairs: NostrKeypair?
+}
+
+extension DataManager {
+    func backupData() -> String? {
+        // Fetch all spots, friends, and foes
+        let spots = fetchSortedSpots()
+        let friends = fetchFriends()
+        let foes = fetchFoes()
+        
+        // Convert SwiftData models to Codable versions
+        let codableSpots = spots.map { CodableSpot(spot: $0) }
+        let codableFriends = friends.map { CodableFriend(friend: $0) }
+        let codableFoes = foes.map { CodableFoe(foe: $0) }
+        
+        // Fetch Solana key pairs
+        let solanaStorage = SolanaKeychainStorage()
+        let solanaAliases = solanaStorage.getAllAliases()
+        var solanaKeyPairs: [SolanaKeychainStorage.WalletData] = []
+        for alias in solanaAliases {
+            if let keyPair = solanaStorage.get(alias: alias) {
+                let walletData = SolanaKeychainStorage.WalletData(
+                    alias: alias,
+                    keyPair: keyPair.keyPair,
+                    network: keyPair.network
+                )
+                solanaKeyPairs.append(walletData)
+            }
+        }
+        
+        // Fetch Nostr key pair
+        let nostrKeyPair = keychainForNostr.account.map { NostrKeypair(privateKey: $0.privateKey.nsec, publicKey: $0.publicKey.npub) }
+        
+        // Create backup data using Codable versions
+        let backupData = BackupData(
+            spots: codableSpots,
+            friends: codableFriends,
+            foes: codableFoes,
+            solanaKeyPairs: solanaKeyPairs,
+            nostrKeyPairs: nostrKeyPair
+        )
+        
+        // Encode to JSON
+        do {
+            let jsonData = try JSONEncoder().encode(backupData)
+            return String(data: jsonData, encoding: .utf8)
+        } catch {
+            print("Failed to encode backup data: \(error)")
+            return nil
+        }
+    }
+}
+
+extension DataManager {
+    func restoreData(from jsonString: String) -> Bool {
+        guard let jsonData = jsonString.data(using: .utf8) else {
+            print("Failed to convert JSON string to data")
+            return false
+        }
+        
+        do {
+            let backupData = try JSONDecoder().decode(BackupData.self, from: jsonData)
+
+            resetData()
+            
+            // Restore spots (Convert CodableSpot to Spot)
+            for codableSpot in backupData.spots {
+                let spot = Spot(
+                    name: codableSpot.name,
+                    address: codableSpot.address,
+                    state: codableSpot.state,
+                    icon: codableSpot.icon,
+                    note: codableSpot.note,
+                    isFavorite: codableSpot.isFavorite,
+                    latitude: codableSpot.latitude,
+                    longitude: codableSpot.longitude,
+                    channelId: codableSpot.channelId,
+                    imageName: codableSpot.imageName
+                )
+                modelContext.insert(spot)
+            }
+
+            // Restore friends (Convert CodableFriend to Friend)
+            for codableFriend in backupData.friends {
+                let friend = Friend(
+                    name: codableFriend.name,
+                    birthday: ISO8601DateFormatter().date(from: codableFriend.birthday) ?? Date(),
+                    npub: codableFriend.npub,
+                    note: codableFriend.note
+                )
+
+                // Restore crypto addresses
+                friend.cryptoAddresses = codableFriend.cryptoAddresses.map { codableCrypto in
+                    CryptoAddress(
+                        address: codableCrypto.address,
+                        blockchain: codableCrypto.blockchain,
+                        network: codableCrypto.network
+                    )
+                }
+
+                modelContext.insert(friend)
+            }
+
+            // Restore foes (Convert CodableFoe to Foe)
+            for codableFoe in backupData.foes {
+                let foe = Foe(
+                    npub: codableFoe.npub,
+                    birthday: ISO8601DateFormatter().date(from: codableFoe.birthday) ?? Date(),
+                    note: codableFoe.note
+                )
+                modelContext.insert(foe)
+            }
+
+            // Restore Solana key pairs
+            let solanaStorage = SolanaKeychainStorage()
+            for walletData in backupData.solanaKeyPairs {
+                let keyPair = KeyPair(
+                    phrase: walletData.keyPair.phrase,
+                    publicKey: walletData.keyPair.publicKey,
+                    secretKey: walletData.keyPair.secretKey
+                )
+                
+                try solanaStorage.save(alias: walletData.alias, account: keyPair, network: walletData.network)
+            }
+
+            // Restore Nostr key pair
+            if let nostrKeyPair = backupData.nostrKeyPairs {
+                let nostrStorage = NostrKeychainStorage()
+                if let keypair = Keypair(nsec: nostrKeyPair.privateKey) {
+                    try nostrStorage.save(keypair)
+                }
+            }
+
+            // Save the SwiftData context
+            try modelContext.save()
+            return true
+        } catch {
+            print("Failed to decode or restore backup data: \(error)")
+            return false
+        }
+    }
+    
+    // MARK: - Reset App
+    
+    func resetData() {
+        keychainForNostr.clear()
+
+        walletManager?.purgeAllAccounts()
+        
+        do {
+            try modelContext.delete(model: Spot.self)
+            try modelContext.delete(model: Friend.self)
+            try modelContext.delete(model: Foe.self)
+        } catch {
+            print("Failed to delete data.")
+        }
+        
+        lobby?.clear()
     }
 }

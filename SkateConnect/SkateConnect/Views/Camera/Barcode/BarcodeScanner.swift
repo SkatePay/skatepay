@@ -26,15 +26,8 @@ struct BarcodeScanner: View {
                 .ignoresSafeArea()
         }
         .navigationTitle("Scan Barcode")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    NotificationCenter.default.post(name: .barcodeScanned, object: nil, userInfo: ["scannedText": scannedText])
-                    dismiss() // This will dismiss the view
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                }
-            }
+        .onDisappear {
+            NotificationCenter.default.post(name: .barcodeScanned, object: nil, userInfo: ["scannedText": scannedText])
         }
     }
 }

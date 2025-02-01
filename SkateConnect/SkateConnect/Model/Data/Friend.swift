@@ -28,3 +28,22 @@ class Friend {
         Calendar.current.isDateInToday(birthday) 
     }
 }
+
+struct CodableFriend: Codable {
+    let name: String
+    let birthday: String  // Convert `Date` to String
+    let npub: String
+    let note: String
+    let cryptoAddresses: [CodableCryptoAddress]
+
+    // Convert Date to String for JSON storage
+    init(friend: Friend) {
+        self.name = friend.name
+        self.birthday = ISO8601DateFormatter().string(from: friend.birthday)
+        self.npub = friend.npub
+        self.note = friend.note
+        self.cryptoAddresses = friend.cryptoAddresses.map { address in
+            CodableCryptoAddress(cryptoAddress: address)
+        }
+    }
+}

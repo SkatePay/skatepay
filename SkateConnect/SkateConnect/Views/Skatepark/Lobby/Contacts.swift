@@ -25,16 +25,14 @@ struct Contacts: View {
     @State private var selectedFriend: Friend?
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(friends) { friend in
-                    friendRow(for: friend)
-                }
-                .onDelete(perform: deleteFriend)
+        List {
+            ForEach(friends) { friend in
+                friendRow(for: friend)
             }
-            .safeAreaInset(edge: .bottom) {
-                newFriendForm
-            }
+            .onDelete(perform: deleteFriend)
+        }
+        .safeAreaInset(edge: .bottom) {
+            newFriendForm
         }
         .alert("Contact added.", isPresented: $showingAlert) {
             Button("Ok", role: .cancel) {
@@ -44,16 +42,6 @@ struct Contacts: View {
         .sheet(item: $selectedFriend) { friend in
                 EditCryptoAddressesView(friend: friend)
         }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .barcodeScanner },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            NavigationView {
-                BarcodeScanner()
-                    .environmentObject(navigation)
-            }
-        }
-        .animation(.easeInOut, value: navigation.isShowingUserDetail)
         .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in
             if let scannedText = notification.userInfo?["scannedText"] as? String {
                 self.newNPub = scannedText.replacingOccurrences(of: "nostr:", with: "")
@@ -93,8 +81,7 @@ private extension Contacts {
         Group {
             Button("Open") {
                 Task {
-                    navigation.selectedUserNpub = friend.npub
-                    navigation.isShowingUserDetail = true
+                    navigation.path.append(NavigationPathType.userDetail(npub: friend.npub))
                 }
             }
             
@@ -123,7 +110,7 @@ private extension Contacts {
                 .textFieldStyle(.roundedBorder)
             
             Button("Scan Barcode") {
-                navigation.activeSheet = .barcodeScanner
+                navigation.path.append(NavigationPathType.barcodeScanner)
             }
             
             Button("Save") {

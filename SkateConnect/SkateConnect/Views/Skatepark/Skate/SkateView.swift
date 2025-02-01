@@ -44,95 +44,7 @@ struct SkateView: View {
             
             BottomControlsView()
                 .environmentObject(locationManager)
-        }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .channel },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            if let channelId = navigation.channelId {
-                NavigationView {
-                    DebugView {
-                        ChannelView(channelId: channelId)
-                            .environmentObject(dataManager)
-                            .environmentObject(navigation)
-                            .environmentObject(network)
-                            .onDisappear {
-                                locationManager.panMapToCachedCoordinate()
-                            }
-                    }
-                }
-            }
-        }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .camera },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            NavigationView {
-                CameraView()
-                    .environmentObject(navigation)
-            }
-        }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .directory },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            NavigationView {
-                LandmarkDirectory()
-                    .environmentObject(dataManager)
-                    .environmentObject(navigation)
-                    .environmentObject(network)
-                    .navigationBarTitle("🏁 Skateparks")
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        navigation.activeSheet = .none
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Map")
-                            Spacer()
-                        }
-                    })
-            }
-        }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .search },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            NavigationView {
-                SearchView()
-                    .environmentObject(navigation)
-                    .navigationBarTitle("🎯 Explore Network 🕸️")
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        navigation.activeSheet = .none
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Map")
-                            Spacer()
-                        }
-                    })
-            }
-        }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .createChannel },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            NavigationView {
-                CreateChannel(mark: stateManager.marks[0])
-                    .environmentObject(navigation)
-                    .environmentObject(network)
-                    .environmentObject(stateManager)
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        navigation.activeSheet = .none
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Spacer()
-                        }
-                    })
-            }
+                .environmentObject(navigation)
         }
         .onReceive(NotificationCenter.default.publisher(for: .createdChannelForOutbound)) { notification in
             if let event = notification.object as? NostrEvent {
@@ -174,10 +86,6 @@ struct SkateView: View {
             }
         }
         .task() {
-            DispatchQueue.main.async {
-                locationManager.checkIfLocationIsEnabled()
-            }
-            
             apiService.fetchLeads()
             lobby.setupLeads(spots: spots)
             

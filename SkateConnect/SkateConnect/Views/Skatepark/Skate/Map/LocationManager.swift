@@ -185,7 +185,9 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             
-        if !(navigation?.activeView == .map && navigation?.activeSheet == ActiveSheet.none) { return }
+        if !(navigation?.activeView == .map) { return }
+        
+        if !(navigation?.tab != .map) { return }
             
         guard let location = locations.last else { return }
         
