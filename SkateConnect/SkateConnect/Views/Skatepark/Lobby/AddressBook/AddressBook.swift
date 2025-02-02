@@ -66,7 +66,13 @@ struct AddressBook: View {
                 Text(spot.name)
                     .contextMenu {
                         Button(action: {
-                            navigation.goToSpot(spot: spot)
+                            navigation.path.removeLast()
+                            navigation.tab = .map
+                            
+                            NotificationCenter.default.post(
+                                name: .goToSpot,
+                                object: spot
+                            )
                         }) {
                             Text("Go to spot")
                         }

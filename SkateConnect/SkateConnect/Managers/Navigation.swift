@@ -81,10 +81,6 @@ class Navigation: ObservableObject {
         return isShowingAddressBook || isShowingEditChannel
     }
     
-    func dismissToContentView() {
-        NotificationCenter.default.post(name: .goToLandmark, object: nil)
-    }
-    
     func recoverFromSearch() {
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
     }
@@ -94,16 +90,6 @@ class Navigation: ObservableObject {
             name: .joinChannel,
             object: self,
             userInfo: ["channelId": channelId]
-        )
-    }
-    
-    func goToSpot(spot: Spot) {
-        isShowingAddressBook = false
-        self.tab = .map
-        
-        NotificationCenter.default.post(
-            name: .goToSpot,
-            object: spot
         )
     }
     

@@ -160,7 +160,7 @@ struct ContentView: View {
                         .navigationTitle("Friends")
                 
                 case .createChannel:
-                    CreateChannel(mark: stateManager.marks[0])
+                    CreateChannel()
                         .environmentObject(navigation)
                         .environmentObject(network)
                         .environmentObject(stateManager)

@@ -127,7 +127,11 @@ struct OverlayView: View {
                                             longitude: mark.coordinate.longitude
                                         )
                                         context.insert(spot)
-                                        navigation.goToSpot(spot: spot)
+                                        
+                                        NotificationCenter.default.post(
+                                            name: .goToSpot,
+                                            object: spot
+                                        )
                                     }
                                 }
                                 stateManager.showingAlertForSpotBookmark.toggle()

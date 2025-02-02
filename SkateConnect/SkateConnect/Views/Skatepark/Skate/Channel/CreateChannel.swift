@@ -31,12 +31,6 @@ struct CreateChannel: View, EventCreating {
         return network.getRelayPool()
     }
     
-    private var mark: Mark?
-    
-    init(mark: Mark? = nil) {
-        self.mark = mark
-    }
-    
     var body: some View {
         Text("📡 Open Channel")
         Form {
@@ -63,16 +57,15 @@ struct CreateChannel: View, EventCreating {
             Button("Create") {
                 var about = description
                 
-                if let mark = mark {
-                    let aboutStructure = AboutStructure(description: description, location: mark.coordinate, note: icon)
-                    do {
-                        let encoder = JSONEncoder()
-                        encoder.outputFormatting = .prettyPrinted
-                        let data = try encoder.encode(aboutStructure)
-                        about  = String(data: data, encoding: .utf8) ?? description
-                    } catch {
-                        print("Error encoding: \(error)")
-                    }
+                let mark = stateManager.marks[0]
+                let aboutStructure = AboutStructure(description: description, location: mark.coordinate, note: icon)
+                do {
+                    let encoder = JSONEncoder()
+                    encoder.outputFormatting = .prettyPrinted
+                    let data = try encoder.encode(aboutStructure)
+                    about  = String(data: data, encoding: .utf8) ?? description
+                } catch {
+                    print("Error encoding: \(error)")
                 }
                 
                 if let account = keychainForNostr.account {

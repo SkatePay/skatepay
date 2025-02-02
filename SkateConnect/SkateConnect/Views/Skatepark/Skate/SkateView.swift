@@ -60,20 +60,12 @@ struct SkateView: View {
                 }
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .goToLandmark)) { _ in
-            if let locationCoordinate = navigation.landmark?.locationCoordinate {
-                locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
-            }
-        }
         .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
             if let locationCoordinate = navigation.coordinate {
                locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 
                 stateManager.addMarker(at: locationCoordinate, spots: spots)
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .goToSpot)) { notification in
-            locationManager.handleGoToSpotNotification(notification)
         }
         .onReceive(NotificationCenter.default.publisher(for: .joinChannel)) { notification in
             if let channelId = notification.userInfo?["channelId"] as? String {
