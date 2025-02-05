@@ -8,9 +8,6 @@
 import ConnectFramework
 import SwiftUI
 
-class AppState: ObservableObject {
-}
-
 @main
 struct SkateConnectApp: App {
     @State private var modelData = AppData()

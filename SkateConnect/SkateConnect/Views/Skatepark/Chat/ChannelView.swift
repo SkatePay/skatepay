@@ -22,9 +22,6 @@ struct ChannelView: View {
     @EnvironmentObject var dataManager: DataManager
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
-    
-    @Query(sort: \Foe.npub) private var foes: [Foe]
-    @Query(sort: \Spot.channelId) private var spots: [Spot]
         
     @StateObject private var feedDelegate = FeedDelegate()
     
@@ -40,111 +37,124 @@ struct ChannelView: View {
     @State private var showMediaActionSheet = false
     @State private var selectedMediaURL: URL?
     
+    @State private var isInitialized = false
+    
     var landmarks: [Landmark] = AppData().landmarks
+    
+    let keychainForNostr = NostrKeychainStorage()
 
+    func getCurrentUser() -> MockUser {
+        if let account = keychainForNostr.account {
+            return MockUser(senderId: account.publicKey.npub, displayName: "You")
+        }
+        return MockUser(senderId: "000002", displayName: "You")
+    }
+    
     var body: some View {
-            VStack {
-                ChatAreaView(
-                    messages: $feedDelegate.messages,
-                    onTapAvatar: { senderId in
-                        navigation.path.append(NavigationPathType.userDetail(npub: senderId))
-                    },
-                    onTapVideo: { message in
-                        if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
-                            let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-                            self.selectedMediaURL = URL(string: videoURLString)
-                            showMediaActionSheet.toggle()
-                        }
-                    },
-                    onTapLink: { channelId in
-                        selectedChannelId = channelId
-                        showingConfirmationAlert = true
-                    },
-                    onSend: { text in
-                        navigation.channelId = channelId
-                        feedDelegate.publishDraft(text: text)
+        VStack {
+            ChatView(
+                currentUser: getCurrentUser(),
+                messages: $feedDelegate.messages,
+                shouldScrollToBottom: $network.shouldScrollToBottom,
+                onTapAvatar: { senderId in
+                    navigation.path.append(NavigationPathType.userDetail(npub: senderId))
+                },
+                onTapVideo: { message in
+                    if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
+                        let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
+                        self.selectedMediaURL = URL(string: videoURLString)
+                        showMediaActionSheet.toggle()
                     }
-                )
-                .onAppear {
+                },
+                onTapLink: { channelId in
+                    selectedChannelId = channelId
+                    showingConfirmationAlert = true
+                },
+                onSend: { text in
+                    network.publishChannelEvent(channelId: channelId, content: text)
+                }
+            )
+            .onAppear {
+                if !isInitialized {
                     feedDelegate.setDataManager(dataManager: dataManager)
                     feedDelegate.setNavigation(navigation: navigation)
                     feedDelegate.setNetwork(network: network)
                     
                     navigation.channelId = channelId
                     self.setup()
+                    self.isInitialized = true
                 }
-                .actionSheet(isPresented: $showMediaActionSheet) {
-                    createMediaActionSheet(for: selectedMediaURL)
+            }
+            .onAppear(perform: observeNotification)
+            .onDisappear {
+                NotificationCenter.default.removeObserver(self)
+            }
+            .navigationBarBackButtonHidden()
+            .actionSheet(isPresented: $showMediaActionSheet) {
+                createMediaActionSheet(for: selectedMediaURL)
+            }
+            .sheet(isPresented: $navigation.isShowingEditChannel) {
+                if let lead = self.feedDelegate.lead {
+                    EditChannel(lead: lead, channel: lead.channel)
+                        .environmentObject(navigation)
                 }
-                .onAppear(perform: observeNotification)
-                .onDisappear {
-                    self.feedDelegate.cleanUp()
-                    NotificationCenter.default.removeObserver(self)
-                }
-                .navigationBarBackButtonHidden()
-                .sheet(isPresented: $navigation.isShowingEditChannel) {
-                    if let lead = self.feedDelegate.lead {
-                        EditChannel(lead: lead, channel: lead.channel)
-                            .environmentObject(navigation)
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        HStack {
-                            Button(action: {
-                                dismiss()
-                            }) {
-                                Image(systemName: "arrow.left")
-                            }
-                            
-                            Button(action: {
-                                navigation.isShowingEditChannel.toggle()
-                            }) {
-                                if let lead = self.feedDelegate.lead {
-                                    if let landmark = findLandmark(lead.channelId) {
-                                        HStack {
-                                            landmark.image
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 35, height: 35)
-                                                .clipShape(Circle())
-                                            
-                                            VStack(alignment: .leading, spacing: 0) {
-                                                Text("\(landmark.name)")
-                                                    .fontWeight(.semibold)
-                                                    .font(.headline)
-                                            }
-                                        }
-                                    } else {
-                                        if let channel = lead.channel {
-                                            Text("\(channel.name)")
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    HStack {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "arrow.left")
+                        }
+                        
+                        Button(action: {
+                            navigation.isShowingEditChannel.toggle()
+                        }) {
+                            if let lead = self.feedDelegate.lead {
+                                if let landmark = findLandmark(lead.channelId) {
+                                    HStack {
+                                        landmark.image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 35, height: 35)
+                                            .clipShape(Circle())
+                                        
+                                        VStack(alignment: .leading, spacing: 0) {
+                                            Text("\(landmark.name)")
                                                 .fontWeight(.semibold)
                                                 .font(.headline)
                                         }
+                                    }
+                                } else {
+                                    if let channel = lead.channel {
+                                        Text("\(channel.name)")
+                                            .fontWeight(.semibold)
+                                            .font(.headline)
                                     }
                                 }
                             }
                         }
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        HStack(spacing: 16) {
-                            Button(action: {
-                                self.isShowingToolBoxView.toggle()
-                            }) {
-                                Image(systemName: "network")
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            Button(action: {
-                                navigation.path.append(NavigationPathType.camera)
-                            }) {
-                                Image(systemName: "camera.on.rectangle.fill")
-                                    .foregroundColor(.blue)
-                            }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            self.isShowingToolBoxView.toggle()
+                        }) {
+                            Image(systemName: "network")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Button(action: {
+                            navigation.path.append(NavigationPathType.camera)
+                        }) {
+                            Image(systemName: "camera.on.rectangle.fill")
+                                .foregroundColor(.blue)
                         }
                     }
                 }
-            
+            }
             .alert(isPresented: $showingConfirmationAlert) {
                 Alert(
                     title: Text("Confirmation"),
@@ -165,7 +175,10 @@ struct ChannelView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .uploadImage)) { notification in
                 if let assetURL = notification.userInfo?["assetURL"] as? String {
-                    feedDelegate.publishDraft(text: assetURL, kind: .photo)
+                    network.publishChannelEvent(channelId: channelId,
+                                                kind: .photo,
+                                                content: assetURL
+                    )
                 }
             }
             .padding(.bottom, keyboardHeight)
@@ -174,10 +187,6 @@ struct ChannelView: View {
     }
     
     // MARK: Blacklist
-    func getBlacklist() -> [String] {
-        return foes.map({$0.npub})
-    }
-    
     func findLandmark(_ eventId: String) -> Landmark? {
         return landmarks.first { $0.eventId == eventId }
     }

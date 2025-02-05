@@ -22,6 +22,8 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     let onTapVideo: (MessageType) -> Void
     let onTapLink: (String) -> Void
     
+    var firstTime = false
+    
     // MARK: - Initializers
     
     init(
@@ -44,7 +46,11 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         becomeFirstResponder()
-        messagesCollectionView.scrollToLastItem(animated: true)
+        
+        if (!firstTime) {
+            messagesCollectionView.scrollToLastItem(animated: true)
+            firstTime = true
+        }
     }
     
     // MARK: - MessageCellDelegate Methods
@@ -54,7 +60,7 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
             let indexPath = messagesCollectionView.indexPath(for: cell),
             let dataSource = messagesCollectionView.messagesDataSource
         else { return }
-        
+            
         let message = dataSource.messageForItem(at: indexPath, in: messagesCollectionView)
         onTapAvatar(message.sender.senderId)
     }
@@ -90,49 +96,18 @@ final class MessageSwiftUIVC: MessagesViewController, MessageCellDelegate {
     }
 }
 
-// MARK: - ChatAreaView
-
-struct ChatAreaView: View {
-    @Binding var messages: [MessageType]
-    
-    let onTapAvatar: (String) -> Void
-    let onTapVideo: (MessageType) -> Void
-    let onTapLink: (String) -> Void
-    let onSend: (String) -> Void
-    
-    var body: some View {
-        ChatView(
-            messages: $messages,
-            onTapAvatar: onTapAvatar,
-            onTapVideo: onTapVideo,
-            onTapLink: onTapLink,
-            onSend: onSend
-        )
-    }
-}
-
 // MARK: - ChatView
 
 struct ChatView: UIViewControllerRepresentable {
-    @State var initialized = false
+    var currentUser: MockUser = MockUser(senderId: "000002", displayName: "You")
+
     @Binding var messages: [MessageType]
-    
-    let keychainForNostr = NostrKeychainStorage()
-    
-    // Retrieves the current user from the keychain; falls back to a default if unavailable.
-    func getCurrentUser() -> MockUser {
-        if let account = keychainForNostr.account {
-            return MockUser(senderId: account.publicKey.npub, displayName: "You")
-        }
-        return MockUser(senderId: "000002", displayName: "You")
-    }
-    
+    @Binding var shouldScrollToBottom: Bool
+        
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
     let onTapLink: (String) -> Void
     let onSend: (String) -> Void
-    
-    // MARK: - UIViewControllerRepresentable
     
     func makeUIViewController(context: Context) -> MessagesViewController {
         let messagesVC = MessageSwiftUIVC(
@@ -156,24 +131,32 @@ struct ChatView: UIViewControllerRepresentable {
         
         context.coordinator.updateFirstMessagesOfDay(messages)
         
+        context.coordinator.messagesViewController = messagesVC
+
         return messagesVC
     }
     
-    func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {
+    func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {        
         uiViewController.messagesCollectionView.reloadData()
-        scrollToBottom(uiViewController)
+        
+        if (shouldScrollToBottom) {
+            scrollToBottom(uiViewController)
+        }
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(self, onSend: onSend)
+        Coordinator(self, onSend: { text in
+            shouldScrollToBottom = true
+            onSend(text)
+        })
     }
     
     // MARK: - Private Methods
     
     private func scrollToBottom(_ uiViewController: MessagesViewController) {
         DispatchQueue.main.async {
-            uiViewController.messagesCollectionView.scrollToLastItem(animated: self.initialized)
-            self.initialized = true
+            uiViewController.messagesCollectionView.scrollToLastItem(animated: self.shouldScrollToBottom)
+            self.shouldScrollToBottom = false
         }
     }
     
@@ -186,8 +169,11 @@ struct ChatView: UIViewControllerRepresentable {
         var parent: ChatView
         let onSend: (String) -> Void
         var supportUser: User?
-        var currentUser: MockUser?
+        
         private var firstMessagesOfDay: [IndexPath: Date] = [:]
+        
+        // Add this property to store the MessagesViewController
+        weak var messagesViewController: MessagesViewController?
         
         // MARK: - Initializer
         
@@ -195,7 +181,6 @@ struct ChatView: UIViewControllerRepresentable {
             self.parent = parent
             self.onSend = onSend
             self.supportUser = AppData().getSupport()
-            self.currentUser = parent.getCurrentUser()
         }
         
         // MARK: - First Messages of Day
@@ -232,7 +217,7 @@ struct ChatView: UIViewControllerRepresentable {
         // MARK: - MessagesDataSource
         
         var currentSender: SenderType {
-            currentUser!
+            parent.currentUser
         }
         
         func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
@@ -314,7 +299,7 @@ struct ChatView: UIViewControllerRepresentable {
             
             if message.sender.senderId == supportUser?.npub {
                 return UIColor.systemOrange
-            } else if message.sender.senderId == currentUser?.senderId {
+            } else if message.sender.senderId == parent.currentUser.senderId {
                 return UIColor.systemBlue
             } else {
                 return UIColor.darkGray

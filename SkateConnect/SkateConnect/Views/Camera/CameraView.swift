@@ -22,112 +22,126 @@ struct CameraView: View {
     
     var body: some View {
         ZStack {
-            CameraPreview(session: cameraViewModel.session)
-                .onAppear {
-                    cameraViewModel.checkPermissionsAndSetup()
-                }
-            // Add gesture to the entire ZStack to ensure it works immediately
-                .gesture(
-                    MagnificationGesture()
-                        .onChanged { val in
-                            let maxZoom: CGFloat = 5.0 // Maximum zoom level
-                            let minZoom: CGFloat = 1.0 // Minimum zoom level
-                            
-                            // Adjust zoom sensitivity
-                            let adjustedZoom = val - 1.0 // Gesture starts at 1.0, so normalize
-                            let newZoomFactor = min(max(minZoom, cameraViewModel.zoomFactor + adjustedZoom * zoomSensitivity), maxZoom)
-                            
-                            cameraViewModel.zoom(factor: newZoomFactor) // Zoom to the calculated factor
-                        }
-                        .onEnded { val in
-                            // Save the zoom factor after the gesture ends
-                            cameraViewModel.zoomFactor = cameraViewModel.zoomFactor
-                        }
-                )
+            if cameraViewModel.hasCameraAccess {
+                CameraPreview(session: cameraViewModel.session)
+                    .ignoresSafeArea()
+                    .onAppear {
+                        cameraViewModel.checkPermissionsAndSetup()
+                    }
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { val in
+                                let maxZoom: CGFloat = 5.0 // Maximum zoom level
+                                let minZoom: CGFloat = 1.0 // Minimum zoom level
+                                
+                                // Adjust zoom sensitivity
+                                let adjustedZoom = val - 1.0 // Gesture starts at 1.0, so normalize
+                                let newZoomFactor = min(max(minZoom, cameraViewModel.zoomFactor + adjustedZoom * zoomSensitivity), maxZoom)
+                                
+                                cameraViewModel.zoom(factor: newZoomFactor) // Zoom to the calculated factor
+                            }
+                            .onEnded { val in
+                                // Save the zoom factor after the gesture ends
+                                cameraViewModel.zoomFactor = cameraViewModel.zoomFactor
+                            }
+                    )
+            }
             
             VStack {
-                HStack {                    
-                    if cameraViewModel.showZoomHint {
-                        Text("Pinch to zoom")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .transition(.opacity)
-                    }
-                    
-                    Spacer()
-                }
-                
                 Spacer()
                 
-                if (!cameraViewModel.isUploading) {
-                    HStack {
-                        Spacer()
-                        
-                        if cameraViewModel.isRecording {
-                            Text("REC")
-                                .foregroundColor(.red)
-                                .font(.caption)
-                                .padding(5)
-                                .background(Circle().fill(Color.black.opacity(0.7)))
-                                .padding()
-                        }
-                        
-                        // Record Button
-                        Button(action: {
+                if !cameraViewModel.isUploading {
+                    if cameraViewModel.hasCameraAccess {
+                        HStack {
+                            Spacer()
+                            
                             if cameraViewModel.isRecording {
-                                cameraViewModel.stopRecording()
-                            } else {
-                                cameraViewModel.startRecording()
+                                Text("REC")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                                    .padding(5)
+                                    .background(Circle().fill(Color.black.opacity(0.7)))
+                                    .padding()
                             }
-                        }) {
-                            Circle()
-                                .strokeBorder(cameraViewModel.isRecording ? Color.red : Color.white, lineWidth: 5)
-                                .frame(width: 70, height: 70)
+                            
+                            // Record Button
+                            Button(action: {
+                                if cameraViewModel.isRecording {
+                                    cameraViewModel.stopRecording()
+                                } else {
+                                    cameraViewModel.startRecording()
+                                }
+                            }) {
+                                Circle()
+                                    .strokeBorder(cameraViewModel.isRecording ? Color.red : Color.white, lineWidth: 5)
+                                    .frame(width: 70, height: 70)
+                            }
+                            .padding()
+                            
+                            Spacer()
                         }
-                        .padding()
-                        
-                        Spacer()
                     }
                 }
             }
             
             if !cameraViewModel.isRecording {
-                VStack {
-                    Spacer()
-                    
-                    VStack(spacing: 20) {
-                        Button(action: {
-                            cameraViewModel.switchToWideAngle()
-                        }) {
-                            Image(systemName: "camera.fill") // Example icon for wide angle
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.black.opacity(0.7))
-                                .clipShape(Circle())
-                        }
+                if cameraViewModel.hasCameraAccess {
+                    VStack {
+                        Spacer()
                         
-                        Button(action: {
-                            cameraViewModel.switchToStandard()
-                        }) {
-                            Image(systemName: "camera.viewfinder") // Example icon for standard view
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.black.opacity(0.7))
-                                .clipShape(Circle())
+                        VStack(spacing: 20) {
+                            Button(action: {
+                                cameraViewModel.switchToWideAngle()
+                            }) {
+                                Image(systemName: "camera.fill") // Example icon for wide angle
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.black.opacity(0.7))
+                                    .clipShape(Circle())
+                            }
+                            
+                            Button(action: {
+                                cameraViewModel.switchToStandard()
+                            }) {
+                                Image(systemName: "camera.viewfinder") // Example icon for standard view
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.black.opacity(0.7))
+                                    .clipShape(Circle())
+                            }
                         }
+                        .padding(.trailing, 20)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        
+                        Spacer()
                     }
-                    .padding(.trailing, 20)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    
-                    Spacer()
                 }
             }
             
             if !cameraViewModel.hasCameraAccess {
-                Text("Camera access denied. Please enable in settings.")
-                    .foregroundColor(.white)
-                    .background(Color.red)
-                    .transition(.opacity)
+                VStack {
+                    Text("Camera is disabled. Please enable it in your phone's settings.")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(8)
+                        .transition(.opacity)
+                    
+                    Button(action: {
+                        // Open app settings
+                        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(settingsURL)
+                        }
+                    }) {
+                        Text("Open Settings")
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                    }
+                    .padding(.top, 10)
+                }
+                .padding()
             }
             
             if cameraViewModel.isVideoRecorded && !cameraViewModel.isRecording {
@@ -253,20 +267,28 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
     func checkPermissionsAndSetup() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
+            // Camera access already granted
+            hasCameraAccess = true
             configureSession()
         case .notDetermined:
+            // Request camera access
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                if granted {
-                    DispatchQueue.main.async {
+                DispatchQueue.main.async {
+                    self.hasCameraAccess = granted
+                    if granted {
                         self.configureSession()
+                    } else {
+                        print("Camera access denied.")
                     }
-                } else {
-                    print("Camera access denied.")
                 }
             }
         case .denied, .restricted:
+            // Camera access denied or restricted
+            hasCameraAccess = false
             print("Camera access denied or restricted.")
         @unknown default:
+            // Handle unknown cases
+            hasCameraAccess = false
             print("Unknown camera permission status.")
         }
     }
@@ -275,9 +297,10 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
     func configureSession() {
         session.beginConfiguration()
         
-        // Add video input
+        // Check if the camera is available
         guard let videoDevice = AVCaptureDevice.default(for: .video) else {
-            print("Unable to access camera.")
+            print("Camera is not available or disabled.")
+            hasCameraAccess = false // Update the state to reflect that the camera is unavailable
             return
         }
         
@@ -288,6 +311,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCaptureFileOutputRecordingD
             }
         } catch {
             print("Error: Unable to add video input.")
+            hasCameraAccess = false
         }
         
         // Add audio input

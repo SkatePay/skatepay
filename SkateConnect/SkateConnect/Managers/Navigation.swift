@@ -20,6 +20,7 @@ extension Notification.Name {
     static let barcodeScanned = Notification.Name("barcodeScanned")
     static let uploadImage = Notification.Name("uploadImage")
     static let uploadVideo = Notification.Name("uploadVideo")
+    static let publishChannelEvent = Notification.Name("publishChannelEvent")
 }
 
 enum Tab {

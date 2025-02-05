@@ -172,6 +172,10 @@ class DataManager: ObservableObject {
     func findFoes(_ npub: String) -> Foe? {
         return fetchFoes().first(where: { $0.npub == npub })
     }
+    
+    func getBlacklist() -> [String] {
+        return self.fetchFoes().map { $0.npub }
+    }
 }
 
 enum LeadType: String {

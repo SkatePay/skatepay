@@ -15,18 +15,16 @@ import UIKit
 
 struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.dismiss) private var dismiss
+    
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
     @EnvironmentObject var dataManager: DataManager
-
-    private let keychainForNostr = NostrKeychainStorage()
     
     @ObservedObject private var messageHandler = MessageHandler()
 
     private var user: User
     private var message: String
 
-    @State private var subscriptionId: String?
     @State private var eventsCancellable: AnyCancellable?
 
     @State private var isShowingCameraView = false
@@ -39,9 +37,10 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
     @State private var selectedChannelId: String?
     @State private var videoURL: URL?
 
-    private var relayPool: RelayPool { network.getRelayPool() }
+    @State private var shouldScrollToBottom = true
+
     private var connected: Bool {
-        relayPool.relays.contains { $0.url == URL(string: user.relayUrl) }
+        network.relayPool?.relays.contains { $0.url == URL(string: user.relayUrl) } ?? false
     }
 
     func formatName() -> String {
@@ -53,9 +52,20 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         self.message = message
     }
 
+    private let keychainForNostr = NostrKeychainStorage()
+    
+    func getCurrentUser() -> MockUser {
+        if let account = keychainForNostr.account {
+            return MockUser(senderId: account.publicKey.npub, displayName: "You")
+        }
+        return MockUser(senderId: "000002", displayName: "You")
+    }
+    
     var body: some View {
-        ChatAreaView(
+        ChatView(
+            currentUser: getCurrentUser(),
             messages: $messageHandler.messages,
+            shouldScrollToBottom: $shouldScrollToBottom,
             onTapAvatar: { _ in print("Avatar tapped") },
             onTapVideo: handleVideoTap,
             onTapLink: { channelId in selectedChannelId = channelId; showingConfirmationAlert = true },
@@ -71,11 +81,111 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
                 secondaryButton: .cancel()
             )
         }
-        .onAppear { setupSubscription() }
+        .onAppear {
+            setupSubscription()
+        }
         .onDisappear { cleanupSubscription() }
         .modifier(IgnoresSafeArea()) // Fixes keyboard issue
     }
 
+
+}
+
+// MARK: - Nostr
+private extension DirectMessage {
+    private func setupSubscription() {
+        if let service = network.eventServiceForDirect {
+            service.fetchingStoredEvents = true
+
+            if let pool = network.relayPool {
+                service.subscriptionIdForPrivateMessages.map { pool.closeSubscription(with: $0) }
+
+                if let filter = currentFilter {
+                    service.subscriptionIdForPrivateMessages = pool.subscribe(with: filter)
+                } else {
+                    print("Failed to create filter for subscription")
+                }
+
+                pool.delegate = network
+                eventsCancellable = pool.events
+                    .receive(on: DispatchQueue.main)
+                    .map { $0.event }
+                    .removeDuplicates()
+                    .sink(receiveValue: handleNewEvent)
+            }
+        }
+        
+    }
+
+    private func cleanupSubscription() {
+        if let service = network.eventServiceForDirect {
+            service.subscriptionIdForPrivateMessages.map { network.relayPool?.closeSubscription(with: $0) }
+        }
+    }
+
+    private func handleNewEvent(event: NostrEvent) {
+        if let message = parseEventIntoMessage(event: event) {
+            if network.eventServiceForDirect?.fetchingStoredEvents ?? false {
+                messageHandler.messages.insert(message, at: 0)
+            } else {
+                messageHandler.messages.append(message)
+            }
+        }
+    }
+
+    private func publishEvent(text: String) {
+        guard let account = keychainForNostr.account,
+              let recipientPublicKey = PublicKey(npub: user.npub) else { return }
+
+        do {
+            let contentStructure = ContentStructure(content: text, kind: .message)
+            let jsonData = try JSONEncoder().encode(contentStructure)
+            let content = String(data: jsonData, encoding: .utf8) ?? text
+
+            let directMessage = try legacyEncryptedDirectMessage(
+                withContent: content,
+                toRecipient: recipientPublicKey,
+                signedBy: account
+            )
+            network.relayPool?.publishEvent(directMessage)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+
+    var currentFilter: Filter? {
+        guard let account = keychainForNostr.account,
+              let recipientHex = PublicKey(npub: user.npub)?.hex else { return nil }
+        
+        let authors = [recipientHex, account.publicKey.hex]
+        return Filter(authors: authors, kinds: [4], tags: ["p": authors], limit: 64)
+    }
+
+    func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
+        guard let myKeypair = keychainForNostr.account,
+              let recipientPublicKey = PublicKey(npub: user.npub) else { return nil }
+
+        do {
+            let decryptedText = try legacyDecrypt(
+                encryptedContent: event.content,
+                privateKey: myKeypair.privateKey,
+                publicKey: recipientPublicKey
+            )
+            let decryptedEvent = NostrEvent.Builder(nostrEvent: event)
+                .content(decryptedText)
+                .build(pubkey: event.pubkey)
+
+            return messageHandler.parseEventIntoMessage(event: decryptedEvent)
+        } catch {
+            print("Decryption failed: \(error.localizedDescription)")
+            return nil
+        }
+    }
+}
+
+
+// MARK: - UI
+private extension DirectMessage {
     private var backButton: some View {
         HStack {
             Button(action: {
@@ -126,92 +236,6 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
         }
     }
 }
-
-// Nostr Handling
-private extension DirectMessage {
-    private func setupSubscription() {
-        network.fetchingStoredEvents = true
-
-        subscriptionId.map { relayPool.closeSubscription(with: $0) }
-
-        if let filter = currentFilter {
-            subscriptionId = relayPool.subscribe(with: filter)
-        } else {
-            print("Failed to create filter for subscription")
-        }
-
-        relayPool.delegate = network
-        eventsCancellable = relayPool.events
-            .receive(on: DispatchQueue.main)
-            .map { $0.event }
-            .removeDuplicates()
-            .sink(receiveValue: handleNewEvent)
-    }
-
-    private func cleanupSubscription() {
-        subscriptionId.map { relayPool.closeSubscription(with: $0) }
-    }
-
-    private func handleNewEvent(event: NostrEvent) {
-        if let message = parseEventIntoMessage(event: event) {
-            if network.fetchingStoredEvents {
-                messageHandler.messages.insert(message, at: 0)
-            } else {
-                messageHandler.messages.append(message)
-            }
-        }
-    }
-
-    private func publishEvent(text: String) {
-        guard let account = keychainForNostr.account,
-              let recipientPublicKey = PublicKey(npub: user.npub) else { return }
-
-        do {
-            let contentStructure = ContentStructure(content: text, kind: .message)
-            let jsonData = try JSONEncoder().encode(contentStructure)
-            let content = String(data: jsonData, encoding: .utf8) ?? text
-
-            let directMessage = try legacyEncryptedDirectMessage(
-                withContent: content,
-                toRecipient: recipientPublicKey,
-                signedBy: account
-            )
-            relayPool.publishEvent(directMessage)
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-
-    var currentFilter: Filter? {
-        guard let account = keychainForNostr.account,
-              let recipientHex = PublicKey(npub: user.npub)?.hex else { return nil }
-        
-        let authors = [recipientHex, account.publicKey.hex]
-        return Filter(authors: authors, kinds: [4], tags: ["p": authors], limit: 64)
-    }
-
-    func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
-        guard let myKeypair = keychainForNostr.account,
-              let recipientPublicKey = PublicKey(npub: user.npub) else { return nil }
-
-        do {
-            let decryptedText = try legacyDecrypt(
-                encryptedContent: event.content,
-                privateKey: myKeypair.privateKey,
-                publicKey: recipientPublicKey
-            )
-            let decryptedEvent = NostrEvent.Builder(nostrEvent: event)
-                .content(decryptedText)
-                .build(pubkey: event.pubkey)
-
-            return messageHandler.parseEventIntoMessage(event: decryptedEvent)
-        } catch {
-            print("Decryption failed: \(error.localizedDescription)")
-            return nil
-        }
-    }
-}
-
 #Preview {
     DirectMessage(user: AppData().users[0])
 }
