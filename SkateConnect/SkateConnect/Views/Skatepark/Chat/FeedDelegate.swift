@@ -19,15 +19,11 @@ class FeedDelegate: ObservableObject {
         
     @Published private var dataManager: DataManager?
     @Published private var navigation: Navigation?
+    @Published private var network: Network?
     
-    private var eventService = ChannelEventService()
     private var eventsCancellable: AnyCancellable?
     
     private let keychainForNostr = NostrKeychainStorage()
-    
-    init() {
-        eventService = ChannelEventService()
-    }
     
     func setDataManager(dataManager: DataManager) {
         self.dataManager = dataManager
@@ -38,16 +34,14 @@ class FeedDelegate: ObservableObject {
     }
     
     func setNetwork(network: Network) {
-        self.eventService.setNetwork(network: network)
+        self.network = network
     }
     
     // MARK: - Subscribe to Channel Events
     public func subscribeToChannelWithId(_channelId: String, leadType: LeadType = .outbound) {
-        
         cleanUp()
         
-        // Subscribe to channel events via event service
-        eventService.subscribeToChannelEvents(channelId: _channelId, leadType: leadType) { [weak self] events in
+        network?.eventServiceForChannels?.subscribeToChannelEvents(channelId: _channelId, leadType: leadType) { [weak self] events in
             guard let self = self else { return }
             self.handleEvents(events)
         }
@@ -56,6 +50,8 @@ class FeedDelegate: ObservableObject {
     // MARK: - Handle Multiple Events in Bulk
     private func handleEvents(_ events: [NostrEvent]) {
         var newMessages: [MessageType] = []
+        
+        let blacklist = dataManager?.getBlacklist() ?? []
         
         for event in events {
             if let message = parseEventIntoMessage(event: event) {
@@ -69,44 +65,43 @@ class FeedDelegate: ObservableObject {
                     }
                 }
                 
-                // Only add channel messages to newMessages array
                 if event.kind == .channelMessage {
                     guard let publicKey = PublicKey(hex: event.pubkey) else { continue }
-                    if getBlacklist().contains(publicKey.npub) { continue }
+                    if blacklist.contains(publicKey.npub) { continue }
                     
-                    // Append messages depending on whether we are fetching stored events or live events
-                    if eventService.fetchingStoredEvents {
-                        newMessages.insert(message, at: 0)  // Prepend historical messages
+                    if (network?.eventServiceForChannels?.fetchingStoredEvents ?? false) {
+                        newMessages.insert(message, at: 0)
                     } else {
-                        newMessages.append(message)  // Append live messages
+                        newMessages.append(message)
                     }
                 }
             }
         }
         
-        // Batch update the messages array with new messages
         DispatchQueue.main.async {
             self.messages.append(contentsOf: newMessages)
         }
     }
     
-    // MARK: - Publish Draft Message
-    public func publishDraft(text: String, kind: Kind = .message) {
-        // Ensure channelId is not nil
-        guard let channelId = navigation?.channelId else {
-            print("Error: Channel ID is nil.")
-            return
-        }
-        
-        // Delegate to ChannelEventService for publishing the message
-        eventService.publishMessage(text, channelId: channelId, kind: kind)
-    }
+//    // MARK: - Publish Draft Message
+//    public func publishDraft(text: String, kind: Kind = .message) {
+//        guard let channelId = navigation?.channelId else {
+//            print("Error: Channel ID is nil.")
+//            return
+//        }
+//        
+//        NotificationCenter.default.post(
+//            name: .publishChannelEvent,
+//            object: self,
+//            userInfo: ["channelId": channelId,
+//                       "content": text]
+//        )
+//    }
     
     // MARK: - Clean Up Subscriptions
     public func cleanUp() {
-        // Remove all stored messages and cancel any existing subscriptions
         messages.removeAll()
-        eventService.cleanUp()
+        network?.eventServiceForChannels?.cleanUp()
     }
     
     // MARK: - Parse Nostr Event into MessageType
@@ -165,14 +160,5 @@ class FeedDelegate: ObservableObject {
             
             return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
         }
-    }
-    
-    // MARK: - Blacklist Handling
-    func getBlacklist() -> [String] {
-        // Get list of blacklisted users (foes)
-        guard let dataManager = dataManager else {
-            return []
-        }
-        return dataManager.fetchFoes().map { $0.npub }
     }
 }

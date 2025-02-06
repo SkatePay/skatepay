@@ -47,8 +47,12 @@ struct LandmarkDetail: View {
                 HStack(spacing: 20) {
                     Spacer()
                     Button(action: {
-                        navigation.landmark = landmark
-                        navigation.dismissToContentView()
+                        navigation.path.removeLast()
+                        navigation.tab = .map
+                        
+                        NotificationCenter.default.post(
+                            name: .goToLandmark,
+                            object: landmark)
                     }) {
                         Text("🎟️ Visit")
                             .padding(8)

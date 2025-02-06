@@ -98,7 +98,7 @@ struct OverlayView: View {
                                 .foregroundColor(.white)
                             
                             Button(action: {
-                                navigation.activeSheet = .createChannel
+                                navigation.path.append(NavigationPathType.createChannel)
                             }) {
                                 Image(systemName: "shareplay")
                                     .foregroundColor(.white)
@@ -127,7 +127,11 @@ struct OverlayView: View {
                                             longitude: mark.coordinate.longitude
                                         )
                                         context.insert(spot)
-                                        navigation.goToSpot(spot: spot)
+                                        
+                                        NotificationCenter.default.post(
+                                            name: .goToSpot,
+                                            object: spot
+                                        )
                                     }
                                 }
                                 stateManager.showingAlertForSpotBookmark.toggle()

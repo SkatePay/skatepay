@@ -19,14 +19,13 @@ struct UserDetail: View {
     @Query(sort: \Friend.npub) private var friends: [Friend]
     @Query(sort: \Foe.npub) private var foes: [Foe]
     
-    @State private var showReport = false
     @State private var isDebugging = false
     @State private var showingConnector = false
     
     var user: User
     
     var connected: Bool {
-        network.getRelayPool().relays.contains(where: { $0.url == URL(string: user.relayUrl) })
+        network.relayPool?.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) ?? false
     }
     
     func isFriend() -> Bool {
@@ -74,23 +73,12 @@ struct UserDetail: View {
                         FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
                             .environmentObject(dataManager)
                     }
-                    Button(action: { navigation.activeSheet = .directMessage }) {
+                    NavigationLink(value: NavigationPathType.directMessage(user: user)) {
                         Label("Chat", systemImage: "message")
                             .padding(8)
                             .background(Color.green)
                             .foregroundColor(.white)
                             .cornerRadius(8)
-                    }
-                    .fullScreenCover(isPresented: Binding<Bool>(
-                        get: { navigation.activeSheet == .directMessage },
-                        set: { if !$0 { navigation.activeSheet = .none } }
-                    )) {
-                        NavigationView {
-                            DirectMessage(user: user)
-                                .environmentObject(dataManager)
-                                .environmentObject(navigation)
-                                .environmentObject(network)
-                        }
                     }
                 }
                 .padding(15)
@@ -124,8 +112,12 @@ struct UserDetail: View {
                 if (!isSupport()) {
                     HStack(spacing: 20) {
                         Spacer()
-                        Button("Report User 🚩") {
-                            showReport = true
+                        NavigationLink(value: NavigationPathType.reportUser(user: AppData().users[0], message: user.npub)) {
+                            Label("Report User", systemImage: "exclamationmark.bubble.fill")
+                                .padding(8)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
                         }
                         .padding(8)
                         .background(Color.red)
@@ -136,14 +128,6 @@ struct UserDetail: View {
             }
             .padding()
             Spacer()
-        }
-        .fullScreenCover(isPresented: $showReport) {
-            NavigationView {
-                DirectMessage(user: AppData().users[0], message: "\(user.npub)")
-                    .environmentObject(dataManager)
-                    .environmentObject(navigation)
-                    .environmentObject(network)
-            }
         }
         .navigationTitle(user.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -211,4 +195,3 @@ struct FriendFoeButtons: View {
     return UserDetail(user: modelData.users[0])
         .environment(modelData).environmentObject(HostStore())
 }
-

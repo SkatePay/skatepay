@@ -13,28 +13,26 @@ struct Filters: View {
     @Environment(\.modelContext) private var context
     
     var body: some View {
-        NavigationStack {
-            if (foes.isEmpty) {
-                Text("0 Muted Users")
-            } else {
-                List(foes) { foe in
-                    HStack {
-                        Text(friendlyKey(npub: foe.npub))
-                            .contextMenu {
-                                Button(action: {
-                                    UIPasteboard.general.string = foe.npub
-                                }) {
-                                    Text("Copy npub")
-                                }
-                                Button(action: {
-                                    context.delete(foe)
-                                }) {
-                                    Text("Unmute")
-                                }
+        if (foes.isEmpty) {
+            Text("0 Muted Users")
+        } else {
+            List(foes) { foe in
+                HStack {
+                    Text(friendlyKey(npub: foe.npub))
+                        .contextMenu {
+                            Button(action: {
+                                UIPasteboard.general.string = foe.npub
+                            }) {
+                                Text("Copy npub")
                             }
-                        
-                        Spacer()    
-                    }
+                            Button(action: {
+                                context.delete(foe)
+                            }) {
+                                Text("Unmute")
+                            }
+                        }
+                    
+                    Spacer()    
                 }
             }
         }

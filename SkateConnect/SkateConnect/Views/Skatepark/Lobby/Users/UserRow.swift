@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct UserRow: View {
-    @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var navigation: Navigation
         
     var users: [User]
@@ -22,7 +21,7 @@ struct UserRow: View {
                     .padding(.top, 5)
                 Spacer()
                 Button(action: {
-                    navigation.activeSheet = .filters
+                    navigation.path.append(NavigationPathType.filters)
                 }) {
                     Text("Ignore")
                         .foregroundColor(.blue)
@@ -36,8 +35,7 @@ struct UserRow: View {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(users) { user in
                         Button(action: {
-                            navigation.selectedUserNpub = user.npub
-                            navigation.isShowingUserDetail = true
+                            navigation.path.append(NavigationPathType.userDetail(npub: user.npub))
                         }) {
                             UserItem(user: user)
                         }
@@ -45,25 +43,6 @@ struct UserRow: View {
                 }
             }
             .frame(height: 120)
-        }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .filters },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            NavigationView {
-                Filters()
-                    .navigationBarTitle("Filters")
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        navigation.activeSheet = .none
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("🏛️ Lobby")
-                            Spacer()
-                        }
-                    })
-            }
         }
     }
 }

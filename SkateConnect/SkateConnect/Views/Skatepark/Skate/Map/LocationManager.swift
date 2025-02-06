@@ -5,6 +5,7 @@
 //  Created by Konstantin Yurchenko, Jr on 9/21/24.
 //
 
+import Combine
 import CoreLocation
 import Foundation
 import MapKit
@@ -78,6 +79,9 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     @Published var mapPosition = MapCameraPosition.region(MKCoordinateRegion())
     
+    private var cancellables = Set<AnyCancellable>()
+
+    
     override init() {
         super.init()
         
@@ -85,6 +89,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
             mapRegion = loadedRegion
         }
         mapPosition = MapCameraPosition.region(mapRegion)
+        
+        startListening()
     }
     
     func setNavigation(navigation: Navigation) {
@@ -184,25 +190,26 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     private var lastUpdateTime: Date?
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            
-        if !(navigation?.activeView == .map && navigation?.activeSheet == ActiveSheet.none) { return }
-            
+        guard let navigation = navigation else { return }
+        
+        if (navigation.tab != .map) { return }
+        
+        if (!navigation.path.isEmpty) { return }
+        
+        // Throttled update
         guard let location = locations.last else { return }
         
         let now = Date()
         
-        // Check if it's been at least 1 second since the last update
         if let lastUpdate = lastUpdateTime, now.timeIntervalSince(lastUpdate) < 1 {
             return
         }
         
-        // Update the last update time
         lastUpdateTime = now
         
-        // Throttle the state update to avoid frequent re-renders
         if currentLocation == nil || (location.coordinate.latitude != currentLocation?.coordinate.latitude ||
                                       location.coordinate.longitude != currentLocation?.coordinate.longitude) {
-            currentLocation = location // Update only if there's a meaningful change
+            currentLocation = location
         }
     }
     
@@ -220,7 +227,6 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
 
-    // Handle spot notification
     func handleGoToSpotNotification(_ notification: Notification) {
         guard let spot = notification.object as? Spot else {
             print("Received goToSpot notification, but no valid Spot object was found.")
@@ -228,11 +234,54 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
         
         let locationCoordinate = spot.locationCoordinate
-        self.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
         
+        // Update the map region to the spot's location
+        updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+        
+        // Pan the map to the new location
+        mapPosition = MapCameraPosition.region(MKCoordinateRegion(
+            center: locationCoordinate,
+            latitudinalMeters: Defaults.latitudinalMeters,
+            longitudinalMeters: Defaults.longitudinalMeters
+        ))
+        
+        // Set the pin coordinate if the channelId is empty
         if spot.channelId.isEmpty {
             pinCoordinate = spot.locationCoordinate
         }
+    }
+    
+    func handleGoToLandmarkNotification(_ notification: Notification) {
+        guard let landmark = notification.object as? Landmark else {
+            print("Received goToSpot notification, but no valid Spot object was found.")
+            return
+        }
+        
+        let locationCoordinate = landmark.locationCoordinate
+        
+        // Update the map region to the spot's location
+        updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
+        
+        // Pan the map to the new location
+        mapPosition = MapCameraPosition.region(MKCoordinateRegion(
+            center: locationCoordinate,
+            latitudinalMeters: Defaults.latitudinalMeters,
+            longitudinalMeters: Defaults.longitudinalMeters
+        ))
+    }
+    
+    func startListening() {
+        NotificationCenter.default.publisher(for: .goToLandmark)
+            .sink { [weak self] notification in
+                self?.handleGoToLandmarkNotification(notification)
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .goToSpot)
+            .sink { [weak self] notification in
+                self?.handleGoToSpotNotification(notification)
+            }
+            .store(in: &cancellables)
     }
 }
 

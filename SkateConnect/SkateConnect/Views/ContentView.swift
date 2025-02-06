@@ -13,18 +13,8 @@ import SwiftData
 import SwiftUI
 import UIKit
 
-enum Tab {
-    case lobby
-    case map
-    case wallet
-    case debug
-    case settings
-}
-
 struct ContentView: View {
-    @Environment(
-        \.modelContext
-    ) private var context
+    @Environment(\.modelContext) private var context
     
     @EnvironmentObject private var apiService: API
     @EnvironmentObject private var channelViewManager: ChannelViewManager
@@ -39,181 +29,278 @@ struct ContentView: View {
     @EnvironmentObject private var walletManager: WalletManager
     
     @StateObject private var store = HostStore()
+
     @State private var incomingMessagesCount = 0
-    
-    let keychainForNostr = NostrKeychainStorage()
-    
+        
     var body: some View {
-        TabView(
-            selection: $navigation.tab
-        ) {
-            LobbyView()
-                .tabItem {
-                    Label(
-                        "Lobby",
-                        systemImage: "star"
-                    )
-                }
-                .onAppear {
-                    navigation.activeView = .lobby
-                }
-                .environmentObject(dataManager)
-                .environmentObject(lobby)
-                .environmentObject(navigation)
-                .environmentObject(network)
-                .badge(
-                    incomingMessagesCount > 0 ? incomingMessagesCount : 0
-                )
-                .tag(
-                    Tab.lobby
-                )
-            
-            SkateView()
-                .tabItem {
-                    Label(
-                        "Map",
-                        systemImage: "map"
-                    )
-                }
-                .onAppear {
-                    navigation.activeView = .map
-                }
-                .environmentObject(apiService)
-                .environmentObject(channelViewManager)
-                .environmentObject(dataManager)
-                .environmentObject(lobby)
-                .environmentObject(locationManager)
-                .environmentObject(navigation)
-                .environmentObject(network)
-                .environmentObject(stateManager)
-                .tag(
-                    Tab.map
-                )
-            
-            if (
-                hasWallet() || debugManager.hasEnabledDebug
-            ) {
-                WalletView(
-                ) {
-                    Task {
-                        await saveHost()
-                    }
-                }
-                .environmentObject(debugManager)
-                .environmentObject(navigation)
-                .environmentObject(walletManager)
-                .tabItem {
-                    Label(
-                        "Wallet",
-                        systemImage: "creditcard.and.123"
-                    )
-                }
-                .tag(
-                    Tab.wallet
-                )
-            }
-            SettingsView(
-                host: $store.host
-            )
-            .tabItem {
-                Label(
-                    "Settings",
-                    systemImage: "gearshape"
-                )
-            }
-            .onAppear {
-                navigation.activeView = .settings
-            }
-            .environmentObject(debugManager)
-            .environmentObject(eulaManager)
-            .environmentObject(lobby)
-            .environmentObject(navigation)
-            .environmentObject(network)
-            .tag(
-                Tab.settings
-            )
-        }
-        .fullScreenCover(
-            isPresented: $navigation.isShowingUserDetail
-        ) {
-            NavigationView {
-                if let npub = navigation.selectedUserNpub {
-                    let user = getUser(
-                        npub: npub
-                    )
-                    UserDetail(
-                        user: user
-                    )
-                    .environmentObject(navigation)
-                    .environmentObject(network)
-                    .navigationBarItems(leading:
-                                            Button(action: {
-                        navigation.isShowingUserDetail = false
-                    }) {
-                        HStack {
-                            Image(
-                                systemName: "arrow.left"
-                            )
-                            Text(
-                                "Exit"
-                            )
-                            Spacer()
+        NavigationStack(path: $navigation.path) {
+            VStack(spacing: 0) {
+                switch navigation.tab {
+                case .lobby:
+                    LobbyView()
+                        .environmentObject(dataManager)
+                        .environmentObject(lobby)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                case .map:
+                    SkateView()
+                        .environmentObject(apiService)
+                        .environmentObject(channelViewManager)
+                        .environmentObject(dataManager)
+                        .environmentObject(lobby)
+                        .environmentObject(locationManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .environmentObject(stateManager)
+                case .wallet:
+                    if shouldShowWalletView {
+                        WalletView {
+                            Task {
+                                await saveHost()
+                            }
                         }
-                    })
+                        .environmentObject(debugManager)
+                        .environmentObject(navigation)
+                        .environmentObject(walletManager)
+                        .navigationBarTitle("🪪 Wallet")
+
+                    } else {
+                        // Show a placeholder or empty view if the wallet shouldn't be shown
+                        Text("Wallet not available")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                    }
+                case .settings:
+                    SettingsView(host: $store.host)
+                        .environmentObject(dataManager)
+                        .environmentObject(debugManager)
+                        .environmentObject(eulaManager)
+                        .environmentObject(lobby)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .navigationBarTitle("🛠️ Settings")
+
+                }
+                
+                // Custom Tab Bar
+                HStack {
+                    // Lobby Tab
+                    TabButton(
+                        tab: .lobby,
+                        label: "Lobby",
+                        systemImage: "star",
+                        selectedTab: $navigation.tab
+                    )
+                    
+                    // Map Tab
+                    TabButton(
+                        tab: .map,
+                        label: "Map",
+                        systemImage: "map",
+                        selectedTab: $navigation.tab
+                    )
+                    
+                    // Wallet Tab (conditionally shown)
+                    if shouldShowWalletView {
+                        TabButton(
+                            tab: .wallet,
+                            label: "Wallet",
+                            systemImage: "creditcard.and.123",
+                            selectedTab: $navigation.tab
+                        )
+                    }
+                    
+                    // Settings Tab
+                    TabButton(
+                        tab: .settings,
+                        label: "Settings",
+                        systemImage: "gearshape",
+                        selectedTab: $navigation.tab
+                    )
+                }
+                .padding(.vertical, 8)
+                .background(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: -2)
+            }        
+            .navigationDestination(for: NavigationPathType.self) { path in
+                switch path {
+                case .addressBook:
+                    AddressBook()
+                        .environmentObject(dataManager)
+                        .environmentObject(lobby)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .navigationTitle("Spots")
+
+                case .barcodeScanner:
+                    BarcodeScanner()
+                        .environmentObject(navigation)
+                    
+                case .camera:
+                    CameraView()
+                        .environmentObject(navigation)
+                    
+                case .channel(let channelId):
+                    ChannelView(channelId: channelId)
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .onDisappear {
+                            locationManager.panMapToCachedCoordinate()
+                        }
+                
+                case .connectRelay:
+                    ConnectRelay()
+                        .environmentObject(network)
+                    
+                case .contacts:
+                    Contacts()
+                        .environmentObject(debugManager)
+                        .environmentObject(navigation)
+                        .navigationTitle("Friends")
+                
+                case .createChannel:
+                    CreateChannel()
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .environmentObject(stateManager)
+                    
+                case .createMessage:
+                    CreateMessage()
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .navigationTitle("Direct Message")
+                    
+                case .directMessage(user: let user):
+                    DirectMessage(user: user)
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                    
+                case .filters:
+                    Filters()
+                        .navigationBarTitle("Filters")
+                   
+                case .importIdentity:
+                    ImportIdentity()
+                        .environmentObject(lobby)
+                    
+                case .importWallet:
+                    ImportWallet()
+                        .environmentObject(walletManager)
+                    
+                case .landmarkDirectory:
+                    LandmarkDirectory()
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .navigationBarTitle("🏁 Skateparks")
+                    
+                case .reportUser(user: let user, message: let message):
+                    DirectMessage(user: user, message: message)
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                    
+                case .restoreData:
+                    RestoreDataView()
+                        .environmentObject(dataManager)
+                        .environmentObject(navigation)
+                        .environmentObject(walletManager)
+                
+                case .search:
+                    SearchView()
+                        .environmentObject(navigation)
+                        .navigationBarTitle("🎯 Explore Network 🕸️")
+                    
+                case .userDetail(let npub):
+                    let user = getUser(npub: npub)
+                    UserDetail(user: user)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+
+                case .transferAsset(let transferType):
+                    TransferAsset(transferType: transferType)
+                        .environmentObject(walletManager)
+                    
+                case .videoPlayer(let url):
+                    VideoPreviewView(url: url)
+        
                 }
             }
         }
         .onReceive(
-            NotificationCenter.default.publisher(
-                for: .receivedDirectMessage
-            )
+            NotificationCenter.default.publisher(for: .receivedDirectMessage)
         ) { notification in
-            handleDirectMessage(
-                notification
-            )
+            handleDirectMessage(notification)
         }
         .task {
             await insertDefaultFriend()
         }
-        .environmentObject(
-            store
-        )
+        .environmentObject(store)
+    }
+    
+    var shouldShowWalletView: Bool {
+        hasWallet() || debugManager.hasEnabledDebug
+    }
+    
+    @ViewBuilder
+    var walletTab: some View {
+        WalletView {
+            Task {
+                await saveHost()
+            }
+        }
+        .environmentObject(debugManager)
+        .environmentObject(navigation)
+        .environmentObject(walletManager)
+        .tabItem {
+            Label("Wallet", systemImage: "creditcard.and.123")
+        }
+        .tag(Tab.wallet)
     }
     
     // MARK: - Helper Functions
-    
-    private func handleDirectMessage(
-        _ notification: Notification
-    ) {
+    private func handleDirectMessage(_ notification: Notification) {
         if let event = notification.object as? NostrEvent {
-            lobby.dms.insert(
-                event
-            )
+            lobby.dms.insert(event)
             incomingMessagesCount = lobby.dms.count
         }
     }
     
     private func saveHost() async {
         do {
-            try await store.save(
-                host: store.host
-            )
+            try await store.save(host: store.host)
         } catch {
-            fatalError(
-                error.localizedDescription
-            )
+            fatalError(error.localizedDescription)
         }
     }
     
     private func insertDefaultFriend() async {
-        context.insert(
-            Friend(
-                name: AppData().users[0].name,
-                birthday: Date.now,
-                npub: AppData().getSupport().npub,
-                note: "Support Team"
-            )
-        )
+       await dataManager.insertDefaultFriend()
+    }
+}
+
+// Custom Tab Button
+struct TabButton: View {
+    let tab: Tab
+    let label: String
+    let systemImage: String
+    @Binding var selectedTab: Tab
+    
+    var body: some View {
+        Button(action: {
+            selectedTab = tab
+        }) {
+            VStack {
+                Image(systemName: systemImage)
+                    .font(.system(size: 20))
+                Text(label)
+                    .font(.caption)
+            }
+            .foregroundColor(selectedTab == tab ? .blue : .gray)
+            .frame(maxWidth: .infinity)
+        }
     }
 }
 

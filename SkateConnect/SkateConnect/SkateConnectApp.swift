@@ -8,9 +8,6 @@
 import ConnectFramework
 import SwiftUI
 
-class AppState: ObservableObject {
-}
-
 @main
 struct SkateConnectApp: App {
     @State private var modelData = AppData()
@@ -53,6 +50,7 @@ struct SkateConnectApp: App {
                         channelViewManager.setNetwork(network: network)
                         locationManager.setNavigation(navigation: navigation)
                         dataManager.setLobby(lobby: lobby)
+                        dataManager.setWalletManager(walletManager: walletManager)
                     }
             } else {
                 EULAView()

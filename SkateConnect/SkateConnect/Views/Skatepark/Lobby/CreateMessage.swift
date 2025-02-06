@@ -26,10 +26,6 @@ struct CreateMessage: View, EventCreating {
     
     @State private var selectedOption = 0
     
-    private var relayPool: RelayPool {
-        return network.getRelayPool()
-    }
-    
     var body: some View {
         Form {
             Section("Recipient") {
@@ -42,17 +38,20 @@ struct CreateMessage: View, EventCreating {
                 } else {
                     Text("Add Friends in Lobby")
                 }
+                
                 NostrKeyInput(key: $npub,
                               isValid: $recipientPublicKeyIsValid,
                               type: .public)
+                
                 Button("Scan Barcode") {
-                    navigation.activeSheet = .barcodeScanner
+                    navigation.path.append(NavigationPathType.barcodeScanner)
                 }
             }
             
             Section("Content") {
                 TextField("message", text: $message)
             }
+            
             Button("Send") {
                 var key = npub
                 if npub.isEmpty {
@@ -75,7 +74,7 @@ struct CreateMessage: View, EventCreating {
                                                                          toRecipient: recipientPublicKey,
                                                                          signedBy: senderKeyPair)
                     
-                    relayPool.publishEvent(directMessage)
+                    network.relayPool?.publishEvent(directMessage)
                     
                     showingAlert = true
                 } catch {
@@ -86,15 +85,6 @@ struct CreateMessage: View, EventCreating {
                 Button("OK", role: .cancel) { }
             }
             .disabled(!readyToSend())
-        }
-        .fullScreenCover(isPresented: Binding<Bool>(
-            get: { navigation.activeSheet == .barcodeScanner },
-            set: { if !$0 { navigation.activeSheet = .none } }
-        )) {
-            NavigationView {
-                BarcodeScanner()
-                    .environmentObject(navigation)
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in
             func cleanNostrPrefix(_ input: String) -> String {
