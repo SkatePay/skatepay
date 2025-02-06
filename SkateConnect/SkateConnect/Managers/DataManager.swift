@@ -156,6 +156,17 @@ class DataManager: ObservableObject {
         return fetchFriends().first(where: { $0.npub == npub })
     }
     
+    func insertDefaultFriend() async {
+        modelContext.insert(
+            Friend(
+                name: AppData().users[0].name,
+                birthday: Date.now,
+                npub: AppData().getSupport().npub,
+                note: "Support Team"
+            )
+        )
+    }
+    
     // MARK: Foes
     func fetchFoes() -> [Foe] {
         do {
@@ -359,5 +370,9 @@ extension DataManager {
         }
         
         lobby?.clear()
+        
+        Task {
+            await insertDefaultFriend()
+        }
     }
 }

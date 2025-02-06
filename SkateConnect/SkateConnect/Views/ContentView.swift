@@ -277,14 +277,7 @@ struct ContentView: View {
     }
     
     private func insertDefaultFriend() async {
-        context.insert(
-            Friend(
-                name: AppData().users[0].name,
-                birthday: Date.now,
-                npub: AppData().getSupport().npub,
-                note: "Support Team"
-            )
-        )
+       await dataManager.insertDefaultFriend()
     }
 }
 

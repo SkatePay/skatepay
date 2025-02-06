@@ -225,7 +225,17 @@ extension Network {
         }
 
         do {
-            let message = try legacyEncryptedDirectMessage(withContent: "I'm online.", toRecipient: recipientPublicKey, signedBy: account)
+            let text = "I'm online."
+            let contentStructure = ContentStructure(content: text, kind: .message)
+            let jsonData = try JSONEncoder().encode(contentStructure)
+            let content = String(data: jsonData, encoding: .utf8) ?? text
+            
+            let message = try legacyEncryptedDirectMessage(
+                withContent: content,
+                toRecipient: recipientPublicKey,
+                signedBy: account
+            )
+            
             self.relayPool?.publishEvent(message)
             defaults.set(true, forKey: key)
         } catch {
