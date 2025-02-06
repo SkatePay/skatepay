@@ -46,23 +46,12 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         }
     }
 
-    func getRelayPool() -> RelayPool {
-        reconnectRelaysIfNeeded()
-        
-        relayPool?.delegate = self
-        return relayPool!
-    }
-
     func reconnectRelaysIfNeeded() {
         relayPool?.relays.forEach { relay in
             switch relay.state {
             case .notConnected:
                 print("Reconnecting to relay: \(relay.url)")
-            case .error(let error):
-                print("Relay error: \(error.localizedDescription)")
-                if error.localizedDescription.contains("Socket is not connected") || error.localizedDescription.contains("offline") {
-                    connect()
-                }
+                self.connect()
             default:
                 break
             }
@@ -71,11 +60,22 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
 
     // MARK: - Relay Delegate
     func relayStateDidChange(_ relay: Relay, state: Relay.State) {
-        if state == .connected {
-            connected = true
+        switch relay.state {
+        case .connected:
+            self.connected = true
             Task { await updateSubscriptions() }
-        } else {
-            connected = false
+        case .notConnected:
+            print("Reconnecting to relay: \(relay.url)")
+        case .error(let error):
+            print("Relay error: \(error.localizedDescription)")
+            
+            self.connected = false
+            
+            if error.localizedDescription.contains("Socket is not connected") {
+                self.connect()
+            }
+        default:
+            break
         }
     }
 
@@ -190,13 +190,13 @@ extension Network {
     
     // MARK: - Subscriptions
     func updateSubscriptions() async {
-        activeSubscriptions.forEach { getRelayPool().closeSubscription(with: $0) }
+        activeSubscriptions.forEach { relayPool?.closeSubscription(with: $0) }
         
         subscribeIfNeeded(filterForChannels)
         subscribeIfNeeded(filterForDirectMessages)
 
-        getRelayPool().delegate = self
-        getRelayPool().events
+        relayPool?.delegate = self
+        relayPool?.events
             .receive(on: DispatchQueue.main)
             .map(\.event)
             .removeDuplicates()
@@ -206,7 +206,9 @@ extension Network {
 
     private func subscribeIfNeeded(_ filter: Filter?) {
         guard let filter = filter else { return }
-        activeSubscriptions.append(getRelayPool().subscribe(with: filter))
+        if let subscription = relayPool?.subscribe(with: filter) {
+            activeSubscriptions.append(subscription)
+        }
     }
 }
 
@@ -224,7 +226,7 @@ extension Network {
 
         do {
             let message = try legacyEncryptedDirectMessage(withContent: "I'm online.", toRecipient: recipientPublicKey, signedBy: account)
-            getRelayPool().publishEvent(message)
+            self.relayPool?.publishEvent(message)
             defaults.set(true, forKey: key)
         } catch {
             print("Failed to send onboarding request: \(error.localizedDescription)")
@@ -247,7 +249,7 @@ extension Network {
                 hashtag: "video",
                 signedBy: account
             )
-            getRelayPool().publishEvent(event)
+            relayPool?.publishEvent(event)
         } catch {
             print("Failed to publish video: \(error.localizedDescription)")
         }
@@ -272,8 +274,7 @@ extension Network {
             )
 
             self.lastEventId = event.id
-            
-            getRelayPool().publishEvent(event)
+            self.relayPool?.publishEvent(event)
         } catch {
             print("Failed to publish message: \(error.localizedDescription)")
         }
@@ -288,7 +289,7 @@ extension Network {
 
         do {
             let deleteRequest = try delete(events: relatedEvents, signedBy: account)
-            getRelayPool().publishEvent(deleteRequest)
+            self.relayPool?.publishEvent(deleteRequest)
         } catch {
             print("Error deleting channel: \(error.localizedDescription)")
         }

@@ -25,7 +25,7 @@ struct UserDetail: View {
     var user: User
     
     var connected: Bool {
-        network.getRelayPool().relays.contains(where: { $0.url == URL(string: user.relayUrl) })
+        network.relayPool?.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) ?? false
     }
     
     func isFriend() -> Bool {

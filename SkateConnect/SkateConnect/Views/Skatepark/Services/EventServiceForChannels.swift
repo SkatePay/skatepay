@@ -33,7 +33,7 @@ class EventServiceForChannels: ObservableObject, EventCreating {
         self.network?.leadType = leadType
         self.bufferCompletion = completion  // Save the completion for later use
         
-        if let pool = network?.getRelayPool() {
+        if let pool = network?.relayPool {
             let filterForMetadata = Filter(ids: [channelId], kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])!
             let filterForFeed = Filter(kinds: [EventKind.channelMessage.rawValue], tags: ["e": [channelId]], limit: 32)!
             

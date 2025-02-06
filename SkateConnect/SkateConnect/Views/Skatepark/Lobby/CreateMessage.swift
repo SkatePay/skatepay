@@ -26,10 +26,6 @@ struct CreateMessage: View, EventCreating {
     
     @State private var selectedOption = 0
     
-    private var relayPool: RelayPool {
-        return network.getRelayPool()
-    }
-    
     var body: some View {
         Form {
             Section("Recipient") {
@@ -78,7 +74,7 @@ struct CreateMessage: View, EventCreating {
                                                                          toRecipient: recipientPublicKey,
                                                                          signedBy: senderKeyPair)
                     
-                    relayPool.publishEvent(directMessage)
+                    network.relayPool?.publishEvent(directMessage)
                     
                     showingAlert = true
                 } catch {

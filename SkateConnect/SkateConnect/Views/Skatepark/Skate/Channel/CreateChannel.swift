@@ -26,10 +26,7 @@ struct CreateChannel: View, EventCreating {
     @State private var description: String = ""
     @State private var icon: String = ChannelType.broadcast.rawValue
     @State private var event: NostrEvent?
-    
-    private var relayPool: RelayPool {
-        return network.getRelayPool()
-    }
+
     
     var body: some View {
         Text("📡 Open Channel")
@@ -81,7 +78,7 @@ struct CreateChannel: View, EventCreating {
                             
                         self.event =  try builder?.build(signedBy: account)
                         
-                        relayPool.publishEvent(self.event!)
+                        self.network.relayPool?.publishEvent(self.event!)
 
                         isShowingConfirmation = true
                         

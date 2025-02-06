@@ -242,7 +242,6 @@ private extension TransferAsset {
                 let preparedTransaction: PreparedTransaction
                 switch transferType {
                 case .sol:
-                    let dataLength = 0 // 165 bytes for a token account
                     let minRentExemption = try await walletManager.solanaApiClient.getMinimumBalanceForRentExemption(dataLength: 0, commitment: "confirmed")
 
                     let feeCalculator = DefaultFeeCalculator(
