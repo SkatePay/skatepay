@@ -537,7 +537,6 @@
 				C62501342C93C1340026C334 /* Profile.swift */,
 				C62501352C93C1340026C334 /* User.swift */,
 				C66AFE932CA7A067000CD716 /* Channel.swift */,
-				C6C94AE62CA885B1008ECA86 /* Lobby.swift */,
 				C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */,
 			);
 			path = Model;
@@ -580,6 +579,7 @@
 		C66AFE8A2CA63749000CD716 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				C6C94AE62CA885B1008ECA86 /* Lobby.swift */,
 				C62500D42C93C11A0026C334 /* DataManager.swift */,
 				C66AFE8B2CA63755000CD716 /* Navigation.swift */,
 				C66AFE912CA7812C000CD716 /* Network.swift */,

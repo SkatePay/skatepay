@@ -198,7 +198,8 @@ private extension WalletView {
             Button(action: {
                 navigation.path.append(NavigationPathType.importWallet)
             }) {
-                Text("🔑 Manage Keys")
+                let isEmpty = walletManager.getAliasesForCurrentNetwork().isEmpty
+                Text(isEmpty ? "🔑 Create Keys" : "🔑 Manage Keys")
             }
         }
     }

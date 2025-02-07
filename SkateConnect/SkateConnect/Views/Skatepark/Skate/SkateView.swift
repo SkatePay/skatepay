@@ -67,16 +67,6 @@ struct SkateView: View {
                 stateManager.addMarker(at: locationCoordinate, spots: spots)
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .joinChannel)) { notification in
-            if let channelId = notification.userInfo?["channelId"] as? String {
-                if let spot = dataManager.findSpotForChannelId(channelId) {
-                    navigation.coordinate = spot.locationCoordinate
-                }
-                
-                locationManager.panMapToCachedCoordinate()
-                channelViewManager.openChannel(channelId: channelId)
-            }
-        }
         .task() {
             apiService.fetchLeads()
             lobby.setupLeads(spots: spots)

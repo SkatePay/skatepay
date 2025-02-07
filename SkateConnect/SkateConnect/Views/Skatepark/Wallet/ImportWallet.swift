@@ -39,6 +39,7 @@ struct ImportWallet: View {
                         }
                     }
                 }
+                .disabled(newAlias_Create.isEmpty)
                 .alert("Key Created.", isPresented: $showingAlert) {
                     Button("Ok", role: .cancel) { }
                 }
@@ -79,6 +80,7 @@ struct ImportWallet: View {
                         }
                     }
                 }
+                .disabled(newAlias_Import.isEmpty || privateKey.isEmpty)
                 .alert("Wallet Imported.", isPresented: $showingAlert) {
                     Button("Ok", role: .cancel) { }
                 }

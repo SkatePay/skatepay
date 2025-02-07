@@ -21,6 +21,8 @@ class Lobby: ObservableObject {
         dms = []
     }
     
+    let keychainForNostr = NostrKeychainStorage()
+
     func findLead(byChannelId channelId: String) -> Lead? {
         return leads.first { $0.channelId == channelId }
     }
@@ -61,55 +63,33 @@ class Lobby: ObservableObject {
         let uniquePubkeys = Set(dms.map { $0.pubkey })
         return Array(uniquePubkeys)
     }
-}
-
-func convertNoteToColor(_ note: String) -> Color {
-    let color: Color
-    switch note {
-    case "invite":
-        color = Color(uiColor: UIColor.systemIndigo)
-    case "public":
-        color = Color(uiColor: UIColor.systemOrange)
-    case "private":
-        color = .purple
-    default:
-        color = Color(uiColor: UIColor.systemBlue)
-    }
-    return color;
-}
-
-func createLead(from event: NostrEvent, note: String = "") -> Lead? {
-    var lead: Lead?
     
-    if let channel = parseChannel(from: event) {
-        let about = channel.about
-        
-        do {
-            let decoder = JSONDecoder()
-            let decodedStructure = try decoder.decode(AboutStructure.self, from: about.data(using: .utf8)!)
-            
-            var icon = "📺"
-            if let note = decodedStructure.note {
-                icon = note
-            }
-            
-            lead = Lead(
-                name: channel.name,
-                icon: icon,
-                coordinate: decodedStructure.location,
-                channelId: event.id,
-                event: event,
-                channel: channel,
-                color: convertNoteToColor(note)
+    func addEvent(_ event: NostrEvent) {
+        if let publicKey = PublicKey(hex: event.pubkey) {
+            let activityEvent = ActivityEvent(
+                id: event.id,
+                npub: publicKey.npub,
+                createdAt: event.createdAt
             )
-        } catch {
-            print("Error decoding: \(error)")
+            events.append(activityEvent)
         }
     }
-    return lead
+    
+    func groupedEvents() -> [String: [ActivityEvent]] {
+        let filteredEvents = events.filter { $0.npub != keychainForNostr.account?.publicKey.npub }
+        let grouped = Dictionary(grouping: filteredEvents, by: { $0.npub })
+        
+        // Sort events within each group by createdAt in descending order
+        let sortedGrouped = grouped.mapValues { events in
+            events.sorted { $0.createdAt > $1.createdAt }
+        }
+        
+        return sortedGrouped
+    }
 }
 
 struct ActivityEvent {
     var id: String
     var npub: String
+    var createdAt: Int64
 }

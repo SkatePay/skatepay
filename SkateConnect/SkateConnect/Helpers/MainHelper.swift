@@ -7,6 +7,7 @@
 
 import ConnectFramework
 import Foundation
+import NostrSDK
 import SwiftUI
 
 func isSupport(npub: String) -> Bool {
@@ -83,4 +84,50 @@ func shareChannel(_ channelId: String) {
 
 func friendlyKey(npub: String) -> String {
     return "Skater-\(npub.suffix(3))"
+}
+
+func convertNoteToColor(_ note: String) -> Color {
+    let color: Color
+    switch note {
+    case "invite":
+        color = Color(uiColor: UIColor.systemIndigo)
+    case "public":
+        color = Color(uiColor: UIColor.systemOrange)
+    case "private":
+        color = .purple
+    default:
+        color = Color(uiColor: UIColor.systemBlue)
+    }
+    return color;
+}
+
+func createLead(from event: NostrEvent, note: String = "") -> Lead? {
+    var lead: Lead?
+    
+    if let channel = parseChannel(from: event) {
+        let about = channel.about
+        
+        do {
+            let decoder = JSONDecoder()
+            let decodedStructure = try decoder.decode(AboutStructure.self, from: about.data(using: .utf8)!)
+            
+            var icon = "📺"
+            if let note = decodedStructure.note {
+                icon = note
+            }
+            
+            lead = Lead(
+                name: channel.name,
+                icon: icon,
+                coordinate: decodedStructure.location,
+                channelId: event.id,
+                event: event,
+                channel: channel,
+                color: convertNoteToColor(note)
+            )
+        } catch {
+            print("Error decoding: \(error)")
+        }
+    }
+    return lead
 }

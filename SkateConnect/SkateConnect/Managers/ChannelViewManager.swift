@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 class ChannelViewManager: ObservableObject {
     @Published private var navigation: Navigation?
     @Published private var network: Network?
@@ -20,9 +21,11 @@ class ChannelViewManager: ObservableObject {
         self.network = network
     }
     
-    func openChannel(channelId: String) {
+    func openChannel(channelId: String, invite: Bool = false) {
         navigation?.channelId = channelId
-        navigation?.path.append(NavigationPathType.channel(channelId: channelId))
+        navigation?.path.append(
+            NavigationPathType.channel(channelId: channelId, invite: invite)
+        )
     }
 
     func closeChannel() {

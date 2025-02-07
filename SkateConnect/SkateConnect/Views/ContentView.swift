@@ -140,8 +140,8 @@ struct ContentView: View {
                     CameraView()
                         .environmentObject(navigation)
                     
-                case .channel(let channelId):
-                    ChannelView(channelId: channelId)
+                case .channel(let channelId, let invite):
+                    ChannelView(channelId: channelId, leadType: invite ? .inbound : .outbound)
                         .environmentObject(dataManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
@@ -234,6 +234,16 @@ struct ContentView: View {
         ) { notification in
             handleDirectMessage(notification)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .joinChannel)) { notification in
+            if let channelId = notification.userInfo?["channelId"] as? String {
+                if let spot = dataManager.findSpotForChannelId(channelId) {
+                    navigation.coordinate = spot.locationCoordinate
+                }
+                
+                locationManager.panMapToCachedCoordinate()
+                channelViewManager.openChannel(channelId: channelId, invite: true)
+            }
+        }
         .task {
             await insertDefaultFriend()
         }
@@ -263,6 +273,7 @@ struct ContentView: View {
     // MARK: - Helper Functions
     private func handleDirectMessage(_ notification: Notification) {
         if let event = notification.object as? NostrEvent {
+            lobby.addEvent(event)
             lobby.dms.insert(event)
             incomingMessagesCount = lobby.dms.count
         }

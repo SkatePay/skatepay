@@ -34,7 +34,7 @@ enum NavigationPathType: Hashable {
     case addressBook
     case barcodeScanner
     case camera
-    case channel(channelId: String)
+    case channel(channelId: String, invite: Bool = false)
     case connectRelay
     case contacts
     case createChannel

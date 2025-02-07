@@ -26,6 +26,8 @@ struct ChannelView: View {
     @StateObject private var feedDelegate = FeedDelegate()
     
     @State var channelId: String
+    @State var leadType = LeadType.outbound
+    
     @State private var isShowingToolBoxView = false
     
     @State private var keyboardHeight: CGFloat = 0
@@ -160,7 +162,7 @@ struct ChannelView: View {
                     title: Text("Confirmation"),
                     message: Text("Are you sure you want to join this channel?"),
                     primaryButton: .default(Text("Yes")) {
-                        openInvite()
+                        openChannelInvite()
                     },
                     secondaryButton: .cancel()
                 )
@@ -191,15 +193,9 @@ struct ChannelView: View {
         return landmarks.first { $0.eventId == eventId }
     }
     
-    private func openInvite() {
+    private func openChannelInvite() {
         guard let channelId = selectedChannelId else { return }
-        
-        if let spot = dataManager.findSpotForChannelId(channelId) {
-            navigation.coordinate = spot.locationCoordinate
-        }
-        
-        self.channelId = channelId
-        setup(leadType: .inbound)
+        navigation.joinChannel(channelId: channelId)
     }
     
     // Function to create the ActionSheet for Play, Download, and Share

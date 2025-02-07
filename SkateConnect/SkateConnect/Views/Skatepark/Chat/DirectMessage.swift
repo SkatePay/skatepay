@@ -77,7 +77,7 @@ struct DirectMessage: View, LegacyDirectMessageEncrypting, EventCreating {
             Alert(
                 title: Text("Confirmation"),
                 message: Text("Are you sure you want to join this channel?"),
-                primaryButton: .default(Text("Yes")) { openLink() },
+                primaryButton: .default(Text("Yes")) { openChannelInvite() },
                 secondaryButton: .cancel()
             )
         }
@@ -183,7 +183,6 @@ private extension DirectMessage {
     }
 }
 
-
 // MARK: - UI
 private extension DirectMessage {
     private var backButton: some View {
@@ -222,10 +221,10 @@ private extension DirectMessage {
         }
     }
 
-    private func openLink() {
-        if let channelId = selectedChannelId {
-            navigation.path.append(NavigationPathType.channel(channelId: channelId))
-        }
+    private func openChannelInvite() {
+        guard let channelId = selectedChannelId else { return }
+
+        navigation.joinChannel(channelId: channelId)
     }
 
     private func handleVideoTap(message: MessageType) {
