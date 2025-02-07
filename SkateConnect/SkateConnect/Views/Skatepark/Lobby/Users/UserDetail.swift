@@ -69,16 +69,17 @@ struct UserDetail: View {
                 Divider()
                 
                 HStack(spacing: 20) {
-                    if (!isSupport()) {
-                        FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
-                            .environmentObject(dataManager)
-                    }
                     NavigationLink(value: NavigationPathType.directMessage(user: user)) {
                         Label("Chat", systemImage: "message")
-                            .padding(8)
+                            .padding(16)
                             .background(Color.green)
                             .foregroundColor(.white)
                             .cornerRadius(8)
+                    }
+                    
+                    if (!isSupport()) {
+                        FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
+                            .environmentObject(dataManager)
                     }
                 }
                 .padding(15)
@@ -145,7 +146,7 @@ struct FriendFoeButtons: View {
     var body: some View {
         HStack {
             if isFriend {
-                Button("Remove from Friends") {
+                Button("Unfriend") {
                     if let friend = dataManager.findFriend(user.npub) {
                         context.delete(friend)
                     }

@@ -81,8 +81,7 @@ struct ChannelView: View {
                     feedDelegate.setDataManager(dataManager: dataManager)
                     feedDelegate.setNavigation(navigation: navigation)
                     feedDelegate.setNetwork(network: network)
-                    
-                    navigation.channelId = channelId
+                                                            
                     self.setup()
                     self.isInitialized = true
                 }
@@ -224,14 +223,15 @@ struct ChannelView: View {
         )
     }
     
-    // Function to handle video download
     private func downloadVideo(from url: URL) {
         print("Downloading video from \(url)")
     }
     
-    func setup(leadType: LeadType = .outbound) {
+    func setup() {
         navigation.channelId = channelId
-        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId, leadType: leadType)
+        network.leadType = leadType
+
+        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId)
     }
     
     private func observeNotification() {

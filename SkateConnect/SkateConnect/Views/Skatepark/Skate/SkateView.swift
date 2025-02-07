@@ -46,20 +46,6 @@ struct SkateView: View {
                 .environmentObject(locationManager)
                 .environmentObject(navigation)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForOutbound)) { notification in
-            if let event = notification.object as? NostrEvent {
-                if let lead = createLead(from: event) {
-                    dataManager.saveSpotForLead(lead)
-                }
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForInbound)) { notification in
-            if let event = notification.object as? NostrEvent {
-                if let lead = createLead(from: event) {
-                    dataManager.saveSpotForLead(lead, note: "invite")
-                }
-            }
-        }
         .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
             if let locationCoordinate = navigation.coordinate {
                locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))

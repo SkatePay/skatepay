@@ -38,10 +38,10 @@ class FeedDelegate: ObservableObject {
     }
     
     // MARK: - Subscribe to Channel Events
-    public func subscribeToChannelWithId(_channelId: String, leadType: LeadType = .outbound) {
+    public func subscribeToChannelWithId(_channelId: String) {
         cleanUp()
         
-        network?.eventServiceForChannels?.subscribeToChannelEvents(channelId: _channelId, leadType: leadType) { [weak self] events in
+        network?.eventServiceForChannels?.subscribeToChannelEvents(channelId: _channelId) { [weak self] events in
             guard let self = self else { return }
             self.handleEvents(events)
         }
@@ -82,21 +82,6 @@ class FeedDelegate: ObservableObject {
             self.messages.append(contentsOf: newMessages)
         }
     }
-    
-//    // MARK: - Publish Draft Message
-//    public func publishDraft(text: String, kind: Kind = .message) {
-//        guard let channelId = navigation?.channelId else {
-//            print("Error: Channel ID is nil.")
-//            return
-//        }
-//        
-//        NotificationCenter.default.post(
-//            name: .publishChannelEvent,
-//            object: self,
-//            userInfo: ["channelId": channelId,
-//                       "content": text]
-//        )
-//    }
     
     // MARK: - Clean Up Subscriptions
     public func cleanUp() {

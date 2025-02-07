@@ -244,6 +244,20 @@ struct ContentView: View {
                 channelViewManager.openChannel(channelId: channelId, invite: true)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForOutbound)) { notification in
+            if let event = notification.object as? NostrEvent {
+                if let lead = createLead(from: event) {
+                    dataManager.saveSpotForLead(lead)
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForInbound)) { notification in
+            if let event = notification.object as? NostrEvent {
+                if let lead = createLead(from: event) {
+                    dataManager.saveSpotForLead(lead, note: "invite")
+                }
+            }
+        }
         .task {
             await insertDefaultFriend()
         }
