@@ -28,13 +28,13 @@ struct RestoreDataView: View {
                             .font(.headline)
                         Spacer()
                         Button {
-                            clear()
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            prettifiedJSON = prettifyJSON(jsonInput)
                         } label: {
                             Text("🧹")
                         }
                         Button {
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                            prettifiedJSON = prettifyJSON(jsonInput)
+                            clear()
                         } label: {
                             Text("🗑️")
                         }
@@ -83,7 +83,7 @@ struct RestoreDataView: View {
         .toolbar {
             // Restore button in the trailing position
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Restore") {
+                Button("Import") {
                     showRestoreNotification = dataManager.restoreData(from: jsonInput)
                     walletManager.refreshAliases()
                 }
@@ -92,7 +92,7 @@ struct RestoreDataView: View {
         .overlay(
             Group {
                 if showRestoreNotification {
-                    Text("Data restored!")
+                    Text("Data imported!")
                         .padding()
                         .background(Color.orange.opacity(0.75))
                         .foregroundColor(.white)
