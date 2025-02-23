@@ -32,8 +32,8 @@ struct AddressBook: View {
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
 
-    @Query private var spots: [Spot]
-    
+    @Query(sort: [SortDescriptor(\Spot.updatedAt, order: .reverse)]) private var spots: [Spot]
+
     @StateObject private var channelSelection = ChannelSelectionManager()
 
     @State private var showFavoritesOnly = false
@@ -126,10 +126,10 @@ struct AddressBook: View {
             VStack(alignment: .center, spacing: 20) {
                 Text("New Spot")
                     .font(.headline)
-                DatePicker(selection: $date, in: Date.distantPast...Date.now, displayedComponents: .date) {
-                    TextField("name", text: $name)
-                        .textFieldStyle(.roundedBorder)
-                }
+                
+                TextField("name", text: $name)
+                    .textFieldStyle(.roundedBorder)
+                
                 TextField("latitude", value: $latitude, formatter: Formatter.clearForZero)
                     .keyboardType(.decimalPad)
                     .textFieldStyle(.roundedBorder)

@@ -35,8 +35,13 @@ class DataManager: ObservableObject {
 
     init(inMemory: Bool = false) {
         do {
-            self.modelContainer = try ModelContainer(for: Friend.self, Foe.self, Spot.self)
-        } catch {
+            let config = ModelConfiguration(
+                isStoredInMemoryOnly: inMemory
+            )
+            self.modelContainer = try ModelContainer(
+                for: Friend.self, Foe.self, Spot.self,
+                configurations: config
+            )        } catch {
             print("Failed to initialize ModelContainer: \(error)")
             fatalError("Failed to initialize ModelContainer")
         }
@@ -208,11 +213,14 @@ enum Kind: String, Codable {
 
 
 struct BackupData: Codable {
-    let spots: [CodableSpot]
-    let friends: [CodableFriend]
-    let foes: [CodableFoe]
-    let solanaKeyPairs: [SolanaKeychainStorage.WalletData]
+    let version: Int?
+    var type: String? = nil
+    let spots: [CodableSpot]?
+    let friends: [CodableFriend]?
+    let foes: [CodableFoe]?
+    let solanaKeyPairs: [SolanaKeychainStorage.WalletData]?
     let nostrKeyPairs: NostrKeypair?
+    let bots: [CodableBot]?
 }
 
 extension DataManager {
@@ -245,13 +253,17 @@ extension DataManager {
         // Fetch Nostr key pair
         let nostrKeyPair = keychainForNostr.account.map { NostrKeypair(privateKey: $0.privateKey.nsec, publicKey: $0.publicKey.npub) }
         
+        let bots = loadBotsFromUserDefaults()
+        
         // Create backup data using Codable versions
         let backupData = BackupData(
+            version: 1,
             spots: codableSpots,
             friends: codableFriends,
             foes: codableFoes,
             solanaKeyPairs: solanaKeyPairs,
-            nostrKeyPairs: nostrKeyPair
+            nostrKeyPairs: nostrKeyPair,
+            bots: bots
         )
         
         // Encode to JSON
@@ -275,10 +287,25 @@ extension DataManager {
         do {
             let backupData = try JSONDecoder().decode(BackupData.self, from: jsonData)
 
+            // Handle bot import separately
+            if backupData.type == "bot_import", let bots = backupData.bots {
+                storeBotsInUserDefaults(bots)
+                print("Bots imported successfully.")
+                return true
+            }
+            
+            let version = backupData.version ?? 1 // Default to 1 if the version is missing
+
+            if version < 2 {
+                // Perform necessary data migrations for old backups
+                print("Migrating older data to the new schema...")
+            }
+            
             resetData()
             
             // Restore spots (Convert CodableSpot to Spot)
-            for codableSpot in backupData.spots {
+            
+            for codableSpot in backupData.spots ?? [] {
                 let spot = Spot(
                     name: codableSpot.name,
                     address: codableSpot.address,
@@ -289,13 +316,15 @@ extension DataManager {
                     latitude: codableSpot.latitude,
                     longitude: codableSpot.longitude,
                     channelId: codableSpot.channelId,
-                    imageName: codableSpot.imageName
+                    imageName: codableSpot.imageName,
+                    createdAt: codableSpot.createdAt,
+                    updatedAt: codableSpot.updatedAt
                 )
                 modelContext.insert(spot)
             }
 
             // Restore friends (Convert CodableFriend to Friend)
-            for codableFriend in backupData.friends {
+            for codableFriend in backupData.friends ?? [] {
                 let friend = Friend(
                     name: codableFriend.name,
                     birthday: ISO8601DateFormatter().date(from: codableFriend.birthday) ?? Date(),
@@ -316,7 +345,7 @@ extension DataManager {
             }
 
             // Restore foes (Convert CodableFoe to Foe)
-            for codableFoe in backupData.foes {
+            for codableFoe in backupData.foes ?? [] {
                 let foe = Foe(
                     npub: codableFoe.npub,
                     birthday: ISO8601DateFormatter().date(from: codableFoe.birthday) ?? Date(),
@@ -327,7 +356,8 @@ extension DataManager {
 
             // Restore Solana key pairs
             let solanaStorage = SolanaKeychainStorage()
-            for walletData in backupData.solanaKeyPairs {
+            
+            for walletData in backupData.solanaKeyPairs ?? [] {
                 let keyPair = KeyPair(
                     phrase: walletData.keyPair.phrase,
                     publicKey: walletData.keyPair.publicKey,
@@ -351,6 +381,27 @@ extension DataManager {
         } catch {
             print("Failed to decode or restore backup data: \(error)")
             return false
+        }
+    }
+    
+    private func storeBotsInUserDefaults(_ bots: [CodableBot]) {
+        let defaults = UserDefaults.standard
+        do {
+            let data = try JSONEncoder().encode(bots)
+            defaults.set(data, forKey: "importedBots")
+        } catch {
+            print("Failed to store bots in UserDefaults: \(error)")
+        }
+    }
+
+    func loadBotsFromUserDefaults() -> [CodableBot] {
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: "importedBots") else { return [] }
+        do {
+            return try JSONDecoder().decode([CodableBot].self, from: data)
+        } catch {
+            print("Failed to load bots from UserDefaults: \(error)")
+            return []
         }
     }
     

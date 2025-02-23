@@ -1,10 +1,3 @@
-//
-//  UserDetail.swift
-//  SkatePay
-//
-//  Created by Konstantin Yurchenko, Jr on 8/30/24.
-//
-
 import NostrSDK
 import SwiftData
 import SwiftUI
@@ -21,6 +14,7 @@ struct UserDetail: View {
     
     @State private var isDebugging = false
     @State private var showingConnector = false
+    @State private var isFavorite: Bool = false
     
     var user: User
     
@@ -28,11 +22,11 @@ struct UserDetail: View {
         network.relayPool?.relays.contains(where: { $0.url == URL(string: user.relayUrl) }) ?? false
     }
     
-    func isFriend() -> Bool {
+    private func isFriend() -> Bool {
         friends.contains(where: { $0.npub == user.npub })
     }
     
-    func isFoe() -> Bool {
+    private func isFoe() -> Bool {
         foes.contains(where: { $0.npub == user.npub })
     }
     
@@ -42,6 +36,18 @@ struct UserDetail: View {
     
     private func getMonkey() -> String {
         isStringOneOfThree(user.name)
+    }
+    
+    private func toggleFavorite() {
+        if isFriend() {
+            if let friend = dataManager.findFriend(user.npub) {
+                context.delete(friend)
+            }
+        } else {
+            let newFriend = Friend(name: user.name, birthday: Date.now, npub: user.npub, note: "")
+            context.insert(newFriend)
+        }
+        isFavorite.toggle()
     }
     
     var body: some View {
@@ -54,7 +60,14 @@ struct UserDetail: View {
                 HStack {
                     Text(user.name + " \(getMonkey())")
                         .font(.title)
-                    FavoriteButton(isSet: .constant(true))
+                    
+                    FavoriteButton(isSet: $isFavorite)
+                        .onChange(of: isFavorite) { _ in
+                            toggleFavorite()
+                        }
+                        .onAppear {
+                            isFavorite = isFriend()
+                        }
                 }
                 
                 Text(user.npub)
@@ -77,8 +90,8 @@ struct UserDetail: View {
                             .cornerRadius(8)
                     }
                     
-                    if (!isSupport()) {
-                        FriendFoeButtons(user: user, isFriend: isFriend(), isFoe: isFoe())
+                    if !isSupport() {
+                        BlockUnblockButton(user: user)
                             .environmentObject(dataManager)
                     }
                 }
@@ -103,14 +116,14 @@ struct UserDetail: View {
                         }
                     }
                 
-                if (isDebugging) {
+                if isDebugging {
                     Text("Relay").font(.title2)
                     Text("\(user.relayUrl) \(connected ? "🟢" : "🔴")")
                 }
                 
                 Divider()
                 
-                if (!isSupport()) {
+                if !isSupport() {
                     HStack(spacing: 20) {
                         Spacer()
                         NavigationLink(value: NavigationPathType.reportUser(user: AppData().users[0], message: user.npub)) {
@@ -135,51 +148,26 @@ struct UserDetail: View {
     }
 }
 
-struct FriendFoeButtons: View {
+struct BlockUnblockButton: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject private var dataManager: DataManager
 
     var user: User
-    var isFriend: Bool
-    var isFoe: Bool
-    
+
     var body: some View {
         HStack {
-            if isFriend {
-                Button("Unfriend") {
-                    if let friend = dataManager.findFriend(user.npub) {
-                        context.delete(friend)
-                    }
-                }
-                .padding(8)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            } else {
-                Button("+1 Contacts") {
-                    let friend = Friend(name: friendlyKey(npub: user.npub), birthday: Date.now, npub: user.npub, note: "")
-                    context.insert(friend)
-                }
-                .padding(8)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            }
-            
-            if isFoe {
-                Button("Unmute 🙊") {
-                    if let foe = dataManager.findFoes(user.npub) {
-                        context.delete(foe)
-                    }
+            if let foe = dataManager.findFoes(user.npub) {
+                Button("Unmute") {
+                    context.delete(foe)
                 }
                 .padding(8)
                 .background(Color.gray)
                 .foregroundColor(.white)
                 .cornerRadius(8)
             } else {
-                Button("Ignore 🙈") {
-                    let foe = Foe(npub: user.npub, birthday: Date.now, note: "")
-                    context.insert(foe)
+                Button("Mute") {
+                    let newFoe = Foe(npub: user.npub, birthday: Date.now, note: "")
+                    context.insert(newFoe)
                     NotificationCenter.default.post(name: .muteUser, object: nil)
                 }
                 .padding(8)
@@ -194,5 +182,6 @@ struct FriendFoeButtons: View {
 #Preview {
     let modelData = AppData()
     return UserDetail(user: modelData.users[0])
-        .environment(modelData).environmentObject(HostStore())
+        .environment(modelData)
+        .environmentObject(HostStore())
 }

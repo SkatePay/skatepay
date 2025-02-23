@@ -36,7 +36,14 @@ struct LobbyView: View {
     var body: some View {
         VStack {
             List {
-                UserRow(users: [SkateConnect.getUser(npub: modelData.users[0].npub)])
+                let bots = loadBotsFromUserDefaults()
+                let botUsers = bots.map { bot in
+                    SkateConnect.getUser(npub: bot.npub)
+                }
+                
+                let users = [SkateConnect.getUser(npub: modelData.users[0].npub)] + botUsers
+                
+                UserRow(users: users)
                     .environmentObject(navigation)
                 
                 Button(action: {
@@ -177,6 +184,17 @@ private extension LobbyView {
                     }
                 }
             }
+        }
+    }
+
+    func loadBotsFromUserDefaults() -> [CodableBot] {
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: "importedBots") else { return [] }
+        do {
+            return try JSONDecoder().decode([CodableBot].self, from: data)
+        } catch {
+            print("Failed to load bots from UserDefaults: \(error)")
+            return []
         }
     }
 }

@@ -47,3 +47,8 @@ struct CodableFriend: Codable {
         }
     }
 }
+
+struct CodableBot: Codable {
+    let name: String
+    let npub: String
+}

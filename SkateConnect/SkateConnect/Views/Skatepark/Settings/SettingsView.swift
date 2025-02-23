@@ -143,7 +143,7 @@ struct SettingsView: View {
                 }
                 
                 if debugManager.hasEnabledDebug {
-                    Button("💾 Backup Data") {
+                    Button("💾 Export Data") {
                         Task {
                             if let backupJSON = dataManager.backupData() {
                                 UIPasteboard.general.string = backupJSON
@@ -151,7 +151,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-                    Button("♻️ Restore Data") {
+                    Button("📲 Import Data") {
                         navigation.path.append(NavigationPathType.restoreData)
                     }
                 }
