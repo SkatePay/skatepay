@@ -58,6 +58,7 @@
 		C625016E2C93C1340026C334 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501352C93C1340026C334 /* User.swift */; };
 		C62B84F32CA5D4230086AEE0 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F22CA5D4230086AEE0 /* CameraView.swift */; };
 		C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */; };
+		C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
 		C668FC4F2C967AAA00612BEA /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC4E2C967AAA00612BEA /* KeychainSwift */; };
@@ -77,7 +78,6 @@
 		C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096B2C96597A00C9F8F1 /* MockSocket.swift */; };
 		C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096C2C96597A00C9F8F1 /* MockUser.swift */; };
 		C69018B52D432DC500A3CDD8 /* EULAManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69018B42D432DC500A3CDD8 /* EULAManager.swift */; };
-		C691D43E2CC32AC400168EEE /* ChatHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = C691D43D2CC32AC400168EEE /* ChatHelpers.swift */; };
 		C69877672D53EB61009CAAC4 /* EventServiceForChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69877662D53EB61009CAAC4 /* EventServiceForChannels.swift */; };
 		C69877692D53F0BC009CAAC4 /* EventServiceForDirect.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69877682D53F0BC009CAAC4 /* EventServiceForDirect.swift */; };
 		C6A3DCE82D444F650095A994 /* FeedDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCE72D444F650095A994 /* FeedDelegate.swift */; };
@@ -217,6 +217,7 @@
 		C62501352C93C1340026C334 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C62B84F22CA5D4230086AEE0 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
+		C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
 		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
 		C66AFE852CA61C76000CD716 /* AWS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AWS.swift; sourceTree = "<group>"; };
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
@@ -230,7 +231,6 @@
 		C66E096B2C96597A00C9F8F1 /* MockSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockSocket.swift; sourceTree = "<group>"; };
 		C66E096C2C96597A00C9F8F1 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
 		C69018B42D432DC500A3CDD8 /* EULAManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAManager.swift; sourceTree = "<group>"; };
-		C691D43D2CC32AC400168EEE /* ChatHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHelpers.swift; sourceTree = "<group>"; };
 		C69877662D53EB61009CAAC4 /* EventServiceForChannels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventServiceForChannels.swift; sourceTree = "<group>"; };
 		C69877682D53F0BC009CAAC4 /* EventServiceForDirect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventServiceForDirect.swift; sourceTree = "<group>"; };
 		C6A3DCE72D444F650095A994 /* FeedDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDelegate.swift; sourceTree = "<group>"; };
@@ -366,10 +366,10 @@
 		C62500F42C93C1340026C334 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */,
 				C6F4959B2C93CF350006FBF0 /* CircleImage.swift */,
 				C62500F22C93C1340026C334 /* FavoriteButton.swift */,
 				C62500F32C93C1340026C334 /* MapView.swift */,
-				C691D43D2CC32AC400168EEE /* ChatHelpers.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -947,6 +947,7 @@
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
+				C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */,
 				C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */,
@@ -1003,7 +1004,6 @@
 				C6A3DCF52D4AA5EB0095A994 /* EditCryptoAddressesView.swift in Sources */,
 				C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */,
 				C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */,
-				C691D43E2CC32AC400168EEE /* ChatHelpers.swift in Sources */,
 				C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */,
 				C62B84F32CA5D4230086AEE0 /* CameraView.swift in Sources */,
 				C625014E2C93C1340026C334 /* UserRow.swift in Sources */,

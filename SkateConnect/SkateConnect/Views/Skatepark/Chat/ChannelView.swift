@@ -20,6 +20,7 @@ struct ChannelView: View {
     @Environment(\.dismiss) private var dismiss
     
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
         
@@ -39,7 +40,7 @@ struct ChannelView: View {
     @State private var showMediaActionSheet = false
     @State private var selectedMediaURL: URL?
     
-    @State private var isInitialized = false
+    @State private var isInitialized = false // THis value prevents resetting the scroll when navigating to other views
     
     var landmarks: [Landmark] = AppData().landmarks
     
@@ -77,14 +78,7 @@ struct ChannelView: View {
                 }
             )
             .onAppear {
-                if !isInitialized {
-                    feedDelegate.setDataManager(dataManager: dataManager)
-                    feedDelegate.setNavigation(navigation: navigation)
-                    feedDelegate.setNetwork(network: network)
-                                                            
-                    self.setup()
-                    self.isInitialized = true
-                }
+                self.setupSubscription()
             }
             .onAppear(perform: observeNotification)
             .onDisappear {
@@ -194,6 +188,7 @@ struct ChannelView: View {
     
     private func openChannelInvite() {
         guard let channelId = selectedChannelId else { return }
+
         navigation.joinChannel(channelId: channelId)
     }
     
@@ -227,13 +222,6 @@ struct ChannelView: View {
         print("Downloading video from \(url)")
     }
     
-    func setup() {
-        navigation.channelId = channelId
-        network.leadType = leadType
-
-        self.feedDelegate.subscribeToChannelWithId(_channelId: channelId)
-    }
-    
     private func observeNotification() {
         NotificationCenter.default.addObserver(
             forName: .muteUser,
@@ -251,6 +239,23 @@ struct IgnoresSafeArea: ViewModifier {
             content.ignoresSafeArea(.keyboard, edges: .bottom)
         } else {
             content
+        }
+    }
+}
+
+private extension ChannelView {
+    private func setupSubscription() {
+        if !isInitialized {
+            navigation.channelId = channelId
+            network.leadType = leadType
+            
+            feedDelegate.setDataManager(dataManager: dataManager)
+            feedDelegate.setNavigation(navigation: navigation)
+            feedDelegate.setNetwork(network: network)
+                                
+            feedDelegate.subscribeToChannelWithId(_channelId: channelId)
+            
+            self.isInitialized = true
         }
     }
 }

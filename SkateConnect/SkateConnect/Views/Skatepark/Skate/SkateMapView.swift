@@ -69,13 +69,6 @@ struct SkateMapView: View {
                                     self.showMenu = true
                                 }
                         )
-                        .actionSheet(isPresented: $showMenu) {
-                            guard let lead = selectedLead else {
-                                return ActionSheet(title: Text("Error"), message: Text("No lead selected."), buttons: [.cancel()])
-                            }
-                            
-                            return createActionSheetForLead(lead)
-                        }
                     }
                 }
             }
@@ -91,6 +84,13 @@ struct SkateMapView: View {
                     stateManager.addMarker(at: coordinate, spots: spots)
                     
                     locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude))
+                }
+            }
+            .actionSheet(isPresented: $showMenu) {
+                if let lead = selectedLead {
+                    return createActionSheetForLead(lead)
+                } else {
+                    return ActionSheet(title: Text("Error"), message: Text("No lead selected."), buttons: [.cancel()])
                 }
             }
         }
@@ -125,7 +125,7 @@ struct SkateMapView: View {
                     
 //                    let customUrlString = "\(Constants.LANDING_PAGE_SKATEPARK)/channel/\(lead.channelId)"
 //                    UIPasteboard.general.string = customUrlString
-//                    
+//
 //                    stateManager.isLinkCopied = true
                 },
                 (lead.event != nil) ? .default(Text("Copy Invite")) {

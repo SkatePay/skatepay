@@ -16,7 +16,7 @@ import SwiftUI
 class FeedDelegate: ObservableObject {
     @Published var messages: [MessageType] = []
     @Published var lead: Lead?
-        
+    
     @Published private var dataManager: DataManager?
     @Published private var navigation: Navigation?
     @Published private var network: Network?
@@ -38,112 +38,79 @@ class FeedDelegate: ObservableObject {
     }
     
     // MARK: - Subscribe to Channel Events
+    
     public func subscribeToChannelWithId(_channelId: String) {
-        cleanUp()
+        reset()
         
-        network?.eventServiceForChannels?.subscribeToChannelEvents(channelId: _channelId) { [weak self] events in
-            guard let self = self else { return }
-            self.handleEvents(events)
+        guard  let service = network?.eventServiceForChannels else {
+            return
+        }
+        
+        service.subscribeToChannelEvents(channelId: _channelId)  { [weak self] in
+            self?.handleEvents($0)
         }
     }
     
     // MARK: - Handle Multiple Events in Bulk
+    
     private func handleEvents(_ events: [NostrEvent]) {
         var newMessages: [MessageType] = []
         
-        let blacklist = dataManager?.getBlacklist() ?? []
+        let blacklist = self.dataManager?.getBlacklist() ?? []
+        
+        guard let account = self.keychainForNostr.account else {
+            print("❌ Failed to get account")
+            return
+        }
         
         for event in events {
-            if let message = parseEventIntoMessage(event: event) {
-                if event.kind == .channelCreation {
-                    if let navigation = navigation {
-                        navigation.channel = event
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.lead = createLead(from: event)
-                    }
+            if event.kind == .channelCreation {
+                if let navigation = self.navigation {
+                    navigation.channel = event
                 }
                 
-                if event.kind == .channelMessage {
-                    guard let publicKey = PublicKey(hex: event.pubkey) else { continue }
-                    if blacklist.contains(publicKey.npub) { continue }
+                self.lead = createLead(from: event)
+            } else {
+                if let message = MessageHelper.parseEventIntoMessage(event: event, account: account) {
+                    guard let publicKey = PublicKey(
+                        hex: event.pubkey
+                    ) else {
+                        continue
+                    }
                     
-                    if (network?.eventServiceForChannels?.fetchingStoredEvents ?? false) {
-                        newMessages.insert(message, at: 0)
-                    } else {
+                    if blacklist.contains(
+                        publicKey.npub
+                    ) {
+                        continue
+                    }
+                    
+                    guard let fetchingStoredEvents = self.network?.eventServiceForChannels?.fetchingStoredEvents else {
+                        return
+                    }
+                    
+                    if fetchingStoredEvents {
                         newMessages.append(message)
+                    } else {
+                        newMessages.insert(message, at: 0)
                     }
                 }
             }
         }
         
-        DispatchQueue.main.async {
-            self.messages.append(contentsOf: newMessages)
-        }
+        self.messages.append(
+            contentsOf: newMessages
+        )
     }
     
     // MARK: - Clean Up Subscriptions
-    public func cleanUp() {
-        messages.removeAll()
-        network?.eventServiceForChannels?.cleanUp()
-    }
     
-    // MARK: - Parse Nostr Event into MessageType
-    private func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
-        let publicKey = PublicKey(hex: event.pubkey)
-        let isCurrentUser = publicKey == keychainForNostr.account?.publicKey
-        
-        let npub = publicKey?.npub ?? ""
-        let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
-        
-        let content = processContent(content: event.content)
-        let user = MockUser(senderId: npub, displayName: displayName)
-        
-        switch content {
-        case .text(let text):
-            // Handle text message
-            return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
-        case .video(let videoURL):
-            // Handle video message
-            return MockMessage(thumbnail: videoURL, user: user, messageId: event.id, date: event.createdDate)
-        case .photo(let imageUrl):
-            // Handle photo message
-            return MockMessage(imageURL: imageUrl, user: user, messageId: event.id, date: event.createdDate)
-        case .invite(let encryptedString):
-            // Handle invite message
-            guard let invite = decryptChannelInviteFromString(encryptedString: encryptedString) else {
-                print("Failed to decrypt channel invite")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            guard let image = UIImage(named: "user-skatepay") else {
-                print("Failed to load image")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            guard let event = invite.event, let lead = createLead(from: event) else {
-                print("Failed to create lead from event")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            guard let channel = lead.channel,
-                  let url = URL(string: "\(Constants.CHANNEL_URL_SKATEPARK)/\(event.id)"),
-                  let description = channel.aboutDecoded?.description else {
-                print("Failed to generate URL or decode channel description")
-                return MockMessage(text: encryptedString, user: user, messageId: "unknown", date: Date())
-            }
-            
-            let linkItem = MockLinkItem(
-                text: "\(lead.icon) Channel Invite",
-                attributedText: nil,
-                url: url,
-                title: "🪧 \(lead.name)",
-                teaser: description,
-                thumbnailImage: image
-            )
-            
-            return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
+    public func reset() {
+        messages.removeAll()
+
+        guard  let service = network?.eventServiceForChannels else {
+            return
         }
+        
+        service.cleanUp()
     }
 }

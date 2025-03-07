@@ -111,10 +111,9 @@ private extension DirectMessage {
                     .receive(on: DispatchQueue.main)
                     .map { $0.event }
                     .removeDuplicates()
-                    .sink(receiveValue: handleNewEvent)
+                    .sink(receiveValue: handleEvent)
             }
         }
-        
     }
 
     private func cleanupSubscription() {
@@ -123,8 +122,8 @@ private extension DirectMessage {
         }
     }
 
-    private func handleNewEvent(event: NostrEvent) {
-        if let message = parseEventIntoMessage(event: event) {
+    private func handleEvent(event: NostrEvent) {
+        if let message = processEventIntoMessage(event: event) {
             if network.eventServiceForDirect?.fetchingStoredEvents ?? false {
                 messageHandler.messages.insert(message, at: 0)
             } else {
@@ -161,7 +160,7 @@ private extension DirectMessage {
         return Filter(authors: authors, kinds: [4], tags: ["p": authors], limit: 64)
     }
 
-    func parseEventIntoMessage(event: NostrEvent) -> MessageType? {
+    func processEventIntoMessage(event: NostrEvent) -> MessageType? {
         guard let myKeypair = keychainForNostr.account,
               let recipientPublicKey = PublicKey(npub: user.npub) else { return nil }
 
@@ -175,7 +174,7 @@ private extension DirectMessage {
                 .content(decryptedText)
                 .build(pubkey: event.pubkey)
 
-            return messageHandler.parseEventIntoMessage(event: decryptedEvent)
+            return MessageHelper.parseEventIntoMessage(event: decryptedEvent, account: myKeypair)
         } catch {
             print("Decryption failed: \(error.localizedDescription)")
             return nil

@@ -143,6 +143,7 @@ struct ContentView: View {
                 case .channel(let channelId, let invite):
                     ChannelView(channelId: channelId, leadType: invite ? .inbound : .outbound)
                         .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
                         .onDisappear {

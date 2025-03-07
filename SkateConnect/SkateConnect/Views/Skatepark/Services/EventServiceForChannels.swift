@@ -12,74 +12,94 @@ import Combine
 
 class EventServiceForChannels: ObservableObject, EventCreating {
     @Published var fetchingStoredEvents = true
+    
+    private var events: [NostrEvent] = [] // Buffer for historical messages
 
     private var network: Network?
-
+    
     public var subscriptionIdForMetadata: String?
     public var subscriptionIdForPublicMessages: String?
-
+    
     private var eventsCancellable: AnyCancellable?
     
-    private var messageBuffer: [NostrEvent] = [] // Buffer for historical messages
-    private var bufferCompletion: (([NostrEvent]) -> Void)?
-
+    private var callback: (([NostrEvent]) -> Void)?
+    
     init(network: Network) {
         self.network = network
     }
     
     // MARK: - Subscriptions
-    func subscribeToChannelEvents(channelId: String, completion: @escaping ([NostrEvent]) -> Void){
+    func subscribeToChannelEvents(channelId: String, completion: @escaping ([NostrEvent]) -> Void) {
+        print("🛠 Subscribing to channel: \(channelId)")
         
-        self.bufferCompletion = completion  // Save the completion for later use
+        cleanUp()  // Reset the service before subscribing to a new channel
         
-        if let pool = network?.relayPool {
-            let filterForMetadata = Filter(ids: [channelId], kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue])!
-            let filterForFeed = Filter(kinds: [EventKind.channelMessage.rawValue], tags: ["e": [channelId]], limit: 32)!
-            
-            subscriptionIdForMetadata = pool.subscribe(with: filterForMetadata)
-            subscriptionIdForPublicMessages = pool.subscribe(with: filterForFeed)
-            
-            eventsCancellable = pool.events
-                .receive(on: DispatchQueue.main)
-                .map { $0.event }
-                .removeDuplicates()
-                .sink { [weak self] event in
-                    self?.handleEvent(event)
-                }
+        self.callback = completion  // Save the completion callback
+        
+        guard let pool = self.network?.relayPool else {
+            print("❌ Relay pool is unavailable")
+            return
+        }
+        
+        let filterForMetadata = Filter(
+            ids: [channelId],
+            kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue]
+        )!
+        let filterForFeed = Filter(
+            kinds: [EventKind.channelMessage.rawValue],
+            tags: ["e": [channelId]],
+            limit: 32
+        )!
+        
+        self.subscriptionIdForMetadata = pool.subscribe(with: filterForMetadata)
+        self.subscriptionIdForPublicMessages = pool.subscribe(with: filterForFeed)
+        
+        self.eventsCancellable = pool.events
+            .receive(on: DispatchQueue.main)
+            .map { $0.event }
+            .removeDuplicates()
+            .sink(receiveValue: self.handleEvent)
+        
+        print("✅ Subscribed to new channel: \(channelId)")
+    }
+    
+    private func handleEvent(event: NostrEvent) {        
+        if self.fetchingStoredEvents {
+            self.events.append(event)
+        } else {
+            guard let callback = self.callback else {
+                print("❌ completion is nil! Cannot send event.")
+                return
+            }
+            callback([event])
         }
     }
     
-    // MARK: - Buffer Historical Messages
-    private func handleEvent(_ event: NostrEvent) {
-        if fetchingStoredEvents {
-//            messageBuffer.append(event)
-            messageBuffer.insert(event, at: 0)
-        } else {
-            // For live events, send directly to UI
-            bufferCompletion?([event])
-        }
-    }
-
     // MARK: - Flush Buffer Once EOSE is Received
     func flushMessageBuffer() {
-        if !messageBuffer.isEmpty {
-            // Pass all buffered messages at once
-            bufferCompletion?(messageBuffer)
-            messageBuffer.removeAll() // Clear the buffer
+        if !events.isEmpty {
+            fetchingStoredEvents = false
+            callback?(events)
+            events.removeAll()
         }
     }
     
-
     func cleanUp() {
-        [subscriptionIdForMetadata, subscriptionIdForPublicMessages].compactMap { $0 }.forEach {
-            network?.relayPool?.closeSubscription(with: $0)
-        }
+        print("🧹 EventServiceForChannels cleaned up and ready for new subscription")
         
+        [subscriptionIdForMetadata, subscriptionIdForPublicMessages]
+            .compactMap { $0 }
+            .forEach { network?.relayPool?.closeSubscription(with: $0) }
+        
+        // Reset values
         subscriptionIdForMetadata = nil
         subscriptionIdForPublicMessages = nil
-        
-        fetchingStoredEvents = true
-                
         eventsCancellable?.cancel()
+        eventsCancellable = nil
+        
+        // Clear the buffer and reset states
+        events.removeAll()
+        callback = nil
+        fetchingStoredEvents = true
     }
 }

@@ -95,7 +95,6 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             
             if let service = self.eventServiceForChannels {
                 if subscriptionId == service.subscriptionIdForPublicMessages {
-                    service.fetchingStoredEvents = false
                     service.flushMessageBuffer()
                 }
             }
