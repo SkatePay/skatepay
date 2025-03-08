@@ -73,13 +73,11 @@ class Navigation: ObservableObject {
     
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?
-                            
-    @Published var isShowingAddressBook = false
-    
+                                
     @Published var isShowingEditChannel = false
         
     var isLocationUpdatePaused: Bool {
-        return isShowingAddressBook || isShowingEditChannel
+        return isShowingEditChannel
     }
     
     func recoverFromSearch() {
@@ -95,7 +93,6 @@ class Navigation: ObservableObject {
     }
     
     func goToCoordinate() {
-        isShowingAddressBook = false
         self.tab = .map
         
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)

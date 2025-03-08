@@ -31,8 +31,6 @@ struct LobbyView: View {
         return foes.contains(where: { $0.npub == npub })
     }
     
-    let hasRunOnboarding = "hasRunOnboarding"
-
     var body: some View {
         VStack {
             List {
@@ -83,14 +81,14 @@ struct LobbyView: View {
         .onAppear() {
             let defaults = UserDefaults.standard
             
-            if !defaults.bool(forKey: hasRunOnboarding) {
+            if !defaults.bool(forKey: UserDefaults.Keys.hasRunOnboarding) {
                 isShowingAlert = true
             }
         }
         .alert("🧑‍🏫 Instructions", isPresented: $isShowingAlert) {
             Button("Got it!", role: .cancel) {
                 let defaults = UserDefaults.standard
-                defaults.set(true, forKey: hasRunOnboarding)
+                defaults.set(true, forKey: UserDefaults.Keys.hasRunOnboarding)
             }
         } message: {
             Text("Tap and hold message, contact or other to see the options menu.")

@@ -2,13 +2,21 @@
 
 A [nostr][nostr] chat + crypto wallet client for iPhone. 
 
-[nostr]: https://github.com/fiatjaf/nostr
-
 ## Download from App Store
 - [SkateConnect](https://apps.apple.com/us/app/skateconnect/id6677058833)
 
 ## Overview
 - [Gitbook](https://support.skatepark.chat)
+
+## Debug Deeplinking
+```
+log stream --predicate 'subsystem == "SkateConnect"' --info --style compact 
+xcrun simctl terminate booted ninja.skate.SkateConnect 
+xcrun simctl openurl booted "https://skatepark.chat/channel/92ef3ac79a8772ddf16a2e74e239a67bc95caebdb5bd59191c95cf91685dfc8e"
+xcrun simctl openurl booted "https://skatepark.chat/user/npub14rzvh48d68f3467faxpz6vm2k3af0c6fpg7y6gmh7hfgpjvj9hgqmwr22g"
+```
+
+[nostr]: https://github.com/fiatjaf/nostr
 
 ## Nostr Spec Compliance
 

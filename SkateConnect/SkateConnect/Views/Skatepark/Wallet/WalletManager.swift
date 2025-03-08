@@ -13,11 +13,6 @@ import SolanaSwift
 import Combine
 
 extension UserDefaults {
-    private enum Keys {
-        static let selectedAlias = "selectedAlias"
-        static let network = "network"
-    }
-    
     var selectedAlias: String {
         get { string(forKey: Keys.selectedAlias) ?? "" }
         set { set(newValue, forKey: Keys.selectedAlias) }

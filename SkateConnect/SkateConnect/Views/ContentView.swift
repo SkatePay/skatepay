@@ -173,7 +173,7 @@ struct ContentView: View {
                         .navigationTitle("Direct Message")
                     
                 case .directMessage(user: let user):
-                    DirectMessage(user: user)
+                    DMView(user: user)
                         .environmentObject(dataManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
@@ -198,7 +198,7 @@ struct ContentView: View {
                         .navigationBarTitle("🏁 Skateparks")
                     
                 case .reportUser(user: let user, message: let message):
-                    DirectMessage(user: user, message: message)
+                    DMView(user: user, message: message)
                         .environmentObject(dataManager)
                         .environmentObject(navigation)
                         .environmentObject(network)

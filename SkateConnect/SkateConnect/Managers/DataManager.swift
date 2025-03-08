@@ -208,6 +208,7 @@ enum Kind: String, Codable {
     case video
     case photo
     case message
+    case hidden
     case subscriber
 }
 

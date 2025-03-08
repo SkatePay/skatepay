@@ -169,6 +169,8 @@ struct SettingsView: View {
         .confirmationDialog("Are you sure?", isPresented: $showingConfirmation) {
             Button("Reset", role: .destructive) {
                 Task {
+                    NotificationCenter.default.post(name: .stopNetwork, object: nil)
+
                     dataManager.resetData()
                     
                     clearAllUserDefaults()

@@ -10,12 +10,12 @@ import Foundation
 class EULAManager: ObservableObject {
     @Published var hasAcknowledgedEULA: Bool {
         didSet {
-            UserDefaults.standard.set(hasAcknowledgedEULA, forKey: "hasAcknowledgedEULA")
+            UserDefaults.standard.set(hasAcknowledgedEULA, forKey: UserDefaults.Keys.hasAcknowledgedEULA)
         }
     }
 
     init() {
-        self.hasAcknowledgedEULA = UserDefaults.standard.bool(forKey: "hasAcknowledgedEULA")
+        self.hasAcknowledgedEULA = UserDefaults.standard.bool(forKey: UserDefaults.Keys.hasAcknowledgedEULA)
     }
 
     func acknowledgeEULA() {

@@ -23,5 +23,14 @@
 	<string>SkateConnect uses the photo library to let you share screenshots of the app development issues with tech support.</string>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>skateconnect</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

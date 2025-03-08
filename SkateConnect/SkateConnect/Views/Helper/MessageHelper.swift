@@ -20,18 +20,20 @@ enum ContentType {
 }
 
 class MessageHelper {
-    /// Parses a `NostrEvent` into a `MessageType`
     static func parseEventIntoMessage(event: NostrEvent, account: Keypair?) -> MessageType? {
         let publicKey = PublicKey(hex: event.pubkey)
         let isCurrentUser = publicKey == account?.publicKey
         
         let npub = publicKey?.npub ?? ""
         let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
-        
-        let content = processContent(content: event.content)
         let user = MockUser(senderId: npub, displayName: displayName)
 
-        switch content {
+        guard let message = processContent(content: event.content) else {
+            print("ignoring hidden message")
+            return nil
+        }
+
+        switch message {
         case .attributedText(let text):
             return MockMessage(attributedText: text, user: user, messageId: event.id, date: event.createdDate)
         case .text(let text):
@@ -48,38 +50,38 @@ class MessageHelper {
     /// Handles the parsing of an encrypted invite message
     private static func processInviteMessage(_ encryptedString: String, user: MockUser, event: NostrEvent) -> MessageType? {
         guard let invite = decryptChannelInviteFromString(encryptedString: encryptedString) else {
-            print("❌ Failed to decrypt channel invite")
+            print("🔥 Failed to decrypt channel invite")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
         guard let inviteEvent = invite.event else {
-            print("❌ Invite event is nil")
+            print("🔥 Invite event is nil")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
         guard let image = UIImage(named: "user-skatepay") else {
-            print("❌ Failed to load invite thumbnail image")
+            print("🔥 Failed to load invite thumbnail image")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
         guard let lead = createLead(from: inviteEvent), let channel = lead.channel else {
-            print("❌ Failed to create lead from invite event")
+            print("🔥 Failed to create lead from invite event")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
         guard let eventId = channel.event?.id else {
-            print("❌ Failed to get event ID from channel event")
+            print("🔥 Failed to get event ID from channel event")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
         let urlString = "\(Constants.CHANNEL_URL_SKATEPARK)/\(eventId)"
         guard let url = URL(string: urlString) else {
-            print("❌ Failed to generate URL from string: \(urlString)")
+            print("🔥 Failed to generate URL from string: \(urlString)")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
         guard let description = channel.aboutDecoded?.description else {
-            print("❌ Failed to decode channel description")
+            print("🔥 Failed to decode channel description")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
@@ -94,7 +96,6 @@ class MessageHelper {
 
         return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
     }
-    
     
     static func detectAndConvertLinks(_ text: String) -> NSAttributedString? {
         // Match MessageKit's default appearance (white color, default font size)
@@ -137,7 +138,7 @@ class MessageHelper {
         return foundLinks ? attributedString : nil
     }
 
-    static func processContent(content: String) -> ContentType {
+    static func processContent(content: String) -> ContentType? {
         var text = content
         
         do {
@@ -156,7 +157,6 @@ class MessageHelper {
                 }
                 
             case .photo:
-                // Handle photo content
                 if let url = URL(string: decodedStructure.content) {
                     return .photo(url)
                 } else {
@@ -165,19 +165,21 @@ class MessageHelper {
                 }
                 
             case .subscriber:
-                // Format the subscriber text
                 let formattedText = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
                 return .text(formattedText)
                 
+            
+            case .hidden:
+                return nil
+                
             default:
-                // If no other kind is matched, fall through to check for channel_invite or return raw text
                 break
             }
             
         } catch let DecodingError.keyNotFound(key, context) {
-            print("❌ Decoding error: Missing key \(key.stringValue) - \(context.debugDescription)")
+            print("🔥 Decoding error: Missing key \(key.stringValue) - \(context.debugDescription)")
         } catch {
-            print("❌ Unexpected decoding error: \(error)")
+            print("🔥 Unexpected decoding error: \(error)")
         }
         
         // Handle channel_invite in the text as a fallback

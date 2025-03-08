@@ -22,6 +22,7 @@ class ChannelViewManager: ObservableObject {
     }
     
     func openChannel(channelId: String, invite: Bool = false) {
+        network?.subscribeToChannelWhenReady(channelId)
         navigation?.channelId = channelId
         navigation?.path.append(
             NavigationPathType.channel(channelId: channelId, invite: invite)
@@ -33,6 +34,6 @@ class ChannelViewManager: ObservableObject {
     }
     
     func deleteChannelWithId(_ channelId: String) {
-        network?.submitDeleteChannelRequestForChannelId(channelId)
+        network?.publishDeleteEventForChannel(channelId)
     }
 }

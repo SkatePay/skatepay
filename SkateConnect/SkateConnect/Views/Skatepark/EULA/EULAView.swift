@@ -92,7 +92,6 @@ struct EULAView: View {
     @Environment(\.dismiss) private var dismiss
 
     @EnvironmentObject private var eulaManager: EULAManager
-    @EnvironmentObject private var network: Network
         
     @State private var agreeToTerms = false    
 
@@ -118,18 +117,15 @@ struct EULAView: View {
                 
                 // Action Button
                 Button(action: {
-                    if agreeToTerms {      
-                        Task {
-                            self.createIdentity()
-                            await network.updateSubscriptions()
-                            await network.requestOnboardingInfo()
-                        }
-                        
+                    if agreeToTerms {
                         eulaManager.acknowledgeEULA()
+                        
+                        NotificationCenter.default.post(name: .startNetwork, object: nil)
                         
                         dismiss()
                     } else {
                         print("User must agree to EULA to proceed")
+                        
                     }
                 }) {
                     Text("Continue")
@@ -152,19 +148,6 @@ struct EULAView: View {
             .padding()
         }
         .navigationTitle("Terms of Service")
-    }
-    
-    let keychainForNostr = NostrKeychainStorage()
-    
-    private func createIdentity() {
-        do {
-            if ((keychainForNostr.account) == nil) {
-                let keypair = Keypair()!
-                try keychainForNostr.save(keypair)
-            }
-        } catch {
-            fatalError(error.localizedDescription)
-        }
     }
 }
 
