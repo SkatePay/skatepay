@@ -65,6 +65,7 @@
 		C63DEF502D7BD2DF0058224F /* DMSubscriptionListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF4F2D7BD2DF0058224F /* DMSubscriptionListener.swift */; };
 		C63DEF542D7BD4450058224F /* DMMessageListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF532D7BD4450058224F /* DMMessageListener.swift */; };
 		C63DEF562D7BD48D0058224F /* DMEventPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF552D7BD48D0058224F /* DMEventPublisher.swift */; };
+		C63DEF582D7D1DAD0058224F /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF572D7D1DAD0058224F /* CameraViewModel.swift */; };
 		C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
@@ -228,6 +229,7 @@
 		C63DEF4F2D7BD2DF0058224F /* DMSubscriptionListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMSubscriptionListener.swift; sourceTree = "<group>"; };
 		C63DEF532D7BD4450058224F /* DMMessageListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMMessageListener.swift; sourceTree = "<group>"; };
 		C63DEF552D7BD48D0058224F /* DMEventPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMEventPublisher.swift; sourceTree = "<group>"; };
+		C63DEF572D7D1DAD0058224F /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
 		C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
 		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
 		C66AFE852CA61C76000CD716 /* AWS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AWS.swift; sourceTree = "<group>"; };
@@ -553,6 +555,7 @@
 			children = (
 				C66AFE892CA63138000CD716 /* Barcode */,
 				C62B84F22CA5D4230086AEE0 /* CameraView.swift */,
+				C63DEF572D7D1DAD0058224F /* CameraViewModel.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -1032,6 +1035,7 @@
 				C625015D2C93C1340026C334 /* TransferAsset.swift in Sources */,
 				C62500DE2C93C1210026C334 /* SolanaToken.swift in Sources */,
 				C6FAAC702D4AA82D00A532A3 /* MainHelper.swift in Sources */,
+				C63DEF582D7D1DAD0058224F /* CameraViewModel.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,
 				C6D1F2E02C9FC52A00FF428F /* ScannerView.swift in Sources */,
 				C6C94AE92CA8D731008ECA86 /* API.swift in Sources */,

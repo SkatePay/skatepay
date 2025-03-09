@@ -101,10 +101,6 @@ struct ChannelView: View {
                     self.eventPublisher.subscribeToChannelWithId(channelId)                    
                 }
             }
-            
-            .onDisappear {
-                NotificationCenter.default.removeObserver(self)
-            }
             .navigationBarBackButtonHidden()
             .actionSheet(isPresented: $showMediaActionSheet) {
                 createMediaActionSheet(for: selectedMediaURL)
@@ -197,6 +193,20 @@ struct ChannelView: View {
                     )
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .muteUser)) { _ in
+                if let account = keychainForNostr.account {
+                    self.eventListenerForMetadata.setChannelId(channelId)
+                    
+                    self.eventListenerForMessages.setChannelId(channelId)
+                    self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                    self.eventListenerForMessages.reset()
+                    
+                    self.eventPublisher.subscribeToChannelWithId(channelId)
+                }
+            }
+            .onDisappear {
+                NotificationCenter.default.removeObserver(self)
+            }
             .padding(.bottom, keyboardHeight)
             .modifier(IgnoresSafeArea())
         }
@@ -242,18 +252,6 @@ struct ChannelView: View {
     private func downloadVideo(from url: URL) {
         print("Downloading video from \(url)")
     }
-    
-// // TODO: Re-implement mute user
-    
-//    private func observeNotification() {
-//        NotificationCenter.default.addObserver(
-//            forName: .muteUser,
-//            object: nil,
-//            queue: .main
-//        ) { _ in
-//            self.feedDelegate.subscribeToChannelWithId(_channelId: self.channelId)
-//        }
-//    }
 }
 
 // MARK: - Helpers
