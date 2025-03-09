@@ -26,6 +26,10 @@ struct UserDetail: View {
         friends.contains(where: { $0.npub == user.npub })
     }
     
+    var contact: Friend? {
+        friends.first(where: { $0.npub == user.npub })
+    }
+        
     private func isFoe() -> Bool {
         foes.contains(where: { $0.npub == user.npub })
     }
@@ -106,15 +110,27 @@ struct UserDetail: View {
                             .onEnded { _ in self.isDebugging = true }
                     )
                 
-                Text(user.note)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .padding()
-                    .contextMenu {
-                        Button("Copy") {
-                            UIPasteboard.general.string = user.npub
+                if let contact = contact {
+                    Text(contact.note)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding()
+                        .contextMenu {
+                            Button("Copy") {
+                                UIPasteboard.general.string = user.npub
+                            }
                         }
-                    }
+                } else {
+                    Text(user.note)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding()
+                        .contextMenu {
+                            Button("Copy") {
+                                UIPasteboard.general.string = user.npub
+                            }
+                        }
+                }
                 
                 if isDebugging {
                     Text("Relay").font(.title2)

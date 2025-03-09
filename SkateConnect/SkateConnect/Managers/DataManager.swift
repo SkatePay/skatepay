@@ -5,6 +5,8 @@
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
 
+import os
+
 import Combine
 import ConnectFramework
 import Foundation
@@ -26,6 +28,8 @@ class AppData {
 
 @MainActor
 class DataManager: ObservableObject {
+    let log = OSLog(subsystem: "SkateConnect", category: "DataManager")
+
     @Published private var lobby: Lobby?
     @Published private var walletManager: WalletManager?
     
@@ -167,7 +171,7 @@ class DataManager: ObservableObject {
                 name: AppData().users[0].name,
                 birthday: Date.now,
                 npub: AppData().getSupport().npub,
-                note: "Support Team"
+                note: "Dispatch"
             )
         )
     }
@@ -214,7 +218,8 @@ enum Kind: String, Codable {
 
 
 struct BackupData: Codable {
-    let version: Int?
+    let version: String?
+    let build: String?
     var type: String? = nil
     let spots: [CodableSpot]?
     let friends: [CodableFriend]?
@@ -226,6 +231,10 @@ struct BackupData: Codable {
 
 extension DataManager {
     func backupData() -> String? {
+        // ✅ Fetch current app version and build dynamically
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+
         // Fetch all spots, friends, and foes
         let spots = fetchSortedSpots()
         let friends = fetchFriends()
@@ -258,7 +267,8 @@ extension DataManager {
         
         // Create backup data using Codable versions
         let backupData = BackupData(
-            version: 1,
+            version: appVersion,    // Store app version dynamically
+            build: appBuild,        // Store app build dynamically
             spots: codableSpots,
             friends: codableFriends,
             foes: codableFoes,
@@ -279,6 +289,28 @@ extension DataManager {
 }
 
 extension DataManager {
+    /// Compares two version strings (e.g., "1.2.0" vs "1.3.0")
+    /// Returns:
+    /// - `1` if `version1` is greater
+    /// - `-1` if `version2` is greater
+    /// - `0` if they are equal
+    func compareVersions(_ version1: String, _ version2: String) -> Int {
+        let v1Components = version1.split(separator: ".").compactMap { Int($0) }
+        let v2Components = version2.split(separator: ".").compactMap { Int($0) }
+        
+        let maxLength = max(v1Components.count, v2Components.count)
+
+        for i in 0..<maxLength {
+            let v1 = i < v1Components.count ? v1Components[i] : 0
+            let v2 = i < v2Components.count ? v2Components[i] : 0
+            
+            if v1 > v2 { return 1 }
+            if v1 < v2 { return -1 }
+        }
+
+        return 0
+    }
+    
     func restoreData(from jsonString: String) -> Bool {
         guard let jsonData = jsonString.data(using: .utf8) else {
             print("Failed to convert JSON string to data")
@@ -295,11 +327,26 @@ extension DataManager {
                 return true
             }
             
-            let version = backupData.version ?? 1 // Default to 1 if the version is missing
+            // ✅ Retrieve current app version and build from Info.plist
+            let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+            let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
 
-            if version < 2 {
-                // Perform necessary data migrations for old backups
-                print("Migrating older data to the new schema...")
+            // ✅ Retrieve backup version and build (default to 1.0/1 if missing)
+            let backupVersion = backupData.version ?? "1.0"
+            let backupBuild = backupData.build ?? "1"
+
+            print("📥 Restoring backup. App Version: \(appVersion) (Build \(appBuild)), Backup Version: \(backupVersion) (Build \(backupBuild))")
+
+            // ✅ Compare versions dynamically
+            let versionComparison = compareVersions(appVersion, backupVersion)
+            let buildComparison = compareVersions(appBuild, backupBuild)
+
+            if versionComparison > 0 || (versionComparison == 0 && buildComparison > 0) {
+                os_log("⚠️ Older backup detected (\(backupVersion) Build \(backupBuild)). Performing necessary migrations...")
+            } else if versionComparison < 0 || (versionComparison == 0 && buildComparison < 0) {
+                print("⚠️ Backup version (\(backupVersion) Build \(backupBuild)) is newer than supported. Some data may not be restored correctly.")
+            } else {
+                os_log("✔️ Backup version matches the app version.", log: log, type: .info)
             }
             
             resetData()

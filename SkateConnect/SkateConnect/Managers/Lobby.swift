@@ -113,18 +113,6 @@ class Lobby: ObservableObject {
         }
     }
     
-//    func groupedEvents() -> [String: [ActivityEvent]] {
-//        let filteredEvents = events.filter { $0.npub != keychainForNostr.account?.publicKey.npub }
-//        let grouped = Dictionary(grouping: filteredEvents, by: { $0.npub })
-//        
-//        // Sort events within each group by createdAt in descending order
-//        let sortedGrouped = grouped.mapValues { events in
-//            events.sorted { $0.createdAt > $1.createdAt }
-//        }
-//        
-//        return sortedGrouped
-//    }
-    
     func groupedEvents() -> [String: [ActivityEvent]] {
         let filteredEvents = events.filter { $0.npub != keychainForNostr.account?.publicKey.npub }
         let grouped = Dictionary(grouping: filteredEvents, by: { $0.npub })
@@ -141,5 +129,3 @@ struct ActivityEvent {
     var npub: String
     var createdAt: Int64
 }
-
-//what is objectWillChange.send?

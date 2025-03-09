@@ -5,50 +5,59 @@
 //  Created by Konstantin Yurchenko, Jr on 1/29/25.
 //
 
-import SolanaSwift
 import SwiftUI
+import SwiftData
 
 struct EditCryptoAddressesView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
-    @Bindable var friend: Friend
+    @Binding var friend: Friend? // Accept optional Binding<Friend?>
 
     @State private var newAddress: String = ""
     @State private var newNetwork: String = "testnet"
     @State private var isAddressValid: Bool = true
-    @State private var cryptoAddresses: [CryptoAddress] = []
+    @State private var isLoading = false
 
     var body: some View {
-        Form {
-            addNewAddressSection
-            existingAddressesSection
-        }
-        .navigationTitle("Edit Crypto Addresses")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Done") {
-                    dismiss()
+        NavigationStack {
+            if let friend = friend {
+                Form {
+                    addNewAddressSection(friend: friend)
+                    existingAddressesSection(friend: friend)
                 }
+                .navigationTitle("Edit Crypto Addresses")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") { dismiss() }
+                    }
+                }
+            } else {
+                Text("No friend selected")
+                    .padding()
             }
-        }
-        .onAppear {
-            cryptoAddresses = friend.cryptoAddresses // Ensure UI updates
         }
     }
 }
 
 // MARK: - Subviews
 private extension EditCryptoAddressesView {
-    var addNewAddressSection: some View {
+    // MARK: - Subviews
+    private func addNewAddressSection(friend: Friend) -> some View {
         Section(header: Text("Add New Solana Address")) {
             TextField("Solana Address", text: $newAddress)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
                 .textInputAutocapitalization(.never)
-            
+                .onChange(of: newAddress) {
+                    validateAddress()
+                }
+            .autocapitalization(.none)
+            .disableAutocorrection(true)
+            .textInputAutocapitalization(.never)
+
             Picker("Network", selection: $newNetwork) {
-                Text("Testnet").tag(SolanaSwift.Network.testnet.stringValue)
-                Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta.stringValue)
+                Text("Testnet").tag("testnet")
+                Text("Mainnet").tag("mainnet")
             }
             .pickerStyle(SegmentedPickerStyle())
 
@@ -59,19 +68,19 @@ private extension EditCryptoAddressesView {
             }
 
             Button("Add Address") {
-                addAddress()
+                addAddress(to: friend)
             }
-            .disabled(newAddress.isEmpty || !isAddressValid)
+            .disabled(newAddress.isEmpty || !isAddressValid) // Disable if invalid
         }
     }
 
-    var existingAddressesSection: some View {
+    private func existingAddressesSection(friend: Friend) -> some View {
         Section(header: Text("Existing Addresses")) {
-            if cryptoAddresses.isEmpty {
+            if friend.cryptoAddresses.isEmpty {
                 Text("No saved addresses.")
                     .foregroundColor(.gray)
             } else {
-                ForEach(cryptoAddresses) { address in
+                ForEach(friend.cryptoAddresses) { address in
                     VStack(alignment: .leading) {
                         Text(address.address)
                             .font(.headline)
@@ -82,41 +91,42 @@ private extension EditCryptoAddressesView {
                             .foregroundColor(.gray)
                     }
                 }
-                .onDelete { indices in
-                    deleteAddress(at: indices)
-                }
+                .onDelete(perform: { offsets in
+                    deleteAddress(from: friend, at: offsets)
+                })
             }
         }
     }
-}
 
-// MARK: - Methods
-private extension EditCryptoAddressesView {
-    func addAddress() {
-        validateAddress()
-        
+    // MARK: - Methods
+    private func addAddress(to friend: Friend) {
         guard isAddressValid else { return }
+
         let cryptoAddress = CryptoAddress(address: newAddress, blockchain: "solana", network: newNetwork)
+        friend.cryptoAddresses.append(cryptoAddress)
 
-        cryptoAddresses.append(cryptoAddress)
-        friend.cryptoAddresses = cryptoAddresses
-
-        context.insert(friend)
-        try? context.save()
+        try? context.save() // Persist changes
 
         newAddress = ""
         isAddressValid = true
     }
 
-    func deleteAddress(at offsets: IndexSet) {
-        cryptoAddresses.remove(atOffsets: offsets)
-        friend.cryptoAddresses = cryptoAddresses
-
-        context.insert(friend)
+    private func deleteAddress(from friend: Friend, at offsets: IndexSet) {
+        for index in offsets {
+            friend.cryptoAddresses.remove(at: index)
+        }
         try? context.save()
     }
 
-    func validateAddress() {
-        isAddressValid = newAddress.count >= 32 && newAddress.count <= 44
+    private func validateAddress() {
+        let allowedCharacters = CharacterSet(charactersIn: "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
+        
+        // Only validate when the input is non-empty
+        if newAddress.isEmpty {
+            isAddressValid = true // Reset validation when empty
+        } else {
+            isAddressValid = (newAddress.count >= 32 && newAddress.count <= 44) &&
+                             newAddress.rangeOfCharacter(from: allowedCharacters.inverted) == nil
+        }
     }
 }
