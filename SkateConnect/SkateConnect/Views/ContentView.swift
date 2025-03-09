@@ -92,10 +92,7 @@ struct ContentView: View {
     @State private var incomingMessagesCount = 0
         
     var lobbyUnreadCount: Int {
-        let groupedEvents = lobby.groupedEvents()
-        return groupedEvents.reduce(0) { count, group in
-            count + group.value.filter { !lobby.isMessageRead(npub: $0.npub, timestamp: $0.createdAt) }.count
-        }
+        return lobby.unreadCounts.values.reduce(0, +)
     }
     
     var body: some View {

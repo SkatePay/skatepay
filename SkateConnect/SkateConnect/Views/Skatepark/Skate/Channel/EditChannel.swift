@@ -104,12 +104,6 @@ struct EditChannel: View {
                         Text("\(lead.channelId)")
                             .contextMenu {
                                 Button(action: {
-                                    shareChannel(lead.channelId)
-                                }) {
-                                    Text("Open in Browser")
-                                }
-                                
-                                Button(action: {
                                     UIPasteboard.general.string = "channel_invite:\(createInviteString())"
                                     isInviteCopied = true
                                     
@@ -134,7 +128,6 @@ struct EditChannel: View {
                                 }
                             }
                     }
-                    
                     
                     if let pubkey = lead.event?.pubkey {
                         if let publicKeyForMod = PublicKey(hex: pubkey),

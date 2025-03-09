@@ -127,24 +127,46 @@ private extension LobbyView {
         }
     }
     
+    private func contextMenu(for npub: String) -> some View {
+        Group {
+            Button(action: {
+                navigation.path.append(NavigationPathType.userDetail(npub: npub))
+            }) {
+                Label("Open", systemImage: "message")
+            }
+            
+            if !isSupport(npub: npub) {
+                Button(action: {
+                    UIPasteboard.general.string = npub
+                }) {
+                    Label("Copy", systemImage: "doc.on.doc")
+                }
+                
+                Button(role: .destructive, action: {
+                    let foe = Foe(npub: npub, birthday: Date.now, note: "")
+                    context.insert(foe)
+                }) {
+                    Label("Block", systemImage: "person.fill.xmark")
+                }
+            }
+        }
+    }
+    
     var activity: some View {
         Section("Events") {
-            let groupedEvents = lobby.groupedEvents()
-            
+            let groupedEvents = lobby.groupedEvents() // Compute once
+
             if groupedEvents.isEmpty {
                 Text("No incoming messages found.")
                     .font(.caption)
             } else {
-                // Sort groups by the most recent event in each group
-                let sortedGroups = Array(groupedEvents.keys).sorted { npub1, npub2 in
-                    let events1 = groupedEvents[npub1]!
-                    let events2 = groupedEvents[npub2]!
+                let sortedGroups = groupedEvents.keys.sorted { npub1, npub2 in
+                    guard let events1 = groupedEvents[npub1], let events2 = groupedEvents[npub2] else { return false }
                     return events1.first!.createdAt > events2.first!.createdAt
                 }
-                
+
                 ForEach(sortedGroups, id: \.self) { npub in
-                    if let events = groupedEvents[npub] {
-                        let lastEvent = events.first!
+                    if let events = groupedEvents[npub], let lastEvent = events.first {
                         let isRead = lobby.isMessageRead(npub: npub, timestamp: lastEvent.createdAt)
 
                         VStack(alignment: .leading) {
@@ -158,7 +180,7 @@ private extension LobbyView {
                                         .foregroundColor(isRead ? .gray : .blue)
                                         .animation(.easeInOut, value: isRead)
                                 }
-                                
+
                                 Text(formatActivity(npub: npub))
                                     .font(.caption)
                                 Spacer()
@@ -166,28 +188,7 @@ private extension LobbyView {
                                     .font(.caption2)
                                     .foregroundColor(.gray)
                             }
-                            .contextMenu {
-                                Button(action: {
-                                    navigation.path.append(NavigationPathType.userDetail(npub: npub))
-                                }) {
-                                    Label("Open", systemImage: "message")
-                                }
-                                
-                                if !isSupport(npub: npub) {
-                                    Button(action: {
-                                        UIPasteboard.general.string = npub
-                                    }) {
-                                        Label("Copy", systemImage: "doc.on.doc")
-                                    }
-                                    
-                                    Button(role: .destructive, action: {
-                                        let foe = Foe(npub: npub, birthday: Date.now, note: "")
-                                        context.insert(foe)
-                                    }) {
-                                        Label("Block", systemImage: "person.fill.xmark")
-                                    }
-                                }
-                            }
+                            .contextMenu { contextMenu(for: npub) }
                         }
                     }
                 }

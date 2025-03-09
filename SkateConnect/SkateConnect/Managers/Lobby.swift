@@ -14,16 +14,20 @@ class Lobby: ObservableObject {
     @Published var leads: [Lead] = []
     @Published var events: [ActivityEvent] = []
     @Published var dms: Set<NostrEvent> = []
-    @Published var readMessages: [String: Int64] = [:] // Tracks last read timestamp per npub
+    @Published private(set) var unreadCounts: [String: Int] = [:] // Cached unread counts
+
+    private var readMessages: [String: Int64] = [:] // Last read timestamps per npub
 
     init() {
         loadReadMessages()
     }
     
+    // ✅ Mark message as read and update cache
     func markMessageAsRead(npub: String, timestamp: Int64) {
         readMessages[npub] = timestamp
+        unreadCounts[npub] = 0 // Reset unread count
         saveReadMessages()
-        objectWillChange.send() // Notify UI to update
+        objectWillChange.send() // Notify UI
     }
 
     func isMessageRead(npub: String, timestamp: Int64) -> Bool {
@@ -89,6 +93,7 @@ class Lobby: ObservableObject {
         return Array(uniquePubkeys)
     }
     
+    // ✅ Maintain a cached, incremental unread count instead of recomputing
     func addEvent(_ event: NostrEvent) {
         if let publicKey = PublicKey(hex: event.pubkey) {
             let activityEvent = ActivityEvent(
@@ -97,19 +102,37 @@ class Lobby: ObservableObject {
                 createdAt: event.createdAt
             )
             events.append(activityEvent)
+
+            // ✅ Increment unread count only if it's newer than last read timestamp
+            let lastRead = readMessages[publicKey.npub] ?? 0
+            if event.createdAt > lastRead {
+                unreadCounts[publicKey.npub, default: 0] += 1
+            }
+
+            objectWillChange.send()
         }
     }
+    
+//    func groupedEvents() -> [String: [ActivityEvent]] {
+//        let filteredEvents = events.filter { $0.npub != keychainForNostr.account?.publicKey.npub }
+//        let grouped = Dictionary(grouping: filteredEvents, by: { $0.npub })
+//        
+//        // Sort events within each group by createdAt in descending order
+//        let sortedGrouped = grouped.mapValues { events in
+//            events.sorted { $0.createdAt > $1.createdAt }
+//        }
+//        
+//        return sortedGrouped
+//    }
     
     func groupedEvents() -> [String: [ActivityEvent]] {
         let filteredEvents = events.filter { $0.npub != keychainForNostr.account?.publicKey.npub }
         let grouped = Dictionary(grouping: filteredEvents, by: { $0.npub })
         
-        // Sort events within each group by createdAt in descending order
-        let sortedGrouped = grouped.mapValues { events in
-            events.sorted { $0.createdAt > $1.createdAt }
+        // Ensure sorting inside each group (so first element is always the latest)
+        return grouped.mapValues { events in
+            events.sorted(by: { $0.createdAt > $1.createdAt })
         }
-        
-        return sortedGrouped
     }
 }
 
@@ -118,3 +141,5 @@ struct ActivityEvent {
     var npub: String
     var createdAt: Int64
 }
+
+//what is objectWillChange.send?
