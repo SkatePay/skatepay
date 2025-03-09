@@ -85,19 +85,19 @@ struct ChannelView: View {
                 }
             )
             .onAppear {
-                shouldScrollToBottom = true
-                
                 if let account = keychainForNostr.account {
                     self.eventListenerForMetadata.setChannelId(channelId)
                     self.eventListenerForMetadata.reset()
                     
                     self.eventPublisher.subscribeToMetadataFor(channelId)
 
-                    
                     if (self.eventListenerForMessages.receivedEOSE) {
+                        shouldScrollToBottom = false
                         return
                     }
                     
+                    shouldScrollToBottom = true
+
                     self.eventListenerForMessages.setChannelId(channelId)
                     self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
                     self.eventListenerForMessages.reset()

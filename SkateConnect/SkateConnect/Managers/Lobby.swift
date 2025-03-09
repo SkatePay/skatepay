@@ -14,6 +14,31 @@ class Lobby: ObservableObject {
     @Published var leads: [Lead] = []
     @Published var events: [ActivityEvent] = []
     @Published var dms: Set<NostrEvent> = []
+    @Published var readMessages: [String: Int64] = [:] // Tracks last read timestamp per npub
+
+    init() {
+        loadReadMessages()
+    }
+    
+    func markMessageAsRead(npub: String, timestamp: Int64) {
+        readMessages[npub] = timestamp
+        saveReadMessages()
+        objectWillChange.send() // Notify UI to update
+    }
+
+    func isMessageRead(npub: String, timestamp: Int64) -> Bool {
+        return readMessages[npub] ?? 0 >= timestamp
+    }
+
+    private func saveReadMessages() {
+        UserDefaults.standard.setValue(readMessages, forKey: "readMessages")
+    }
+
+    private func loadReadMessages() {
+        if let savedData = UserDefaults.standard.dictionary(forKey: "readMessages") as? [String: Int64] {
+            readMessages = savedData
+        }
+    }
     
     func clear() {
         leads = []

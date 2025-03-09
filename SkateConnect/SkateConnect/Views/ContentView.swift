@@ -13,6 +13,65 @@ import SwiftData
 import SwiftUI
 import UIKit
 
+struct TabButton: View {
+    let tab: Tab
+    let label: String
+    let systemImage: String
+    @Binding var selectedTab: Tab
+    var count: Int = 0  // New count property
+
+    var body: some View {
+        Button(action: {
+            selectedTab = tab
+        }) {
+            ZStack {
+                VStack {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 20))
+                    Text(label)
+                        .font(.caption)
+                }
+                .foregroundColor(selectedTab == tab ? .blue : .gray)
+                .frame(maxWidth: .infinity)
+
+                // Badge (only shown if count > 0)
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.caption2)
+                        .foregroundColor(.white)
+                        .padding(6)
+                        .background(Color.red)
+                        .clipShape(Circle())
+                        .offset(x: 15, y: -10)
+                }
+            }
+        }
+    }
+}
+
+//// Custom Tab Button
+//struct TabButton: View {
+//    let tab: Tab
+//    let label: String
+//    let systemImage: String
+//    @Binding var selectedTab: Tab
+//    
+//    var body: some View {
+//        Button(action: {
+//            selectedTab = tab
+//        }) {
+//            VStack {
+//                Image(systemName: systemImage)
+//                    .font(.system(size: 20))
+//                Text(label)
+//                    .font(.caption)
+//            }
+//            .foregroundColor(selectedTab == tab ? .blue : .gray)
+//            .frame(maxWidth: .infinity)
+//        }
+//    }
+//}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     
@@ -32,6 +91,13 @@ struct ContentView: View {
 
     @State private var incomingMessagesCount = 0
         
+    var lobbyUnreadCount: Int {
+        let groupedEvents = lobby.groupedEvents()
+        return groupedEvents.reduce(0) { count, group in
+            count + group.value.filter { !lobby.isMessageRead(npub: $0.npub, timestamp: $0.createdAt) }.count
+        }
+    }
+    
     var body: some View {
         NavigationStack(path: $navigation.path) {
             VStack(spacing: 0) {
@@ -89,7 +155,8 @@ struct ContentView: View {
                         tab: .lobby,
                         label: "Lobby",
                         systemImage: "star",
-                        selectedTab: $navigation.tab
+                        selectedTab: $navigation.tab,
+                        count: lobbyUnreadCount
                     )
                     
                     // Map Tab
@@ -304,29 +371,6 @@ struct ContentView: View {
     
     private func insertDefaultFriend() async {
        await dataManager.insertDefaultFriend()
-    }
-}
-
-// Custom Tab Button
-struct TabButton: View {
-    let tab: Tab
-    let label: String
-    let systemImage: String
-    @Binding var selectedTab: Tab
-    
-    var body: some View {
-        Button(action: {
-            selectedTab = tab
-        }) {
-            VStack {
-                Image(systemName: systemImage)
-                    .font(.system(size: 20))
-                Text(label)
-                    .font(.caption)
-            }
-            .foregroundColor(selectedTab == tab ? .blue : .gray)
-            .frame(maxWidth: .infinity)
-        }
     }
 }
 

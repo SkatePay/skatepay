@@ -145,10 +145,20 @@ private extension LobbyView {
                 ForEach(sortedGroups, id: \.self) { npub in
                     if let events = groupedEvents[npub] {
                         let lastEvent = events.first!
+                        let isRead = lobby.isMessageRead(npub: npub, timestamp: lastEvent.createdAt)
+
                         VStack(alignment: .leading) {
                             HStack {
-                                Image(systemName: "envelope")
-                                    .foregroundColor(.blue)
+                                Button(action: {
+                                    if !isRead {
+                                        lobby.markMessageAsRead(npub: npub, timestamp: lastEvent.createdAt)
+                                    }
+                                }) {
+                                    Image(systemName: isRead ? "envelope.open" : "envelope")
+                                        .foregroundColor(isRead ? .gray : .blue)
+                                        .animation(.easeInOut, value: isRead)
+                                }
+                                
                                 Text(formatActivity(npub: npub))
                                     .font(.caption)
                                 Spacer()

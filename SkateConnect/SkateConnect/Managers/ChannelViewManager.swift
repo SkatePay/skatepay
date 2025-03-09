@@ -22,7 +22,7 @@ class ChannelViewManager: ObservableObject {
     }
     
     func openChannel(channelId: String, invite: Bool = false, deeplink: Bool = false) {
-        if (deeplink) {
+        if (deeplink || invite) {
 //            EventBus.shared.didReceiveChannelSubscriptionRequest.send((.metadata, channelId))
 //            EventBus.shared.didReceiveChannelSubscriptionRequest.send((.messages, channelId))
             
