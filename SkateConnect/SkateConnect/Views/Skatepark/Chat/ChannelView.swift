@@ -85,20 +85,24 @@ struct ChannelView: View {
                 }
             )
             .onAppear {
-                if (self.eventListenerForMessages.receivedEOSE) {
-                    return
-                }
-                
                 shouldScrollToBottom = true
                 
                 if let account = keychainForNostr.account {
                     self.eventListenerForMetadata.setChannelId(channelId)
+                    self.eventListenerForMetadata.reset()
+                    
+                    self.eventPublisher.subscribeToMetadataFor(channelId)
+
+                    
+                    if (self.eventListenerForMessages.receivedEOSE) {
+                        return
+                    }
                     
                     self.eventListenerForMessages.setChannelId(channelId)
                     self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
                     self.eventListenerForMessages.reset()
 
-                    self.eventPublisher.subscribeToChannelWithId(channelId)                    
+                    self.eventPublisher.subscribeToMessagesFor(channelId)
                 }
             }
             .navigationBarBackButtonHidden()
@@ -197,11 +201,13 @@ struct ChannelView: View {
                 if let account = keychainForNostr.account {
                     self.eventListenerForMetadata.setChannelId(channelId)
                     
+                    self.eventPublisher.subscribeToMetadataFor(channelId) 
+
                     self.eventListenerForMessages.setChannelId(channelId)
                     self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
                     self.eventListenerForMessages.reset()
                     
-                    self.eventPublisher.subscribeToChannelWithId(channelId)
+                    self.eventPublisher.subscribeToMessagesFor(channelId)
                 }
             }
             .onDisappear {

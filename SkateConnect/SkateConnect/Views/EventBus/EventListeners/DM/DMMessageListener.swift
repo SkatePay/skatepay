@@ -11,24 +11,68 @@ import MessageKit
 import NostrSDK
 import os
 
-class DMMessageListener: DMSubscriptionListener, EventCreating {
+class DMMessageListener: ObservableObject, EventCreating {
     @Published var messages: [MessageType] = []
     
     private var dataManager: DataManager?
     private var account: Keypair?
     
-    override init(category: String = "DMMessages") {
-        super.init(category: category)
+    var publicKey: PublicKey?
+    var subscriptionId: String?
+    
+    public var cancellables = Set<AnyCancellable>()
+    public var receivedEOSE = false
 
+    let log: OSLog
+    
+    init() {
+        self.log = OSLog(subsystem: "SkateConnect", category:  "DMMessages")
+
+        EventBus.shared.didReceiveDMSubscription
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] (publicKey, subscriptionId) in
+                
+                if (self?.publicKey != publicKey) {
+                    return
+                }
+                
+                self?.subscriptionId = subscriptionId
+                os_log("🔄 Active subscription set to: %{public}@", log: self?.log ?? .default, type: .info, subscriptionId)
+            }
+            .store(in: &cancellables)
+        
+        EventBus.shared.didReceiveEOSE
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] response in
+                
+                guard case .eose(let subscriptionId) = response else {
+                    return
+                }
+                
+                if (self?.subscriptionId != subscriptionId) {
+                    return
+                }
+                
+                if let log = self?.log {
+                    os_log("📡 EOSE received: %{public}@", log: log, type: .info, subscriptionId)
+                }
+                
+                self?.receivedEOSE = true
+            }
+            .store(in: &cancellables)
+        
         EventBus.shared.didReceiveDMMessage
             .receive(on: DispatchQueue.main)
             .sink { [weak self] event in
-                self?.handleEvent(event)
                 self?.processMessage(event.event)
             }
             .store(in: &cancellables)
     }
 
+    func setPublicKey(_ publicKey: PublicKey) {
+        self.publicKey = publicKey
+    }
+    
     func setDependencies(dataManager: DataManager, account: Keypair) {
         self.dataManager = dataManager
         self.account = account
@@ -72,5 +116,6 @@ class DMMessageListener: DMSubscriptionListener, EventCreating {
     
     func reset() {
         messages.removeAll()
+        receivedEOSE = false
     }
 }
