@@ -21,9 +21,12 @@ class ChannelViewManager: ObservableObject {
         self.network = network
     }
     
-    func openChannel(channelId: String, invite: Bool = false) {
-        network?.subscribeToChannelWhenReady(channelId)
+    func openChannel(channelId: String, invite: Bool = false, deeplink: Bool = false) {
+        if (deeplink) {
+            network?.subscribeToChannelWhenReady(channelId)
+        }
         navigation?.channelId = channelId
+        
         navigation?.path.append(
             NavigationPathType.channel(channelId: channelId, invite: invite)
         )

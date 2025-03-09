@@ -21,7 +21,7 @@ public struct Constants {
     public static let LANDING_PAGE_HOST = "skatepark.chat"
     public static let LANDING_PAGE_SKATEPARK = "https://skatepark.chat"
     public static let API_URL_SKATEPARK = "https://api.skatepark.chat"
-    public static let CHANNEL_URL_SKATEPARK = "https://support.skatepark.chat/channel"
+    public static let CHANNEL_URL_SKATEPARK = "https://skatepark.chat/channel"
     public static let S3_BUCKET = "skateconnect"
 }
 

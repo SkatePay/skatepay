@@ -13,13 +13,29 @@ import NostrSDK
 import SwiftUI
 import SwiftData
 
+
+struct Subscription {
+    let id: String
+    let type: SubscriptionType
+}
+
+enum SubscriptionType {
+    case channel
+    case directMessage
+}
+
 class Network: ObservableObject, RelayDelegate, EventCreating {
     @Published var relayPool: RelayPool?
     @Published var connected = false
-    
-    @Published var shouldScrollToBottom = false
-    
+        
     private var subscriptionBuffer: [String] = []
+
+    private var channelMetadataSubscriptions = [String: Subscription]()
+    private var channelMessagesSubscriptions = [String: Subscription]()
+    
+    private var userMessagesSubscriptions = [String: Subscription]()
+    
+    private var subscriptionIdToEntity = [String: String]() // Reverse lookup
     
     var leadType = LeadType.outbound
     
@@ -28,19 +44,18 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     var stopped = true
     
     private var channelEvents: [String: [NostrEvent]] = [:]
-    private var activeSubscriptions: [String] = []
     
+    private var cancellablesFoLifecycle = Set<AnyCancellable>()
     private var cancellables = Set<AnyCancellable>()
     
     private let keychainForNostr = NostrKeychainStorage()
-    private var cancellablesFoLifecycle = Set<AnyCancellable>()
     
     let log = OSLog(subsystem: "SkateConnect", category: "Network")
     
     init() {
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .sink { [weak self] _ in self?.start() }
-            .store(in: &cancellables)
+            .store(in: &cancellablesFoLifecycle)
         
         NotificationCenter.default.publisher(for: .startNetwork)
             .sink { [weak self] _ in self?.start() }
@@ -91,8 +106,14 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         }
         
         os_log("🛑 network shutting down", log: log)
+                
+        channelMetadataSubscriptions.removeAll()
+        channelMessagesSubscriptions.removeAll()
         
-        activeSubscriptions.forEach { pool.closeSubscription(with: $0) }
+        userMessagesSubscriptions.removeAll()
+        
+        subscriptionIdToEntity.keys.forEach { pool.closeSubscription(with: $0) }
+        subscriptionIdToEntity.removeAll()
         
         pool.disconnect()
         
@@ -207,6 +228,7 @@ extension Network {
         case .connected:
             os_log("🚀 network connected", log: log, type: .info)
             self.connected = true
+            self.addDefaultSubscriptions()
             self.processSubscriptionBuffer()
             self.requestOnboardingInfo()
         case .notConnected:
@@ -239,7 +261,7 @@ extension Network {
             guard case .eose(let subscriptionId) = response else {
                 return
             }
-            
+    
             os_log("📩 EOSE received %@", log: self.log, type: .info, subscriptionId)
             
             DispatchQueue.main.async {
@@ -310,8 +332,6 @@ extension Network {
         }
         
         subscriptionBuffer.removeAll()
-        
-        addDefaultSubscriptions()
     }
     
     private func subscribeIfNeeded(_ filter: Filter) -> String? {
@@ -320,42 +340,65 @@ extension Network {
             return nil
         }
         
-        let subscription = pool.subscribe(with: filter)
-        activeSubscriptions.append(subscription)
-        return subscription
+        let subscriptionId = pool.subscribe(with: filter)
+        return subscriptionId
     }
     
     private func subscribeToChannel(_ channelId: String) {
         os_log("⏳ adding subscription to channel [%@]", log: log, type: .info, channelId)
         
+        // Metadata
+        if let subscription = channelMetadataSubscriptions[channelId] {
+            os_log("🔄 Resubscribing to channel metadata: %@ with existing subscription: %@", log: log, type: .info, channelId, subscription.id)
+            relayPool?.closeSubscription(with: subscription.id)
+            channelMetadataSubscriptions.removeValue(forKey: channelId)
+            subscriptionIdToEntity.removeValue(forKey: subscription.id)
+        }
+        
         let filterForMetadata = Filter(
             ids: [channelId],
             kinds: [EventKind.channelCreation.rawValue, EventKind.channelMetadata.rawValue]
         )!
-        let filterForFeed = Filter(
-            kinds: [EventKind.channelMessage.rawValue],
-            tags: ["e": [channelId]],
-            limit: 32
-        )!
         
-        let subscriptionIdForMetadata = subscribeIfNeeded(filterForMetadata)
-        let subscriptionIdForMessages = subscribeIfNeeded(filterForFeed)
-        
-        os_log("✔️ Subscribed to new channel: %@", log: log, type: .info, channelId)
-        
-        if let subscription = subscriptionIdForMetadata {
-            EventBus.shared.didReceiveChannelSubscription.send((channelId, subscription))
-            os_log("🔍 metadata: %@", log: log, type: .info, subscription)
+        if let subscriptionId = subscribeIfNeeded(filterForMetadata) {
+            EventBus.shared.didReceiveChannelSubscription.send((channelId, subscriptionId))
+            
+            let subscription = Subscription(id: subscriptionId, type: .channel)
+
+            channelMetadataSubscriptions[channelId] = subscription
+            subscriptionIdToEntity[subscriptionId] = channelId
+            
+            os_log("✔️ Subscribed to channel metadata %@ with subscriptionId %@", log: log, type: .info, channelId, subscriptionId)
         }
         
-        if let subscription = subscriptionIdForMessages {
-            EventBus.shared.didReceiveChannelSubscription.send((channelId, subscription))
-            os_log("🔍 messages: %@", log: log, type: .info, subscription)
+        // Messages
+        if let subscription = channelMessagesSubscriptions[channelId] {
+            os_log("🔄 Resubscribing to channel messages: %@ with existing subscription: %@", log: log, type: .info, channelId, subscription.id)
+            relayPool?.closeSubscription(with: subscription.id)
+            channelMessagesSubscriptions.removeValue(forKey: channelId)
+            subscriptionIdToEntity.removeValue(forKey: subscription.id)
+        }
+        
+        let filterForMessages = Filter(
+            kinds: [EventKind.channelMessage.rawValue],
+            tags: ["e": [channelId]],
+            limit: 64
+        )!
+                
+        if let subscriptionId = subscribeIfNeeded(filterForMessages) {
+            EventBus.shared.didReceiveChannelSubscription.send((channelId, subscriptionId))
+            
+            let subscription = Subscription(id: subscriptionId, type: .channel)
+
+            channelMessagesSubscriptions[channelId] = subscription
+            subscriptionIdToEntity[subscriptionId] = channelId
+            
+            os_log("✔️ Subscribed to channel messages %@ with subscriptionId %@", log: log, type: .info, channelId, subscriptionId)
         }
     }
 }
 
-// MARK: - DM Subscription Methods
+// MARK: - User Subscription Methods
 extension Network {
     private func subscribeToUserWhenReady(_ publicKey: PublicKey) {
         if connected {
@@ -373,16 +416,26 @@ extension Network {
             return
         }
         
+        // Messages
+        if let subscription = userMessagesSubscriptions[publicKey.hex] {
+            os_log("🔄 Resubscribing to user messages: %@ with existing subscription: %@", log: log, type: .info, publicKey.hex, subscription.id)
+            relayPool?.closeSubscription(with: subscription.id)
+            userMessagesSubscriptions.removeValue(forKey: publicKey.hex)
+            subscriptionIdToEntity.removeValue(forKey: subscription.id)
+        }
+        
         let authors = [publicKey.hex, account.publicKey.hex]
-        let filter = Filter(authors: authors, kinds: [4], tags: ["p": authors], limit: 64)!
+        let filter = Filter(authors: authors, kinds: [4], tags: ["p": authors], limit: 32)!
         
-        let subscriptionIdForMessages = subscribeIfNeeded(filter)
-        
-        os_log("✔️ Subscribed to new user: %@", log: log, type: .info, publicKey.npub)
-        
-        if let subscription = subscriptionIdForMessages {
-            EventBus.shared.didReceiveDMSubscription.send((publicKey, subscription))
-            os_log("🔍 messages: %@", log: log, type: .info, subscription)
+        if let subscriptionId = subscribeIfNeeded(filter) {
+            EventBus.shared.didReceiveDMSubscription.send((publicKey, subscriptionId))
+            
+            let subscription = Subscription(id: subscriptionId, type: .directMessage)
+
+            userMessagesSubscriptions[publicKey.hex] = subscription
+            subscriptionIdToEntity[subscriptionId] = publicKey.hex
+            
+            os_log("✔️ Subscribed to user messages %@ with subscriptionId %@", log: log, type: .info, publicKey.hex, subscriptionId)
         }
     }
 }
@@ -403,7 +456,7 @@ extension Network {
         
         NotificationCenter.default.post(
             name: leadType == .outbound ? .createdChannelForOutbound : .createdChannelForInbound,
-            object: event
+            object: event.event
         )
         
         EventBus.shared.didReceiveChannelMetadata.send(event)

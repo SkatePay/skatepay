@@ -86,10 +86,10 @@ class MessageHelper {
         }
 
         let linkItem = MockLinkItem(
-            text: "\(lead.icon) Channel Invite",
+            text: "🚪🏃 Channel Invite",
             attributedText: nil,
             url: url,
-            title: "🪧 \(lead.name)",
+            title: "\(lead.icon) \(lead.name)",
             teaser: description,
             thumbnailImage: image
         )

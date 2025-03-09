@@ -49,9 +49,6 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     // View State
     @State private var shouldScrollToBottom = true
 
-    // v1
-    @State private var eventsCancellable: AnyCancellable?
-
     init(user: User, message: String = "") {
         self.user = user
         self.message = message
@@ -62,12 +59,20 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
             currentUser: getCurrentUser(),
             messages: $eventListenerForMessages.messages,
             shouldScrollToBottom: $shouldScrollToBottom,
-            onTapAvatar: { _ in print("Avatar tapped") },
+            onTapAvatar: {_ in 
+                print("Avatar tapped")
+                shouldScrollToBottom = false
+            },
             onTapVideo: handleVideoTap,
-            onTapLink: { channelId in selectedChannelId = channelId; showingConfirmationAlert = true },
+            onTapLink: { channelId in
+                selectedChannelId = channelId
+                showingConfirmationAlert = true
+                shouldScrollToBottom = false
+            },
             onSend: { text in
                 guard let publicKey = PublicKey(npub: user.npub) else { return }
                 network.publishDMEvent(pubKey: publicKey, content: text)
+                shouldScrollToBottom = true
             }
         )
         .navigationBarBackButtonHidden()
@@ -81,6 +86,12 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
             )
         }
         .onAppear {
+            if (self.eventListenerForMessages.receivedEOSE) {
+                return
+            }
+            
+            shouldScrollToBottom = true
+            
             if let account = keychainForNostr.account {
                 
                 guard let publicKey = PublicKey(npub: user.npub) else {
@@ -91,6 +102,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 self.eventListenerForMessages.setPublicKey(publicKey)
                 
                 self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                self.eventListenerForMessages.reset()
                 
                 self.eventPublisher.subscribeToUserWithPublicKey(publicKey)
             }
@@ -167,6 +179,8 @@ private extension DMView {
             videoURL = URL(string: videoURLString)
             isShowingVideoPlayer.toggle()
         }
+        
+        shouldScrollToBottom = false
     }
 }
 #Preview {

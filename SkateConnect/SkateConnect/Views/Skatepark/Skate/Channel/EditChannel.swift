@@ -70,16 +70,14 @@ struct EditChannel: View {
         
         var inviteString = channelId
         
-        if let event = navigation.channel {
-            inviteString = event.id
-            
-            if var channel = parseChannel(from: event) {
-                channel.event = navigation.channel
-                if let ecryptedString = encryptChannelInviteToString(channel: channel) {
-                    inviteString = ecryptedString
-                }
-            }
+        guard let channel = channel else {
+            return inviteString
         }
+        
+        if let ecryptedString = encryptChannelInviteToString(channel: channel) {
+            inviteString = ecryptedString
+        }
+        
         return inviteString
     }
     

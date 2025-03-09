@@ -112,7 +112,7 @@ struct SkateConnectApp: App {
             if let channelIndex = pathComponents.firstIndex(of: "channel"),
                channelIndex + 1 < pathComponents.count {
                 let channelId = pathComponents[channelIndex + 1]
-                channelViewManager.openChannel(channelId: channelId)
+                channelViewManager.openChannel(channelId: channelId, deeplink: true)
             }
         }
         

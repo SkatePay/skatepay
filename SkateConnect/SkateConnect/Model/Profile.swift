@@ -13,6 +13,7 @@ struct Profile {
     var prefersNotifications = true
     var style = Style.regular
     var birthday = Date()
+    var gender = Gender.male
 
     static let `default` = Profile(username: "Skater")
 
@@ -20,6 +21,13 @@ struct Profile {
         case regular = "Regular"
         case goofy = "Goofy"
         case both = "Both"
+        
+        var id: String { rawValue }
+    }
+    
+    enum Gender: String, CaseIterable, Identifiable {
+        case male = "Male"
+        case female = "Female"
         
         var id: String { rawValue }
     }

@@ -51,7 +51,7 @@ struct ChannelView: View {
     
     @State private var keyboardHeight: CGFloat = 0
 
-    @State private var isInitialized = false // This value prevents resetting the scroll when navigating to other views
+    @State private var shouldScrollToBottom = true
 
     var landmarks: [Landmark] = AppData().landmarks
     
@@ -60,9 +60,10 @@ struct ChannelView: View {
             ChatView(
                 currentUser: getCurrentUser(),
                 messages: $eventListenerForMessages.messages,
-                shouldScrollToBottom: $network.shouldScrollToBottom,
+                shouldScrollToBottom: $shouldScrollToBottom,
                 onTapAvatar: { senderId in
                     navigation.path.append(NavigationPathType.userDetail(npub: senderId))
+                    shouldScrollToBottom = false
                 },
                 onTapVideo: { message in
                     if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
@@ -70,27 +71,37 @@ struct ChannelView: View {
                         self.selectedMediaURL = URL(string: videoURLString)
                         showMediaActionSheet.toggle()
                     }
+                    shouldScrollToBottom = false
                 },
                 onTapLink: { channelId in
                     selectedChannelId = channelId
                     showingConfirmationAlert = true
+                    
+                    shouldScrollToBottom = false
                 },
                 onSend: { text in
                     network.publishChannelEvent(channelId: channelId, content: text)
+                    shouldScrollToBottom = true
                 }
             )
             .onAppear {
+                if (self.eventListenerForMessages.receivedEOSE) {
+                    return
+                }
+                
+                shouldScrollToBottom = true
+                
                 if let account = keychainForNostr.account {
                     self.eventListenerForMetadata.setChannelId(channelId)
                     
                     self.eventListenerForMessages.setChannelId(channelId)
                     self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                    self.eventListenerForMessages.reset()
 
-                    self.eventPublisher.subscribeToChannelWithId(channelId)
-
+                    self.eventPublisher.subscribeToChannelWithId(channelId)                    
                 }
             }
-
+            
             .onDisappear {
                 NotificationCenter.default.removeObserver(self)
             }

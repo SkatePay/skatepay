@@ -36,6 +36,12 @@ struct ProfileEditor: View {
                  }
             }
             
+            Picker("Gender", selection: $profile.gender) {
+                 ForEach(Profile.Gender.allCases) { gender in
+                     Text(gender.rawValue).tag(gender)
+                 }
+            }
+            
             DatePicker(selection: $profile.birthday, in: dateRange, displayedComponents: .date) {
                   Text("Birthday")
             }

@@ -13,6 +13,7 @@ import os
 
 class DMMessageListener: DMSubscriptionListener, EventCreating {
     @Published var messages: [MessageType] = []
+    
     private var dataManager: DataManager?
     private var account: Keypair?
     
@@ -67,5 +68,9 @@ class DMMessageListener: DMSubscriptionListener, EventCreating {
                 messages.insert(message, at: 0)
             }
         }
+    }
+    
+    func reset() {
+        messages.removeAll()
     }
 }

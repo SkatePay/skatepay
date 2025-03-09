@@ -13,6 +13,7 @@ import os
 
 class ChannelMessageListener: ChannelSubscriptionListener {
     @Published var messages: [MessageType] = []
+    
     private var dataManager: DataManager?
     private var account: Keypair?
     
@@ -52,5 +53,9 @@ class ChannelMessageListener: ChannelSubscriptionListener {
                 messages.insert(message, at: 0)
             }
         }
+    }
+    
+    func reset() {
+        messages.removeAll()
     }
 }
