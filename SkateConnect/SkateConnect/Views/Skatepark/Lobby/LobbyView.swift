@@ -119,12 +119,28 @@ private extension LobbyView {
         }
     }
     
-    func formatActivity(npub: String) -> String {
-        if let friend = self.dataManager.findFriend(npub) {
-            return "Incoming message from \(friend.name)"
-        } else {
-            return "Incoming message from \(friendlyKey(npub: npub))"
+    func formatActivity(npub: String, text: String?) -> String {
+        var alias = friendlyKey(npub: npub)
+
+        guard let text = text else {
+            if let friend = self.dataManager.findFriend(npub) {
+                if (friend.note.isEmpty) {
+                    alias = friend.name
+                } else {
+                    alias = friend.note
+                }
+            }
+            return "Incoming message from \(alias)"
         }
+        
+        if let friend = self.dataManager.findFriend(npub) {
+            if (friend.note.isEmpty) {
+                alias = friend.name
+            } else {
+                alias = friend.note
+            }
+        }
+        return "\(alias): \(text)"
     }
     
     private func contextMenu(for npub: String) -> some View {
@@ -181,7 +197,7 @@ private extension LobbyView {
                                         .animation(.easeInOut, value: isRead)
                                 }
 
-                                Text(formatActivity(npub: npub))
+                                Text(formatActivity(npub: npub, text: lastEvent.text))
                                     .font(.caption)
                                 Spacer()
                                 Text(formatTimeAgo(lastEvent.createdAt))

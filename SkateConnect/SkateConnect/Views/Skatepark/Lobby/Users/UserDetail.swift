@@ -110,7 +110,7 @@ struct UserDetail: View {
                             .onEnded { _ in self.isDebugging = true }
                     )
                 
-                if let contact = contact {
+                if let contact = contact, !contact.note.isEmpty {
                     Text(contact.note)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
