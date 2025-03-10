@@ -52,6 +52,14 @@ struct SkateConnectApp: App {
                     .onOpenURL { url in
                         handleDeepLink(url)
                     }
+                    .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+                        guard let url = activity.webpageURL else {
+                            os_log("🛑 can't get webpageURL", log: log, type: .info)
+                            return
+                        }
+                        
+                        handleDeepLink(url)
+                     }
                     .modelContainer(for: [Friend.self, Foe.self, Spot.self], inMemory: false)
                     .environment(modelData)
                     .environmentObject(apiService)
