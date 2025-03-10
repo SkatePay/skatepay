@@ -27,7 +27,8 @@ struct ChannelView: View {
     @EnvironmentObject var eventBus: EventBus
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
-            
+    @EnvironmentObject var stateManager: StateManager
+    
     @StateObject private var eventPublisher = ChannelEventPublisher()
     
     @StateObject private var eventListenerForMessages = ChannelMessageListener()
@@ -171,14 +172,37 @@ struct ChannelView: View {
                     }
                 }
             }
-            .alert(isPresented: $showingConfirmationAlert) {
-                Alert(
+            .actionSheet(isPresented: $showingConfirmationAlert) {
+                ActionSheet(
                     title: Text("Confirmation"),
                     message: Text("Are you sure you want to join this channel?"),
-                    primaryButton: .default(Text("Yes")) {
-                        openChannelInvite()
-                    },
-                    secondaryButton: .cancel()
+                    buttons: [
+                        .default(Text("Yes")) {
+                            openChannelInvite()
+                        },
+                        .default(Text("Copy")) {
+                            
+                            showingConfirmationAlert = false
+                            
+                            var inviteString = channelId
+                            
+                            if let event = eventListenerForMetadata.metadata?.event {
+                                if var channel = parseChannel(from: event) {
+                                    channel.event = event
+                                    if let ecryptedString = encryptChannelInviteToString(channel: channel) {
+                                        inviteString = ecryptedString
+                                    }
+                                }
+                            }
+                            
+                            UIPasteboard.general.string = "channel_invite:\(inviteString)"
+                            
+                            stateManager.isInviteCopied = true
+                        },
+                        .cancel(Text("Maybe Later")) {
+                            showingConfirmationAlert = false
+                        }
+                    ]
                 )
             }
             .sheet(isPresented: $isShowingToolBoxView) {

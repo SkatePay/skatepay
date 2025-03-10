@@ -210,6 +210,7 @@ struct ContentView: View {
                         .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(stateManager)
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()
                         }
