@@ -95,9 +95,21 @@ struct EULAView: View {
         
     @State private var agreeToTerms = false    
 
+    var appVersion: String {
+        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+           let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            return "\(version) (\(build))"
+        }
+        return "Unknown Version"
+    }
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                Text("🌐 SkateConnect \(appVersion) 🛹")
+                    .font(.title)
+                    .bold()
+                
                 Image("user-skateconnect") // Replace with your image name
                     .resizable()
                     .scaledToFit()
