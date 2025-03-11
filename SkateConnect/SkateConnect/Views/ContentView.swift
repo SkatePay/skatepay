@@ -300,7 +300,7 @@ struct ContentView: View {
         ) { notification in
             handleDirectMessage(notification)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .joinChannel)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: .subscribeToChannel)) { notification in
             if let channelId = notification.userInfo?["channelId"] as? String {
                 if let spot = dataManager.findSpotForChannelId(channelId) {
                     navigation.coordinate = spot.locationCoordinate

@@ -32,6 +32,8 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     @Published var connected = false
     
     private var favoriteSubscriptions = Set<String>()
+    
+    private var processedEvents = Set<String>()
 
     // Channels
     private var subscriptionBufferForChannelMetadata: [String] = []
@@ -48,6 +50,8 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     var leadType = ChannelType.outbound
     
     var lastEventId = ""
+    
+    var cachedChannelId: String?
     
     var stopped = true
     
@@ -116,7 +120,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         
         self.connect()
         
-        self.observeActions()
+        self.connectPublishers()
     }
     
     func stop() {
@@ -256,6 +260,7 @@ extension Network {
             self.processFavorites()
             self.processSubscriptionBuffers()
             self.requestOnboardingInfo()
+            self.processDeeplinkAction()
         case .notConnected:
             os_log("⏳ reconnecting to relay: %@", log: log, type: .info, relay.url.absoluteString)
         case .error(let error):
@@ -346,6 +351,27 @@ extension Network {
             favoriteSubscriptions.insert(subscriptionId)
             os_log("🔍 incoming dms: %@", log: log, type: .info, subscriptionId)
         }
+    }
+    
+    func setCachedChannelId(_ channelId: String) {
+        cachedChannelId = channelId
+    }
+    
+    func processDeeplinkAction() {
+        os_log("⏳ processing deeplink action", log: log, type: .info)
+        
+        guard let channelId = cachedChannelId else {
+            os_log("🛑 no cachedChanneld was set", log: log, type: .info)
+            return
+        }
+        
+        NotificationCenter.default.post(
+            name: .subscribeToChannel,
+            object: self,
+            userInfo: ["channelId": channelId]
+        )
+        
+        cachedChannelId = nil
     }
 }
 
@@ -498,11 +524,18 @@ extension Network {
 extension Network {
     private func handleRelayEvent(_ event: RelayEvent) {
         if (favoriteSubscriptions.contains(event.subscriptionId)) {
-            switch event.event.kind {
-                case .legacyEncryptedDirectMessage: handleDirectMessage(event)
-                case .channelCreation: handleChannelCreation(event)
-                case .channelMessage: handleChannelMessage(event)
-                default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
+            if (!processedEvents.contains(event.event.id)) {
+                processedEvents.insert(event.event.id)
+                
+                switch event.event.kind {
+                    case .legacyEncryptedDirectMessage: handleDirectMessage(event)
+                    case .channelCreation: handleChannelCreation(event)
+                    case .channelMessage: handleChannelMessage(event)
+                    default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
+                }
+            } else {
+                os_log("🛑 dropping event", log: log, type: .info)
+                // Will address in 1.7, need a better way to snooze previosly processed events
             }
         } else {
             switch event.event.kind {
@@ -621,7 +654,7 @@ extension Network {
 
 // MARK: - Observers
 extension Network {
-    private func observeActions() {
+    private func connectPublishers() {
         NotificationCenter.default.publisher(for: .uploadVideo)
             .sink { [weak self] notification in
                 guard let assetURL = notification.userInfo?["assetURL"] as? String,

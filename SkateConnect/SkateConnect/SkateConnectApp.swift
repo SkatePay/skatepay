@@ -67,7 +67,22 @@ struct SkateConnectApp: App {
                     }
             } else {
                 EULAView()
+                    .onOpenURL { url in
+                        handleDeepLink(url)
+                    }
+                    .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+                        guard let url = activity.webpageURL else {
+                            os_log("🛑 can't get webpageURL", log: log, type: .info)
+                            return
+                        }
+                        
+                        handleDeepLink(url)
+                     }
                     .environmentObject(eulaManager)
+                    .onAppear {
+                        channelViewManager.setNavigation(navigation: navigation)
+                        channelViewManager.setNetwork(network: network)
+                    }
             }
         }
     }
@@ -75,11 +90,6 @@ struct SkateConnectApp: App {
     // Handle the deep linking for video and channel
     func handleDeepLink(_ url: URL) {
         os_log("🔗 Deep link received: %@", log: log, type: .info, url.absoluteString)
-        
-        if (!UserDefaults.standard.bool(forKey: UserDefaults.Keys.hasAcknowledgedEULA)) {
-            os_log("🛑 user hasn't acknowlegdes EULA", log: log, type: .info)
-            return
-        }
         
         guard url.host == Constants.LANDING_PAGE_HOST else { return }
 
@@ -90,11 +100,10 @@ struct SkateConnectApp: App {
             if let videoIndex = pathComponents.firstIndex(of: "video"),
                videoIndex + 1 < pathComponents.count {
                 let videoId = pathComponents[videoIndex + 1]
-                print("Deep link videoID: \(videoId)")
+                os_log("⏳ processing videoId %@", log: log, type: .info, videoId)
             }
         }
         
-        // xcrun simctl openurl booted "https://skatepark.chat/channel/92ef3ac79a8772ddf16a2e74e239a67bc95caebdb5bd59191c95cf91685dfc8e"
         // Handle Channel Links
         else if pathComponents.contains("channel") {
             if let channelIndex = pathComponents.firstIndex(of: "channel"),
@@ -103,14 +112,14 @@ struct SkateConnectApp: App {
                 channelViewManager.openChannel(channelId: channelId, deeplink: true)
             }
         }
-        
-        // xcrun simctl openurl booted "https://skatepark.chat/user/npub14rzvh48d68f3467faxpz6vm2k3af0c6fpg7y6gmh7hfgpjvj9hgqmwr22g"
+    
         // Handle DM Links
         else if pathComponents.contains("user") {
             if let channelIndex = pathComponents.firstIndex(of: "user"),
                channelIndex + 1 < pathComponents.count {
                 let npub = pathComponents[channelIndex + 1]
-                navigation.path.append(NavigationPathType.userDetail(npub: npub))
+                os_log("⏳ processing npub %@", log: log, type: .info, npub)
+//                navigation.path.append(NavigationPathType.userDetail(npub: npub))
             }
         }
     }

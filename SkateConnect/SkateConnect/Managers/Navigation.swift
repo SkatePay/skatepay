@@ -16,7 +16,7 @@ extension Notification.Name {
     static let goToCoordinate = Notification.Name("goToCoordinate")
     static let markSpot = Notification.Name("markSpot")
     static let goToSpot = Notification.Name("goToSpot")
-    static let joinChannel = Notification.Name("joinChannel")
+    static let subscribeToChannel = Notification.Name("subscribeToChannel")
     static let muteUser = Notification.Name("muteUser")
     static let barcodeScanned = Notification.Name("barcodeScanned")
     static let uploadImage = Notification.Name("uploadImage")
@@ -86,7 +86,7 @@ class Navigation: ObservableObject {
     
     func joinChannel(channelId: String) {
         NotificationCenter.default.post(
-            name: .joinChannel,
+            name: .subscribeToChannel,
             object: self,
             userInfo: ["channelId": channelId]
         )
@@ -107,8 +107,7 @@ class Navigation: ObservableObject {
         NotificationCenter.default.post(
             name: .uploadVideo,
             object: self,
-            userInfo: ["channelId": channelId,
-                       "assetURL": assetURL]
+            userInfo: ["channelId": channelId, "assetURL": assetURL]
         )
     }
     

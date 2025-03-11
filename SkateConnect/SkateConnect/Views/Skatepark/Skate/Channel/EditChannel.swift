@@ -49,7 +49,6 @@ func decryptChannelInviteFromString(encryptedString: String) -> Channel? {
 struct EditChannel: View {
     @Environment(\.modelContext) private var context
     
-    @EnvironmentObject var navigation: Navigation
     @State private var isInviteCopied = false
     
     let keychainForNostr = NostrKeychainStorage()
@@ -63,7 +62,7 @@ struct EditChannel: View {
     }
     
     private func createInviteString() -> String {
-        guard let channelId = navigation.channelId else {
+        guard let channelId = lead?.channelId else {
             print("Error: Channel ID is nil.")
             return ""
         }
