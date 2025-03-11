@@ -36,10 +36,10 @@ struct LobbyView: View {
             List {
                 let bots = loadBotsFromUserDefaults()
                 let botUsers = bots.map { bot in
-                    SkateConnect.getUser(npub: bot.npub)
+                    MainHelper.getUser(npub: bot.npub)
                 }
                 
-                let users = [SkateConnect.getUser(npub: modelData.users[0].npub)] + botUsers
+                let users = [MainHelper.getUser(npub: modelData.users[0].npub)] + botUsers
                 
                 UserRow(users: users)
                     .environmentObject(navigation)
@@ -120,7 +120,7 @@ private extension LobbyView {
     }
     
     func formatActivity(npub: String, text: String?) -> String {
-        var alias = friendlyKey(npub: npub)
+        var alias = MainHelper.friendlyKey(npub: npub)
 
         guard let text = text else {
             if let friend = self.dataManager.findFriend(npub) {
@@ -151,7 +151,7 @@ private extension LobbyView {
                 Label("Open", systemImage: "message")
             }
             
-            if !isSupport(npub: npub) {
+            if !MainHelper.isSupport(npub: npub) {
                 Button(action: {
                     UIPasteboard.general.string = npub
                 }) {

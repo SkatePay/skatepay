@@ -73,15 +73,16 @@ class Lobby: ObservableObject, EventCreating {
             // if note invite, public, mine
             let note = spot.note.split(separator: ":").last.map(String.init) ?? ""
             
-            if let channelType = ChannelType(rawValue: spot.icon) {
+            if let channelEmoji = ChannelEmoji(rawValue: spot.icon) {
                 let lead = Lead(
                     name: spot.name,
-                    icon: channelType.rawValue,
+                    icon: channelEmoji.rawValue,
+                    note: spot.note,
                     coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
                     channelId: spot.channelId,
                     event: nil,
                     channel: nil,
-                    color: convertNoteToColor(note)
+                    color: MainHelper.convertNoteToColor(note)
                 )
                 self.upsertIntoLeads(lead)
             }

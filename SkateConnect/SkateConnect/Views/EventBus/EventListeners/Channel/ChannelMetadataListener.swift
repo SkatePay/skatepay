@@ -13,6 +13,7 @@ import os
 class ChannelMetadataListener: ObservableObject {
     @Published var metadata: Lead?
 
+    var type = ChannelType.outbound
     var channelId: String?
     var subscriptionId: String?
 
@@ -47,13 +48,23 @@ class ChannelMetadataListener: ObservableObject {
         EventBus.shared.didReceiveChannelMetadata
             .receive(on: DispatchQueue.main)
             .sink { [weak self] event in
-                self?.metadata = createLead(from: event.event)
+                if (self?.subscriptionId != event.subscriptionId) { return }
+                
+                self?.metadata = MainHelper.createLead(
+                    from: event.event,
+                    note: self?.type == .inbound ? "invite" : "",
+                    markSpot: self?.type == .inbound
+                )
             }
             .store(in: &cancellables)
     }
     
     func setChannelId(_ channelId: String) {
         self.channelId = channelId
+    }
+    
+    func setChannelType(_ type: ChannelType) {
+        self.type = type
     }
     
     func reset() {

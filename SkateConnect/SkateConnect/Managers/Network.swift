@@ -45,7 +45,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     
     private var subscriptionIdToEntity = [String: String]() // Reverse lookup
     
-    var leadType = LeadType.outbound
+    var leadType = ChannelType.outbound
     
     var lastEventId = ""
     
@@ -200,6 +200,7 @@ extension Network {
         if account == nil {
             os_log("🔥 can't get account", log: log, type: .error)
             account = createIdentity() // ✅ Assign the new identity
+            processFavorites()
         }
 
         guard let validAccount = account else {
@@ -299,7 +300,7 @@ extension Network {
 
 // MARK: - Favorite Subscriptions
 extension Network {
-    private var filterForChannels: Filter? {
+    private var filterForMyChannels: Filter? {
         guard let account = keychainForNostr.account else {
             return nil
         }
@@ -307,7 +308,7 @@ extension Network {
         return filter
     }
     
-    private var filterForDirectMessages: Filter? {
+    private var filterForIncomingDirectMessages: Filter? {
         guard let account = keychainForNostr.account else {
             return nil
         }
@@ -320,7 +321,14 @@ extension Network {
     func processFavorites() {
         os_log("⏳ processing favorites", log: log, type: .info)
         
-        if let filter = filterForChannels {
+        guard let pool = self.relayPool else {
+            os_log("🔥 relay pool is unavailable", log: log, type: .error)
+            return
+        }
+        
+        favoriteSubscriptions.forEach { pool.closeSubscription(with: $0) }
+        
+        if let filter = filterForMyChannels {
             guard let subscriptionId = subscribeIfNeeded(filter) else {
                 os_log("🔥 error subscribing", log: log, type: .error)
                 return
@@ -330,7 +338,7 @@ extension Network {
             os_log("🔍 my channels: %@", log: log, type: .info, subscriptionId)
         }
         
-        if let filter = filterForDirectMessages {
+        if let filter = filterForIncomingDirectMessages {
             guard let subscriptionId = subscribeIfNeeded(filter) else {
                 os_log("🔥 error subscribinmg", log: log, type: .error)
                 return
@@ -494,14 +502,14 @@ extension Network {
                 case .legacyEncryptedDirectMessage: handleDirectMessage(event)
                 case .channelCreation: handleChannelCreation(event)
                 case .channelMessage: handleChannelMessage(event)
-                default: print("Unhandled event: \(event.subscriptionId) \(event.event.kind)")
+                default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
             }
         } else {
             switch event.event.kind {
                 case .legacyEncryptedDirectMessage: EventBus.shared.didReceiveDMMessage.send(event)
                 case .channelCreation: EventBus.shared.didReceiveChannelMetadata.send(event)
                 case .channelMessage: EventBus.shared.didReceiveChannelMessage.send(event)
-                default: print("Unhandled event: \(event.subscriptionId) \(event.event.kind)")
+                default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
             }
         }
     }
@@ -614,7 +622,6 @@ extension Network {
 // MARK: - Observers
 extension Network {
     private func observeActions() {
-        // Other
         NotificationCenter.default.publisher(for: .uploadVideo)
             .sink { [weak self] notification in
                 guard let assetURL = notification.userInfo?["assetURL"] as? String,

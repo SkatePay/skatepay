@@ -26,6 +26,7 @@ struct Lead: Identifiable, Equatable, Codable {
     var id = UUID()
     var name: String
     var icon: String
+    var note: String
     var coordinate: CLLocationCoordinate2D
     var channelId: String
     var event: NostrEvent?
@@ -44,13 +45,14 @@ struct Lead: Identifiable, Equatable, Codable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, name, icon, coordinate, channelId, event, channel, colorHex
+        case id, name, icon, note, coordinate, channelId, event, channel, colorHex
     }
     
-    init(id: UUID = UUID(), name: String, icon: String, coordinate: CLLocationCoordinate2D, channelId: String, event: NostrEvent?, channel: Channel?, color: Color) {
+    init(id: UUID = UUID(), name: String, icon: String, note: String, coordinate: CLLocationCoordinate2D, channelId: String, event: NostrEvent?, channel: Channel?, color: Color) {
         self.id = id
         self.name = name
         self.icon = icon
+        self.note = note
         self.coordinate = coordinate
         self.channelId = channelId
         self.event = event

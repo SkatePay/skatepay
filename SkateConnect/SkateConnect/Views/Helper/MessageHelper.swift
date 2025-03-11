@@ -25,7 +25,7 @@ class MessageHelper {
         let isCurrentUser = publicKey == account?.publicKey
         
         let npub = publicKey?.npub ?? ""
-        let displayName = isCurrentUser ? "You" : friendlyKey(npub: npub)
+        let displayName = isCurrentUser ? "You" : MainHelper.friendlyKey(npub: npub)
         let user = MockUser(senderId: npub, displayName: displayName)
 
         guard let message = processContent(content: event.content) else {
@@ -64,7 +64,7 @@ class MessageHelper {
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
-        guard let lead = createLead(from: inviteEvent), let channel = lead.channel else {
+        guard let lead = MainHelper.createLead(from: inviteEvent), let channel = lead.channel else {
             print("🔥 Failed to create lead from invite event")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
@@ -85,11 +85,26 @@ class MessageHelper {
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
+        var icon = "📺"
+        if let note = channel.aboutDecoded?.note {
+            icon = note
+        }
+        
+        var inviteString = lead.channelId
+        
+        if let ecryptedString = encryptChannelInviteToString(channel: channel) {
+            inviteString = ecryptedString
+        }
+        
+        let inviteAttributedString = NSAttributedString(
+            string: inviteString
+        )
+        
         let linkItem = MockLinkItem(
             text: "🚪🏃 Channel Invite",
-            attributedText: nil,
+            attributedText: inviteAttributedString,
             url: url,
-            title: "\(lead.icon) \(lead.name)",
+            title: "\(icon) \(channel.name)",
             teaser: description,
             thumbnailImage: image
         )
@@ -165,7 +180,7 @@ class MessageHelper {
                 }
                 
             case .subscriber:
-                let formattedText = "🌴 \(friendlyKey(npub: text)) joined. 🛹"
+                let formattedText = "🌴 \(MainHelper.friendlyKey(npub: text)) joined. 🛹"
                 return .text(formattedText)
                 
             

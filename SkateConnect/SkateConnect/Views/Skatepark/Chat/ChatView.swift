@@ -18,7 +18,7 @@ final class MessageSwiftUIVC: MessagesViewController {
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
-    let onTapLink: (String) -> Void
+    let onTapLink: (String, String) -> Void
     
     var firstTime = false
     
@@ -27,7 +27,7 @@ final class MessageSwiftUIVC: MessagesViewController {
     init(
         onTapAvatar: @escaping (String) -> Void,
         onTapVideo: @escaping (MessageType) -> Void,
-        onTapLink: @escaping (String) -> Void
+        onTapLink: @escaping (String, String) -> Void
     ) {
         self.onTapAvatar = onTapAvatar
         self.onTapVideo = onTapVideo
@@ -60,7 +60,7 @@ struct ChatView: UIViewControllerRepresentable {
         
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
-    let onTapLink: (String) -> Void
+    let onTapLink: (String, String) -> Void
     let onSend: (String) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
@@ -326,8 +326,8 @@ extension ChatView.Coordinator: MessageCellDelegate {
 
         switch message.kind {
         case .linkPreview(let linkItem):
-            if let channelId = linkItem.url.pathComponents.last {
-                parent.onTapLink(channelId)
+            if let channelId = linkItem.url.pathComponents.last, let attributedText = linkItem.attributedText {
+                parent.onTapLink(channelId, attributedText.string)
             } else {
                 print("Failed to extract channel ID from link preview")
             }

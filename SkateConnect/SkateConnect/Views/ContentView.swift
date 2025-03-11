@@ -205,7 +205,7 @@ struct ContentView: View {
                         .environmentObject(navigation)
                     
                 case .channel(let channelId, let invite):
-                    ChannelView(channelId: channelId, leadType: invite ? .inbound : .outbound)
+                    ChannelView(channelId: channelId, type: invite ? .inbound : .outbound)
                         .environmentObject(dataManager)
                         .environmentObject(debugManager)
                         .environmentObject(navigation)
@@ -280,7 +280,7 @@ struct ContentView: View {
                         .navigationBarTitle("🎯 Explore Network 🕸️")
                     
                 case .userDetail(let npub):
-                    let user = getUser(npub: npub)
+                    let user = MainHelper.getUser(npub: npub)
                     UserDetail(user: user)
                         .environmentObject(navigation)
                         .environmentObject(network)
@@ -304,22 +304,22 @@ struct ContentView: View {
             if let channelId = notification.userInfo?["channelId"] as? String {
                 if let spot = dataManager.findSpotForChannelId(channelId) {
                     navigation.coordinate = spot.locationCoordinate
+                    locationManager.panMapToCachedCoordinate()
                 }
                 
-                locationManager.panMapToCachedCoordinate()
                 channelViewManager.openChannel(channelId: channelId, invite: true)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .createdChannelForOutbound)) { notification in
             if let event = notification.object as? NostrEvent {
-                if let lead = createLead(from: event) {
+                if let lead = MainHelper.createLead(from: event) {
                     dataManager.saveSpotForLead(lead)
                 }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .createdChannelForInbound)) { notification in
             if let event = notification.object as? NostrEvent {
-                if let lead = createLead(from: event) {
+                if let lead = MainHelper.createLead(from: event) {
                     dataManager.saveSpotForLead(lead, note: "invite")
                 }
             }

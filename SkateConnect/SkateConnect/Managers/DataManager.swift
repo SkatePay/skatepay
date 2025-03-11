@@ -35,6 +35,8 @@ class DataManager: ObservableObject {
     
     private let modelContainer: ModelContainer
     
+    private var cancellables = Set<AnyCancellable>()
+
     let keychainForNostr = NostrKeychainStorage()
 
     init(inMemory: Bool = false) {
@@ -46,9 +48,19 @@ class DataManager: ObservableObject {
                 for: Friend.self, Foe.self, Spot.self,
                 configurations: config
             )        } catch {
-            print("Failed to initialize ModelContainer: \(error)")
-            fatalError("Failed to initialize ModelContainer")
-        }
+                print("Failed to initialize ModelContainer: \(error)")
+                fatalError("Failed to initialize ModelContainer")
+            }
+        
+        NotificationCenter.default.publisher(for: .markSpot)
+            .sink { [weak self] notification in
+                if let lead = notification.object as? Lead, let log = self?.log {
+                    os_log("⏳ saving spot for channelId [%@]", log: log, type: .info, lead.channelId)
+
+                    self?.saveSpotForLead(lead)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     var modelContext: ModelContext {
@@ -95,29 +107,38 @@ class DataManager: ObservableObject {
     
     func saveSpotForLead(_ lead: Lead, note: String = "") {
         var bufferedLead = lead
-        
-        if let spot = findSpotForChannelId(lead.channelId) {
-            print("Spot already exists for eventId: \(spot.channelId) \(spot.note)")
+        var spot: Spot?  // Declare spot before the conditional blocks
+
+        if let existingSpot = findSpotForChannelId(lead.channelId) {
+            let extractedNote = existingSpot.note.split(separator: ":").last.map(String.init) ?? ""
+            bufferedLead.color = MainHelper.convertNoteToColor(extractedNote)
             
-            let note = spot.note.split(separator: ":").last.map(String.init) ?? ""
-            bufferedLead.color = convertNoteToColor(note)
+            spot = existingSpot  // Assign the existing spot
         } else {
-            let spot = Spot(
+            let newSpot = Spot(
                 name: lead.name,
                 address: "",
                 state: "",
                 icon: lead.icon,
-                note: lead.icon + ":" + note,
+                note: lead.icon + ":" + lead.note,
                 latitude: lead.coordinate.latitude,
                 longitude: lead.coordinate.longitude,
                 channelId: lead.channelId
             )
             
-            self.insertSpot(spot)
-            bufferedLead.color = convertNoteToColor(note)
-            print("New spot inserted for eventId: \(lead.channelId)")
+            self.insertSpot(newSpot)
+            bufferedLead.color = MainHelper.convertNoteToColor(note)
+            
+            spot = newSpot  // Assign the newly created spot
         }
-        
+
+        if let spot = spot {  // Ensure spot is not nil before posting notification
+            NotificationCenter.default.post(
+                name: .goToSpot,
+                object: spot
+            )
+        }
+
         self.lobby?.upsertIntoLeads(bufferedLead)
     }
     
@@ -198,7 +219,7 @@ class DataManager: ObservableObject {
     }
 }
 
-enum LeadType: String {
+enum ChannelType: String {
     case outbound = "outbound"
     case inbound = "inbound"
 }

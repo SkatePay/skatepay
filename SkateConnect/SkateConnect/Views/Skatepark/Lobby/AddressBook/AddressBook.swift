@@ -63,7 +63,7 @@ struct AddressBook: View {
             }
             ForEach(filteredSpots) { spot in
                 
-                Text(spot.name)
+                Text("\(spot.note.contains("invite") ? "🚪" : "") \(spot.name)")
                     .contextMenu {
                         Button(action: {
                             navigation.path.removeLast()

@@ -106,15 +106,11 @@ struct SkateConnectApp: App {
             if let videoIndex = pathComponents.firstIndex(of: "video"),
                videoIndex + 1 < pathComponents.count {
                 let videoId = pathComponents[videoIndex + 1]
-                
-                let npub = pathComponents[videoIndex + 1]
-                
-                os_log(" TEMPORARY OVERRIDE %@", log: log, type: .info, url.absoluteString)
-                navigation.path.append(NavigationPathType.userDetail(npub: npub))
+                print("Deep link videoID: \(videoId)")
             }
         }
-        // xcrun simctl openurl booted "https://skatepark.chat/video/npub14rzvh48d68f3467faxpz6vm2k3af0c6fpg7y6gmh7hfgpjvj9hgqmwr22g"
         
+        // xcrun simctl openurl booted "https://skatepark.chat/channel/92ef3ac79a8772ddf16a2e74e239a67bc95caebdb5bd59191c95cf91685dfc8e"
         // Handle Channel Links
         else if pathComponents.contains("channel") {
             if let channelIndex = pathComponents.firstIndex(of: "channel"),
@@ -124,8 +120,7 @@ struct SkateConnectApp: App {
             }
         }
         
-        // xcrun simctl openurl booted "https://skatepark.chat/channel/92ef3ac79a8772ddf16a2e74e239a67bc95caebdb5bd59191c95cf91685dfc8e"
-        
+        // xcrun simctl openurl booted "https://skatepark.chat/user/npub14rzvh48d68f3467faxpz6vm2k3af0c6fpg7y6gmh7hfgpjvj9hgqmwr22g"
         // Handle DM Links
         else if pathComponents.contains("user") {
             if let channelIndex = pathComponents.firstIndex(of: "user"),

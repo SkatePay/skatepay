@@ -24,7 +24,7 @@ struct CreateChannel: View, EventCreating {
     
     @State private var name: String = ""
     @State private var description: String = ""
-    @State private var icon: String = ChannelType.broadcast.rawValue
+    @State private var icon: String = ChannelEmoji.broadcast.rawValue
     @State private var event: NostrEvent?
 
     
@@ -42,7 +42,7 @@ struct CreateChannel: View, EventCreating {
             
             Section("Icon") {
                 Picker("Select One", selection: $icon) {
-                    ForEach(ChannelType.allCases) { season in
+                    ForEach(ChannelEmoji.allCases) { season in
                         Text(season.rawValue).tag(season)
                     }
                 }

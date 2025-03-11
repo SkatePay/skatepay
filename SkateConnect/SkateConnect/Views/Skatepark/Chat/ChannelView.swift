@@ -38,13 +38,14 @@ struct ChannelView: View {
     let keychainForNostr = NostrKeychainStorage()
 
     @State var channelId: String
-    @State var leadType = LeadType.outbound
+    @State var type = ChannelType.outbound
     
     // Sheets
     @State private var isShowingToolBoxView = false
     @State private var showingConfirmationAlert = false
     
     @State private var selectedChannelId: String? = nil
+    @State private var selectedInviteString: String? = nil
     @State private var videoURL: URL?
     
     @State private var showMediaActionSheet = false
@@ -74,10 +75,11 @@ struct ChannelView: View {
                     }
                     shouldScrollToBottom = false
                 },
-                onTapLink: { channelId in
+                onTapLink: { channelId, inviteString in
                     selectedChannelId = channelId
-                    showingConfirmationAlert = true
+                    selectedInviteString = inviteString
                     
+                    showingConfirmationAlert = true
                     shouldScrollToBottom = false
                 },
                 onSend: { text in
@@ -87,6 +89,7 @@ struct ChannelView: View {
             )
             .onAppear {
                 if let account = keychainForNostr.account {
+                    self.eventListenerForMetadata.setChannelType(type)
                     self.eventListenerForMetadata.setChannelId(channelId)
                     self.eventListenerForMetadata.reset()
                     
@@ -180,24 +183,15 @@ struct ChannelView: View {
                         .default(Text("Yes")) {
                             openChannelInvite()
                         },
-                        .default(Text("Copy")) {
+                        .default(Text("Copy Invite")) {
                             
                             showingConfirmationAlert = false
                             
-                            var inviteString = channelId
-                            
-                            if let event = eventListenerForMetadata.metadata?.event {
-                                if var channel = parseChannel(from: event) {
-                                    channel.event = event
-                                    if let ecryptedString = encryptChannelInviteToString(channel: channel) {
-                                        inviteString = ecryptedString
-                                    }
-                                }
-                            }
-                            
-                            UIPasteboard.general.string = "channel_invite:\(inviteString)"
-                            
-                            stateManager.isInviteCopied = true
+                            if let inviteString = selectedInviteString {
+                                UIPasteboard.general.string = "channel_invite:\(inviteString)"
+                            } else {
+                                UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
+                            }                            
                         },
                         .cancel(Text("Maybe Later")) {
                             showingConfirmationAlert = false
@@ -271,7 +265,7 @@ struct ChannelView: View {
                 },
                 .default(Text("Share")) {
                     if let videoURL = url {
-                        shareVideo(videoURL)
+                        MainHelper.shareVideo(videoURL)
                     }
                 },
                 .cancel()

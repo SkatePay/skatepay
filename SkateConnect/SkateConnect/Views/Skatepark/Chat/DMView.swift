@@ -44,6 +44,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     
     // Action State
     @State private var selectedChannelId: String?
+    @State private var selectedInviteString: String? = nil
     @State private var videoURL: URL?
     
     // View State
@@ -64,8 +65,10 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 shouldScrollToBottom = false
             },
             onTapVideo: handleVideoTap,
-            onTapLink: { channelId in
+            onTapLink: { channelId, inviteString in
                 selectedChannelId = channelId
+                selectedInviteString = inviteString
+
                 showingConfirmationAlert = true
                 shouldScrollToBottom = false
             },
@@ -77,12 +80,28 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
         )
         .navigationBarBackButtonHidden()
         .navigationBarItems(leading: backButton, trailing: actionButtons)
-        .alert(isPresented: $showingConfirmationAlert) {
-            Alert(
+        .actionSheet(isPresented: $showingConfirmationAlert) {
+            ActionSheet(
                 title: Text("Confirmation"),
                 message: Text("Are you sure you want to join this channel?"),
-                primaryButton: .default(Text("Yes")) { openChannelInvite() },
-                secondaryButton: .cancel()
+                buttons: [
+                    .default(Text("Yes")) {
+                        openChannelInvite()
+                    },
+                    .default(Text("Copy Invite")) {
+                        
+                        showingConfirmationAlert = false
+                        
+                        if let inviteString = selectedInviteString {
+                            UIPasteboard.general.string = "channel_invite:\(inviteString)"
+                        } else {
+                            UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
+                        }
+                    },
+                    .cancel(Text("Maybe Later")) {
+                        showingConfirmationAlert = false
+                    }
+                ]
             )
         }
         .onAppear {
@@ -118,7 +137,7 @@ private extension DMView {
     }
 
     func formatName() -> String {
-        dataManager.findFriend(user.npub)?.name ?? friendlyKey(npub: user.npub)
+        dataManager.findFriend(user.npub)?.name ?? MainHelper.friendlyKey(npub: user.npub)
     }
     
     func getCurrentUser() -> MockUser {

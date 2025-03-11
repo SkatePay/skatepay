@@ -14,6 +14,7 @@ import SwiftUI
 extension Notification.Name {
     static let goToLandmark = Notification.Name("goToLandmark")
     static let goToCoordinate = Notification.Name("goToCoordinate")
+    static let markSpot = Notification.Name("markSpot")
     static let goToSpot = Notification.Name("goToSpot")
     static let joinChannel = Notification.Name("joinChannel")
     static let muteUser = Notification.Name("muteUser")
