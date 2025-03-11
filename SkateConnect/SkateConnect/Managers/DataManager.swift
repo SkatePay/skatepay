@@ -15,6 +15,31 @@ import SwiftUI
 import SwiftData
 import SolanaSwift
 
+extension UserDefaults {
+    struct Keys {
+        // General
+        static let hasAcknowledgedEULA = "hasAcknowledgedEULA"
+        static let hasEnabledDebug = "hasEnabledDebug"
+        static let hasRunOnboarding = "hasRunOnboarding"
+
+        // Network
+        static let hasRequestedOnboardingInfo = "hasRequestedOnboardingInfo"
+
+        // Wallet
+        static let selectedAlias = "selectedAlias"
+        static let network = "network"
+        
+        // LocationManager
+        static let lastVisitedChannelId = "lastVisitedChannelId"
+    }
+}
+
+extension UserDefaults {
+    func contains(_ key: String) -> Bool {
+        return object(forKey: key) != nil
+    }
+}
+
 @Observable
 class AppData {
     var landmarks: [Landmark] = load("landmarkData.json")
@@ -105,15 +130,17 @@ class DataManager: ObservableObject {
         return fetchSortedSpots().first { $0.channelId == channelId }
     }
     
-    func saveSpotForLead(_ lead: Lead, note: String = "") {
+    func saveSpotForLead(_ lead: Lead, note: String = "", pan: Bool = true) {
+        os_log("⏳ processing lead for %@ %@ pan", log: log, type: .info, lead.name, pan ? "with" : "without")
+
         var bufferedLead = lead
-        var spot: Spot?  // Declare spot before the conditional blocks
+        var spot: Spot?
 
         if let existingSpot = findSpotForChannelId(lead.channelId) {
             let extractedNote = existingSpot.note.split(separator: ":").last.map(String.init) ?? ""
             bufferedLead.color = MainHelper.convertNoteToColor(extractedNote)
             
-            spot = existingSpot  // Assign the existing spot
+            spot = existingSpot
         } else {
             let newSpot = Spot(
                 name: lead.name,
@@ -129,17 +156,23 @@ class DataManager: ObservableObject {
             self.insertSpot(newSpot)
             bufferedLead.color = MainHelper.convertNoteToColor(note)
             
-            spot = newSpot  // Assign the newly created spot
+            spot = newSpot
         }
 
-        if let spot = spot {  // Ensure spot is not nil before posting notification
+        self.lobby?.upsertIntoLeads(bufferedLead)
+        
+        UserDefaults.standard.setValue(lead.channelId, forKey: UserDefaults.Keys.lastVisitedChannelId)
+        
+        if !pan {
+            return
+        }
+        
+        if let spot = spot {
             NotificationCenter.default.post(
                 name: .goToSpot,
                 object: spot
             )
         }
-
-        self.lobby?.upsertIntoLeads(bufferedLead)
     }
     
     func removeSpotForChannelId(_ channelId: String) {
@@ -163,9 +196,9 @@ class DataManager: ObservableObject {
         }
     }
     
-    func createPublicSpots(leads: [Lead]) {
+    func createPublicSpots(leads: [Lead], panToLast: Bool) {
         for lead in leads {
-            saveSpotForLead(lead, note: "public")
+            saveSpotForLead(lead, note: "public", pan: panToLast)
         }
     }
     

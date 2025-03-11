@@ -10,22 +10,6 @@ import ConnectFramework
 import SwiftUI
 
 
-extension UserDefaults {
-    struct Keys {
-        // General
-        static let hasAcknowledgedEULA = "hasAcknowledgedEULA"
-        static let hasEnabledDebug = "hasEnabledDebug"
-        static let hasRunOnboarding = "hasRunOnboarding"
-
-        // Network
-        static let hasRequestedOnboardingInfo = "hasRequestedOnboardingInfo"
-
-        // Wallet
-        static let selectedAlias = "selectedAlias"
-        static let network = "network"
-    }
-}
-
 @main
 struct SkateConnectApp: App {
     @State private var modelData = AppData()

@@ -5,6 +5,8 @@
 //  Created by Konstantin Yurchenko, Jr on 9/21/24.
 //
 
+import os
+
 import Combine
 import CoreLocation
 import Foundation
@@ -67,6 +69,8 @@ public struct Defaults {
 }
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    let log = OSLog(subsystem: "SkateConnect", category: "Location Manager")
+
     private var locationManager: CLLocationManager?
         
     @Published private var navigation: Navigation?
@@ -231,9 +235,11 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
 
     func handleGoToSpotNotification(_ notification: Notification) {
         guard let spot = notification.object as? Spot else {
-            print("Received goToSpot notification, but no valid Spot object was found.")
+            os_log("🔥 can't get spot", log: log, type: .error)
             return
         }
+        
+        os_log("⏳ panning to spot %@", log: log, type: .info, spot.name)
         
         let locationCoordinate = spot.locationCoordinate
         
