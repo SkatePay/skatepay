@@ -49,29 +49,6 @@ struct TabButton: View {
     }
 }
 
-//// Custom Tab Button
-//struct TabButton: View {
-//    let tab: Tab
-//    let label: String
-//    let systemImage: String
-//    @Binding var selectedTab: Tab
-//    
-//    var body: some View {
-//        Button(action: {
-//            selectedTab = tab
-//        }) {
-//            VStack {
-//                Image(systemName: systemImage)
-//                    .font(.system(size: 20))
-//                Text(label)
-//                    .font(.caption)
-//            }
-//            .foregroundColor(selectedTab == tab ? .blue : .gray)
-//            .frame(maxWidth: .infinity)
-//        }
-//    }
-//}
-
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     
@@ -85,6 +62,7 @@ struct ContentView: View {
     @EnvironmentObject private var navigation: Navigation
     @EnvironmentObject private var network: Network
     @EnvironmentObject private var stateManager: StateManager
+    @EnvironmentObject private var uploadManager: UploadManager
     @EnvironmentObject private var walletManager: WalletManager
     
     @StateObject private var store = HostStore()
@@ -203,6 +181,7 @@ struct ContentView: View {
                 case .camera:
                     CameraView()
                         .environmentObject(navigation)
+                        .environmentObject(uploadManager)
                     
                 case .channel(let channelId, let invite):
                     ChannelView(channelId: channelId, type: invite ? .inbound : .outbound)
@@ -211,6 +190,7 @@ struct ContentView: View {
                         .environmentObject(navigation)
                         .environmentObject(network)
                         .environmentObject(stateManager)
+                        .environmentObject(uploadManager)
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()
                         }

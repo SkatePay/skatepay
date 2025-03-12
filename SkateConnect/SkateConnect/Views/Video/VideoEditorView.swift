@@ -12,11 +12,14 @@ import AVFoundation
 struct VideoEditorView: View {
     var url: URL?
     
+    @EnvironmentObject var uploadManager: UploadManager
+
     @State private var player: AVPlayer
     @State private var currentFrame: UIImage? // Store the captured frame
     @State private var isUploading: Bool = false // Manage upload state
     @State private var showErrorAlert: Bool = false // Show error alerts
     @State private var errorMessage: String = "" // Error message for alerts
+    
     @ObservedObject var cameraViewModel: CameraViewModel // To access the existing video upload logic
     
     init(url: URL?, cameraViewModel: CameraViewModel) {
@@ -148,11 +151,11 @@ struct VideoEditorView: View {
     // MARK: - Upload Video and Image
     func postVideoAndImage() async {
         isUploading = true
-        cameraViewModel.isUploading = true
+        uploadManager.isUploading = true
         
         do {
             if let currentFrame = currentFrame, let imageURL = saveImageToDisk(image: currentFrame) {
-                try await cameraViewModel.uploadFiles(imageURL: imageURL)
+                try await uploadManager.uploadFiles(imageURL: imageURL)
             } else {
                 showError(message: "Failed to save image for upload.")
             }
@@ -161,7 +164,7 @@ struct VideoEditorView: View {
         }
         
         isUploading = false
-        cameraViewModel.isUploading = false
+        uploadManager.isUploading = false
     }
     
     // MARK: - Show Error Alert

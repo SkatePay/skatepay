@@ -11,16 +11,12 @@ import UniformTypeIdentifiers
 
 struct ToolBoxView: View {    
     @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var uploadManager: UploadManager
 
     @State private var showingFilePicker = false
     @State private var selectedMediaURL: URL? = nil
     
     let keychainForAws = AwsKeychainStorage()
-    private let uploadManager: UploadManager
-
-    init() {
-        uploadManager = UploadManager(keychainForAws: keychainForAws)
-    }
     
     private var channelId: String {
         navigation.channel?.id ?? ""

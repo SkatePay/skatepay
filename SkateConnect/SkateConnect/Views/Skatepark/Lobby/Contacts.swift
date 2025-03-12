@@ -79,7 +79,7 @@ private extension Contacts {
                 Image(systemName: "birthday.cake")
             }
 
-            Text(friend.name)
+            Text(friend.note.isEmpty ? friend.name : friend.note)
                 .bold(friend.isBirthdayToday)
                 .contextMenu { contextMenu(for: friend) }
 

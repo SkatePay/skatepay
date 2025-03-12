@@ -104,7 +104,9 @@ class Lobby: ObservableObject, EventCreating {
                 privateKey: account.privateKey,
                 publicKey: publicKey
             )
-            return decryptedText
+            
+            let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: decryptedText.data(using: .utf8)!)
+            return decodedStructure.content
         } catch {
             print("Decryption failed: \(error.localizedDescription)")
             return nil
@@ -114,13 +116,16 @@ class Lobby: ObservableObject, EventCreating {
     // ✅ Maintain a cached, incremental unread count instead of recomputing
     func addEvent(_ event: NostrEvent) {
         if let publicKey = PublicKey(hex: event.pubkey) {
+            
+            let text = decryptContent(content: event.content, publicKey: publicKey) ?? "..."
+            
+            let finalText = text.contains("channel_invite") ? "🚪 Channel invite pending..." : text
+
             let activityEvent = ActivityEvent(
                 id: event.id,
                 npub: publicKey.npub,
                 createdAt: event.createdAt,
-                
-                // DECRYPT
-                text: decryptContent(content: event.content, publicKey: publicKey) ?? "..."
+                text: finalText
             )
             
             events.append(activityEvent)

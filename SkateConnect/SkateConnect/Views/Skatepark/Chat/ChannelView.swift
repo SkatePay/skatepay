@@ -28,6 +28,7 @@ struct ChannelView: View {
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
     @EnvironmentObject var stateManager: StateManager
+    @EnvironmentObject var uploadManager: UploadManager
     
     @StateObject private var eventPublisher = ChannelEventPublisher()
     
@@ -42,15 +43,15 @@ struct ChannelView: View {
     
     // Sheets
     @State private var isShowingToolBoxView = false
-    @State private var showingConfirmationAlert = false
     
     @State private var selectedChannelId: String? = nil
-    @State private var selectedInviteString: String? = nil
-    @State private var videoURL: URL?
     
-    @State private var showMediaActionSheet = false
+    @State private var showingMediaActionSheet = false
+    @State private var showingInviteActionSheet = false
+
     @State private var selectedMediaURL: URL?
-    
+    @State private var selectedInviteString: String? = nil
+
     @State private var keyboardHeight: CGFloat = 0
 
     @State private var shouldScrollToBottom = true
@@ -71,7 +72,7 @@ struct ChannelView: View {
                     if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
                         let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
                         self.selectedMediaURL = URL(string: videoURLString)
-                        showMediaActionSheet.toggle()
+                        showingMediaActionSheet = true
                     }
                     shouldScrollToBottom = false
                 },
@@ -79,7 +80,7 @@ struct ChannelView: View {
                     selectedChannelId = channelId
                     selectedInviteString = inviteString
                     
-                    showingConfirmationAlert = true
+                    showingInviteActionSheet = true
                     shouldScrollToBottom = false
                 },
                 onSend: { text in
@@ -110,9 +111,6 @@ struct ChannelView: View {
                 }
             }
             .navigationBarBackButtonHidden()
-            .actionSheet(isPresented: $showMediaActionSheet) {
-                createMediaActionSheet(for: selectedMediaURL)
-            }
             .sheet(isPresented: $navigation.isShowingEditChannel) {
                 if let lead = self.eventListenerForMetadata.metadata {
                     EditChannel(lead: lead, channel: lead.channel)
@@ -175,33 +173,11 @@ struct ChannelView: View {
                     }
                 }
             }
-            .actionSheet(isPresented: $showingConfirmationAlert) {
-                ActionSheet(
-                    title: Text("Confirmation"),
-                    message: Text("Are you sure you want to join this channel?"),
-                    buttons: [
-                        .default(Text("Yes")) {
-                            openChannelInvite()
-                        },
-                        .default(Text("Copy Invite")) {
-                            
-                            showingConfirmationAlert = false
-                            
-                            if let inviteString = selectedInviteString {
-                                UIPasteboard.general.string = "channel_invite:\(inviteString)"
-                            } else {
-                                UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
-                            }                            
-                        },
-                        .cancel(Text("Maybe Later")) {
-                            showingConfirmationAlert = false
-                        }
-                    ]
-                )
-            }
+
             .sheet(isPresented: $isShowingToolBoxView) {
                 ToolBoxView()
                     .environmentObject(navigation)
+                    .environmentObject(uploadManager)
                     .presentationDetents([.medium])
                     .onAppear {
                         navigation.channelId = channelId
@@ -234,6 +210,37 @@ struct ChannelView: View {
             .padding(.bottom, keyboardHeight)
             .modifier(IgnoresSafeArea())
         }
+        .confirmationDialog("Media Options", isPresented: $showingMediaActionSheet, titleVisibility: .visible) {
+            Button("Play") {
+                if let videoURL = selectedMediaURL {
+                    navigation.path.append(NavigationPathType.videoPlayer(url: videoURL))
+                }
+            }
+            Button("Download") {
+                if let videoURL = selectedMediaURL {
+                    downloadVideo(from: videoURL)
+                }
+            }
+            Button("Share") {
+                if let videoURL = selectedMediaURL {
+                    MainHelper.shareVideo(videoURL)
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .confirmationDialog("Channel Invite", isPresented: $showingInviteActionSheet, titleVisibility: .visible) {
+            Button("Accept") {
+                openChannelInvite()
+            }
+            Button("Copy") {
+                if let inviteString = selectedInviteString {
+                    UIPasteboard.general.string = "channel_invite:\(inviteString)"
+                } else {
+                    UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        }
     }
     
     // MARK: Blacklist
@@ -247,7 +254,31 @@ struct ChannelView: View {
         navigation.joinChannel(channelId: channelId)
     }
     
-    // Function to create the ActionSheet for Play, Download, and Share
+    private func createInviteActionSheet() -> ActionSheet {
+        return ActionSheet(
+            title: Text("Confirmation"),
+            message: Text("Are you sure you want to join this channel?"),
+            buttons: [
+                .default(Text("Yes")) {
+                    openChannelInvite()
+                },
+                .default(Text("Copy Invite")) {
+                    
+                    showingInviteActionSheet = false
+                    
+                    if let inviteString = selectedInviteString {
+                        UIPasteboard.general.string = "channel_invite:\(inviteString)"
+                    } else {
+                        UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
+                    }
+                },
+                .cancel(Text("Maybe Later")) {
+                    showingInviteActionSheet = false
+                }
+            ]
+        )
+    }
+    
     private func createMediaActionSheet(for url: URL?) -> ActionSheet {
         return ActionSheet(
             title: Text("Media Options"),

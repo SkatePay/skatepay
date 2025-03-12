@@ -674,4 +674,7 @@ extension Notification.Name {
     static let createdChannelForOutbound = Notification.Name("createdChannelForOutbound")
     static let receivedDirectMessage = Notification.Name("receivedDirectMessage")
     static let receivedChannelMessage = Notification.Name("receivedChannelMessage")
+    
+    static let didFinishRecordingTo = Notification.Name("didFinishRecordingTo")
+    static let didFinishUpload = Notification.Name("didFinishUpload")
 }

@@ -66,7 +66,7 @@ struct UserDetail: View {
                         .font(.title)
                     
                     FavoriteButton(isSet: $isFavorite)
-                        .onChange(of: isFavorite) { _ in
+                        .onChange(of: isFavorite) {
                             toggleFavorite()
                         }
                         .onAppear {

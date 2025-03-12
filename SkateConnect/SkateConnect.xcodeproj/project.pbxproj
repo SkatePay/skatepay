@@ -56,6 +56,7 @@
 		C625016C2C93C1340026C334 /* Landmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501332C93C1340026C334 /* Landmark.swift */; };
 		C625016D2C93C1340026C334 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501342C93C1340026C334 /* Profile.swift */; };
 		C625016E2C93C1340026C334 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501352C93C1340026C334 /* User.swift */; };
+		C62B08A92D8152F10071777B /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B08A82D8152F10071777B /* CameraPreview.swift */; };
 		C62B84F32CA5D4230086AEE0 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F22CA5D4230086AEE0 /* CameraView.swift */; };
 		C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */; };
 		C63DEF482D7B85960058224F /* ChannelEventPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF472D7B85960058224F /* ChannelEventPublisher.swift */; };
@@ -218,6 +219,7 @@
 		C62501332C93C1340026C334 /* Landmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Landmark.swift; sourceTree = "<group>"; };
 		C62501342C93C1340026C334 /* Profile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C62501352C93C1340026C334 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		C62B08A82D8152F10071777B /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		C62B84F22CA5D4230086AEE0 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
 		C63DEF472D7B85960058224F /* ChannelEventPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelEventPublisher.swift; sourceTree = "<group>"; };
@@ -552,6 +554,7 @@
 				C66AFE892CA63138000CD716 /* Barcode */,
 				C62B84F22CA5D4230086AEE0 /* CameraView.swift */,
 				C63DEF572D7D1DAD0058224F /* CameraViewModel.swift */,
+				C62B08A82D8152F10071777B /* CameraPreview.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -995,6 +998,7 @@
 				C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */,
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
+				C62B08A92D8152F10071777B /* CameraPreview.swift in Sources */,
 				C62501572C93C1340026C334 /* SkateView.swift in Sources */,
 				C62501492C93C1340026C334 /* ProfileSummary.swift in Sources */,
 				C625015B2C93C1340026C334 /* ImportIdentity.swift in Sources */,

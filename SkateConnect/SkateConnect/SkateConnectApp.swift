@@ -23,6 +23,7 @@ struct SkateConnectApp: App {
     @StateObject private var lobby = Lobby()
     @StateObject private var navigation = Navigation()
     @StateObject private var stateManager = StateManager()
+    @StateObject private var uploadManager = UploadManager()
     @StateObject private var walletManager = WalletManager()
     
     @StateObject private var network: Network = Network()
@@ -56,6 +57,7 @@ struct SkateConnectApp: App {
                     .environmentObject(navigation)
                     .environmentObject(network)
                     .environmentObject(stateManager)
+                    .environmentObject(uploadManager)
                     .environmentObject(walletManager)
                     .onAppear {
                         apiService.setDataManager(dataManager: dataManager)
@@ -64,6 +66,7 @@ struct SkateConnectApp: App {
                         locationManager.setNavigation(navigation: navigation)
                         dataManager.setLobby(lobby: lobby)
                         dataManager.setWalletManager(walletManager: walletManager)
+                        uploadManager.setNavigation(navigation: navigation)
                     }
             } else {
                 EULAView()

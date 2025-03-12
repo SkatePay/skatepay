@@ -218,7 +218,7 @@ private extension WalletView {
         }
         
         Button(action: {
-            if let url = URL(string: "https://github.com/SkatePay/token") {
+            if let url = URL(string: "https://github.com/prorobot-ai/token") {
                 openURL(url)
             }
         }) {

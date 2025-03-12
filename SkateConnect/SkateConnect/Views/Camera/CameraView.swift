@@ -5,25 +5,33 @@
 //  Created by Konstantin Yurchenko, Jr on 9/26/24.
 //
 
+import os
+
 import AVFoundation
 import SwiftUI
 
 struct CameraView: View {
-    @StateObject var cameraViewModel = CameraViewModel()
-    @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var navigation: Navigation
+    let log = OSLog(subsystem: "SkateConnect", category: "Camera")
 
-    // Sensitivity factor to control zoom speed
+    @StateObject var cameraViewModel = CameraViewModel()
+    
+    @Environment(\.dismiss) var dismiss
+    
+    @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var uploadManager: UploadManager
+    
+    @State private var isRetrying = false
+    @State private var isShowingAlert = false
+
     let zoomSensitivity: CGFloat = 0.3
 
     var body: some View {
         ZStack {
-            if cameraViewModel.hasCameraAccess {
+            if cameraViewModel.session.isRunning {
+                GeometryReader { geo in
+
                 CameraPreview(session: cameraViewModel.session)
-                    .ignoresSafeArea()
-                    .onAppear {
-                        cameraViewModel.checkPermissionsAndSetup()
-                    }
+                    .frame(width: geo.size.width, height: geo.size.height)
                     .gesture(
                         MagnificationGesture()
                             .onChanged { val in
@@ -37,17 +45,33 @@ struct CameraView: View {
                                 cameraViewModel.zoom(factor: newZoomFactor) // Zoom to the calculated factor
                             }
                             .onEnded { _ in
-                                // Save the zoom factor after the gesture ends
                                 cameraViewModel.zoomFactor = cameraViewModel.zoomFactor
                             }
                     )
+                }
+                .ignoresSafeArea()
+            }
+            
+            // Loading indicator when camera is starting
+            if cameraViewModel.hasCameraAccess && !cameraViewModel.cameraReady  {
+                VStack {
+                    ProgressView("Initializing camera...")
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .onAppear {
+                            cameraViewModel.checkPermissionsAndSetup()
+                        }
+                }
             }
 
             VStack {
                 Spacer()
 
-                if !cameraViewModel.isUploading {
-                    if cameraViewModel.hasCameraAccess {
+                if !uploadManager.isUploading {
+                    if cameraViewModel.hasCameraAccess && cameraViewModel.cameraReady {
                         HStack {
                             Spacer()
 
@@ -73,6 +97,7 @@ struct CameraView: View {
                                     .frame(width: 70, height: 70)
                             }
                             .padding()
+                            .disabled(!cameraViewModel.cameraReady)
 
                             Spacer()
                         }
@@ -110,7 +135,7 @@ struct CameraView: View {
                 VStack {
                     Spacer()
 
-                    if cameraViewModel.isUploading {
+                    if uploadManager.isUploading {
                         ProgressView("Uploading...")
                             .progressViewStyle(CircularProgressViewStyle(tint: .blue))
                             .padding()
@@ -132,66 +157,32 @@ struct CameraView: View {
                     }
                 }
                 .sheet(isPresented: $cameraViewModel.showingPreview) {
-                    VideoEditorView(url: cameraViewModel.videoURL, cameraViewModel: cameraViewModel)
+                    VideoEditorView(
+                        url: uploadManager.videoURL,
+                        cameraViewModel: cameraViewModel
+                    )
+                    .environmentObject(uploadManager)
                 }
             }
         }
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                withAnimation {
-                    cameraViewModel.showZoomHint = false
-                }
+        .onDisappear {
+            let group = DispatchGroup()
+            group.enter()
+            cameraViewModel.stopSession {
+                group.leave()
             }
-
-            guard let channelId = navigation.channelId else {
-                print("Error: Channel ID is nil.")
-                return
-            }
-
-            cameraViewModel.channelId = channelId
+            // Optional: group.wait() if needed
         }
-        .alert("Video posted.", isPresented: $cameraViewModel.showingAlert) {
+        .onReceive(NotificationCenter.default.publisher(for: .didFinishUpload)) {_ in 
+            isShowingAlert = true
+        }
+        .alert("Video posted.", isPresented: $isShowingAlert) {
             Button("Ok", role: .cancel) {
-                if let videoURL = self.cameraViewModel.videoURL {
+                if let videoURL = self.uploadManager.videoURL {
                     navigation.completeUpload(videoURL: videoURL)
                     dismiss()
                 }
             }
-        }
-    }
-}
-
-struct CameraPreview: UIViewRepresentable {
-    let session: AVCaptureSession
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(previewLayer)
-
-        // Ensure preview layer resizes dynamically
-        context.coordinator.previewLayer = previewLayer
-
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        DispatchQueue.main.async {
-            context.coordinator.previewLayer?.frame = uiView.bounds
-        }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    class Coordinator {
-        var parent: CameraPreview
-        var previewLayer: AVCaptureVideoPreviewLayer?
-
-        init(_ parent: CameraPreview) {
-            self.parent = parent
         }
     }
 }
