@@ -18,7 +18,7 @@ struct Filters: View {
         } else {
             List(foes) { foe in
                 HStack {
-                    Text(friendlyKey(npub: foe.npub))
+                    Text(MainHelper.friendlyKey(npub: foe.npub))
                         .contextMenu {
                             Button(action: {
                                 UIPasteboard.general.string = foe.npub

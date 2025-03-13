@@ -5,6 +5,7 @@
 //  Created by Konstantin Yurchenko, Jr on 9/28/24.
 //
 
+import os
 import Combine
 import ConnectFramework
 import Foundation
@@ -18,6 +19,8 @@ public struct Keys: Codable {
 
 @MainActor
 class API: ObservableObject {
+    let log = OSLog(subsystem: "SkateConnect", category: "DataManager")
+
     @Published private var dataManager: DataManager?
 
     @Published var isLoading = false
@@ -27,6 +30,10 @@ class API: ObservableObject {
     
     func setDataManager(dataManager: DataManager) {
         self.dataManager = dataManager
+    }
+    
+    func needsToFindPublicChannel() -> Bool {
+        return !UserDefaults.standard.contains(UserDefaults.Keys.lastVisitedChannelId)
     }
     
     func fetchLeads() {
@@ -58,7 +65,9 @@ class API: ObservableObject {
                     break
                 }
             } receiveValue: { [weak self] leads in
-                self?.dataManager?.createPublicSpots(leads: leads)
+                let panToPublic = self?.needsToFindPublicChannel() ?? false
+                
+                self?.dataManager?.createPublicSpots(leads: leads, panToLast: panToPublic)
                 self?.error = nil // Clear any previous errors if successful
             }
             .store(in: &subscriptions)

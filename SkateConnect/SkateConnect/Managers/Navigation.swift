@@ -14,13 +14,13 @@ import SwiftUI
 extension Notification.Name {
     static let goToLandmark = Notification.Name("goToLandmark")
     static let goToCoordinate = Notification.Name("goToCoordinate")
+    static let markSpot = Notification.Name("markSpot")
     static let goToSpot = Notification.Name("goToSpot")
-    static let joinChannel = Notification.Name("joinChannel")
+    static let subscribeToChannel = Notification.Name("subscribeToChannel")
     static let muteUser = Notification.Name("muteUser")
     static let barcodeScanned = Notification.Name("barcodeScanned")
     static let uploadImage = Notification.Name("uploadImage")
     static let uploadVideo = Notification.Name("uploadVideo")
-    static let publishChannelEvent = Notification.Name("publishChannelEvent")
 }
 
 enum Tab {
@@ -34,7 +34,7 @@ enum NavigationPathType: Hashable {
     case addressBook
     case barcodeScanner
     case camera
-    case channel(channelId: String)
+    case channel(channelId: String, invite: Bool = false)
     case connectRelay
     case contacts
     case createChannel
@@ -73,13 +73,11 @@ class Navigation: ObservableObject {
     
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?
-                            
-    @Published var isShowingAddressBook = false
-    
+                                
     @Published var isShowingEditChannel = false
         
     var isLocationUpdatePaused: Bool {
-        return isShowingAddressBook || isShowingEditChannel
+        return isShowingEditChannel
     }
     
     func recoverFromSearch() {
@@ -88,14 +86,13 @@ class Navigation: ObservableObject {
     
     func joinChannel(channelId: String) {
         NotificationCenter.default.post(
-            name: .joinChannel,
+            name: .subscribeToChannel,
             object: self,
             userInfo: ["channelId": channelId]
         )
     }
     
     func goToCoordinate() {
-        isShowingAddressBook = false
         self.tab = .map
         
         NotificationCenter.default.post(name: .goToCoordinate, object: nil)
@@ -110,8 +107,7 @@ class Navigation: ObservableObject {
         NotificationCenter.default.post(
             name: .uploadVideo,
             object: self,
-            userInfo: ["channelId": channelId,
-                       "assetURL": assetURL]
+            userInfo: ["channelId": channelId, "assetURL": assetURL]
         )
     }
     

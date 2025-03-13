@@ -5,8 +5,6 @@
 //  Created by Konstantin Yurchenko, Jr on 9/4/24.
 //
 
-import ConnectFramework
-import NostrSDK
 import SwiftUI
 import SwiftData
 
@@ -21,8 +19,13 @@ struct Contacts: View {
     @State private var newDate = Date.now
     @State private var newNPub = ""
 
+    @State private var showingEditCryptoSheet = false
+
     @State private var showingAlert = false
     @State private var selectedFriend: Friend?
+
+    @State private var isAddingNote = false
+    @State private var noteText = ""
 
     var body: some View {
         List {
@@ -39,13 +42,30 @@ struct Contacts: View {
                 showingAlert = false
             }
         }
-        .sheet(item: $selectedFriend) { friend in
-                EditCryptoAddressesView(friend: friend)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .barcodeScanned)) { notification in
-            if let scannedText = notification.userInfo?["scannedText"] as? String {
-                self.newNPub = scannedText.replacingOccurrences(of: "nostr:", with: "")
+        .alert("Enter note:", isPresented: $isAddingNote) {
+            TextField("Note", text: $noteText)
+                .disableAutocorrection(true)
+                .autocapitalization(.none)
+                .onChange(of: noteText) { oldValue, newValue in
+                    let filtered = newValue.filter { $0.isNumber || $0.isLetter }
+                    if filtered != newValue {
+                        noteText = filtered
+                    }
+                }
+
+            Button("Save") {
+                if let friend = selectedFriend {
+                    saveNoteForFriend(friend)
+                }
             }
+            Button("Cancel", role: .cancel) {
+                isAddingNote = false
+            }
+        } message: {
+            Text("Type your note below:")
+        }
+        .sheet(isPresented: $showingEditCryptoSheet) {
+            EditCryptoAddressesView(friend: $selectedFriend) // Pass as Binding<Friend?>
         }
     }
 }
@@ -58,20 +78,26 @@ private extension Contacts {
             if friend.isBirthdayToday {
                 Image(systemName: "birthday.cake")
             }
-            
-            Text(friend.name)
+
+            Text(friend.note.isEmpty ? friend.name : friend.note)
                 .bold(friend.isBirthdayToday)
                 .contextMenu { contextMenu(for: friend) }
-            
+
             Spacer()
             Text(friend.birthday, format: .dateTime.month(.wide).day().year())
-            
-            if hasWallet() || debugManager.hasEnabledDebug {
-                Button(action: {
+
+            if hasWallet() {
+                // Ensure only the pencil is tappable
+                Button {
                     selectedFriend = friend
-                }) {
+                    print("Selected Friend: \(friend.name)")
+                    showingEditCryptoSheet = true
+                } label: {
                     Image(systemName: "pencil")
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 8) // Add padding to avoid accidental taps
                 }
+                .buttonStyle(BorderlessButtonStyle()) // Prevents interference with row taps
             }
         }
     }
@@ -84,35 +110,42 @@ private extension Contacts {
                     navigation.path.append(NavigationPathType.userDetail(npub: friend.npub))
                 }
             }
-            
+
             Button("Copy npub") {
                 UIPasteboard.general.string = friend.npub
             }
+
+            if !friend.note.isEmpty {
+                Button("Copy note") {
+                    UIPasteboard.general.string = friend.note
+                }
+            }
             
-            Button("Add Note") {
-                // Implement note-adding functionality here
+            Button("Add note") {
+                selectedFriend = friend
+                isAddingNote = true
             }
         }
     }
-    
+
     /// Form to add a new friend
     var newFriendForm: some View {
         VStack(alignment: .center, spacing: 20) {
             Text("New Friend")
                 .font(.headline)
-            
+
             DatePicker(selection: $newDate, in: Date.distantPast...Date.now, displayedComponents: .date) {
                 TextField("Name", text: $newName)
                     .textFieldStyle(.roundedBorder)
             }
-            
+
             TextField("npub", text: $newNPub)
                 .textFieldStyle(.roundedBorder)
-            
+
             Button("Scan Barcode") {
                 navigation.path.append(NavigationPathType.barcodeScanner)
             }
-            
+
             Button("Save") {
                 saveNewFriend()
             }
@@ -129,7 +162,7 @@ private extension Contacts {
     func deleteFriend(_ friend: Friend) {
         context.delete(friend)
     }
-    
+
     /// Deletes multiple friends via swipe-to-delete
     func deleteFriend(at offsets: IndexSet) {
         for index in offsets {
@@ -142,5 +175,18 @@ private extension Contacts {
         let newFriend = Friend(name: newName, birthday: newDate, npub: newNPub, note: "")
         context.insert(newFriend)
         showingAlert = true
+    }
+
+    /// Adds a note to a friend
+    func saveNoteForFriend(_ friend: Friend) {
+        if let index = friends.firstIndex(where: { $0.id == friend.id }) {
+            friends[index].note = noteText
+            try? context.save() // Persist changes
+        }
+    }
+
+    /// Checks if the user has a wallet
+    func hasWallet() -> Bool {
+        return debugManager.hasEnabledDebug
     }
 }

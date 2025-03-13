@@ -17,10 +17,10 @@ struct ProfileSummary: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
                 if let npub = keychainForNostr.account?.publicKey.npub {
-                    Text(friendlyKey(npub: npub))
+                    Text(MainHelper.friendlyKey(npub: npub))
                         .contextMenu {
                             Button(action: {
-                                UIPasteboard.general.string = friendlyKey(npub: npub)
+                                UIPasteboard.general.string = MainHelper.friendlyKey(npub: npub)
                             }) {
                                 Text("Copy")
                             }

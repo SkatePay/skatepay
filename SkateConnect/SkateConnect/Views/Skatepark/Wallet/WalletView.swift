@@ -198,7 +198,8 @@ private extension WalletView {
             Button(action: {
                 navigation.path.append(NavigationPathType.importWallet)
             }) {
-                Text("🔑 Manage Keys")
+                let isEmpty = walletManager.getAliasesForCurrentNetwork().isEmpty
+                Text(isEmpty ? "🔑 Create Keys" : "🔑 Manage Keys")
             }
         }
     }
@@ -217,7 +218,7 @@ private extension WalletView {
         }
         
         Button(action: {
-            if let url = URL(string: "https://github.com/SkatePay/token") {
+            if let url = URL(string: "https://github.com/prorobot-ai/token") {
                 openURL(url)
             }
         }) {

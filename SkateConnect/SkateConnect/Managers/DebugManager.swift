@@ -10,12 +10,12 @@ import Foundation
 class DebugManager: ObservableObject {
     @Published var hasEnabledDebug: Bool {
         didSet {
-            UserDefaults.standard.set(hasEnabledDebug, forKey: "hasEnabledDebug")
+            UserDefaults.standard.set(hasEnabledDebug, forKey: UserDefaults.Keys.hasEnabledDebug)
         }
     }
 
     init() {
-        self.hasEnabledDebug = UserDefaults.standard.bool(forKey: "hasEnabledDebug")
+        self.hasEnabledDebug = UserDefaults.standard.bool(forKey: UserDefaults.Keys.hasEnabledDebug)
     }
 
     func enableDebug() {

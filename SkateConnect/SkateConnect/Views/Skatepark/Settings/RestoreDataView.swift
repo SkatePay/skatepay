@@ -28,9 +28,15 @@ struct RestoreDataView: View {
                             .font(.headline)
                         Spacer()
                         Button {
-                            clear()
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            prettifiedJSON = prettifyJSON(jsonInput)
                         } label: {
                             Text("🧹")
+                        }
+                        Button {
+                            clear()
+                        } label: {
+                            Text("🗑️")
                         }
                     }
                     
@@ -47,21 +53,6 @@ struct RestoreDataView: View {
                             )
                     }
                     .frame(maxHeight: 200) // Set a maximum height for the scrollable area
-                }
-                
-                // Prettify JSON Button
-                Button(action: {
-                    // Dismiss the keyboard
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    prettifiedJSON = prettifyJSON(jsonInput)
-                }) {
-                    Text("Prettify JSON")
-                        .font(.headline)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
                 }
                 
                 // Prettified JSON Section
@@ -92,7 +83,7 @@ struct RestoreDataView: View {
         .toolbar {
             // Restore button in the trailing position
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Restore") {
+                Button("Import") {
                     showRestoreNotification = dataManager.restoreData(from: jsonInput)
                     walletManager.refreshAliases()
                 }
@@ -101,7 +92,7 @@ struct RestoreDataView: View {
         .overlay(
             Group {
                 if showRestoreNotification {
-                    Text("Data restored!")
+                    Text("Data imported!")
                         .padding()
                         .background(Color.orange.opacity(0.75))
                         .foregroundColor(.white)

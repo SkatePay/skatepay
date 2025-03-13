@@ -16,8 +16,21 @@ struct BottomControlsView: View {
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var navigation: Navigation
     
+    let landmarks = AppData().landmarks;
+    
     var body: some View {
         HStack(spacing: 20) {
+            Button(action: {
+                panMapToCachedCoordinate(landmarks[0].locationCoordinate)
+            }) {
+                Text("🏛️")
+                    .font(.headline)
+                    .padding(8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+            
             Button(action: {
                 if let coordinate = locationManager.currentLocation?.coordinate {
                     panMapToCachedCoordinate(coordinate)

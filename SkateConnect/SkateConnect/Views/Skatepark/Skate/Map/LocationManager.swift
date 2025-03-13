@@ -5,6 +5,8 @@
 //  Created by Konstantin Yurchenko, Jr on 9/21/24.
 //
 
+import os
+
 import Combine
 import CoreLocation
 import Foundation
@@ -26,6 +28,7 @@ struct Lead: Identifiable, Equatable, Codable {
     var id = UUID()
     var name: String
     var icon: String
+    var note: String
     var coordinate: CLLocationCoordinate2D
     var channelId: String
     var event: NostrEvent?
@@ -44,13 +47,14 @@ struct Lead: Identifiable, Equatable, Codable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, name, icon, coordinate, channelId, event, channel, colorHex
+        case id, name, icon, note, coordinate, channelId, event, channel, colorHex
     }
     
-    init(id: UUID = UUID(), name: String, icon: String, coordinate: CLLocationCoordinate2D, channelId: String, event: NostrEvent?, channel: Channel?, color: Color) {
+    init(id: UUID = UUID(), name: String, icon: String, note: String, coordinate: CLLocationCoordinate2D, channelId: String, event: NostrEvent?, channel: Channel?, color: Color) {
         self.id = id
         self.name = name
         self.icon = icon
+        self.note = note
         self.coordinate = coordinate
         self.channelId = channelId
         self.event = event
@@ -65,6 +69,8 @@ public struct Defaults {
 }
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    let log = OSLog(subsystem: "SkateConnect", category: "Location Manager")
+
     private var locationManager: CLLocationManager?
         
     @Published private var navigation: Navigation?
@@ -229,9 +235,11 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
 
     func handleGoToSpotNotification(_ notification: Notification) {
         guard let spot = notification.object as? Spot else {
-            print("Received goToSpot notification, but no valid Spot object was found.")
+            os_log("🔥 can't get spot", log: log, type: .error)
             return
         }
+        
+        os_log("⏳ panning to spot %@", log: log, type: .info, spot.name)
         
         let locationCoordinate = spot.locationCoordinate
         

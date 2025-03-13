@@ -13,6 +13,42 @@ import SwiftData
 import SwiftUI
 import UIKit
 
+struct TabButton: View {
+    let tab: Tab
+    let label: String
+    let systemImage: String
+    @Binding var selectedTab: Tab
+    var count: Int = 0  // New count property
+
+    var body: some View {
+        Button(action: {
+            selectedTab = tab
+        }) {
+            ZStack {
+                VStack {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 20))
+                    Text(label)
+                        .font(.caption)
+                }
+                .foregroundColor(selectedTab == tab ? .blue : .gray)
+                .frame(maxWidth: .infinity)
+
+                // Badge (only shown if count > 0)
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.caption2)
+                        .foregroundColor(.white)
+                        .padding(6)
+                        .background(Color.red)
+                        .clipShape(Circle())
+                        .offset(x: 15, y: -10)
+                }
+            }
+        }
+    }
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     
@@ -26,12 +62,17 @@ struct ContentView: View {
     @EnvironmentObject private var navigation: Navigation
     @EnvironmentObject private var network: Network
     @EnvironmentObject private var stateManager: StateManager
+    @EnvironmentObject private var uploadManager: UploadManager
     @EnvironmentObject private var walletManager: WalletManager
     
     @StateObject private var store = HostStore()
 
     @State private var incomingMessagesCount = 0
         
+    var lobbyUnreadCount: Int {
+        return lobby.unreadCounts.values.reduce(0, +)
+    }
+    
     var body: some View {
         NavigationStack(path: $navigation.path) {
             VStack(spacing: 0) {
@@ -89,7 +130,8 @@ struct ContentView: View {
                         tab: .lobby,
                         label: "Lobby",
                         systemImage: "star",
-                        selectedTab: $navigation.tab
+                        selectedTab: $navigation.tab,
+                        count: lobbyUnreadCount
                     )
                     
                     // Map Tab
@@ -139,12 +181,16 @@ struct ContentView: View {
                 case .camera:
                     CameraView()
                         .environmentObject(navigation)
+                        .environmentObject(uploadManager)
                     
-                case .channel(let channelId):
-                    ChannelView(channelId: channelId)
+                case .channel(let channelId, let invite):
+                    ChannelView(channelId: channelId, type: invite ? .inbound : .outbound)
                         .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(stateManager)
+                        .environmentObject(uploadManager)
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()
                         }
@@ -172,7 +218,7 @@ struct ContentView: View {
                         .navigationTitle("Direct Message")
                     
                 case .directMessage(user: let user):
-                    DirectMessage(user: user)
+                    DMView(user: user)
                         .environmentObject(dataManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
@@ -197,7 +243,7 @@ struct ContentView: View {
                         .navigationBarTitle("🏁 Skateparks")
                     
                 case .reportUser(user: let user, message: let message):
-                    DirectMessage(user: user, message: message)
+                    DMView(user: user, message: message)
                         .environmentObject(dataManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
@@ -214,7 +260,7 @@ struct ContentView: View {
                         .navigationBarTitle("🎯 Explore Network 🕸️")
                     
                 case .userDetail(let npub):
-                    let user = getUser(npub: npub)
+                    let user = MainHelper.getUser(npub: npub)
                     UserDetail(user: user)
                         .environmentObject(navigation)
                         .environmentObject(network)
@@ -233,6 +279,30 @@ struct ContentView: View {
             NotificationCenter.default.publisher(for: .receivedDirectMessage)
         ) { notification in
             handleDirectMessage(notification)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .subscribeToChannel)) { notification in
+            if let channelId = notification.userInfo?["channelId"] as? String {
+                if let spot = dataManager.findSpotForChannelId(channelId) {
+                    navigation.coordinate = spot.locationCoordinate
+                    locationManager.panMapToCachedCoordinate()
+                }
+                
+                channelViewManager.openChannel(channelId: channelId, invite: true)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForOutbound)) { notification in
+            if let event = notification.object as? NostrEvent {
+                if let lead = MainHelper.createLead(from: event) {
+                    dataManager.saveSpotForLead(lead, pan: true)
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .createdChannelForInbound)) { notification in
+            if let event = notification.object as? NostrEvent {
+                if let lead = MainHelper.createLead(from: event) {
+                    dataManager.saveSpotForLead(lead, note: "invite", pan: true)
+                }
+            }
         }
         .task {
             await insertDefaultFriend()
@@ -263,6 +333,7 @@ struct ContentView: View {
     // MARK: - Helper Functions
     private func handleDirectMessage(_ notification: Notification) {
         if let event = notification.object as? NostrEvent {
+            lobby.addEvent(event)
             lobby.dms.insert(event)
             incomingMessagesCount = lobby.dms.count
         }
@@ -278,29 +349,6 @@ struct ContentView: View {
     
     private func insertDefaultFriend() async {
        await dataManager.insertDefaultFriend()
-    }
-}
-
-// Custom Tab Button
-struct TabButton: View {
-    let tab: Tab
-    let label: String
-    let systemImage: String
-    @Binding var selectedTab: Tab
-    
-    var body: some View {
-        Button(action: {
-            selectedTab = tab
-        }) {
-            VStack {
-                Image(systemName: systemImage)
-                    .font(.system(size: 20))
-                Text(label)
-                    .font(.caption)
-            }
-            .foregroundColor(selectedTab == tab ? .blue : .gray)
-            .frame(maxWidth: .infinity)
-        }
     }
 }
 

@@ -5,10 +5,15 @@
 //  Created by Konstantin Yurchenko, Jr on 10/8/24.
 //
 
+import os
+
 import Foundation
 import SwiftUI
 
+@MainActor
 class ChannelViewManager: ObservableObject {
+    let log = OSLog(subsystem: "SkateConnect", category: "ChannelViewManager")
+
     @Published private var navigation: Navigation?
     @Published private var network: Network?
     
@@ -20,16 +25,26 @@ class ChannelViewManager: ObservableObject {
         self.network = network
     }
     
-    func openChannel(channelId: String) {
+    func openChannel(channelId: String, invite: Bool = false, deeplink: Bool = false) {
+        if (deeplink || invite) {
+            network?.subscribeToChannelMetadataWhenReady(channelId)
+            network?.subscribeToChannelMessagesWhenReady(channelId)
+        }
+        
         navigation?.channelId = channelId
-        navigation?.path.append(NavigationPathType.channel(channelId: channelId))
+        
+        if (!UserDefaults.standard.bool(forKey: UserDefaults.Keys.hasAcknowledgedEULA)) {
+            os_log("⏳ waiting for user to acknowledge EULA", log: log, type: .info)
+            network?.setCachedChannelId(channelId)
+            return
+        }
+        
+        navigation?.path.append(
+            NavigationPathType.channel(channelId: channelId, invite: invite || deeplink)
+        )
     }
 
-    func closeChannel() {
-        navigation?.channelId = nil
-    }
-    
     func deleteChannelWithId(_ channelId: String) {
-        network?.submitDeleteChannelRequestForChannelId(channelId)
+        network?.publishDeleteEventForChannel(channelId)
     }
 }

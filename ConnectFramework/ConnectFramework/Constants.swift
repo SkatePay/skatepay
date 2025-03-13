@@ -21,8 +21,15 @@ public struct Constants {
     public static let LANDING_PAGE_HOST = "skatepark.chat"
     public static let LANDING_PAGE_SKATEPARK = "https://skatepark.chat"
     public static let API_URL_SKATEPARK = "https://api.skatepark.chat"
-    public static let CHANNEL_URL_SKATEPARK = "https://support.skatepark.chat/channel"
+    public static let CHANNEL_URL_SKATEPARK = "https://skatepark.chat/channel"
     public static let S3_BUCKET = "skateconnect"
+    
+    
+    // SOLANA
+    public static let SOLANA_DEVNET_ENDPOINT = "https://api.devnet.solana.com"
+    //    public static let SOLANA_TESTNET_ENDPOINT = "https://api.testnet.solana.com"
+    public static let SOLANA_TESTNET_ENDPOINT = "https://young-soft-water.solana-testnet.quiknode.pro/53648fd7c86c79a516b93973b973745b88261a0c"
+    public static let SOLANA_MAINNET_ENDPOINT = "https://api.mainnet-beta.solana.com"
 }
 
 public struct Keys {

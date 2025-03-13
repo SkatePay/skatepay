@@ -12,9 +12,14 @@ import AVFoundation
 struct VideoEditorView: View {
     var url: URL?
     
+    @EnvironmentObject var uploadManager: UploadManager
+
     @State private var player: AVPlayer
     @State private var currentFrame: UIImage? // Store the captured frame
     @State private var isUploading: Bool = false // Manage upload state
+    @State private var showErrorAlert: Bool = false // Show error alerts
+    @State private var errorMessage: String = "" // Error message for alerts
+    
     @ObservedObject var cameraViewModel: CameraViewModel // To access the existing video upload logic
     
     init(url: URL?, cameraViewModel: CameraViewModel) {
@@ -25,12 +30,14 @@ struct VideoEditorView: View {
     
     var body: some View {
         VStack {
+            // Video Player
             VideoPlayerView(player: player)
                 .edgesIgnoringSafeArea(.all)
                 .onAppear {
                     player.play()
                 }
             
+            // Captured Frame Preview
             if let currentFrame = currentFrame {
                 Image(uiImage: currentFrame)
                     .resizable()
@@ -39,6 +46,7 @@ struct VideoEditorView: View {
                     .border(Color.gray, width: 1)
             }
             
+            // Buttons for Frame Capture and Upload
             HStack {
                 // Pick Frame Button
                 Button(action: {
@@ -55,14 +63,14 @@ struct VideoEditorView: View {
                 
                 Spacer()
                 
-                if (currentFrame != nil) {
-                    // Post Button (Upload video and image)
+                // Post Button (Upload video and image)
+                if currentFrame != nil {
                     Button(action: {
                         Task {
                             await postVideoAndImage()
                         }
                     }) {
-                        Text("📬 Post")
+                        Text(isUploading ? "Uploading..." : "📬 Post")
                             .font(.headline)
                             .padding()
                             .background(isUploading ? Color.gray : Color.green)
@@ -74,11 +82,19 @@ struct VideoEditorView: View {
                 }
             }
         }
+        .alert("Error", isPresented: $showErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
     }
     
-    // Function to capture the current frame and save it to disk
+    // MARK: - Capture Current Frame
     func captureCurrentFrame() {
-        guard let asset = player.currentItem?.asset else { return }
+        guard let asset = player.currentItem?.asset else {
+            showError(message: "Failed to access video asset.")
+            return
+        }
         
         let imageGenerator = AVAssetImageGenerator(asset: asset)
         imageGenerator.appliesPreferredTrackTransform = true
@@ -89,23 +105,31 @@ struct VideoEditorView: View {
             let cgImage = try imageGenerator.copyCGImage(at: time, actualTime: nil)
             currentFrame = UIImage(cgImage: cgImage)
             
+            // Save the captured frame to disk
             if let imageURL = saveImageToDisk(image: currentFrame) {
                 print("Frame saved to: \(imageURL)")
+            } else {
+                showError(message: "Failed to save frame to disk.")
             }
         } catch {
-            print("Error capturing frame: \(error)")
+            showError(message: "Error capturing frame: \(error.localizedDescription)")
         }
     }
     
-    // Save the UIImage to disk and return the file URL
+    // MARK: - Save Image to Disk
     func saveImageToDisk(image: UIImage?) -> URL? {
-        guard let image = image else { return nil }
+        guard let image = image else {
+            showError(message: "No image to save.")
+            return nil
+        }
         
-        var fileName = "frame_\(UUID().uuidString)"
-        fileName = url?.deletingPathExtension().lastPathComponent ?? fileName
-        fileName += ".jpg"
+        // Extract the video file name (without extension)
+        let videoFileName = url?.deletingPathExtension().lastPathComponent ?? "frame_\(UUID().uuidString)"
         
-        // Create file path
+        // Create the image file name (same as video, but with .jpg extension)
+        let fileName = "\(videoFileName).jpg"
+        
+        // Save the image to the documents directory
         let fileManager = FileManager.default
         let paths = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         let documentsDirectory = paths[0]
@@ -117,28 +141,36 @@ struct VideoEditorView: View {
                 try jpegData.write(to: fileURL)
                 return fileURL
             } catch {
-                print("Error saving image: \(error)")
+                showError(message: "Error saving image: \(error.localizedDescription)")
                 return nil
             }
         }
         return nil
     }
     
-    // Upload video and image
+    // MARK: - Upload Video and Image
     func postVideoAndImage() async {
         isUploading = true
-        cameraViewModel.isUploading = true
+        uploadManager.isUploading = true
         
         do {
             if let currentFrame = currentFrame, let imageURL = saveImageToDisk(image: currentFrame) {
-                try await cameraViewModel.uploadFiles(imageURL: imageURL)
+                try await uploadManager.uploadFiles(imageURL: imageURL)
+            } else {
+                showError(message: "Failed to save image for upload.")
             }
         } catch {
-            print("Upload failed: \(error)")
-            cameraViewModel.isUploading = false
+            showError(message: "Upload failed: \(error.localizedDescription)")
         }
         
         isUploading = false
+        uploadManager.isUploading = false
+    }
+    
+    // MARK: - Show Error Alert
+    func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 }
 

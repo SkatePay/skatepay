@@ -49,7 +49,6 @@ func decryptChannelInviteFromString(encryptedString: String) -> Channel? {
 struct EditChannel: View {
     @Environment(\.modelContext) private var context
     
-    @EnvironmentObject var navigation: Navigation
     @State private var isInviteCopied = false
     
     let keychainForNostr = NostrKeychainStorage()
@@ -63,23 +62,21 @@ struct EditChannel: View {
     }
     
     private func createInviteString() -> String {
-        guard let channelId = navigation.channelId else {
+        guard let channelId = lead?.channelId else {
             print("Error: Channel ID is nil.")
             return ""
         }
         
         var inviteString = channelId
         
-        if let event = navigation.channel {
-            inviteString = event.id
-            
-            if var channel = parseChannel(from: event) {
-                channel.event = navigation.channel
-                if let ecryptedString = encryptChannelInviteToString(channel: channel) {
-                    inviteString = ecryptedString
-                }
-            }
+        guard let channel = channel else {
+            return inviteString
         }
+        
+        if let ecryptedString = encryptChannelInviteToString(channel: channel) {
+            inviteString = ecryptedString
+        }
+        
         return inviteString
     }
     
@@ -106,12 +103,6 @@ struct EditChannel: View {
                         Text("\(lead.channelId)")
                             .contextMenu {
                                 Button(action: {
-                                    shareChannel(lead.channelId)
-                                }) {
-                                    Text("Open in Browser")
-                                }
-                                
-                                Button(action: {
                                     UIPasteboard.general.string = "channel_invite:\(createInviteString())"
                                     isInviteCopied = true
                                     
@@ -137,11 +128,10 @@ struct EditChannel: View {
                             }
                     }
                     
-                    
                     if let pubkey = lead.event?.pubkey {
                         if let publicKeyForMod = PublicKey(hex: pubkey),
                            let npub = keychainForNostr.account?.publicKey.npub {
-                            Text(publicKeyForMod.npub == npub ? "Owner: You" : "Owner: \(friendlyKey(npub: publicKeyForMod.npub))")
+                            Text(publicKeyForMod.npub == npub ? "Owner: You" : "Owner: \(MainHelper.friendlyKey(npub: publicKeyForMod.npub))")
                                 .contextMenu {
                                     Button(action: {
                                         UIPasteboard.general.string = publicKeyForMod.npub

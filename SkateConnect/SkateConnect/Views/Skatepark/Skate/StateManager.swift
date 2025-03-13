@@ -20,9 +20,7 @@ class StateManager: ObservableObject {
     // New properties for overlay and feedback
     @Published var isInviteCopied = false
     @Published var isLinkCopied = false
-    
-    // Methods to encapsulate functionality
-    
+        
     func addMarker(at coordinate: CLLocationCoordinate2D, spots: [Spot]) {
         let mark = Mark(name: "Marker \(spots.count + 1)", coordinate: coordinate)
         self.marks.append(mark)
