@@ -127,7 +127,7 @@ private extension TransferAsset {
                     // Friend picker
                     Picker("Friend", selection: $selectedFriend) {
                         ForEach(filteredFriends, id: \.self) { friend in
-                            Text(friend.name)
+                            Text(friend.note.isEmpty ? friend.name : friend.note)
                                 .tag(Optional(friend))
                         }
                     }
