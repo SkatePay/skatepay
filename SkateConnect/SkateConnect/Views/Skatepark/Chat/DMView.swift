@@ -104,6 +104,16 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 ]
             )
         }
+        .onChange(of: eventListenerForMessages.receivedEOSE) {
+            if eventListenerForMessages.receivedEOSE {
+                shouldScrollToBottom = true
+            }
+        }
+        .onChange(of: eventListenerForMessages.timestamp) {
+            if eventListenerForMessages.receivedEOSE {
+                shouldScrollToBottom = true
+            }
+        }
         .onAppear {
             if (self.eventListenerForMessages.receivedEOSE) {
                 return
@@ -126,7 +136,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 self.eventPublisher.subscribeToUserWithPublicKey(publicKey)
             }
         }
-        .modifier(IgnoresSafeArea()) // Fixes keyboard issue
+        .modifier(IgnoresSafeArea())
     }
 }
 

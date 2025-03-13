@@ -13,6 +13,8 @@ import os
 
 class DMMessageListener: ObservableObject, EventCreating {
     @Published var messages: [MessageType] = []
+    @Published var receivedEOSE = false
+    @Published var timestamp = Int64(0)
     
     private var dataManager: DataManager?
     private var account: Keypair?
@@ -21,7 +23,6 @@ class DMMessageListener: ObservableObject, EventCreating {
     var subscriptionId: String?
     
     public var cancellables = Set<AnyCancellable>()
-    public var receivedEOSE = false
 
     let log: OSLog
     
@@ -107,6 +108,8 @@ class DMMessageListener: ObservableObject, EventCreating {
     private func processMessage(_ event: NostrEvent) {
         if let message = processEventIntoMessage(event) {
             if (self.receivedEOSE) {
+                timestamp = event.createdAt
+
                 messages.append(message)
             } else {
                 messages.insert(message, at: 0)

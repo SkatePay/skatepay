@@ -44,16 +44,15 @@ struct ChannelView: View {
     // Sheets
     @State private var isShowingToolBoxView = false
     
-    @State private var selectedChannelId: String? = nil
-    
     @State private var showingMediaActionSheet = false
     @State private var showingInviteActionSheet = false
 
+    // Action State
+    @State private var selectedChannelId: String? = nil
     @State private var selectedMediaURL: URL?
     @State private var selectedInviteString: String? = nil
 
-    @State private var keyboardHeight: CGFloat = 0
-
+    // View State
     @State private var shouldScrollToBottom = true
 
     var landmarks: [Landmark] = AppData().landmarks
@@ -88,28 +87,6 @@ struct ChannelView: View {
                     shouldScrollToBottom = true
                 }
             )
-            .onAppear {
-                if let account = keychainForNostr.account {
-                    self.eventListenerForMetadata.setChannelType(type)
-                    self.eventListenerForMetadata.setChannelId(channelId)
-                    self.eventListenerForMetadata.reset()
-                    
-                    self.eventPublisher.subscribeToMetadataFor(channelId)
-
-                    if (self.eventListenerForMessages.receivedEOSE) {
-                        shouldScrollToBottom = false
-                        return
-                    }
-                    
-                    shouldScrollToBottom = true
-
-                    self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
-                    self.eventListenerForMessages.reset()
-
-                    self.eventPublisher.subscribeToMessagesFor(channelId)
-                }
-            }
             .navigationBarBackButtonHidden()
             .sheet(isPresented: $navigation.isShowingEditChannel) {
                 if let lead = self.eventListenerForMetadata.metadata {
@@ -173,7 +150,6 @@ struct ChannelView: View {
                     }
                 }
             }
-
             .sheet(isPresented: $isShowingToolBoxView) {
                 ToolBoxView()
                     .environmentObject(navigation)
@@ -182,6 +158,38 @@ struct ChannelView: View {
                     .onAppear {
                         navigation.channelId = channelId
                     }
+            }
+            .onChange(of: eventListenerForMessages.receivedEOSE) {
+                if eventListenerForMessages.receivedEOSE {
+                    shouldScrollToBottom = true
+                }
+            }
+            .onChange(of: eventListenerForMessages.timestamp) {
+                if eventListenerForMessages.receivedEOSE {
+                    shouldScrollToBottom = true
+                }
+            }
+            .onAppear {
+                if let account = keychainForNostr.account {
+                    self.eventListenerForMetadata.setChannelType(type)
+                    self.eventListenerForMetadata.setChannelId(channelId)
+                    self.eventListenerForMetadata.reset()
+                    
+                    self.eventPublisher.subscribeToMetadataFor(channelId)
+
+                    if (self.eventListenerForMessages.receivedEOSE) {
+                        shouldScrollToBottom = false
+                        return
+                    }
+                    
+                    shouldScrollToBottom = true
+
+                    self.eventListenerForMessages.setChannelId(channelId)
+                    self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                    self.eventListenerForMessages.reset()
+
+                    self.eventPublisher.subscribeToMessagesFor(channelId)
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: .uploadImage)) { notification in
                 if let assetURL = notification.userInfo?["assetURL"] as? String {
@@ -207,7 +215,6 @@ struct ChannelView: View {
             .onDisappear {
                 NotificationCenter.default.removeObserver(self)
             }
-            .padding(.bottom, keyboardHeight)
             .modifier(IgnoresSafeArea())
         }
         .confirmationDialog("Media Options", isPresented: $showingMediaActionSheet, titleVisibility: .visible) {

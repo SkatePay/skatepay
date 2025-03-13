@@ -12,13 +12,13 @@ import os
 
 class ChannelMetadataListener: ObservableObject {
     @Published var metadata: Lead?
+    @Published var receivedEOSE = false
 
     var type = ChannelType.outbound
     var channelId: String?
     var subscriptionId: String?
 
     public var cancellables = Set<AnyCancellable>()
-    public var receivedEOSE = false
 
     let log: OSLog
 

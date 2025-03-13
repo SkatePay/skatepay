@@ -14,7 +14,9 @@ import os
 @MainActor
 class ChannelMessageListener: ObservableObject {
     @Published var messages: [MessageType] = []
-    
+    @Published var receivedEOSE = false
+    @Published var timestamp = Int64(0)
+
     private var dataManager: DataManager?
     private var account: Keypair?
     
@@ -22,7 +24,6 @@ class ChannelMessageListener: ObservableObject {
     var subscriptionId: String?
     
     public var cancellables = Set<AnyCancellable>()
-    public var receivedEOSE = false
     
     let log: OSLog
     
@@ -56,8 +57,7 @@ class ChannelMessageListener: ObservableObject {
                 if (event.subscriptionId != self?.subscriptionId) {
                     return
                 }
-                
-
+            
                 self?.processMessage(event.event)
             }
             .store(in: &cancellables)
@@ -84,9 +84,11 @@ class ChannelMessageListener: ObservableObject {
             os_log("⛔ Skipping message from blacklisted user", log: log, type: .info)
             return
         }
-        
+                
         if let message = MessageHelper.parseEventIntoMessage(event: event, account: account) {
             if (self.receivedEOSE) {
+                timestamp = event.createdAt
+
                 messages.append(message)
             } else {
                 messages.insert(message, at: 0)
