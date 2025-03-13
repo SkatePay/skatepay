@@ -48,8 +48,7 @@ struct SkateView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
             if let locationCoordinate = navigation.coordinate {
-               locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
-                
+                locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: locationCoordinate.latitude, longitude: locationCoordinate.longitude))
                 stateManager.addMarker(at: locationCoordinate, spots: spots)
             }
         }

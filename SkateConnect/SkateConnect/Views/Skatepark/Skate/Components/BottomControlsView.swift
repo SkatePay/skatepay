@@ -21,11 +21,7 @@ struct BottomControlsView: View {
     var body: some View {
         HStack(spacing: 20) {
             Button(action: {
-                if let coordinate = locationManager.currentLocation?.coordinate {
-                    panMapToCachedCoordinate(landmarks[0].locationCoordinate)
-                } else {
-                    print("Current location not available.")
-                }
+                panMapToCachedCoordinate(landmarks[0].locationCoordinate)
             }) {
                 Text("🏛️")
                     .font(.headline)

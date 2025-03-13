@@ -293,14 +293,14 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .createdChannelForOutbound)) { notification in
             if let event = notification.object as? NostrEvent {
                 if let lead = MainHelper.createLead(from: event) {
-                    dataManager.saveSpotForLead(lead)
+                    dataManager.saveSpotForLead(lead, pan: true)
                 }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .createdChannelForInbound)) { notification in
             if let event = notification.object as? NostrEvent {
                 if let lead = MainHelper.createLead(from: event) {
-                    dataManager.saveSpotForLead(lead, note: "invite")
+                    dataManager.saveSpotForLead(lead, note: "invite", pan: true)
                 }
             }
         }

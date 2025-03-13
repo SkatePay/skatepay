@@ -80,9 +80,9 @@ class WalletManager: ObservableObject {
     // Update the API client based on the selected network
     func updateApiClient() {
         let solanaEndpoints: [APIEndPoint] = [
-            .init(address: "https://api.mainnet-beta.solana.com", network: .mainnetBeta),
-            .init(address: "https://api.testnet.solana.com", network: .testnet),
-            .init(address: "https://api.devnet.solana.com", network: .devnet),
+            .init(address: ConnectFramework.Constants.SOLANA_MAINNET_ENDPOINT, network: .mainnetBeta),
+            .init(address: ConnectFramework.Constants.SOLANA_TESTNET_ENDPOINT, network: .testnet),
+            .init(address: ConnectFramework.Constants.SOLANA_DEVNET_ENDPOINT, network: .devnet),
         ]
         
         // Set the API client based on the selected network

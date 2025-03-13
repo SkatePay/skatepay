@@ -86,7 +86,7 @@ private extension Contacts {
             Spacer()
             Text(friend.birthday, format: .dateTime.month(.wide).day().year())
 
-            if hasWallet() || debugManager.hasEnabledDebug {
+            if hasWallet() {
                 // Ensure only the pencil is tappable
                 Button {
                     selectedFriend = friend
@@ -187,7 +187,6 @@ private extension Contacts {
 
     /// Checks if the user has a wallet
     func hasWallet() -> Bool {
-        // Implement your logic here
-        return true
+        return debugManager.hasEnabledDebug
     }
 }

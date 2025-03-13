@@ -130,17 +130,19 @@ class DataManager: ObservableObject {
         return fetchSortedSpots().first { $0.channelId == channelId }
     }
     
-    func saveSpotForLead(_ lead: Lead, note: String = "", pan: Bool = true) {
-        os_log("⏳ processing lead for %@ %@ pan", log: log, type: .info, lead.name, pan ? "with" : "without")
+    func saveSpotForLead(_ lead: Lead, note: String = "", pan: Bool = false) {
+        os_log("⏳ saving spot for %@ %@ pan", log: log, type: .info, lead.name, pan ? "with" : "without")
 
         var bufferedLead = lead
         var spot: Spot?
-
+        var skip = false
+        
         if let existingSpot = findSpotForChannelId(lead.channelId) {
             let extractedNote = existingSpot.note.split(separator: ":").last.map(String.init) ?? ""
             bufferedLead.color = MainHelper.convertNoteToColor(extractedNote)
             
             spot = existingSpot
+            skip = true
         } else {
             let newSpot = Spot(
                 name: lead.name,
@@ -163,7 +165,11 @@ class DataManager: ObservableObject {
         
         UserDefaults.standard.setValue(lead.channelId, forKey: UserDefaults.Keys.lastVisitedChannelId)
         
-        if !pan {
+        if !pan { 
+            return
+        }
+        
+        if skip {
             return
         }
         
@@ -469,6 +475,10 @@ extension DataManager {
                 try solanaStorage.save(alias: walletData.alias, account: keyPair, network: walletData.network)
             }
 
+            if let bots = backupData.bots {
+                storeBotsInUserDefaults(bots)
+            }
+            
             // Restore Nostr key pair
             if let nostrKeyPair = backupData.nostrKeyPairs {
                 let nostrStorage = NostrKeychainStorage()

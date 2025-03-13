@@ -82,8 +82,6 @@ struct SkateMapView: View {
                 if let coordinate = proxy.convert(position, from: .local) {
                     stateManager.marks = []
                     stateManager.addMarker(at: coordinate, spots: spots)
-                    
-                    locationManager.updateMapRegion(with: CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude))
                 }
             }
             .actionSheet(isPresented: $showMenu) {
