@@ -281,11 +281,24 @@ private extension TransferAsset {
                         feeCalculator: feeCalculator
                     )
                 case .token(let tokenAccount):
+                    var mintAddress = Constants.SOLANA_DEV.MINT_ADDRESS
+                    var tokenProgramId = Constants.SOLANA_DEV.TOKEN_PROGRAM_ID
+                    
+                    if (walletManager.network == .testnet) {
+                        mintAddress = Constants.SOLANA_TEST.MINT_ADDRESS
+                        tokenProgramId = Constants.SOLANA_TEST.TOKEN_PROGRAM_ID
+                    }
+                    
+                    if (walletManager.network == .mainnetBeta) {
+                        mintAddress = Constants.SOLANA_MAIN.MINT_ADDRESS
+                        tokenProgramId = Constants.SOLANA_MAIN.TOKEN_PROGRAM_ID
+                    }
+                    
                     preparedTransaction = try await walletManager.blockchainClient
                         .prepareSendingSPLTokens(
                             account: account,
-                            mintAddress: Constants.SOLANA_MINT_ADDRESS,
-                            tokenProgramId: PublicKey(string: Constants.SOLANA_TOKEN_PROGRAM_ID),
+                            mintAddress: mintAddress,
+                            tokenProgramId: PublicKey(string: tokenProgramId),
                             decimals: 9,
                             from: tokenAccount.address,
                             to: address,
