@@ -52,41 +52,66 @@ struct ImportWallet: View {
                 TextField("Private Key", text: $privateKey)
                 
                 Button("Import") {
-                    if !newAlias_Import.isEmpty && !privateKey.isEmpty {
-                        var intArray: [Int] = []
-
-                        if (privateKey.count == 88) {
-                            intArray = Base58.decode(privateKey).map { Int($0) }
-                        } else {
-                            let cleanedString = privateKey.dropFirst().dropLast()
-                            intArray = cleanedString.split(separator: ",").compactMap { Int($0) }
-                        }
-
-                        let data = Data(intArray.map { UInt8($0) })
-
-                        do {
-                            let keyPair = try KeyPair(secretKey: data)
-                            try? walletManager.keychainForSolana.save(alias: newAlias_Import, account: keyPair, network: walletManager.network)
-                            walletManager.selectedAlias = newAlias_Import
-                            walletManager.refreshAliases()
-
-                            walletManager.fetch { isLoading in
-                                loading = isLoading
-                            }
-
-                            showingAlert = true
-                        } catch {
-                            print(error)
-                        }
+                    Task{
+                        await importWallet()
                     }
                 }
                 .disabled(newAlias_Import.isEmpty || privateKey.isEmpty)
-                .alert("Wallet Imported.", isPresented: $showingAlert) {
-                    Button("Ok", role: .cancel) { }
-                }
+            }
+            .alert("Wallet Imported.", isPresented: $showingAlert) {
+                Button("Ok", role: .cancel) { }
+
             }
         }
     }
+    
+    func importWallet() async {
+        if newAlias_Import.isEmpty || privateKey.isEmpty {
+            return
+        }
+
+        do {
+            var keyPair: KeyPair?
+
+            if isMnemonic(privateKey) {
+                let mnemonicArray = privateKey.split(separator: " ").map { String($0) }
+                keyPair = try await KeyPair(phrase: mnemonicArray, network: walletManager.network, derivablePath: .default)
+            } else {
+                var intArray: [Int] = []
+
+                if privateKey.count == 88 {
+                    // Base58 Secret Key
+                    intArray = Base58.decode(privateKey).map { Int($0) }
+                } else {
+                    // Byte array input
+                    let cleanedString = privateKey.dropFirst().dropLast()
+                    intArray = cleanedString.split(separator: ",").compactMap { Int($0) }
+                }
+
+                let data = Data(intArray.map { UInt8($0) })
+                keyPair = try KeyPair(secretKey: data)
+            }
+
+            if let keyPair = keyPair {
+                try? walletManager.keychainForSolana.save(alias: newAlias_Import, account: keyPair, network: walletManager.network)
+                walletManager.selectedAlias = newAlias_Import
+                walletManager.refreshAliases()
+
+                walletManager.fetch { isLoading in
+                    loading = isLoading
+                }
+
+                showingAlert = true
+            }
+        } catch {
+            print("❌ Error importing wallet: \(error)")
+        }
+    }
+}
+
+func isMnemonic(_ input: String) -> Bool {
+    let words = input.split(separator: " ")
+    return words.count == 12 || words.count == 24
 }
 
 #Preview {

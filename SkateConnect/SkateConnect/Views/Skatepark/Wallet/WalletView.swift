@@ -190,7 +190,7 @@ private extension WalletView {
                                    aliasToDrop = walletManager.selectedAlias
                                    showDropConfirmation = true
                                }) {
-                                   Text("Drop alias")
+                                   Text("Delete Key")
                                }
                         }
             }
