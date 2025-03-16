@@ -146,7 +146,7 @@ struct SettingsView: View {
                     Button("💾 Export Data") {
                         Task {
                             if let backupJSON = dataManager.backupData() {
-                                UIPasteboard.general.string = backupJSON
+                                UIPasteboard.general.string = prettifyJSON(backupJSON)
                                 showCopyNotification = true
                             }
                         }

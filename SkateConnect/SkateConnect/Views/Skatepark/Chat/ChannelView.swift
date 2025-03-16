@@ -137,7 +137,7 @@ struct ChannelView: View {
                         Button(action: {
                             self.isShowingToolBoxView.toggle()
                         }) {
-                            Image(systemName: "network")
+                            Image(systemName: "paintpalette.fill")
                                 .foregroundColor(.blue)
                         }
                         

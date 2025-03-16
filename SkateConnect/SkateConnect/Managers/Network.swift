@@ -82,20 +82,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         NotificationCenter.default.publisher(for: .stopNetwork)
             .sink { [weak self] _ in self?.stop() }
             .store(in: &cancellablesFoLifecycle)
-    }
-    
-    func backupActiveSession() {
-        os_log("🔄 backupActiveSession", log: log, type: .info)
-//        stop()
-    }
-    
-    func start() {
-        os_log("⏳ starting network", log: log, type: .info)
         
-        if (!UserDefaults.standard.bool(forKey: UserDefaults.Keys.hasAcknowledgedEULA)) {
-            os_log("🛑 user hasn't acknowlegdes EULA", log: log, type: .info)
-            return
-        }
         
         EventBus.shared.didReceiveChannelSubscriptionRequest
             .receive(on: DispatchQueue.main)
@@ -116,18 +103,31 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             }
             .store(in: &cancellables)
         
+        self.connectPublishers()
+    }
+    
+    func backupActiveSession() {
+        os_log("🔄 backupActiveSession", log: log, type: .info)
+//        stop()
+    }
+    
+    func start() {
+        os_log("⏳ starting network", log: log, type: .info)
+        
+        if (!UserDefaults.standard.bool(forKey: UserDefaults.Keys.hasAcknowledgedEULA)) {
+            os_log("🛑 user hasn't acknowlegdes EULA", log: log, type: .info)
+            return
+        }
+        
+
         stopped = false
         
         self.connect()
-        
-        self.connectPublishers()
     }
     
     func stop() {
         os_log("⏳ stopping network", log: log, type: .info)
-        
-        cancellables.removeAll()
-        
+                
         guard let pool = self.relayPool else {
             os_log("🔥 relay pool is unavailable", log: log, type: .error)
             return

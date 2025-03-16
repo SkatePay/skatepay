@@ -122,10 +122,11 @@ private extension WalletView {
 
                 ForEach(walletManager.accounts) { account in
                     if account.lamports > 0 {
+                        let quantity = Double(account.lamports) / pow(10, Double(account.decimals))
                         Button(action: {
                             navigation.path.append(NavigationPathType.transferAsset(transferType: .token(account)))
                         }) {
-                            Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                            Text("\(quantity) $\(account.symbol.prefix(3))")
                         }
                         .contextMenu {
                             tokenContextMenu(for: account)
@@ -210,11 +211,33 @@ private extension WalletView {
     @ViewBuilder
     func tokenContextMenu(for account: SolanaAccount) -> some View {
         Button(action: {
-            if let url = URL(string: "https://explorer.solana.com/address/\(account.mintAddress)?cluster=\(walletManager.network)") {
+            UIPasteboard.general.string = account.mintAddress
+        }) {
+            Text("Copy mint address")
+        }
+        
+        Button(action: {
+            if let url = URL(string: "https://explorer.solana.com/address/\(account.address)?cluster=\(walletManager.network)") {
                 openURL(url)
             }
         }) {
-            Text("🔎 Open Explorer")
+            Text("🔎 Open explorer")
+        }
+        
+        Button(action: {
+            if let url = URL(string: "https://solscan.io/address/\(account.address)?cluster=\(walletManager.network)") {
+                openURL(url)
+            }
+        }) {
+            Text("🔎 Open solscan address")
+        }
+        
+        Button(action: {
+            if let url = URL(string: "https://solscan.io/token/\(account.mintAddress)?cluster=\(walletManager.network)") {
+                openURL(url)
+            }
+        }) {
+            Text("🔎 Open solscan mint")
         }
         
         Button(action: {

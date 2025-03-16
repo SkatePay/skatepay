@@ -175,9 +175,10 @@ private extension TransferAsset {
         Section {
             switch transferType {
             case .sol:
-                Text("SOL Balance: \(walletManager.balance)")
+                Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
             case .token(let tokenAccount):
-                Text("\(tokenAccount.lamports) $\(tokenAccount.symbol.prefix(3))")
+                let quantity = Double(tokenAccount.lamports) / pow(10, Double(tokenAccount.decimals))
+                Text("\(quantity) $\(tokenAccount.symbol.prefix(3))")
             }
 
             TextField("Amount", value: $amount, formatter: Formatter.clearForZero)

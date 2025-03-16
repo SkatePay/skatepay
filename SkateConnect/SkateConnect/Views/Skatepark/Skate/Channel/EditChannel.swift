@@ -87,6 +87,13 @@ struct EditChannel: View {
                 if let channel = lead.channel {
                     Section ("Name") {
                         Text("\(channel.name)")
+                            .contextMenu {
+                                Button(action: {
+                                    UIPasteboard.general.string = channel.name
+                                }) {
+                                    Text("Copy name")
+                                }
+                            }
                     }
                     Section ("Description") {
                         Text("\(channel.about)")
