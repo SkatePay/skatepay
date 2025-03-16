@@ -6,10 +6,25 @@
 //
 
 import ConnectFramework
+import CryptoKit
 import Foundation
 import MessageKit
 import NostrSDK
 import UIKit
+
+
+enum Kind: String, Codable {
+    case video
+    case photo
+    case message
+    case hidden
+    case subscriber
+}
+
+struct ContentStructure: Codable {
+    let content: String
+    let kind: Kind
+}
 
 enum ContentType {
     case text(String)
@@ -20,6 +35,43 @@ enum ContentType {
 }
 
 class MessageHelper {
+    static func encryptChannelInviteToString(channel: Channel) -> String? {
+        let keyString = "SKATECONNECT"
+        let keyData = Data(keyString.utf8)
+        let hashedKey = SHA256.hash(data: keyData)
+        let symmetricKey = SymmetricKey(data: hashedKey)
+        
+        do {
+            let jsonData = try JSONEncoder().encode(channel)
+            let sealedBox = try AES.GCM.seal(jsonData, using: symmetricKey)
+            return sealedBox.combined?.base64EncodedString()
+        } catch {
+            print("Error encrypting channel: \(error)")
+            return nil
+        }
+    }
+
+   static  func decryptChannelInviteFromString(encryptedString: String) -> Channel? {
+        let keyString = "SKATECONNECT"
+        let keyData = Data(keyString.utf8)
+        let hashedKey = SHA256.hash(data: keyData)
+        let symmetricKey = SymmetricKey(data: hashedKey)
+        
+        do {
+            guard let encryptedData = Data(base64Encoded: encryptedString) else {
+                print("Error decoding Base64 string")
+                return nil
+            }
+            let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
+            let decryptedData = try AES.GCM.open(sealedBox, using: symmetricKey)
+            return try JSONDecoder().decode(Channel.self, from: decryptedData)
+        } catch {
+            print("Error decrypting channel: \(error)")
+            return nil
+        }
+    }
+
+    
     static func parseEventIntoMessage(event: NostrEvent, account: Keypair?) -> MessageType? {
         let publicKey = PublicKey(hex: event.pubkey)
         let isCurrentUser = publicKey == account?.publicKey
@@ -54,7 +106,7 @@ class MessageHelper {
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
-        guard let inviteEvent = invite.event else {
+        guard let inviteEvent = invite.creationEvent else {
             print("🔥 Invite event is nil")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
@@ -69,7 +121,7 @@ class MessageHelper {
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }
 
-        guard let eventId = channel.event?.id else {
+        guard let eventId = channel.creationEvent?.id else {
             print("🔥 Failed to get event ID from channel event")
             return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
         }

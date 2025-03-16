@@ -27,7 +27,7 @@ class ChannelViewManager: ObservableObject {
     
     func openChannel(channelId: String, invite: Bool = false, deeplink: Bool = false) {
         if (deeplink || invite) {
-            network?.subscribeToChannelMetadataWhenReady(channelId)
+            network?.subscribeToChannelCreationWhenReady(channelId)
             network?.subscribeToChannelMessagesWhenReady(channelId)
         }
         

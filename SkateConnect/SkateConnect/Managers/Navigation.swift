@@ -11,18 +11,6 @@ import Foundation
 import NostrSDK
 import SwiftUI
 
-extension Notification.Name {
-    static let goToLandmark = Notification.Name("goToLandmark")
-    static let goToCoordinate = Notification.Name("goToCoordinate")
-    static let markSpot = Notification.Name("markSpot")
-    static let goToSpot = Notification.Name("goToSpot")
-    static let subscribeToChannel = Notification.Name("subscribeToChannel")
-    static let muteUser = Notification.Name("muteUser")
-    static let barcodeScanned = Notification.Name("barcodeScanned")
-    static let uploadImage = Notification.Name("uploadImage")
-    static let uploadVideo = Notification.Name("uploadVideo")
-}
-
 enum Tab {
     case lobby
     case map

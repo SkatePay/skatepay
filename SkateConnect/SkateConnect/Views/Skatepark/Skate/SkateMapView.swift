@@ -95,7 +95,7 @@ struct SkateMapView: View {
     }
     
     func createActionSheetForLead(_ lead: Lead) -> ActionSheet {
-        let spot = dataManager.findSpotForChannelId(lead.channelId)
+        let spot = dataManager.findSpotsForChannelId(lead.channelId).first
         
         var canBeRemoved = true
         
@@ -121,13 +121,13 @@ struct SkateMapView: View {
                 .default(Text("See on the Web")) {
                     MainHelper.shareChannel(lead.channelId)
                 },
-                (lead.event != nil) ? .default(Text("Copy Invite")) {
+                (lead.channel?.creationEvent != nil) ? .default(Text("Copy Invite")) {
                     var inviteString = lead.channelId
                     
-                    if let event = lead.event {
+                    if let event = lead.channel?.creationEvent {
                         if var channel = parseChannel(from: event) {
-                            channel.event = event
-                            if let ecryptedString = encryptChannelInviteToString(channel: channel) {
+                            channel.creationEvent = event
+                            if let ecryptedString = MessageHelper.encryptChannelInviteToString(channel: channel) {
                                 inviteString = ecryptedString
                             }
                         }

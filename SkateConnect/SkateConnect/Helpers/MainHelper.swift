@@ -114,11 +114,9 @@ class MainHelper {
                 let decoder = JSONDecoder()
                 let decodedStructure = try decoder.decode(AboutStructure.self, from: about.data(using: .utf8)!)
                 
-                var icon = "📡"
-
-                if let newIcon = decodedStructure.note {
-                    icon = newIcon
-                }
+                let icon = decodedStructure.note ?? "📡"
+                let coordinate = decodedStructure.location
+                let color = convertNoteToColor(note)
                 
                 lead = Lead(
                     name: channel.name,
@@ -126,9 +124,8 @@ class MainHelper {
                     note: note,
                     coordinate: decodedStructure.location,
                     channelId: event.id,
-                    event: event,
                     channel: channel,
-                    color: convertNoteToColor(note)
+                    color: color
                 )
                 
                 if (markSpot) {
@@ -139,5 +136,41 @@ class MainHelper {
             }
         }
         return lead
+    }
+    
+    static func updateLead(for channel: Channel, note: String = "") -> Lead? {
+        guard
+            let creationEvent = channel.creationEvent,
+            let metadataEvent = channel.metadataEvent,
+            let aboutData = channel.about.data(using: .utf8)
+        else {
+            print("⚠️ Missing events or invalid about data")
+            return nil
+        }
+
+        do {
+            let decodedStructure = try JSONDecoder().decode(AboutStructure.self, from: aboutData)
+
+            let icon = decodedStructure.note ?? "📡"
+            let coordinate = decodedStructure.location
+            let color = convertNoteToColor(note)
+
+            let lead = Lead(
+                name: channel.name,
+                icon: icon,
+                note: note,
+                coordinate: coordinate,
+                channelId: creationEvent.id,
+                channel: channel,
+                color: color
+            )
+
+            NotificationCenter.default.post(name: .updateSpot, object: lead)
+
+            return lead
+        } catch {
+            print("Error decoding AboutStructure: \(error)")
+            return nil
+        }
     }
 }

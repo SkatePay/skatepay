@@ -80,7 +80,6 @@ class Lobby: ObservableObject, EventCreating {
                     note: spot.note,
                     coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
                     channelId: spot.channelId,
-                    event: nil,
                     channel: nil,
                     color: MainHelper.convertNoteToColor(note)
                 )

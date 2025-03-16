@@ -16,17 +16,17 @@ class Spot {
     var address: String
     var state: String
 
-    let icon: String
+    var icon: String
     var note: String
 
-    let isFavorite: Bool
-    let imageName: String
+    var isFavorite: Bool
+    var imageName: String
 
     var latitude: Double
     var longitude: Double
     var channelId: String
 
-    let createdAt: Date?
+    var createdAt: Date?
     var updatedAt: Date?
 
     init(

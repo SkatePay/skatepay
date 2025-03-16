@@ -89,8 +89,8 @@ struct ChannelView: View {
             )
             .navigationBarBackButtonHidden()
             .sheet(isPresented: $navigation.isShowingEditChannel) {
-                if let lead = self.eventListenerForMetadata.metadata {
-                    EditChannel(lead: lead, channel: lead.channel)
+                if let channel = self.eventListenerForMetadata.channel {
+                    EditChannel(channel: channel)
                         .environmentObject(navigation)
                 }
             }
@@ -106,27 +106,28 @@ struct ChannelView: View {
                         Button(action: {
                             navigation.isShowingEditChannel.toggle()
                         }) {
-                            if let lead = self.eventListenerForMetadata.metadata {
-                                if let landmark = findLandmark(lead.channelId) {
+                            if let channel = eventListenerForMetadata.channel {
+                                if let channelId = channel.creationEvent?.id,
+                                   let landmark = findLandmark(channelId) {
+                                    
                                     HStack {
                                         landmark.image
                                             .resizable()
                                             .scaledToFill()
                                             .frame(width: 35, height: 35)
                                             .clipShape(Circle())
-                                        
+
                                         VStack(alignment: .leading, spacing: 0) {
-                                            Text("\(landmark.name)")
+                                            Text(landmark.name)
                                                 .fontWeight(.semibold)
                                                 .font(.headline)
                                         }
                                     }
+                                    
                                 } else {
-                                    if let channel = lead.channel {
-                                        Text("\(channel.name)")
-                                            .fontWeight(.semibold)
-                                            .font(.headline)
-                                    }
+                                    Text(channel.name)
+                                        .fontWeight(.semibold)
+                                        .font(.headline)
                                 }
                             }
                         }

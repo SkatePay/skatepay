@@ -8,11 +8,6 @@
 import Combine
 import NostrSDK
 
-enum ChannelSubscriptionRequestType: String {
-    case metadata = "metadata"
-    case messages = "messages"
-}
-
 class EventBus: ObservableObject {
     static let shared = EventBus()
     
@@ -23,14 +18,15 @@ class EventBus: ObservableObject {
     let didReceiveDMMessage = PassthroughSubject<RelayEvent, Never>()
     
     // Channel
-    typealias ChannelSubscriptionRequest = (type: ChannelSubscriptionRequestType, channelId: String)
+    typealias ChannelSubscriptionRequest = (kind: EventKind, channelId: String)
 
     let didReceiveChannelSubscriptionRequest = PassthroughSubject<ChannelSubscriptionRequest, Never>()
     
-    let didReceiveChannelMetadataSubscription = PassthroughSubject<(channelId: String, subscriptionId: String), Never>()
+    let didReceiveChannelSubscription = PassthroughSubject<(key: ChannelSubscriptionKey, subscriptionId: String), Never>()
+    let didReceiveChannelData = PassthroughSubject<RelayEvent, Never>()
+    
     let didReceiveChannelMessagesSubscription = PassthroughSubject<(channelId: String, subscriptionId: String), Never>()
 
-    let didReceiveChannelMetadata = PassthroughSubject<RelayEvent, Never>()
     let didReceiveChannelMessage = PassthroughSubject<RelayEvent, Never>()
     
     let didReceiveEOSE = PassthroughSubject<RelayResponse, Never>()

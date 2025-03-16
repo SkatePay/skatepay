@@ -282,7 +282,7 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .subscribeToChannel)) { notification in
             if let channelId = notification.userInfo?["channelId"] as? String {
-                if let spot = dataManager.findSpotForChannelId(channelId) {
+                if let spot = dataManager.findSpotsForChannelId(channelId).first {
                     navigation.coordinate = spot.locationCoordinate
                     locationManager.panMapToCachedCoordinate()
                 }

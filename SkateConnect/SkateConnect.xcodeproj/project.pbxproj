@@ -67,6 +67,7 @@
 		C63DEF582D7D1DAD0058224F /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF572D7D1DAD0058224F /* CameraViewModel.swift */; };
 		C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
+		C662BD502D86A6A000BD6E58 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C662BD4F2D86A6A000BD6E58 /* NostrSDK */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
 		C668FC4F2C967AAA00612BEA /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC4E2C967AAA00612BEA /* KeychainSwift */; };
 		C668FC582C967D6A00612BEA /* MessageKit in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC572C967D6A00612BEA /* MessageKit */; };
@@ -94,7 +95,6 @@
 		C6C94AE72CA885B1008ECA86 /* Lobby.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AE62CA885B1008ECA86 /* Lobby.swift */; };
 		C6C94AE92CA8D731008ECA86 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AE82CA8D731008ECA86 /* API.swift */; };
 		C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C94AEA2CA8DAE8008ECA86 /* AwsKeychainStorage.swift */; };
-		C6CB4BBE2D4C27D300DA74B5 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6CB4BBD2D4C27D300DA74B5 /* NostrSDK */; };
 		C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2D82C9FBDBA00FF428F /* LocationManager.swift */; };
 		C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DD2C9FC50900FF428F /* BarcodeScanner.swift */; };
 		C6D1F2E02C9FC52A00FF428F /* ScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D1F2DF2C9FC52A00FF428F /* ScannerView.swift */; };
@@ -289,7 +289,7 @@
 			files = (
 				C66AFE902CA74DFB000CD716 /* Kingfisher in Frameworks */,
 				C6DC04642CB4B930003FCA1B /* InputBarAccessoryView in Frameworks */,
-				C6CB4BBE2D4C27D300DA74B5 /* NostrSDK in Frameworks */,
+				C662BD502D86A6A000BD6E58 /* NostrSDK in Frameworks */,
 				C66AFE832CA61671000CD716 /* AWSS3 in Frameworks */,
 				C66AFE812CA61671000CD716 /* AWSCognitoIdentityProvider in Frameworks */,
 				C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */,
@@ -616,11 +616,11 @@
 				C6C94AE62CA885B1008ECA86 /* Lobby.swift */,
 				C62500D42C93C11A0026C334 /* DataManager.swift */,
 				C66AFE8B2CA63755000CD716 /* Navigation.swift */,
-				C66AFE912CA7812C000CD716 /* Network.swift */,
 				C6C94AE82CA8D731008ECA86 /* API.swift */,
 				C6DC046D2CB5FD69003FCA1B /* ChannelViewManager.swift */,
 				C69018B42D432DC500A3CDD8 /* EULAManager.swift */,
 				C6A3DCF02D47EF590095A994 /* DebugManager.swift */,
+				C66AFE912CA7812C000CD716 /* Network.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -811,7 +811,7 @@
 				C66AFE822CA61671000CD716 /* AWSS3 */,
 				C66AFE8F2CA74DFB000CD716 /* Kingfisher */,
 				C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */,
-				C6CB4BBD2D4C27D300DA74B5 /* NostrSDK */,
+				C662BD4F2D86A6A000BD6E58 /* NostrSDK */,
 			);
 			productName = SkateConnect;
 			productReference = C6DDD7202C936DAE000BE2A4 /* SkateConnect.app */;
@@ -892,7 +892,7 @@
 				C66AFE7F2CA61671000CD716 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 				C66AFE8E2CA74DFB000CD716 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
-				C6CB4BBC2D4C27D300DA74B5 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
+				C62E148A2D86997600E86BA6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */,
 			);
 			productRefGroup = C6DDD7212C936DAE000BE2A4 /* Products */;
 			projectDirPath = "";
@@ -1413,6 +1413,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C62E148A2D86997600E86BA6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SkatePay/nostr-sdk-ios/";
+			requirement = {
+				branch = "yurchenko/nip-28";
+				kind = branch;
+			};
+		};
 		C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SkatePay/solana-swift";
@@ -1453,14 +1461,6 @@
 				minimumVersion = 8.0.3;
 			};
 		};
-		C6CB4BBC2D4C27D300DA74B5 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SkatePay/nostr-sdk-ios/";
-			requirement = {
-				branch = "yurchenko/nip-28";
-				kind = branch;
-			};
-		};
 		C6DC04622CB4B930003FCA1B /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nathantannar4/InputBarAccessoryView.git";
@@ -1472,6 +1472,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C662BD4F2D86A6A000BD6E58 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C62E148A2D86997600E86BA6 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
+			productName = NostrSDK;
+		};
 		C668FC482C967A9600612BEA /* SolanaSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C668FC472C967A9600612BEA /* XCRemoteSwiftPackageReference "solana-swift" */;
@@ -1501,11 +1506,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C66AFE8E2CA74DFB000CD716 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		C6CB4BBD2D4C27D300DA74B5 /* NostrSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C6CB4BBC2D4C27D300DA74B5 /* XCRemoteSwiftPackageReference "nostr-sdk-ios" */;
-			productName = NostrSDK;
 		};
 		C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */ = {
 			isa = XCSwiftPackageProductDependency;

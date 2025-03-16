@@ -86,6 +86,16 @@ class DataManager: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .updateSpot)
+            .sink { [weak self] notification in
+                if let lead = notification.object as? Lead, let log = self?.log {
+                    os_log("⏳ updating spot for channelId [%@]", log: log, type: .info, lead.channelId)
+
+                    self?.updateSpotForLead(lead)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     var modelContext: ModelContext {
@@ -113,6 +123,25 @@ class DataManager: ObservableObject {
         }
     }
     
+    func removeSpot(by channelId: String) {
+        let spotsToDelete = findSpotsForChannelId(channelId)
+
+        for spot in spotsToDelete {
+            modelContext.delete(spot)
+        }
+
+        do {
+            try modelContext.save()
+            os_log("🗑️ Spot(s) removed for channelId %@", channelId)
+
+            let spots = fetchSortedSpots()
+            lobby?.setupLeads(spots: spots)
+
+        } catch {
+            print("❌ Failed to save after deleting spot(s) for channelId \(channelId): \(error)")
+        }
+    }
+    
     func fetchSortedSpots() -> [Spot] {
         do {
             let fetchDescriptor = FetchDescriptor<Spot>(
@@ -126,8 +155,17 @@ class DataManager: ObservableObject {
     }
     
     // MARK: Spots
-    func findSpotForChannelId(_ channelId: String) -> Spot? {
-        return fetchSortedSpots().first { $0.channelId == channelId }
+    func findSpotsForChannelId(_ channelId: String) -> [Spot] {
+        let fetchRequest = FetchDescriptor<Spot>(
+            predicate: #Predicate { $0.channelId == channelId },
+            sortBy: []
+        )
+        do {
+            return try modelContext.fetch(fetchRequest)
+        } catch {
+            print("❌ Failed to fetch spots for channelId \(channelId): \(error)")
+            return []
+        }
     }
     
     func saveSpotForLead(_ lead: Lead, note: String = "", pan: Bool = false) {
@@ -137,7 +175,7 @@ class DataManager: ObservableObject {
         var spot: Spot?
         var skip = false
         
-        if let existingSpot = findSpotForChannelId(lead.channelId) {
+        if let existingSpot = findSpotsForChannelId(lead.channelId).first {
             let extractedNote = existingSpot.note.split(separator: ":").last.map(String.init) ?? ""
             bufferedLead.color = MainHelper.convertNoteToColor(extractedNote)
             
@@ -181,9 +219,67 @@ class DataManager: ObservableObject {
         }
     }
     
+    func updateSpotForLead(_ lead: Lead, note: String = "", pan: Bool = false) {
+        os_log("⏳ updating spot for %@ %@ pan", log: log, type: .info, lead.name, pan ? "with" : "without")
+
+        var bufferedLead = lead
+        var spot: Spot?
+        var skip = false
+        
+        if let existingSpot = findSpotsForChannelId(lead.channelId).first {
+            let extractedNote = existingSpot.note.split(separator: ":").last.map(String.init) ?? ""
+            bufferedLead.color = MainHelper.convertNoteToColor(extractedNote)
+            
+            existingSpot.name = bufferedLead.name
+            
+            print(existingSpot)
+
+            
+            // Clone all data before deletion
+            let clonedSpot = Spot(
+                name: existingSpot.name,
+                address: existingSpot.address,
+                state: existingSpot.state,
+                icon: existingSpot.icon,
+                note: existingSpot.note,
+                isFavorite: existingSpot.isFavorite,
+                latitude: existingSpot.latitude,
+                longitude: existingSpot.longitude,
+                channelId: existingSpot.channelId,
+                imageName: existingSpot.imageName,
+                createdAt: existingSpot.createdAt ?? Date(),
+                updatedAt: Date()
+            )
+
+            self.removeSpotForChannelId(lead.channelId)
+            self.insertSpot(clonedSpot)
+
+            skip = true
+            
+            spot = clonedSpot
+        }
+
+        self.lobby?.upsertIntoLeads(bufferedLead)
+                
+        if !pan {
+            return
+        }
+        
+        if skip {
+            return
+        }
+        
+        if let spot = spot {
+            NotificationCenter.default.post(
+                name: .goToSpot,
+                object: spot
+            )
+        }
+    }
+    
     func removeSpotForChannelId(_ channelId: String) {
         do {
-            if let spotToRemove = findSpotForChannelId(channelId) {
+            if let spotToRemove = findSpotsForChannelId(channelId).first {
                 modelContext.delete(spotToRemove)
                 try modelContext.save()
 
@@ -262,20 +358,6 @@ enum ChannelType: String {
     case outbound = "outbound"
     case inbound = "inbound"
 }
-
-struct ContentStructure: Codable {
-    let content: String
-    let kind: Kind
-}
-
-enum Kind: String, Codable {
-    case video
-    case photo
-    case message
-    case hidden
-    case subscriber
-}
-
 
 struct BackupData: Codable {
     let version: String?

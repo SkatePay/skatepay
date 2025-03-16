@@ -19,12 +19,13 @@ class ChannelEventPublisher: ObservableObject {
     public func subscribeToMetadataFor(_ channelId: String) {
         os_log("⏳ requesting subscription to channel metadata [%{public}@]", log: log, type: .info, channelId)
 
-        EventBus.shared.didReceiveChannelSubscriptionRequest.send((.metadata, channelId))
+        EventBus.shared.didReceiveChannelSubscriptionRequest.send((.channelCreation, channelId))
+        EventBus.shared.didReceiveChannelSubscriptionRequest.send((.channelMetadata, channelId))
     }
     
     public func subscribeToMessagesFor(_ channelId: String) {
         os_log("⏳ requesting subscription to channel messages [%{public}@]", log: log, type: .info, channelId)
 
-        EventBus.shared.didReceiveChannelSubscriptionRequest.send((.messages, channelId))
+        EventBus.shared.didReceiveChannelSubscriptionRequest.send((.channelMessage, channelId))
     }
 }

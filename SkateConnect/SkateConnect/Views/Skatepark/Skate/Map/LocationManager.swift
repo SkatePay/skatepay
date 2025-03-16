@@ -31,7 +31,6 @@ struct Lead: Identifiable, Equatable, Codable {
     var note: String
     var coordinate: CLLocationCoordinate2D
     var channelId: String
-    var event: NostrEvent?
     var channel: Channel?
     
     // Optional colorHex to handle missing field during decoding
@@ -47,17 +46,16 @@ struct Lead: Identifiable, Equatable, Codable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, name, icon, note, coordinate, channelId, event, channel, colorHex
+        case id, name, icon, note, coordinate, channelId, channel, colorHex
     }
     
-    init(id: UUID = UUID(), name: String, icon: String, note: String, coordinate: CLLocationCoordinate2D, channelId: String, event: NostrEvent?, channel: Channel?, color: Color) {
+    init(id: UUID = UUID(), name: String, icon: String, note: String, coordinate: CLLocationCoordinate2D, channelId: String, channel: Channel?, color: Color) {
         self.id = id
         self.name = name
         self.icon = icon
         self.note = note
         self.coordinate = coordinate
         self.channelId = channelId
-        self.event = event
         self.channel = channel
         self.colorHex = color.toHex()
     }
