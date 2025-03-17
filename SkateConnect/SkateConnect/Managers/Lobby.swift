@@ -118,8 +118,16 @@ class Lobby: ObservableObject, EventCreating {
             
             let text = decryptContent(content: event.content, publicKey: publicKey) ?? "..."
             
-            let finalText = text.contains("channel_invite") ? "🚪 Channel invite pending..." : text
+            let finalText: String
 
+            if text.starts(with:"channel_invite") {
+                finalText = "🚪 Channel invite pending..."
+            } else if text.starts(with: "invoice:") {
+                finalText = "🫴 Payment request"
+            } else {
+                finalText = text
+            }
+            
             let activityEvent = ActivityEvent(
                 id: event.id,
                 npub: publicKey.npub,

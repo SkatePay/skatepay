@@ -191,6 +191,7 @@ struct ContentView: View {
                         .environmentObject(network)
                         .environmentObject(stateManager)
                         .environmentObject(uploadManager)
+                        .environmentObject(walletManager)
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()
                         }
@@ -220,6 +221,7 @@ struct ContentView: View {
                 case .directMessage(user: let user):
                     DMView(user: user)
                         .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
                     

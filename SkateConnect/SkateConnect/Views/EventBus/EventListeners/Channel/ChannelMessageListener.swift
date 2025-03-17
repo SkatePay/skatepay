@@ -18,6 +18,7 @@ class ChannelMessageListener: ObservableObject {
     @Published var timestamp = Int64(0)
 
     private var dataManager: DataManager?
+    private var debugManager: DebugManager?
     private var account: Keypair?
     
     var channelId: String?
@@ -63,8 +64,9 @@ class ChannelMessageListener: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func setDependencies(dataManager: DataManager, account: Keypair) {
+    func setDependencies(dataManager: DataManager, debugManager: DebugManager, account: Keypair) {
         self.dataManager = dataManager
+        self.debugManager = debugManager
         self.account = account
     }
     
@@ -85,7 +87,9 @@ class ChannelMessageListener: ObservableObject {
             return
         }
                 
-        if let message = MessageHelper.parseEventIntoMessage(event: event, account: account) {
+        let hasWallet = debugManager?.hasEnabledDebug ?? false
+        
+        if let message = MessageHelper.parseEventIntoMessage(event: event, account: account, hasWallet: hasWallet) {
             if (self.receivedEOSE) {
                 timestamp = event.createdAt
 

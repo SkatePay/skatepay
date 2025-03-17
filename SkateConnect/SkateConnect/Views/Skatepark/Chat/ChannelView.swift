@@ -29,6 +29,7 @@ struct ChannelView: View {
     @EnvironmentObject var network: Network
     @EnvironmentObject var stateManager: StateManager
     @EnvironmentObject var uploadManager: UploadManager
+    @EnvironmentObject var walletManager: WalletManager
     
     @StateObject private var eventPublisher = ChannelEventPublisher()
     
@@ -46,11 +47,14 @@ struct ChannelView: View {
     
     @State private var showingMediaActionSheet = false
     @State private var showingInviteActionSheet = false
-
+    @State private var showingInvoiceActionSheet = false
+    
     // Action State
     @State private var selectedChannelId: String? = nil
     @State private var selectedMediaURL: URL?
     @State private var selectedInviteString: String? = nil
+    @State private var selectedInvoiceString: String? = nil
+    @State private var selectedInvoice: Invoice? = nil
 
     // View State
     @State private var shouldScrollToBottom = true
@@ -75,11 +79,18 @@ struct ChannelView: View {
                     }
                     shouldScrollToBottom = false
                 },
-                onTapLink: { channelId, inviteString in
-                    selectedChannelId = channelId
-                    selectedInviteString = inviteString
+                onTapLink: { action, channelId, dataString in
+                    if action == .invite {
+                        selectedInviteString = dataString
+                        showingInviteActionSheet = true
+                    }
                     
-                    showingInviteActionSheet = true
+                    if action == .invoice {
+                        setSelectedInvoiceString(dataString)
+                        showingInvoiceActionSheet = true
+                    }
+                    
+                    selectedChannelId = channelId
                     shouldScrollToBottom = false
                 },
                 onSend: { text in
@@ -153,8 +164,10 @@ struct ChannelView: View {
             }
             .sheet(isPresented: $isShowingToolBoxView) {
                 ToolBoxView()
+                    .environmentObject(debugManager)
                     .environmentObject(navigation)
                     .environmentObject(uploadManager)
+                    .environmentObject(walletManager)
                     .presentationDetents([.medium])
                     .onAppear {
                         navigation.channelId = channelId
@@ -186,7 +199,11 @@ struct ChannelView: View {
                     shouldScrollToBottom = true
 
                     self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                    self.eventListenerForMessages.setDependencies(
+                        dataManager: dataManager,
+                        debugManager: debugManager,
+                        account: account
+                    )
                     self.eventListenerForMessages.reset()
 
                     self.eventPublisher.subscribeToMessagesFor(channelId)
@@ -207,7 +224,11 @@ struct ChannelView: View {
                     self.eventPublisher.subscribeToMetadataFor(channelId) 
 
                     self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                    self.eventListenerForMessages.setDependencies(
+                        dataManager: dataManager,
+                        debugManager: debugManager,
+                        account: account
+                    )
                     self.eventListenerForMessages.reset()
                     
                     self.eventPublisher.subscribeToMessagesFor(channelId)
@@ -249,6 +270,24 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
+        .confirmationDialog("Invoice", isPresented: $showingInvoiceActionSheet, titleVisibility: .visible) {
+            Button("Pay") {
+                openWallet()
+            }
+            Button("Copy Address") {
+                if let invoice = selectedInvoice {
+                    UIPasteboard.general.string = invoice.address
+                } else {
+                    UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+    }
+    
+    func setSelectedInvoiceString(_ invoiceString: String) {
+        selectedInvoiceString = invoiceString
+        selectedInvoice = Invoice.decodeInvoiceFromString(invoiceString)
     }
     
     // MARK: Blacklist
@@ -262,54 +301,9 @@ struct ChannelView: View {
         navigation.joinChannel(channelId: channelId)
     }
     
-    private func createInviteActionSheet() -> ActionSheet {
-        return ActionSheet(
-            title: Text("Confirmation"),
-            message: Text("Are you sure you want to join this channel?"),
-            buttons: [
-                .default(Text("Yes")) {
-                    openChannelInvite()
-                },
-                .default(Text("Copy Invite")) {
-                    
-                    showingInviteActionSheet = false
-                    
-                    if let inviteString = selectedInviteString {
-                        UIPasteboard.general.string = "channel_invite:\(inviteString)"
-                    } else {
-                        UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
-                    }
-                },
-                .cancel(Text("Maybe Later")) {
-                    showingInviteActionSheet = false
-                }
-            ]
-        )
-    }
-    
-    private func createMediaActionSheet(for url: URL?) -> ActionSheet {
-        return ActionSheet(
-            title: Text("Media Options"),
-            message: Text("Choose an action for the media."),
-            buttons: [
-                .default(Text("Play")) {
-                    if let videoURL = url {
-                        navigation.path.append(NavigationPathType.videoPlayer(url: videoURL))
-                    }
-                },
-                .default(Text("Download")) {
-                    if let videoURL = url {
-                        downloadVideo(from: videoURL)
-                    }
-                },
-                .default(Text("Share")) {
-                    if let videoURL = url {
-                        MainHelper.shareVideo(videoURL)
-                    }
-                },
-                .cancel()
-            ]
-        )
+    private func openWallet() {
+        guard let invoice = selectedInvoice else { return }
+        print("Paying invoice: \(invoice.address) \(invoice.amount) \(invoice.asset) ")
     }
     
     private func downloadVideo(from url: URL) {

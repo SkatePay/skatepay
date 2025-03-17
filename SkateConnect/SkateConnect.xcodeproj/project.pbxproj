@@ -85,6 +85,7 @@
 		C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096A2C96597A00C9F8F1 /* MockMessage.swift */; };
 		C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096B2C96597A00C9F8F1 /* MockSocket.swift */; };
 		C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E096C2C96597A00C9F8F1 /* MockUser.swift */; };
+		C66FDBFA2D87AADA001BDF73 /* Invoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66FDBF92D87AADA001BDF73 /* Invoice.swift */; };
 		C69018B52D432DC500A3CDD8 /* EULAManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69018B42D432DC500A3CDD8 /* EULAManager.swift */; };
 		C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCE92D46A7240095A994 /* OverlayView.swift */; };
 		C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */; };
@@ -241,6 +242,7 @@
 		C66E096A2C96597A00C9F8F1 /* MockMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockMessage.swift; sourceTree = "<group>"; };
 		C66E096B2C96597A00C9F8F1 /* MockSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockSocket.swift; sourceTree = "<group>"; };
 		C66E096C2C96597A00C9F8F1 /* MockUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockUser.swift; sourceTree = "<group>"; };
+		C66FDBF92D87AADA001BDF73 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
 		C69018B42D432DC500A3CDD8 /* EULAManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAManager.swift; sourceTree = "<group>"; };
 		C6A3DCE92D46A7240095A994 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomControlsView.swift; sourceTree = "<group>"; };
@@ -543,6 +545,7 @@
 				C62501342C93C1340026C334 /* Profile.swift */,
 				C62501352C93C1340026C334 /* User.swift */,
 				C66AFE932CA7A067000CD716 /* Channel.swift */,
+				C66FDBF92D87AADA001BDF73 /* Invoice.swift */,
 				C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */,
 			);
 			path = Model;
@@ -980,6 +983,7 @@
 				C625015A2C93C1340026C334 /* ConnectRelay.swift in Sources */,
 				C625015F2C93C1340026C334 /* ContentView.swift in Sources */,
 				C625014B2C93C1340026C334 /* SpotDetail.swift in Sources */,
+				C66FDBFA2D87AADA001BDF73 /* Invoice.swift in Sources */,
 				C62501512C93C1340026C334 /* LobbyView.swift in Sources */,
 				C62501672C93C1340026C334 /* Friend.swift in Sources */,
 				C62500E52C93C1250026C334 /* Date+Extensions.swift in Sources */,

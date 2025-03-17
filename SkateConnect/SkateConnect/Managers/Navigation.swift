@@ -55,7 +55,6 @@ class Navigation: ObservableObject {
     @Published var activeView: ActiveView = .other
     
     @Published var channelId: String?
-    @Published var channel: NostrEvent?
     
     @Published var selectedUser: User?
     

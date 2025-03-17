@@ -5,11 +5,11 @@
 //  Created by Konstantin Yurchenko, Jr on 8/30/24.
 //
 
+import Combine
 import ConnectFramework
 import SwiftUI
 import NostrSDK
 import SolanaSwift
-import Combine
 
 struct WalletView: View {
     @Environment(\.openURL) private var openURL

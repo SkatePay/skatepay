@@ -44,7 +44,8 @@ class WalletManager: ObservableObject {
     }
     
     @Published var publicKey: String?
-    @Published var aliases: [String] = [] // Add this line
+    @Published var aliases: [String] = []
+    @Published var tokens: [String: TokenMetadata] = [:]
     
     let keychainForSolana = SolanaKeychainStorage()
     
@@ -57,7 +58,8 @@ class WalletManager: ObservableObject {
     
     init() {
         updateApiClient()
-        refreshAliases() // Refresh aliases on initialization
+        refreshAliases()
+        getTokenList()
     }
     
     func getSelectedAccount() -> KeyPair? {
@@ -106,7 +108,7 @@ class WalletManager: ObservableObject {
                 let tokenListUrl = Constants.SOLANA_TOKEN_LIST_URL
                 let networkManager = URLSession.shared
                 let tokenRepository = SolanaTokenListRepository(tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager))
-                
+
                 let (amount, (resolved, _)) = try await (
                     solanaApiClient.getBalance(account: owner, commitment: "recent"),
                     solanaApiClient.getAccountBalances(
@@ -197,6 +199,25 @@ class WalletManager: ObservableObject {
         refreshAliases() // Refresh the list of aliases
     }
     
+    func getTokenList() {
+        let tokenListUrl = Constants.SOLANA_TOKEN_LIST_URL
+        let networkManager = URLSession.shared
+        let tokenRepository = SolanaTokenListRepository(
+            tokenListSource: SolanaTokenListSourceImpl(
+                url: tokenListUrl,
+                networkManager: networkManager
+            )
+        )
+
+        Task {
+            do {
+                self.tokens = try await tokenRepository.all()
+            } catch {
+                print("❌ Failed to fetch token list: \(error)")
+            }
+        }
+    }
+    
     // Format a number for display (e.g., balance)
     static func formatNumber(_ number: UInt64) -> String {
         let formatter = NumberFormatter()
@@ -212,5 +233,9 @@ class WalletManager: ObservableObject {
         } else {
             return "Error formatting number"
         }
+    }
+    
+    func getPublicKey() -> String? {
+        return keychainForSolana.get(alias: selectedAlias)?.keyPair.publicKey.base58EncodedString
     }
 }

@@ -20,6 +20,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     @Environment(\.dismiss) private var dismiss
     
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var eventBus: EventBus
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var network: Network
@@ -65,7 +66,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 shouldScrollToBottom = false
             },
             onTapVideo: handleVideoTap,
-            onTapLink: { channelId, inviteString in
+            onTapLink: { action, channelId, inviteString in
                 selectedChannelId = channelId
                 selectedInviteString = inviteString
 
@@ -130,7 +131,12 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 
                 self.eventListenerForMessages.setPublicKey(publicKey)
                 
-                self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                self.eventListenerForMessages.setDependencies(
+                    dataManager: dataManager,
+                    debugManager: debugManager,
+                    account: account
+                )
+                
                 self.eventListenerForMessages.reset()
                 
                 self.eventPublisher.subscribeToUserWithPublicKey(publicKey)

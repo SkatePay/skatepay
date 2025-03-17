@@ -7,19 +7,33 @@
 
 import CryptoKit
 import SwiftUI
+import SolanaSwift
 import UniformTypeIdentifiers
 
-struct ToolBoxView: View {    
+extension SolanaSwift.Network {
+    var chainId: Int {
+        switch self {
+        case .mainnetBeta: return 101
+        case .testnet, .devnet: return 102
+        }
+    }
+}
+
+struct ToolBoxView: View {
+    @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var uploadManager: UploadManager
-
+    @EnvironmentObject var walletManager: WalletManager
+    
     @State private var showingFilePicker = false
     @State private var selectedMediaURL: URL? = nil
     
-    let keychainForAws = AwsKeychainStorage()
+    @State private var showingRequestPaymentPrompt = false
+    @State private var amountToRequest: String = ""
+    @State var selectedTokenKey: String?
     
     private var channelId: String {
-        navigation.channel?.id ?? ""
+        navigation.channelId ?? ""
     }
     
     var body: some View {
@@ -47,6 +61,130 @@ struct ToolBoxView: View {
                     .sheet(isPresented: $showingFilePicker) {
                         FilePicker(selectedMediaURL: $selectedMediaURL)
                     }
+                    
+                    if hasWallet() {
+                        Button(action: {
+                            showingRequestPaymentPrompt = true
+                        }) {
+                            VStack {
+                                Image(systemName: "creditcard")
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                                    .foregroundColor(.green)
+                                Text("Request Payment")
+                                    .font(.caption)
+                            }
+                        }
+                        .sheet(isPresented: $showingRequestPaymentPrompt) {
+                            VStack(spacing: 20) {
+                                Text("Request Payment")
+                                    .font(.headline)
+
+                                List {
+                                    // Network Picker
+                                    Section("Network") {
+                                        Picker("Network", selection: $walletManager.network) {
+                                            Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta)
+                                            Text("Testnet").tag(SolanaSwift.Network.testnet)
+                                        }
+                                        .onChange(of: walletManager.network) {
+                                            walletManager.refreshAliases()
+                                        }
+                                    }
+                                    
+                                    // Alias Picker
+                                    if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
+                                        Section("Select Account") {
+                                            Picker("Alias", selection: $walletManager.selectedAlias) {
+                                                ForEach(walletManager.aliases, id: \.self) { alias in
+                                                    Text(alias).tag(alias)
+                                                }
+                                            }
+                                            .onChange(of: walletManager.selectedAlias) {
+                                                walletManager.refreshAliases()
+                                            }
+                                        }
+                                        // Token Picker
+                                        let filteredTokens = walletManager.tokens.filter { $0.value.chainId == walletManager.network.chainId }
+
+                                        
+                                        if !filteredTokens.isEmpty {
+                                            Section("Select Token") {
+                                                Picker("Token", selection: $selectedTokenKey) {
+                                                    ForEach(filteredTokens.sorted(by: { $0.value.symbol < $1.value.symbol }), id: \.key) { token in
+                                                        Text(token.value.symbol).tag(token.key as String?)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        Text("You don't have any aliases set up for this network.")
+                                    }
+                                }
+                                TextField("Amount", text: $amountToRequest)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .padding(.horizontal)
+                                    .disableAutocorrection(true)
+                                    .autocapitalization(.none)
+
+                                HStack {
+                                    Button("Request") {
+                                        guard
+                                            let tokenKey = selectedTokenKey,
+                                            let token = walletManager.tokens[tokenKey]
+                                        else {
+                                            print("❌ No valid token selected")
+                                            showingRequestPaymentPrompt = false
+                                            return
+                                        }
+
+                                        let asset = "\(walletManager.network):\(token.mintAddress):\(token.symbol)"
+                                        let address = walletManager.getPublicKey() ?? "UNKNOWN"
+
+                                        print("🧾 Requesting \(amountToRequest) \(token.symbol) from \(address) [Asset: \(asset)]")
+
+                                        let invoice = Invoice(
+                                            asset: asset,
+                                            amount: amountToRequest,
+                                            address: address
+                                        )
+
+                                        guard let invoiceString = MessageHelper.encryptInvoiceToString(invoice: invoice) else {
+                                            print("❌ Encryption failed for invoice")
+                                            showingRequestPaymentPrompt = false
+                                            return
+                                        }
+
+                                        NotificationCenter.default.post(
+                                            name: .publishChannelEvent,
+                                            object: nil,  // You can use `nil` here safely
+                                            userInfo: [
+                                                "channelId": channelId,
+                                                "content": "invoice:\(invoiceString)",
+                                                "kind": Kind.invoice
+                                            ]
+                                        )
+
+                                        print("✅ Invoice posted to channel \(channelId)")
+                                        showingRequestPaymentPrompt = false
+                                    }
+                                    .padding()
+                                    .background(Color.green)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+
+                                    Button("Cancel") {
+                                        showingRequestPaymentPrompt = false
+                                    }
+                                    .padding()
+                                    .background(Color.red)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                }
+                            }
+                            .padding()
+                        }
+                    }
                 }
                 .padding(.horizontal)
             }
@@ -71,10 +209,17 @@ struct ToolBoxView: View {
                 }
             }
         }
+        .onAppear {
+            let filteredTokens = walletManager.tokens.filter { $0.value.chainId == walletManager.network.chainId }
+            if selectedTokenKey == nil, let firstKey = filteredTokens.first?.key {
+                selectedTokenKey = firstKey
+            }
+        }
         .padding(.bottom, 20)
         .background(Color(UIColor.systemBackground))
         .cornerRadius(20)
     }
+
     
     // Async function to post the selected media
     func postSelectedMedia(_ mediaURL: URL) async {
@@ -107,6 +252,11 @@ struct ToolBoxView: View {
         } catch {
             print("Error uploading media: \(error)")
         }
+    }
+    
+    /// Checks if the user has a wallet
+    func hasWallet() -> Bool {
+        return debugManager.hasEnabledDebug
     }
 }
 

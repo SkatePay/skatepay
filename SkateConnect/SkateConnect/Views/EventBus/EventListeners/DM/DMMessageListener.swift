@@ -17,6 +17,7 @@ class DMMessageListener: ObservableObject, EventCreating {
     @Published var timestamp = Int64(0)
     
     private var dataManager: DataManager?
+    private var debugManager: DebugManager?
     private var account: Keypair?
     
     var publicKey: PublicKey?
@@ -74,8 +75,9 @@ class DMMessageListener: ObservableObject, EventCreating {
         self.publicKey = publicKey
     }
     
-    func setDependencies(dataManager: DataManager, account: Keypair) {
+    func setDependencies(dataManager: DataManager, debugManager: DebugManager, account: Keypair) {
         self.dataManager = dataManager
+        self.debugManager = debugManager
         self.account = account
     }
     
@@ -86,6 +88,8 @@ class DMMessageListener: ObservableObject, EventCreating {
             return nil
         }
 
+        let hasWallet = debugManager?.hasEnabledDebug ?? false
+        
         do {
             let decryptedText = try legacyDecrypt(
                 encryptedContent: event.content,
@@ -98,7 +102,7 @@ class DMMessageListener: ObservableObject, EventCreating {
                 .content(decryptedText)
                 .build(pubkey: event.pubkey)
                                     
-            return MessageHelper.parseEventIntoMessage(event: decryptedEvent, account: account)
+            return MessageHelper.parseEventIntoMessage(event: decryptedEvent, account: account, hasWallet: hasWallet)
         } catch {
             print("Decryption failed: \(error.localizedDescription)")
             return nil

@@ -32,14 +32,14 @@ struct ChannelSubscriptionKey: Hashable {
 
 class Network: ObservableObject, RelayDelegate, EventCreating {
     let log = OSLog(subsystem: "SkateConnect", category: "Network")
-
+    
     @Published var relayPool: RelayPool?
     @Published var connected = false
     
     private var favoriteSubscriptions = Set<String>()
     
     private var processedEvents = Set<String>()
-
+    
     // Channels
     private var channelSubscriptions: [ChannelSubscriptionKey: Subscription] = [:]
     
@@ -119,7 +119,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     
     func backupActiveSession() {
         os_log("🔄 backupActiveSession", log: log, type: .info)
-//        stop()
+        //        stop()
     }
     
     func start() {
@@ -130,7 +130,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             return
         }
         
-
+        
         stopped = false
         
         self.connect()
@@ -138,16 +138,16 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     
     func stop() {
         os_log("⏳ stopping network", log: log, type: .info)
-                
+        
         guard let pool = self.relayPool else {
             os_log("🔥 relay pool is unavailable", log: log, type: .error)
             return
         }
         
         os_log("🛑 network shutting down", log: log)
-                
+        
         channelSubscriptions.removeAll()
-
+        
         userMessagesSubscriptions.removeAll()
         
         subscriptionIdToEntity.keys.forEach { pool.closeSubscription(with: $0) }
@@ -157,7 +157,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         
         stopped = true
     }
-
+    
     func connect() {
         let url = Constants.RELAY_URL_SKATEPARK
         os_log("⏳ network connecting to %@", log: log, type: .info, url)
@@ -204,19 +204,19 @@ extension Network {
     
     func requestOnboardingInfo() {
         os_log("⏳ requesting onboarding", log: log, type: .info)
-
+        
         if (!needsOnboarding()) {
             return
         }
         
         var account = keychainForNostr.account // Create a mutable variable
-
+        
         if account == nil {
             os_log("🔥 can't get account", log: log, type: .error)
             account = createIdentity() // ✅ Assign the new identity
             processFavorites()
         }
-
+        
         guard let validAccount = account else {
             os_log("🔥 can't create identity", log: log, type: .error)
             return
@@ -305,7 +305,7 @@ extension Network {
             if (self.favoriteSubscriptions.contains(subscriptionId)) {
                 return
             }
-        
+            
             os_log("📩 EOSE received %@", log: self.log, type: .info, subscriptionId)
             
             EventBus.shared.didReceiveEOSE.send(response)
@@ -391,14 +391,14 @@ extension Network {
         let key = ChannelSubscriptionKey(channelId: channelId, kind: kind)
         return channelSubscriptions[key]
     }
-
+    
     func setSubscription(_ subscription: Subscription, for channelId: String, kind: EventKind) {
         let key = ChannelSubscriptionKey(channelId: channelId, kind: kind)
         channelSubscriptions[key] = subscription
         
         EventBus.shared.didReceiveChannelSubscription.send((key, subscription.id))
     }
-
+    
     func removeSubscription(for channelId: String, kind: EventKind) {
         let key = ChannelSubscriptionKey(channelId: channelId, kind: kind)
         channelSubscriptions.removeValue(forKey: key)
@@ -497,14 +497,14 @@ extension Network {
             let subscription = Subscription(id: subscriptionId, type: .channel)
             setSubscription(subscription, for: channelId, kind: .channelCreation)
             subscriptionIdToEntity[subscriptionId] = channelId
-                        
+            
             os_log("✔️ Subscribed to %@ %@ with subscriptionId %@", log: log, type: .info, String(describing: EventKind.channelCreation), channelId, subscriptionId)
         }
     }
     
     private func subscribeToChannelMessages(_ channelId: String) {
         os_log("⏳ subscribing to %@ [%@]", log: log, type: .info, String(describing: EventKind.channelMessage), channelId)
-
+        
         if let subscription = getSubscription(for: channelId, kind: .channelMessage) {
             os_log("🔄 Resubscribing to %@: %@ with existing subscription: %@", log: log, type: .info, String(describing: EventKind.channelMessage), channelId, subscription.id)
             relayPool?.closeSubscription(with: subscription.id)
@@ -521,7 +521,7 @@ extension Network {
         
         if let subscriptionId = subscribeIfNeeded(filter) {
             EventBus.shared.didReceiveChannelMessagesSubscription.send((channelId, subscriptionId))
-
+            
             let subscription = Subscription(id: subscriptionId, type: .channel)
             setSubscription(subscription, for: channelId, kind: .channelMessage)
             subscriptionIdToEntity[subscriptionId] = channelId
@@ -564,7 +564,7 @@ extension Network {
             EventBus.shared.didReceiveDMSubscription.send((publicKey, subscriptionId))
             
             let subscription = Subscription(id: subscriptionId, type: .directMessage)
-
+            
             userMessagesSubscriptions[publicKey.hex] = subscription
             subscriptionIdToEntity[subscriptionId] = publicKey.hex
             
@@ -581,10 +581,10 @@ extension Network {
                 processedEvents.insert(event.event.id)
                 
                 switch event.event.kind {
-                    case .legacyEncryptedDirectMessage: handleDirectMessage(event)
-                    case .channelCreation: handleChannelCreation(event)
-                    case .channelMessage: handleChannelMessage(event)
-                    default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
+                case .legacyEncryptedDirectMessage: handleDirectMessage(event)
+                case .channelCreation: handleChannelCreation(event)
+                case .channelMessage: handleChannelMessage(event)
+                default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
                 }
             } else {
                 os_log("🛑 dropping event", log: log, type: .info)
@@ -592,11 +592,11 @@ extension Network {
             }
         } else {
             switch event.event.kind {
-                case .legacyEncryptedDirectMessage: EventBus.shared.didReceiveDMMessage.send(event)
-                case .channelCreation: EventBus.shared.didReceiveChannelData.send(event)
-                case .channelMetadata: EventBus.shared.didReceiveChannelData.send(event)
-                case .channelMessage: EventBus.shared.didReceiveChannelMessage.send(event)
-                default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
+            case .legacyEncryptedDirectMessage: EventBus.shared.didReceiveDMMessage.send(event)
+            case .channelCreation: EventBus.shared.didReceiveChannelData.send(event)
+            case .channelMetadata: EventBus.shared.didReceiveChannelData.send(event)
+            case .channelMessage: EventBus.shared.didReceiveChannelMessage.send(event)
+            default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
             }
         }
     }
@@ -678,7 +678,7 @@ extension Network {
             let contentStructure = ContentStructure(content: content, kind: .message)
             let jsonData = try JSONEncoder().encode(contentStructure)
             let content = String(data: jsonData, encoding: .utf8) ?? content
-
+            
             let directMessage = try legacyEncryptedDirectMessage(
                 withContent: content,
                 toRecipient: pubKey,
@@ -724,6 +724,17 @@ extension Network {
                 }
             }
             .store(in: &cancellables)
+        
+        // Invoice
+        NotificationCenter.default.publisher(for: .publishChannelEvent)
+            .sink { [weak self] notification in
+                guard let channelId = notification.userInfo?["channelId"] as? String,
+                      let content = notification.userInfo?["content"] as? String,
+                let kind = notification.userInfo?["kind"] as? Kind else { return }
+                self?.publishChannelEvent(channelId: channelId, kind: kind, content: content)
+                
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -737,10 +748,10 @@ extension Notification.Name {
     static let createdChannelForOutbound = Notification.Name("createdChannelForOutbound")
     static let receivedDirectMessage = Notification.Name("receivedDirectMessage")
     static let receivedChannelMessage = Notification.Name("receivedChannelMessage")
-        
+    
     // Camera
     static let didFinishRecordingTo = Notification.Name("didFinishRecordingTo")
-
+    
     // Location
     static let markSpot = Notification.Name("markSpot")
     static let updateSpot = Notification.Name("updateSpot")
@@ -759,4 +770,8 @@ extension Notification.Name {
     static let updateChannelMetadata = Notification.Name("updateChannelMetadata")
     static let subscribeToChannel = Notification.Name("subscribeToChannel")
     static let muteUser = Notification.Name("muteUser")
+    
+    // Publish
+    static let publishChannelEvent = Notification.Name("publishChannelEvent")
+    static let publishDMEvent = Notification.Name("publishDMEvent")
 }
