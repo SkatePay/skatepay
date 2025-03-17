@@ -32,6 +32,8 @@ struct ToolBoxView: View {
     @State private var amountToRequest: String = ""
     @State var selectedTokenKey: String?
     
+    @State private var selectedAssetType: AssetType = .sol
+    
     private var channelId: String {
         navigation.channelId ?? ""
     }
@@ -104,21 +106,32 @@ struct ToolBoxView: View {
                                                 walletManager.refreshAliases()
                                             }
                                         }
-                                        // Token Picker
-                                        let filteredTokens = walletManager.tokens.filter { $0.value.chainId == walletManager.network.chainId }
-
                                         
-                                        if !filteredTokens.isEmpty {
-                                            Section("Select Token") {
-                                                Picker("Token", selection: $selectedTokenKey) {
-                                                    ForEach(filteredTokens.sorted(by: { $0.value.symbol < $1.value.symbol }), id: \.key) { token in
-                                                        Text(token.value.symbol).tag(token.key as String?)
+                                        Picker("Asset Type", selection: $selectedAssetType) {
+                                            ForEach(AssetType.allCases, id: \.self) { type in
+                                                Text(type.rawValue).tag(type)
+                                            }
+                                        }
+                                        .pickerStyle(SegmentedPickerStyle())
+                                        .padding(.horizontal)
+                                        
+                                        if selectedAssetType == .token {
+                                            // Token Picker
+                                            let filteredTokens = walletManager.tokens.filter { $0.value.chainId == walletManager.network.chainId }
+                                            
+                                            
+                                            if !filteredTokens.isEmpty {
+                                                Section("Select Token") {
+                                                    Picker("Token", selection: $selectedTokenKey) {
+                                                        ForEach(filteredTokens.sorted(by: { $0.value.symbol < $1.value.symbol }), id: \.key) { token in
+                                                            Text(token.value.symbol).tag(token.key as String?)
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     } else {
-                                        Text("You don't have any aliases set up for this network.")
+                                        Text("Your wallet is not setup for this network.")
                                     }
                                 }
                                 TextField("Amount", text: $amountToRequest)
@@ -129,19 +142,30 @@ struct ToolBoxView: View {
 
                                 HStack {
                                     Button("Request") {
-                                        guard
-                                            let tokenKey = selectedTokenKey,
-                                            let token = walletManager.tokens[tokenKey]
-                                        else {
-                                            print("❌ No valid token selected")
-                                            showingRequestPaymentPrompt = false
-                                            return
+                                        let asset: String
+                                        let symbol: String
+
+                                        switch selectedAssetType {
+                                        case .sol:
+                                            asset = "\(walletManager.network):SOL_NATIVE:SOL"
+                                            symbol = "SOL"
+
+                                        case .token:
+                                            guard
+                                                let tokenKey = selectedTokenKey,
+                                                let token = walletManager.tokens[tokenKey]
+                                            else {
+                                                print("❌ No valid token selected")
+                                                showingRequestPaymentPrompt = false
+                                                return
+                                            }
+                                            asset = "\(walletManager.network):\(token.mintAddress):\(token.symbol)"
+                                            symbol = token.symbol
                                         }
 
-                                        let asset = "\(walletManager.network):\(token.mintAddress):\(token.symbol)"
                                         let address = walletManager.getPublicKey() ?? "UNKNOWN"
 
-                                        print("🧾 Requesting \(amountToRequest) \(token.symbol) from \(address) [Asset: \(asset)]")
+                                        print("🧾 Requesting \(amountToRequest) \(symbol) from \(address) [Asset: \(asset)]")
 
                                         let invoice = Invoice(
                                             asset: asset,
@@ -157,7 +181,7 @@ struct ToolBoxView: View {
 
                                         NotificationCenter.default.post(
                                             name: .publishChannelEvent,
-                                            object: nil,  // You can use `nil` here safely
+                                            object: nil,
                                             userInfo: [
                                                 "channelId": channelId,
                                                 "content": "invoice:\(invoiceString)",
@@ -167,8 +191,7 @@ struct ToolBoxView: View {
 
                                         print("✅ Invoice posted to channel \(channelId)")
                                         showingRequestPaymentPrompt = false
-                                    }
-                                    .padding()
+                                    }                                    .padding()
                                     .background(Color.green)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)

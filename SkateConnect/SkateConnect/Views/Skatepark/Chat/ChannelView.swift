@@ -149,7 +149,7 @@ struct ChannelView: View {
                         Button(action: {
                             self.isShowingToolBoxView.toggle()
                         }) {
-                            Image(systemName: "paintpalette.fill")
+                            Image(systemName: "menucard.fill")
                                 .foregroundColor(.blue)
                         }
                         
@@ -278,7 +278,7 @@ struct ChannelView: View {
                 if let invoice = selectedInvoice {
                     UIPasteboard.general.string = invoice.address
                 } else {
-                    UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
+                    UIPasteboard.general.string = "invoice:NOT_AVAILABLE"
                 }
             }
             Button("Cancel", role: .cancel) { }

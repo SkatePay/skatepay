@@ -12,6 +12,11 @@ import NostrSDK
 import SolanaSwift
 import Combine
 
+enum AssetType: String, CaseIterable {
+    case sol = "SOL"
+    case token = "Token"
+}
+
 extension UserDefaults {
     var selectedAlias: String {
         get { string(forKey: Keys.selectedAlias) ?? "" }
