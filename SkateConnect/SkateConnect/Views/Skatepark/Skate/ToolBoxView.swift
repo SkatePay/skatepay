@@ -124,7 +124,7 @@ struct ToolBoxView: View {
                                                 Section("Select Token") {
                                                     Picker("Token", selection: $selectedTokenKey) {
                                                         ForEach(filteredTokens.sorted(by: { $0.value.symbol < $1.value.symbol }), id: \.key) { token in
-                                                            Text(token.value.symbol).tag(token.key as String?)
+                                                            Text("\(token.value.symbol)").tag(token.key as String?)
                                                         }
                                                     }
                                                 }

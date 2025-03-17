@@ -142,6 +142,14 @@ struct ContentView: View {
                         selectedTab: $navigation.tab
                     )
                     
+                    // Settings Tab
+                    TabButton(
+                        tab: .settings,
+                        label: "Settings",
+                        systemImage: "gearshape",
+                        selectedTab: $navigation.tab
+                    )
+                    
                     // Wallet Tab (conditionally shown)
                     if shouldShowWalletView {
                         TabButton(
@@ -151,14 +159,6 @@ struct ContentView: View {
                             selectedTab: $navigation.tab
                         )
                     }
-                    
-                    // Settings Tab
-                    TabButton(
-                        tab: .settings,
-                        label: "Settings",
-                        systemImage: "gearshape",
-                        selectedTab: $navigation.tab
-                    )
                 }
                 .padding(.vertical, 8)
                 .background(Color(.systemBackground))

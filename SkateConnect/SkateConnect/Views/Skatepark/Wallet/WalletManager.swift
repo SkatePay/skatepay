@@ -302,18 +302,7 @@ class WalletManager: ObservableObject {
 }
 
 
-extension WalletManager {
-    private func resolveTokenConfig() -> (String, String) {
-        switch network {
-        case .mainnetBeta:
-            return (Constants.SOLANA_MAIN.MINT_ADDRESS, Constants.SOLANA_MAIN.TOKEN_PROGRAM_ID)
-        case .testnet:
-            return (Constants.SOLANA_TEST.MINT_ADDRESS, Constants.SOLANA_TEST.TOKEN_PROGRAM_ID)
-        case .devnet:
-            return (Constants.SOLANA_DEV.MINT_ADDRESS, Constants.SOLANA_DEV.TOKEN_PROGRAM_ID)
-        }
-    }
-    
+extension WalletManager {    
     func sendAsset(
         type: TransferType,
         to recipientAddress: String,
@@ -354,13 +343,11 @@ extension WalletManager {
                 )
 
             case .token(let tokenAccount):
-                let (mintAddress, tokenProgramId) = resolveTokenConfig()
-
                 preparedTransaction = try await blockchainClient
                     .prepareSendingSPLTokens(
                         account: account,
-                        mintAddress: mintAddress,
-                        tokenProgramId: PublicKey(string: tokenProgramId),
+                        mintAddress: tokenAccount.mintAddress,
+                        tokenProgramId: PublicKey(string: tokenAccount.tokenProgramId),
                         decimals: tokenAccount.decimals,
                         from: tokenAccount.address,
                         to: recipientAddress,
