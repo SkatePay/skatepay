@@ -214,116 +214,41 @@ private extension TransferAsset {
         } else {
             recipientAddress = solanaAddress
         }
-
+        
         // Validation
         if recipientAddress.isEmpty {
             alertMessage = "Please enter a valid recipient address."
             showingAlert = true
             return
         }
-
+        
         if amount <= 0 {
             alertMessage = "Amount must be greater than zero."
             showingAlert = true
             return
         }
-
+        
         sendAsset(to: recipientAddress)
     }
-
+    
     func sendAsset(to address: String) {
         Task {
-            do {
-                await MainActor.run { loading = true }
+            await MainActor.run { loading = true }
 
-                guard let account = walletManager.getSelectedAccount() else {
-                    throw URLError(.badServerResponse)
-                }
+            let result = await walletManager.sendAsset(
+                type: transferType,
+                to: address,
+                amount: UInt64(amount)
+            )
 
-                let preparedTransaction: PreparedTransaction
-                switch transferType {
-                case .sol:
-                    let minRentExemption = try await walletManager.solanaApiClient.getMinimumBalanceForRentExemption(dataLength: 0, commitment: "confirmed")
-
-                    let feeCalculator = DefaultFeeCalculator(
-                        lamportsPerSignature: 5000,
-                        minRentExemption: minRentExemption
-                    )
-                    
-                    let recipientAddress = try PublicKey(string: address)
-
-                    let amountInLamports = UInt64(amount) // Amount of SOL to send (in lamports)
-                    let rentExemption = minRentExemption // Rent exemption for the recipient's account
-
-                    // Check if the recipient's account exists
-                    let recipientBalance = try await walletManager.solanaApiClient.getBalance(account: address, commitment: "confirmed")
-
-                    let totalLamports: UInt64
-                    if recipientBalance == 0 {
-                        // Recipient's account does not exist; include rent exemption
-                        totalLamports = amountInLamports + rentExemption
-                    } else {
-                        // Recipient's account exists; send only the amount
-                        totalLamports = amountInLamports
-                    }
-
-                    // Create the transfer instruction
-                    let instruction = SystemProgram.transferInstruction(
-                        from: account.publicKey,
-                        to: recipientAddress,
-                        lamports: totalLamports
-                    )
-
-                    // Prepare and send the transaction
-                    preparedTransaction = try await walletManager.blockchainClient.prepareTransaction(
-                        instructions: [instruction],
-                        signers: [account],
-                        feePayer: account.publicKey,
-                        feeCalculator: feeCalculator
-                    )
-                case .token(let tokenAccount):
-                    var mintAddress = Constants.SOLANA_DEV.MINT_ADDRESS
-                    var tokenProgramId = Constants.SOLANA_DEV.TOKEN_PROGRAM_ID
-                    
-                    if (walletManager.network == .testnet) {
-                        mintAddress = Constants.SOLANA_TEST.MINT_ADDRESS
-                        tokenProgramId = Constants.SOLANA_TEST.TOKEN_PROGRAM_ID
-                    }
-                    
-                    if (walletManager.network == .mainnetBeta) {
-                        mintAddress = Constants.SOLANA_MAIN.MINT_ADDRESS
-                        tokenProgramId = Constants.SOLANA_MAIN.TOKEN_PROGRAM_ID
-                    }
-                    
-                    preparedTransaction = try await walletManager.blockchainClient
-                        .prepareSendingSPLTokens(
-                            account: account,
-                            mintAddress: mintAddress,
-                            tokenProgramId: PublicKey(string: tokenProgramId),
-                            decimals: 9,
-                            from: tokenAccount.address,
-                            to: address,
-                            amount: UInt64(amount),
-                            lamportsPerSignature: 5000,
-                            minRentExemption: 0
-                        )
-                        .preparedTransaction
-                }
-
-                let txID = try await walletManager.blockchainClient.sendTransaction(
-                    preparedTransaction: preparedTransaction
-                )
-
-                await MainActor.run {
-                    loading = false
+            await MainActor.run {
+                loading = false
+                switch result {
+                case .success(let txId):
+                    transactionId = txId
                     showingAlert = true
-                    transactionId = txID
-                }
-            } catch {
-                print("Error sending tokens:", error)
-                await MainActor.run {
-                    loading = false
-                    alertMessage = "Failed to send transaction. Please try again."
+                case .failure(let error):
+                    alertMessage = error.localizedDescription
                     showingAlert = true
                 }
             }

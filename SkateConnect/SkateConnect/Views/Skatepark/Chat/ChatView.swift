@@ -24,7 +24,7 @@ final class MessageSwiftUIVC: MessagesViewController {
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
-    let onTapLink: (ChatAction, String, String) -> Void
+    let onTapLink: (ChatAction, String, String, Bool) -> Void
     
     var firstTime = false
     
@@ -33,7 +33,7 @@ final class MessageSwiftUIVC: MessagesViewController {
     init(
         onTapAvatar: @escaping (String) -> Void,
         onTapVideo: @escaping (MessageType) -> Void,
-        onTapLink: @escaping (ChatAction, String, String) -> Void
+        onTapLink: @escaping (ChatAction, String, String, Bool) -> Void
     ) {
         self.onTapAvatar = onTapAvatar
         self.onTapVideo = onTapVideo
@@ -66,7 +66,7 @@ struct ChatView: UIViewControllerRepresentable {
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
-    let onTapLink: (ChatAction, String, String) -> Void
+    let onTapLink: (ChatAction, String, String, Bool) -> Void
     let onSend: (String) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
@@ -346,8 +346,10 @@ extension ChatView.Coordinator: MessageCellDelegate {
             print("🆔 Channel ID: \(channelId)")
             print("🎬 Action: \(action)")
             
+            let isOwner = currentSender.senderId == message.sender.senderId
+            
             if !channelId.isEmpty, let attributedText = linkItem.attributedText {
-                parent.onTapLink(action, channelId, attributedText.string)
+                parent.onTapLink(action, channelId, attributedText.string, isOwner)
             } else {
                 print("❌ Failed to extract channel ID or attributed text")
             }

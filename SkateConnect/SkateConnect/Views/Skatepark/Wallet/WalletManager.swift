@@ -5,16 +5,22 @@
 //  Created by Konstantin Yurchenko, Jr on 9/12/24.
 //
 
+import Combine
 import ConnectFramework
 import Foundation
-import SwiftUI
 import NostrSDK
 import SolanaSwift
-import Combine
+import SwiftUI
+import UIKit
 
 enum AssetType: String, CaseIterable {
     case sol = "SOL"
     case token = "Token"
+}
+
+enum AssetSendResult {
+    case success(transactionId: String)
+    case failure(error: Error)
 }
 
 extension UserDefaults {
@@ -148,6 +154,56 @@ class WalletManager: ObservableObject {
         }
     }
     
+    func fetchAccountDetails(completion: @escaping (Result<[SolanaAccount], Error>) -> Void) {
+        Task {
+            do {
+                let height = try await solanaApiClient.getBlockHeight()
+
+                let owner = keychainForSolana.get(alias: selectedAlias)?.keyPair.publicKey.base58EncodedString ?? ""
+
+                let tokenListUrl = Constants.SOLANA_TOKEN_LIST_URL
+                let networkManager = URLSession.shared
+                let tokenRepository = SolanaTokenListRepository(
+                    tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager)
+                )
+
+                let (amount, (resolved, _)) = try await (
+                    solanaApiClient.getBalance(account: owner, commitment: "recent"),
+                    solanaApiClient.getAccountBalances(
+                        for: owner,
+                        withToken2022: true,
+                        tokensRepository: tokenRepository,
+                        commitment: "confirmed"
+                    )
+                )
+
+                let accounts = resolved.compactMap { accountBalance -> SolanaAccount? in
+                    guard let pubKey = accountBalance.pubkey else { return nil }
+                    return SolanaAccount(
+                        address: pubKey,
+                        lamports: accountBalance.lamports ?? 0,
+                        token: accountBalance.token,
+                        minRentExemption: accountBalance.minimumBalanceForRentExemption,
+                        tokenProgramId: accountBalance.tokenProgramId
+                    )
+                }
+
+                // Update state on main thread
+                await MainActor.run {
+                    self.blockHeight = height
+                    self.balance = amount
+                    self.accounts = accounts
+                }
+
+                completion(.success(accounts))
+
+            } catch {
+                print("❌ fetchAccountDetails failed: \(error)")
+                completion(.failure(error))
+            }
+        }
+    }
+    
     // Add a new key pair with an alias and network
     func addKey(alias: String, privateKey: String, network: SolanaSwift.Network) throws {
         guard !alias.isEmpty, !privateKey.isEmpty else {
@@ -242,5 +298,85 @@ class WalletManager: ObservableObject {
     
     func getPublicKey() -> String? {
         return keychainForSolana.get(alias: selectedAlias)?.keyPair.publicKey.base58EncodedString
+    }
+}
+
+
+extension WalletManager {
+    private func resolveTokenConfig() -> (String, String) {
+        switch network {
+        case .mainnetBeta:
+            return (Constants.SOLANA_MAIN.MINT_ADDRESS, Constants.SOLANA_MAIN.TOKEN_PROGRAM_ID)
+        case .testnet:
+            return (Constants.SOLANA_TEST.MINT_ADDRESS, Constants.SOLANA_TEST.TOKEN_PROGRAM_ID)
+        case .devnet:
+            return (Constants.SOLANA_DEV.MINT_ADDRESS, Constants.SOLANA_DEV.TOKEN_PROGRAM_ID)
+        }
+    }
+    
+    func sendAsset(
+        type: TransferType,
+        to recipientAddress: String,
+        amount: UInt64
+    ) async -> AssetSendResult {
+        do {
+            guard let account = getSelectedAccount() else {
+                return .failure(error: NSError(domain: "WalletManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "No selected account"]))
+            }
+
+            let preparedTransaction: PreparedTransaction
+
+            switch type {
+            case .sol:
+                let minRentExemption = try await solanaApiClient.getMinimumBalanceForRentExemption(dataLength: 0, commitment: "confirmed")
+
+                let feeCalculator = DefaultFeeCalculator(
+                    lamportsPerSignature: 5000,
+                    minRentExemption: minRentExemption
+                )
+
+                let recipientPubKey = try PublicKey(string: recipientAddress)
+                let recipientBalance = try await solanaApiClient.getBalance(account: recipientAddress, commitment: "confirmed")
+
+                let totalLamports: UInt64 = recipientBalance == 0 ? amount + minRentExemption : amount
+
+                let instruction = SystemProgram.transferInstruction(
+                    from: account.publicKey,
+                    to: recipientPubKey,
+                    lamports: totalLamports
+                )
+
+                preparedTransaction = try await blockchainClient.prepareTransaction(
+                    instructions: [instruction],
+                    signers: [account],
+                    feePayer: account.publicKey,
+                    feeCalculator: feeCalculator
+                )
+
+            case .token(let tokenAccount):
+                let (mintAddress, tokenProgramId) = resolveTokenConfig()
+
+                preparedTransaction = try await blockchainClient
+                    .prepareSendingSPLTokens(
+                        account: account,
+                        mintAddress: mintAddress,
+                        tokenProgramId: PublicKey(string: tokenProgramId),
+                        decimals: tokenAccount.decimals,
+                        from: tokenAccount.address,
+                        to: recipientAddress,
+                        amount: amount,
+                        lamportsPerSignature: 5000,
+                        minRentExemption: 0
+                    )
+                    .preparedTransaction
+            }
+
+            let txID = try await blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
+            return .success(transactionId: txID)
+
+        } catch {
+            print("❌ Error sending asset: \(error)")
+            return .failure(error: error)
+        }
     }
 }

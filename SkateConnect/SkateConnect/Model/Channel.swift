@@ -85,6 +85,7 @@ enum ChannelEmoji: String, CaseIterable, Identifiable {
     case note = "📝"
     case idea = "💡"
     case camp = "⛺️"
+    case bank = "🏦"
     
     var id: String { rawValue }
 }

@@ -342,6 +342,7 @@ extension MessageHelper {
             return MockMessage(text: invoice.asset, user: user, messageId: event.id, date: event.createdDate)
         }
 
+        let network = parts[0]
         let symbol = parts[2]
 
         guard let encoded = Invoice.encodeInvoiceToString(invoice) else {
@@ -353,8 +354,14 @@ extension MessageHelper {
 
         let invoiceAttributedString = NSAttributedString(string: encoded)
 
+        var text = "🫴 Transfer Request"
+        
+        if (network == "testnet") {
+            text = "🫴 Transfer Request (TESTNET)"
+        }
+        
         let linkItem = MockLinkItem(
-            text: "🫴 Transfer Request",
+            text: text,
             attributedText: invoiceAttributedString,
             url: url,
             title: "\(invoice.amount) \(symbol)",

@@ -66,7 +66,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 shouldScrollToBottom = false
             },
             onTapVideo: handleVideoTap,
-            onTapLink: { action, channelId, inviteString in
+            onTapLink: { action, channelId, inviteString, isOwner in
                 selectedChannelId = channelId
                 selectedInviteString = inviteString
 

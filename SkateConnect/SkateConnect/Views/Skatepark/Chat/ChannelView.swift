@@ -13,6 +13,7 @@ import MessageKit
 import NostrSDK
 import Combine
 import CoreLocation
+import SolanaSwift
 import SwiftData
 import SwiftUI
 import UIKit
@@ -48,6 +49,8 @@ struct ChannelView: View {
     @State private var showingMediaActionSheet = false
     @State private var showingInviteActionSheet = false
     @State private var showingInvoiceActionSheet = false
+    @State private var showingTransactionAlert = false
+    @State private var showingRefusalAlert = false
     
     // Action State
     @State private var selectedChannelId: String? = nil
@@ -56,6 +59,10 @@ struct ChannelView: View {
     @State private var selectedInvoiceString: String? = nil
     @State private var selectedInvoice: Invoice? = nil
 
+    // Asset transfer
+    @State private var transactionId: String = ""
+    @State private var alertMessage: String = ""
+    
     // View State
     @State private var shouldScrollToBottom = true
 
@@ -79,15 +86,19 @@ struct ChannelView: View {
                     }
                     shouldScrollToBottom = false
                 },
-                onTapLink: { action, channelId, dataString in
+                onTapLink: { action, channelId, dataString, isOwner in
                     if action == .invite {
                         selectedInviteString = dataString
                         showingInviteActionSheet = true
                     }
                     
                     if action == .invoice {
-                        setSelectedInvoiceString(dataString)
-                        showingInvoiceActionSheet = true
+                        if isOwner {
+                            showingRefusalAlert = true
+                        } else {
+                            setSelectedInvoiceString(dataString)
+                            showingInvoiceActionSheet = true
+                        }
                     }
                     
                     selectedChannelId = channelId
@@ -283,11 +294,21 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-    }
-    
-    func setSelectedInvoiceString(_ invoiceString: String) {
-        selectedInvoiceString = invoiceString
-        selectedInvoice = Invoice.decodeInvoiceFromString(invoiceString)
+        .confirmationDialog("Can't pay your own invoice.", isPresented: $showingRefusalAlert, titleVisibility: .visible) {
+            Button("Okay", role: .cancel) {
+                showingRefusalAlert = false
+            }
+        }
+        .alert(isPresented: $showingTransactionAlert) {
+            Alert(
+                title: Text(transactionId.isEmpty ? "Error" : "Success"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("OK")) {
+                    showingTransactionAlert = true
+                    transactionId = ""
+                }
+            )
+        }
     }
     
     // MARK: Blacklist
@@ -300,14 +321,95 @@ struct ChannelView: View {
 
         navigation.joinChannel(channelId: channelId)
     }
+
+    private func downloadVideo(from url: URL) {
+        print("Downloading video from \(url)")
+    }
+}
+
+// MARK: - Invoice
+
+private extension ChannelView {
+    func setSelectedInvoiceString(_ invoiceString: String) {
+        selectedInvoiceString = invoiceString
+        selectedInvoice = Invoice.decodeInvoiceFromString(invoiceString)
+    }
     
     private func openWallet() {
         guard let invoice = selectedInvoice else { return }
-        print("Paying invoice: \(invoice.address) \(invoice.amount) \(invoice.asset) ")
+
+        let parts = invoice.asset.split(separator: ":").map(String.init)
+        guard parts.count == 3 else {
+            print("❌ Invalid asset format: \(invoice.asset)")
+            return
+        }
+
+        let networkString = parts[0]
+        let mintAddress = parts[1]
+        let _ = parts[2]
+
+        guard let targetNetwork = SolanaSwift.Network(rawValue: networkString) else {
+            print("❌ Invalid network in asset: \(networkString)")
+            return
+        }
+
+        guard let amountDecimal = Double(invoice.amount) else {
+            print("❌ Invalid decimal amount in invoice: \(invoice.amount)")
+            return
+        }
+        
+        // 🔄 Switch network if needed
+        if walletManager.network != targetNetwork {
+            walletManager.network = targetNetwork
+            walletManager.updateApiClient()
+            walletManager.refreshAliases()
+        }
+
+        // ⏳ Fetch latest wallet data
+        walletManager.fetchAccountDetails { result in
+            switch result {
+            case .success:
+                processInvoicePayment(invoice: invoice, mintAddress: mintAddress, amountDecimal: amountDecimal)
+            case .failure(let error):
+                alertMessage = "❌ Failed to fetch wallet data: \(error)"
+                showingTransactionAlert = true
+            }
+        }
     }
     
-    private func downloadVideo(from url: URL) {
-        print("Downloading video from \(url)")
+    private func processInvoicePayment(invoice: Invoice, mintAddress: String, amountDecimal: Double) {
+        let transferType: TransferType
+        let amountUInt64: UInt64
+
+        if mintAddress == "SOL_NATIVE" {
+            transferType = .sol
+            amountUInt64 = UInt64(amountDecimal * 1_000_000_000)
+        } else {
+            guard let tokenAccount = walletManager.accounts.first(where: { $0.token.mintAddress == mintAddress }) else {
+                alertMessage = "❌ No token account for mint: \(mintAddress)"
+                showingTransactionAlert = true
+                return
+            }
+
+            let factor = pow(10.0, Double(tokenAccount.decimals))
+            amountUInt64 = UInt64(amountDecimal * factor)
+            transferType = .token(tokenAccount)
+        }
+
+        Task {
+            let result = await walletManager.sendAsset(type: transferType, to: invoice.address, amount: amountUInt64)
+
+            await MainActor.run {
+                switch result {
+                case .success(let txId):
+                    transactionId = txId
+                    alertMessage = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
+                case .failure(let error):
+                    alertMessage = "❌ Failed to pay invoice: \(error.localizedDescription)"
+                }
+                showingTransactionAlert = true
+            }
+        }
     }
 }
 
