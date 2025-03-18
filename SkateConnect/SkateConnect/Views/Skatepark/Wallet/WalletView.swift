@@ -19,6 +19,7 @@ struct WalletView: View {
     @EnvironmentObject var walletManager: WalletManager
     
     @State private var loading = false
+    @State private var error: Error?
     
     @State private var showDropConfirmation = false
     @State private var aliasToDrop: String? = nil
@@ -37,8 +38,9 @@ struct WalletView: View {
                  .onChange(of: walletManager.network) {
                      walletManager.updateApiClient()
                      walletManager.refreshAliases()
-                     walletManager.fetch { isLoading in
-                        loading = isLoading
+                     walletManager.fetch { isLoading, error in
+                         self.loading = isLoading
+                         self.error = error
                      }
                  }
              }
@@ -53,8 +55,9 @@ struct WalletView: View {
                     .onChange(of: walletManager.selectedAlias) {
                         walletManager.updateApiClient()
                         walletManager.refreshAliases()
-                        walletManager.fetch { isLoading in
-                            loading = isLoading
+                        walletManager.fetch { isLoading, error in
+                            self.loading = isLoading
+                            self.error = error
                         }
                     }
                 }
@@ -78,8 +81,9 @@ struct WalletView: View {
             }
         }
         .onAppear() {
-            walletManager.fetch { isLoading in
-                loading = isLoading
+            walletManager.fetch { isLoading, error in
+                self.loading = isLoading
+                self.error = error
             }
         }
         .alert("Drop alias?",
@@ -110,32 +114,36 @@ private extension WalletView {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .frame(maxHeight: .infinity)
             } else {
-                if (walletManager.balance > 0) {
-                    Button(action: {
-                        navigation.path.append(NavigationPathType.transferAsset(transferType: .sol))
-                    }) {
-                        Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
-                    }
+                if let error = error?.localizedDescription {
+                    Text(error)
                 } else {
-                    Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
-                }
-
-                ForEach(walletManager.accounts) { account in
-                    if account.lamports > 0 {
-                        let quantity = Double(account.lamports) / pow(10, Double(account.decimals))
+                    if (walletManager.balance > 0) {
                         Button(action: {
-                            navigation.path.append(NavigationPathType.transferAsset(transferType: .token(account)))
+                            navigation.path.append(NavigationPathType.transferAsset(transferType: .sol))
                         }) {
-                            Text("\(quantity) $\(account.symbol.prefix(3))")
-                        }
-                        .contextMenu {
-                            tokenContextMenu(for: account)
+                            Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
                         }
                     } else {
-                        Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                        Text("\(WalletManager.formatNumber(walletManager.balance)) SOL")
+                    }
+                    
+                    ForEach(walletManager.accounts) { account in
+                        if account.lamports > 0 {
+                            let quantity = Double(account.lamports) / pow(10, Double(account.decimals))
+                            Button(action: {
+                                navigation.path.append(NavigationPathType.transferAsset(transferType: .token(account)))
+                            }) {
+                                Text("\(quantity) $\(account.symbol.prefix(3))")
+                            }
                             .contextMenu {
                                 tokenContextMenu(for: account)
                             }
+                        } else {
+                            Text("\(account.lamports) $\(account.symbol.prefix(3))")
+                                .contextMenu {
+                                    tokenContextMenu(for: account)
+                                }
+                        }
                     }
                 }
             }
@@ -146,8 +154,9 @@ private extension WalletView {
                 if (!loading) {
                     Button {
                         loading = true
-                        walletManager.fetch { isLoading in
-                            loading = isLoading
+                        walletManager.fetch { isLoading, error in
+                            self.loading = isLoading
+                            self.error = error
                         }
                     } label: {
                         Text("🔄")
@@ -211,12 +220,6 @@ private extension WalletView {
     @ViewBuilder
     func tokenContextMenu(for account: SolanaAccount) -> some View {
         Button(action: {
-            UIPasteboard.general.string = account.mintAddress
-        }) {
-            Text("Copy mint address")
-        }
-        
-        Button(action: {
             if let url = URL(string: "https://explorer.solana.com/address/\(account.address)?cluster=\(walletManager.network)") {
                 openURL(url)
             }
@@ -238,6 +241,12 @@ private extension WalletView {
             }
         }) {
             Text("🔎 Open solscan mint")
+        }
+        
+        Button(action: {
+            UIPasteboard.general.string = account.mintAddress
+        }) {
+            Text("Copy mint address")
         }
         
         Button(action: {

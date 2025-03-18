@@ -34,8 +34,12 @@ struct ToolBoxView: View {
     
     @State private var selectedAssetType: AssetType = .sol
     
-    private var channelId: String {
-        navigation.channelId ?? ""
+    private var channelId: String? {
+        navigation.channelId
+    }
+    
+    private var user: User? {
+        navigation.user
     }
     
     var body: some View {
@@ -179,19 +183,37 @@ struct ToolBoxView: View {
                                             return
                                         }
 
-                                        NotificationCenter.default.post(
-                                            name: .publishChannelEvent,
-                                            object: nil,
-                                            userInfo: [
-                                                "channelId": channelId,
-                                                "content": "invoice:\(invoiceString)",
-                                                "kind": Kind.invoice
-                                            ]
-                                        )
+                                        if let channelId = self.channelId {
+                                            NotificationCenter.default.post(
+                                                name: .publishChannelEvent,
+                                                object: nil,
+                                                userInfo: [
+                                                    "channelId": channelId,
+                                                    "content": "invoice:\(invoiceString)",
+                                                    "kind": Kind.invoice
+                                                ]
+                                            )
 
-                                        print("✅ Invoice posted to channel \(channelId)")
+                                            print("✅ Invoice posted to channel \(channelId)")
+                                        }
+                                        
+                                        if let npub = self.user?.npub {
+                                            NotificationCenter.default.post(
+                                                name: .publishDMEvent,
+                                                object: nil,
+                                                userInfo: [
+                                                    "npub": npub,
+                                                    "content": "invoice:\(invoiceString)",
+                                                    "kind": Kind.invoice
+                                                ]
+                                            )
+
+                                            print("✅ Invoice posted to DM \(npub)")
+                                        }
+
                                         showingRequestPaymentPrompt = false
-                                    }                                    .padding()
+                                    }
+                                    .padding()
                                     .background(Color.green)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
@@ -252,28 +274,31 @@ struct ToolBoxView: View {
         // Determine if the file is an image or video using UTType
         let fileType = UTType(filenameExtension: mediaURL.pathExtension)
 
-        do {
-            if let fileType = fileType {
-                if fileType.conforms(to: .image) {
-                    print("Detected image file")
-                    // Upload the image
-                    try await uploadManager.uploadImage(imageURL: mediaURL, channelId: channelId)
-                    navigation.completeUpload(imageURL: mediaURL)
-                    
-                } else if fileType.conforms(to: .movie) {
-                    print("Detected video file")
-                    // Upload the video
-                    try await uploadManager.uploadVideo(videoURL: mediaURL, channelId: channelId)
-                    
-                    navigation.completeUpload(videoURL: mediaURL)
+        // Channel Upload
+        if let channelId = self.channelId {
+            do {
+                if let fileType = fileType {
+                    if fileType.conforms(to: .image) {
+                        print("Detected image file")
+                        // Upload the image
+                        try await uploadManager.uploadImage(imageURL: mediaURL, channelId: channelId)
+                        navigation.completeUpload(imageURL: mediaURL)
+                        
+                    } else if fileType.conforms(to: .movie) {
+                        print("Detected video file")
+                        // Upload the video
+                        try await uploadManager.uploadVideo(videoURL: mediaURL, channelId: channelId)
+                        
+                        navigation.completeUpload(videoURL: mediaURL)
+                    } else {
+                        print("Unsupported file type")
+                    }
                 } else {
-                    print("Unsupported file type")
+                    print("Unable to determine file type")
                 }
-            } else {
-                print("Unable to determine file type")
+            } catch {
+                print("Error uploading media: \(error)")
             }
-        } catch {
-            print("Error uploading media: \(error)")
         }
     }
     

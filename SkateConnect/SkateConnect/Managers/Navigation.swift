@@ -55,8 +55,7 @@ class Navigation: ObservableObject {
     @Published var activeView: ActiveView = .other
     
     @Published var channelId: String?
-    
-    @Published var selectedUser: User?
+    @Published var user: User?
     
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?

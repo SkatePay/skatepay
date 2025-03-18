@@ -39,6 +39,8 @@ struct TransferAsset: View {
     @State private var solanaAddress: String = ""
     @State private var transactionId: String = ""
     @State private var amount = 0
+    
+    @State private var error: Error?
 
     let transferType: TransferType
 
@@ -57,7 +59,11 @@ struct TransferAsset: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
             } else {
-                balanceSection
+                if let error = error?.localizedDescription {
+                    Text(error)
+                } else {
+                    balanceSection
+                }
             }
 
             requestTokensSection
@@ -68,8 +74,9 @@ struct TransferAsset: View {
                 message: Text(transactionId.isEmpty ? alertMessage : "Transaction \(transactionId.prefix(8)) Submitted."),
                 dismissButton: .default(Text("OK")) {
                     if !transactionId.isEmpty {
-                        walletManager.fetch { isLoading in
-                            loading = isLoading
+                        walletManager.fetch { isLoading, error in
+                            self.loading = isLoading
+                            self.error = error
                         }
                     }
                 }

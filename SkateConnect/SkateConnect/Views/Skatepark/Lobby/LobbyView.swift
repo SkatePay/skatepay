@@ -143,9 +143,10 @@ private extension LobbyView {
         return "\(alias): \(text)"
     }
     
-    private func contextMenu(for npub: String) -> some View {
+    private func contextMenu(for npub: String, timestamp: Int64) -> some View {
         Group {
             Button(action: {
+                lobby.markMessageAsRead(npub: npub, timestamp: timestamp)
                 navigation.path.append(NavigationPathType.userDetail(npub: npub))
             }) {
                 Label("Open", systemImage: "message")
@@ -204,7 +205,7 @@ private extension LobbyView {
                                     .font(.caption2)
                                     .foregroundColor(.gray)
                             }
-                            .contextMenu { contextMenu(for: npub) }
+                            .contextMenu { contextMenu(for: npub, timestamp: lastEvent.createdAt) }
                         }
                     }
                 }

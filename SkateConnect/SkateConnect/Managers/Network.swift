@@ -668,7 +668,7 @@ extension Network {
         }
     }
     
-    func publishDMEvent(pubKey: PublicKey, kind: Kind = .message, content: String) {
+    func publishDMEvent(publicKey: PublicKey, kind: Kind = .message, content: String) {
         guard let account = keychainForNostr.account else {
             os_log("🔥 account is unavailable", log: log, type: .error)
             return
@@ -681,7 +681,7 @@ extension Network {
             
             let directMessage = try legacyEncryptedDirectMessage(
                 withContent: content,
-                toRecipient: pubKey,
+                toRecipient: publicKey,
                 signedBy: account
             )
             self.relayPool?.publishEvent(directMessage)
@@ -733,6 +733,18 @@ extension Network {
                 let kind = notification.userInfo?["kind"] as? Kind else { return }
                 self?.publishChannelEvent(channelId: channelId, kind: kind, content: content)
                 
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .publishDMEvent)
+            .sink { [weak self] notification in
+                guard let npub = notification.userInfo?["npub"] as? String,
+                      let content = notification.userInfo?["content"] as? String,
+                let kind = notification.userInfo?["kind"] as? Kind else { return }
+
+                guard let publicKey = PublicKey(npub: npub) else { return }
+
+                self?.publishDMEvent(publicKey: publicKey, kind: kind, content: content)
             }
             .store(in: &cancellables)
     }

@@ -224,6 +224,8 @@ struct ContentView: View {
                         .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(uploadManager)
+                        .environmentObject(walletManager)
                     
                 case .filters:
                     Filters()
@@ -247,8 +249,11 @@ struct ContentView: View {
                 case .reportUser(user: let user, message: let message):
                     DMView(user: user, message: message)
                         .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(uploadManager)
+                        .environmentObject(walletManager)
                     
                 case .restoreData:
                     RestoreDataView()

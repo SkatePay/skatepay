@@ -6,13 +6,13 @@
 //
 
 import os
+import Combine
 import ConnectFramework
+import CoreLocation
 import CryptoKit
 import Foundation
 import MessageKit
 import NostrSDK
-import Combine
-import CoreLocation
 import SolanaSwift
 import SwiftData
 import SwiftUI
@@ -43,23 +43,29 @@ struct ChannelView: View {
     @State var channelId: String
     @State var type = ChannelType.outbound
     
-    // Sheets
+    // Base
+    @State private var selectedChannelId: String? = nil
+    
+    // Toolbox
     @State private var isShowingToolBoxView = false
     
     @State private var showingMediaActionSheet = false
+    @State private var selectedMediaURL: URL?
+
+    // Invite
     @State private var showingInviteActionSheet = false
+
+    @State private var selectedInviteString: String? = nil
+    
+    // Invoice
     @State private var showingInvoiceActionSheet = false
     @State private var showingTransactionAlert = false
     @State private var showingRefusalAlert = false
-    
-    // Action State
-    @State private var selectedChannelId: String? = nil
-    @State private var selectedMediaURL: URL?
-    @State private var selectedInviteString: String? = nil
+
     @State private var selectedInvoiceString: String? = nil
     @State private var selectedInvoice: Invoice? = nil
 
-    // Asset transfer
+    // Invoice - Asset Transfer
     @State private var transactionId: String = ""
     @State private var alertMessage: String = ""
     
@@ -281,6 +287,7 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
+        // Invoice
         .confirmationDialog("Invoice", isPresented: $showingInvoiceActionSheet, titleVisibility: .visible) {
             Button("Pay") {
                 openWallet()
@@ -305,6 +312,19 @@ struct ChannelView: View {
                 message: Text(alertMessage),
                 dismissButton: .default(Text("OK")) {
                     showingTransactionAlert = true
+                    
+                    if (!transactionId.isEmpty) {
+                        NotificationCenter.default.post(
+                            name: .publishChannelEvent,
+                            object: nil,
+                            userInfo: [
+                                "channelId": channelId,
+                                "content": "🧾 Receipt: https://solscan.io/tx/\(transactionId)?cluster=\(walletManager.network)",
+                                "kind": Kind.message
+                            ]
+                        )
+                    }
+                    
                     transactionId = ""
                 }
             )

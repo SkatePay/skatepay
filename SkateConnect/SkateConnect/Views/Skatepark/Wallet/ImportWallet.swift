@@ -31,7 +31,7 @@ struct ImportWallet: View {
                                 walletManager.selectedAlias = newAlias_Create
                                 walletManager.refreshAliases()
                                 
-                                walletManager.fetch { isLoading in
+                                walletManager.fetch { isLoading, _ in
                                     loading = isLoading
                                 }
                                 showingAlert = true
@@ -97,7 +97,7 @@ struct ImportWallet: View {
                 walletManager.selectedAlias = newAlias_Import
                 walletManager.refreshAliases()
 
-                walletManager.fetch { isLoading in
+                walletManager.fetch { isLoading, _ in
                     loading = isLoading
                 }
 

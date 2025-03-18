@@ -104,11 +104,11 @@ class WalletManager: ObservableObject {
     }
     
     // Fetch account details (balance, block height, etc.)
-    func fetch(onLoadingStateChange: @escaping (Bool) -> Void) {
+    func fetch(onLoadingStateChange: @escaping (Bool, Error?) -> Void) {
         Task {
             do {
                 await MainActor.run {
-                    onLoadingStateChange(true)
+                    onLoadingStateChange(true, nil)
                 }
                 let height = try await solanaApiClient.getBlockHeight()
                 
@@ -131,7 +131,7 @@ class WalletManager: ObservableObject {
                 )
 
                 await MainActor.run {
-                    onLoadingStateChange(false)
+                    onLoadingStateChange(false, nil)
                     
                     blockHeight = height
                     balance = amount
@@ -149,6 +149,7 @@ class WalletManager: ObservableObject {
                         }
                 }
             } catch {
+                onLoadingStateChange(false, error)
                 print("Error fetching account details: \(error)")
             }
         }
