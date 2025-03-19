@@ -44,7 +44,6 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     // Toolbox
     @State private var isShowingToolBoxView = false
     
-    @State private var showingConfirmationAlert = false
     @State private var showAlertForReporting = false
     @State private var showAlertForAddingPark = false
     
@@ -124,7 +123,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                     navigation.user = user
                 }
         }
-        .actionSheet(isPresented: $showingConfirmationAlert) {
+        .actionSheet(isPresented: $showingInviteActionSheet) {
             ActionSheet(
                 title: Text("Confirmation"),
                 message: Text("Are you sure you want to join this channel?"),
@@ -134,7 +133,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                     },
                     .default(Text("Copy Invite")) {
                         
-                        showingConfirmationAlert = false
+                        showingInviteActionSheet = false
                         
                         if let inviteString = selectedInviteString {
                             UIPasteboard.general.string = "channel_invite:\(inviteString)"
@@ -143,7 +142,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                         }
                     },
                     .cancel(Text("Maybe Later")) {
-                        showingConfirmationAlert = false
+                        showingInviteActionSheet = false
                     }
                 ]
             )
