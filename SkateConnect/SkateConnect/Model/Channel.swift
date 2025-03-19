@@ -17,7 +17,7 @@ struct Channel: Codable {
     var picture: String
     var relays: [String]
     var creationEvent: NostrEvent?
-    var metadataEvent: NostrEvent?
+    var metadata: ChannelMetadata?
 
     var aboutDecoded: AboutStructure? {
         guard let data = about.data(using: .utf8) else { return nil }

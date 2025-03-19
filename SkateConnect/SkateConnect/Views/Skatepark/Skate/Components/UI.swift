@@ -26,19 +26,3 @@ struct MarqueeText: View {
             }
     }
 }
-
-struct DebugView<Content: View>: View {
-    let content: Content
-    let id = UUID()
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-        print("Creating DebugView with ID: \(id)")
-    }
-    
-    var body: some View {
-        content.onAppear {
-            print("DebugView with ID: \(id) appeared")
-        }
-    }
-}

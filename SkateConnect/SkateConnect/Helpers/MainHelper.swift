@@ -138,14 +138,13 @@ class MainHelper {
         return lead
     }
     
-    static func updateLead(for channel: Channel, note: String = "") -> Lead? {
+    static func updateLead(for channel: Channel, note: String = "") {
         guard
             let creationEvent = channel.creationEvent,
-            let metadataEvent = channel.metadataEvent,
-            let aboutData = channel.about.data(using: .utf8)
+            let aboutData = channel.metadata?.about?.data(using: .utf8) ?? channel.about.data(using: .utf8)
         else {
             print("⚠️ Missing events or invalid about data")
-            return nil
+            return
         }
 
         do {
@@ -156,7 +155,7 @@ class MainHelper {
             let color = convertNoteToColor(note)
 
             let lead = Lead(
-                name: channel.name,
+                name: channel.metadata?.name ?? channel.name,
                 icon: icon,
                 note: note,
                 coordinate: coordinate,
@@ -167,10 +166,10 @@ class MainHelper {
 
             NotificationCenter.default.post(name: .updateSpot, object: lead)
 
-            return lead
+            return
         } catch {
             print("Error decoding AboutStructure: \(error)")
-            return nil
+            return
         }
     }
 }

@@ -74,6 +74,18 @@ struct ChannelView: View {
 
     var landmarks: [Landmark] = AppData().landmarks
     
+    private var editChannelView: some View {
+        Group {
+            if let channel = self.eventListenerForMetadata.channel {
+                EditChannel(channel: channel)
+                    .environmentObject(navigation)
+            } else {
+                // Fallback view if channel is nil (optional)
+                EmptyView()
+            }
+        }
+    }
+    
     var body: some View {
         VStack {
             ChatView(
@@ -117,10 +129,7 @@ struct ChannelView: View {
             )
             .navigationBarBackButtonHidden()
             .sheet(isPresented: $navigation.isShowingEditChannel) {
-                if let channel = self.eventListenerForMetadata.channel {
-                    EditChannel(channel: channel)
-                        .environmentObject(navigation)
-                }
+                editChannelView
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -134,10 +143,9 @@ struct ChannelView: View {
                         Button(action: {
                             navigation.isShowingEditChannel.toggle()
                         }) {
-                            if let channel = eventListenerForMetadata.channel {
-                                if let channelId = channel.creationEvent?.id,
-                                   let landmark = findLandmark(channelId) {
-                                    
+
+                             if let channel = eventListenerForMetadata.channel {
+                                if let channelId = channel.creationEvent?.id, let landmark = findLandmark(channelId) {
                                     HStack {
                                         landmark.image
                                             .resizable()
@@ -151,9 +159,8 @@ struct ChannelView: View {
                                                 .font(.headline)
                                         }
                                     }
-                                    
                                 } else {
-                                    Text(channel.name)
+                                    Text("\(channel.metadata?.name ?? channel.name)\(type == .outbound ? " 👑" : "")")
                                         .fontWeight(.semibold)
                                         .font(.headline)
                                 }

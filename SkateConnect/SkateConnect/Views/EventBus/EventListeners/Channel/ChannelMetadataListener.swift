@@ -20,8 +20,6 @@ class ChannelMetadataListener: ObservableObject {
     var type = ChannelType.outbound
     var channelId: String?
     
-    var subscriptionId: String?
-
     var subscriptions = [EventKind: String]()
     var subscriptionIdToEntity = [String: EventKind]() // Reverse lookup
 
@@ -38,12 +36,14 @@ class ChannelMetadataListener: ObservableObject {
                 let channelId = key.channelId
                 let kind = key.kind
                 
+                if (kind == .channelMessage) { return }
+
                 if (self?.channelId != channelId) { return }
                 
                 self?.subscriptions[kind] = subscriptionId
                 self?.subscriptionIdToEntity[subscriptionId] = kind
                 
-                os_log("📊 Active subscription — channelId: %{public}@, kind: %{public}@, id: %{public}@",
+                os_log("🔄 Active subscription — channelId: %{public}@, kind: %{public}@, id: %{public}@",
                        log: self?.log ?? .default, type: .info,
                        channelId, String(describing: kind), subscriptionId)
             }
@@ -63,22 +63,14 @@ class ChannelMetadataListener: ObservableObject {
                     
                     self?.channel = parseChannel(from: event.event)
                 }
-                
-                if kind == .channelMetadata {
-                    if let data = parseChannel(from: event.event) {
-                        self?.channel?.name = data.name
-                        self?.channel?.about = data.about
-                        self?.channel?.metadataEvent = event.event
-                                                
-                        if let channel = self?.channel {
-                            self?.lead = MainHelper.updateLead(
-                                for: channel,
-                                note: self?.type == .inbound ? "invite" : ""
-                            )
-                        }
-                    } else {
-                        os_log("❌ Failed to parse channel metadata", log: self?.log ?? .default, type: .error)
-                    }
+            }
+            .store(in: &cancellables)
+        
+        EventBus.shared.didReceiveChannelMetadata
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] (channelId, metadata) in
+                if channelId == self?.channelId {
+                    self?.channel?.metadata = metadata
                 }
             }
             .store(in: &cancellables)
@@ -100,6 +92,13 @@ class ChannelMetadataListener: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+    }
+    
+    deinit {
+        for (subscriptionId, kind) in subscriptionIdToEntity {
+            os_log("%@ %@", log: log, type: .info, subscriptionId, String(describing: kind.rawValue))
+            EventBus.shared.didReceiveCloseMetadataSubscriptionRequest.send((subscriptionId, kind))
+        }
     }
     
     func setChannelId(_ channelId: String) {

@@ -36,13 +36,21 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     @Published var relayPool: RelayPool?
     @Published var connected = false
     
-    private var favoriteSubscriptions = Set<String>()
+    var stopped = true
+    var subscriptionCount = 0
     
     private var processedEvents = Set<String>()
     
+    // Favorites
+    private var favoriteUserSubscriptions = Set<String>()
+    private var channelCreation: [String: Channel] = [:]
+    private var channelMetadata: [String: ChannelMetadata] = [:]
+    
+    private var favoriteChannelSubscriptions = Set<String>()
+    //
+    
     // Channels
     private var channelSubscriptions: [ChannelSubscriptionKey: Subscription] = [:]
-    
     private var channelSubscriptionBuffer = [EventKind: [String]]()
     
     // Users
@@ -54,11 +62,8 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     
     var lastEventId = ""
     
+    // DeepLink
     var cachedChannelId: String?
-    
-    var stopped = true
-    
-    private var channelEvents: [String: [NostrEvent]] = [:]
     
     private var cancellablesFoLifecycle = Set<AnyCancellable>()
     private var cancellables = Set<AnyCancellable>()
@@ -114,6 +119,38 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             }
             .store(in: &cancellables)
         
+        EventBus.shared.didReceiveCloseMetadataSubscriptionRequest
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] (subscriptionId, kind) in
+                guard let pool = self?.relayPool else {
+                    return
+                }
+                
+                pool.closeSubscription(with: subscriptionId)
+                                
+                self?.subscriptionCount -= 1
+                
+                if let channelId = self?.subscriptionIdToEntity[subscriptionId] {
+                    self?.removeSubscription(for: channelId, kind: kind)
+                }
+                self?.subscriptionIdToEntity.removeValue(forKey: subscriptionId)
+            }
+            .store(in: &cancellables)
+        
+        EventBus.shared.didReceiveCloseMessagesSubscriptionRequest
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] subscriptionId in
+                guard let pool = self?.relayPool else {
+                    return
+                }
+                
+                pool.closeSubscription(with: subscriptionId)
+                                
+                self?.subscriptionCount -= 1
+                self?.subscriptionIdToEntity.removeValue(forKey: subscriptionId)
+            }
+            .store(in: &cancellables)
+        
         self.connectPublishers()
     }
     
@@ -129,7 +166,6 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             os_log("🛑 user hasn't acknowlegdes EULA", log: log, type: .info)
             return
         }
-        
         
         stopped = false
         
@@ -152,6 +188,11 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         
         subscriptionIdToEntity.keys.forEach { pool.closeSubscription(with: $0) }
         subscriptionIdToEntity.removeAll()
+        
+        favoriteChannelSubscriptions.removeAll()
+        favoriteUserSubscriptions.removeAll()
+        
+        processedEvents.removeAll()
         
         pool.disconnect()
         
@@ -302,7 +343,11 @@ extension Network {
                 return
             }
             
-            if (self.favoriteSubscriptions.contains(subscriptionId)) {
+            if (self.favoriteChannelSubscriptions.contains(subscriptionId)) {
+                return
+            }
+            
+            if (self.favoriteUserSubscriptions.contains(subscriptionId)) {
                 return
             }
             
@@ -319,7 +364,10 @@ extension Network {
         guard let account = keychainForNostr.account else {
             return nil
         }
-        let filter = Filter(authors: [account.publicKey.hex], kinds: [EventKind.channelCreation.rawValue])
+        let filter = Filter(authors: [account.publicKey.hex], kinds: [
+            EventKind.channelCreation.rawValue,
+            EventKind.channelMetadata.rawValue
+        ])
         return filter
     }
     
@@ -341,7 +389,7 @@ extension Network {
             return
         }
         
-        favoriteSubscriptions.forEach { pool.closeSubscription(with: $0) }
+        favoriteChannelSubscriptions.forEach { pool.closeSubscription(with: $0) }
         
         if let filter = filterForMyChannels {
             guard let subscriptionId = subscribeIfNeeded(filter) else {
@@ -349,17 +397,20 @@ extension Network {
                 return
             }
             
-            favoriteSubscriptions.insert(subscriptionId)
-            os_log("🔍 my channels: %@", log: log, type: .info, subscriptionId)
+            favoriteChannelSubscriptions.insert(subscriptionId)
+            os_log("✔️ favorite channels subscription: %@", log: log, type: .info, subscriptionId)
         }
+        
+        
+        favoriteUserSubscriptions.forEach { pool.closeSubscription(with: $0) }
         
         if let filter = filterForIncomingDirectMessages {
             guard let subscriptionId = subscribeIfNeeded(filter) else {
                 os_log("🔥 error subscribinmg", log: log, type: .error)
                 return
             }
-            favoriteSubscriptions.insert(subscriptionId)
-            os_log("🔍 incoming dms: %@", log: log, type: .info, subscriptionId)
+            favoriteUserSubscriptions.insert(subscriptionId)
+            os_log("✔️ favorite users subscription: %@", log: log, type: .info, subscriptionId)
         }
     }
     
@@ -387,26 +438,32 @@ extension Network {
 
 // MARK: - Channel Subscription Methods
 extension Network {
-    func getSubscription(for channelId: String, kind: EventKind) -> Subscription? {
+    private func getSubscription(for channelId: String, kind: EventKind) -> Subscription? {
         let key = ChannelSubscriptionKey(channelId: channelId, kind: kind)
         return channelSubscriptions[key]
     }
     
-    func setSubscription(_ subscription: Subscription, for channelId: String, kind: EventKind) {
+    private func setSubscription(_ subscription: Subscription, for channelId: String, kind: EventKind) {
         let key = ChannelSubscriptionKey(channelId: channelId, kind: kind)
         channelSubscriptions[key] = subscription
         
         EventBus.shared.didReceiveChannelSubscription.send((key, subscription.id))
     }
     
-    func removeSubscription(for channelId: String, kind: EventKind) {
+    private func removeSubscription(for channelId: String, kind: EventKind) {
         let key = ChannelSubscriptionKey(channelId: channelId, kind: kind)
         channelSubscriptions.removeValue(forKey: key)
     }
     
     func subscribeToChannelCreationWhenReady(_ channelId: String) {
         if connected {
-            subscribeToChannelCreation(channelId)
+            let kind = EventKind.channelCreation
+            let filter = Filter(
+                ids: [channelId],
+                kinds: [kind.rawValue]
+            )!
+            
+            subscribeToChanneEvents(channelId, kind: kind, filter: filter)
         } else {
             os_log("🔍 channelId: %@", log: log, type: .info, channelId)
             channelSubscriptionBuffer[.channelCreation, default: []].append(channelId)
@@ -415,7 +472,14 @@ extension Network {
     
     func subscribeToChannelMessagesWhenReady(_ channelId: String) {
         if connected {
-            subscribeToChannelMessages(channelId)
+            let kind = EventKind.channelMessage
+            let filter = Filter(
+                kinds: [kind.rawValue],
+                tags: ["e": [channelId]],
+                limit: 64
+            )!
+            
+            subscribeToChanneEvents(channelId, kind: kind, filter: filter)
         } else {
             os_log("🔍 channelId: %@", log: log, type: .info, channelId)
             channelSubscriptionBuffer[.channelMessage, default: []].append(channelId)
@@ -428,10 +492,22 @@ extension Network {
             
             for channelId in channelIds {
                 switch kind {
-                case .channelMetadata:
-                    subscribeToChannelCreation(channelId)
+                case .channelCreation:
+                    let filter = Filter(
+                        ids: [channelId],
+                        kinds: [EventKind.channelCreation.rawValue]
+                    )!
+                    
+                    subscribeToChanneEvents(channelId, kind: kind, filter: filter)
                 case .channelMessage:
-                    subscribeToChannelMessages(channelId)
+                    let kind = EventKind.channelMessage
+                    let filter = Filter(
+                        kinds: [kind.rawValue],
+                        tags: ["e": [channelId]],
+                        limit: 64
+                    )!
+                    
+                    subscribeToChanneEvents(channelId, kind: kind, filter: filter)
                 default:
                     os_log("⚠️ unhandled buffer kind: %@", log: log, type: .error, String(describing: kind))
                 }
@@ -447,6 +523,10 @@ extension Network {
         }
         
         let subscriptionId = pool.subscribe(with: filter)
+        
+        subscriptionCount += 1
+        
+        os_log("📊 subscriptionCount=%@", log: log, type: .info, "\(subscriptionCount)")
         
         return subscriptionId
     }
@@ -474,59 +554,6 @@ extension Network {
             subscriptionIdToEntity[subscriptionId] = channelId
             
             os_log("✔️ Subscribed to %@ %@ with subscriptionId %@", log: log, type: .info, String(describing: kind), channelId, subscriptionId)
-        }
-    }
-    
-    private func subscribeToChannelCreation(_ channelId: String) {
-        os_log("⏳ subscribing to %@ [%@]", log: log, type: .info, String(describing: EventKind.channelCreation), channelId)
-        
-        if let subscription = getSubscription(for: channelId, kind: .channelCreation) {
-            os_log("🔄 Resubscribing to %@: %@ with existing subscription: %@", log: log, type: .info, String(describing: EventKind.channelCreation), channelId, subscription.id)
-            relayPool?.closeSubscription(with: subscription.id)
-            removeSubscription(for: channelId, kind: .channelCreation)
-            
-            subscriptionIdToEntity.removeValue(forKey: subscription.id)
-        }
-        
-        let filter = Filter(
-            ids: [channelId],
-            kinds: [EventKind.channelCreation.rawValue]
-        )!
-        
-        if let subscriptionId = subscribeIfNeeded(filter) {
-            let subscription = Subscription(id: subscriptionId, type: .channel)
-            setSubscription(subscription, for: channelId, kind: .channelCreation)
-            subscriptionIdToEntity[subscriptionId] = channelId
-            
-            os_log("✔️ Subscribed to %@ %@ with subscriptionId %@", log: log, type: .info, String(describing: EventKind.channelCreation), channelId, subscriptionId)
-        }
-    }
-    
-    private func subscribeToChannelMessages(_ channelId: String) {
-        os_log("⏳ subscribing to %@ [%@]", log: log, type: .info, String(describing: EventKind.channelMessage), channelId)
-        
-        if let subscription = getSubscription(for: channelId, kind: .channelMessage) {
-            os_log("🔄 Resubscribing to %@: %@ with existing subscription: %@", log: log, type: .info, String(describing: EventKind.channelMessage), channelId, subscription.id)
-            relayPool?.closeSubscription(with: subscription.id)
-            removeSubscription(for: channelId, kind: .channelMessage)
-            
-            subscriptionIdToEntity.removeValue(forKey: subscription.id)
-        }
-        
-        let filter = Filter(
-            kinds: [EventKind.channelMessage.rawValue],
-            tags: ["e": [channelId]],
-            limit: 64
-        )!
-        
-        if let subscriptionId = subscribeIfNeeded(filter) {
-            EventBus.shared.didReceiveChannelMessagesSubscription.send((channelId, subscriptionId))
-            
-            let subscription = Subscription(id: subscriptionId, type: .channel)
-            setSubscription(subscription, for: channelId, kind: .channelMessage)
-            subscriptionIdToEntity[subscriptionId] = channelId
-            
-            os_log("✔️ Subscribed to %@ %@ with subscriptionId %@", log: log, type: .info, String(describing: EventKind.channelMessage), channelId, subscriptionId)
         }
     }
 }
@@ -576,15 +603,16 @@ extension Network {
 // MARK: - Event Handlers
 extension Network {
     private func handleRelayEvent(_ event: RelayEvent) {
-        if (favoriteSubscriptions.contains(event.subscriptionId)) {
+        if (favoriteUserSubscriptions.contains(event.subscriptionId) || favoriteChannelSubscriptions.contains(event.subscriptionId)) {
             if (!processedEvents.contains(event.event.id)) {
                 processedEvents.insert(event.event.id)
                 
                 switch event.event.kind {
                 case .legacyEncryptedDirectMessage: handleDirectMessage(event)
                 case .channelCreation: handleChannelCreation(event)
+                case .channelMetadata: handleChannelMetadataForOutbound(event)
                 case .channelMessage: handleChannelMessage(event)
-                default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
+                default: return
                 }
             } else {
                 os_log("🛑 dropping event", log: log, type: .info)
@@ -594,20 +622,72 @@ extension Network {
             switch event.event.kind {
             case .legacyEncryptedDirectMessage: EventBus.shared.didReceiveDMMessage.send(event)
             case .channelCreation: EventBus.shared.didReceiveChannelData.send(event)
-            case .channelMetadata: EventBus.shared.didReceiveChannelData.send(event)
+            case .channelMetadata: handleChannelMetadata(event)
             case .channelMessage: EventBus.shared.didReceiveChannelMessage.send(event)
-            default: os_log("🔥 unhandled kind %@ %@", log: log, type: .error, "\(event.subscriptionId)", "\(event.event.kind)")
+            default: return
             }
         }
     }
     
     private func handleChannelCreation(_ event: RelayEvent) {
-        channelEvents[event.event.id, default: []].append(event.event)
+        let channelId = event.event.id
+        
+        channelCreation[channelId] = parseChannel(from: event.event)
         
         NotificationCenter.default.post(
             name: leadType == .outbound ? .createdChannelForOutbound : .createdChannelForInbound,
             object: event.event
         )
+    }
+    
+    private func handleChannelMetadataForOutbound(_ event: RelayEvent) {
+        guard let data = event.event.content.data(using: .utf8) else {
+            os_log("🔥 failed to parse data", log: log, type: .error)
+            return
+        }
+        
+        do {
+            let decoder = JSONDecoder()
+            let newMetadata = try decoder.decode([String: ChannelMetadata].self, from: data)
+            
+            self.channelMetadata.merge(newMetadata) { (_, new) in new }
+            
+            for (channelId, metadata) in self.channelMetadata {
+                if var channel = self.channelCreation[channelId]{
+                    channel.metadata = metadata
+                    self.channelCreation[channelId] = channel
+                    MainHelper.updateLead(for: channel)
+                }
+            }
+        } catch {
+            os_log("🔥 decoding error: %@", log: log, type: .error, error.localizedDescription)
+        }
+    }
+    
+    private func handleChannelMetadata(_ event: RelayEvent) {
+        guard let data = event.event.content.data(using: .utf8) else {
+            os_log("🔥 failed to parse data", log: log, type: .error)
+            return
+        }
+        
+        do {
+            let decoder = JSONDecoder()
+            let newMetadata = try decoder.decode([String: ChannelMetadata].self, from: data)
+            
+            self.channelMetadata.merge(newMetadata) { (_, new) in new }
+            
+            for (channelId, metadata) in self.channelMetadata {
+                if var channel = self.channelCreation[channelId]{
+                    channel.metadata = metadata
+                    self.channelCreation[channelId] = channel
+                    MainHelper.updateLead(for: channel)
+                }
+                
+                EventBus.shared.didReceiveChannelMetadata.send((channelId: channelId, metadata: metadata))
+            }
+        } catch {
+            os_log("🔥 decoding error: %@", log: log, type: .error, error.localizedDescription)
+        }
     }
     
     private func handleChannelMessage(_ event: RelayEvent) {
@@ -621,28 +701,6 @@ extension Network {
 
 // MARK: - Publishers
 extension Network {
-    func publishVideoEvent(channelId: String, kind: Kind = .message, content: String) {
-        guard let account = keychainForNostr.account else {
-            os_log("🔥 account is unavailable", log: log, type: .error)
-            return
-        }
-        
-        do {
-            let contentStructure = ContentStructure(content: content, kind: kind)
-            let encodedContent = String(data: try JSONEncoder().encode(contentStructure), encoding: .utf8) ?? content
-            
-            let event = try createChannelMessageEvent(
-                withContent: encodedContent,
-                eventId: channelId,
-                hashtag: "video",
-                signedBy: account
-            )
-            relayPool?.publishEvent(event)
-        } catch {
-            os_log("🔥 failed to publish video", log: log, type: .error)
-        }
-    }
-    
     func publishChannelEvent(channelId: String, kind: Kind = .message, content: String) {
         guard let account = keychainForNostr.account else {
             os_log("🔥 account is unavailable", log: log, type: .error)
@@ -690,16 +748,44 @@ extension Network {
         }
     }
     
-    func publishDeleteEventForChannel(_ channelId: String) {
-        guard let account = keychainForNostr.account,
-              let relatedEvents = channelEvents[channelId], !relatedEvents.isEmpty else {
-            print("Error: No events found for channel deletion.")
+    func publishVideoEvent(channelId: String, kind: Kind = .message, content: String) {
+        guard let account = keychainForNostr.account else {
+            os_log("🔥 account is unavailable", log: log, type: .error)
             return
         }
         
         do {
-            let deleteRequest = try delete(events: relatedEvents, signedBy: account)
+            let contentStructure = ContentStructure(content: content, kind: kind)
+            let encodedContent = String(data: try JSONEncoder().encode(contentStructure), encoding: .utf8) ?? content
+            
+            let event = try createChannelMessageEvent(
+                withContent: encodedContent,
+                eventId: channelId,
+                hashtag: "video",
+                signedBy: account
+            )
+            relayPool?.publishEvent(event)
+        } catch {
+            os_log("🔥 failed to publish video", log: log, type: .error)
+        }
+    }
+    
+    func publishDeleteEventForChannel(_ channelId: String) {
+        guard let account = keychainForNostr.account,
+              let event = channelCreation[channelId]?.creationEvent else {
+            os_log("🔥 Error: No events found for channel deletion.", log: log, type: .error)
+            return
+        }
+        
+        do {
+            let deleteRequest = try delete(events: [event], signedBy: account)
             self.relayPool?.publishEvent(deleteRequest)
+            
+            self.channelCreation.removeValue(forKey: channelId)
+            self.channelMetadata.removeValue(forKey: channelId)
+            self.removeSubscription(for: channelId, kind: .channelCreation)
+            self.removeSubscription(for: channelId, kind: .channelMetadata)
+            self.removeSubscription(for: channelId, kind: .channelMessage)
         } catch {
             os_log("🔥 failed to delete channel", log: log, type: .error)
         }
@@ -717,20 +803,11 @@ extension Network {
             }
             .store(in: &cancellables)
         
-        NotificationCenter.default.publisher(for: .updateChannelMetadata)
-            .sink { [weak self] notification in
-                if let event = notification.object as? NostrEvent {
-                    self?.relayPool?.publishEvent(event)
-                }
-            }
-            .store(in: &cancellables)
-        
-        // Invoice
         NotificationCenter.default.publisher(for: .publishChannelEvent)
             .sink { [weak self] notification in
                 guard let channelId = notification.userInfo?["channelId"] as? String,
                       let content = notification.userInfo?["content"] as? String,
-                let kind = notification.userInfo?["kind"] as? Kind else { return }
+                      let kind = notification.userInfo?["kind"] as? Kind else { return }
                 self?.publishChannelEvent(channelId: channelId, kind: kind, content: content)
                 
             }
@@ -740,13 +817,60 @@ extension Network {
             .sink { [weak self] notification in
                 guard let npub = notification.userInfo?["npub"] as? String,
                       let content = notification.userInfo?["content"] as? String,
-                let kind = notification.userInfo?["kind"] as? Kind else { return }
-
+                      let kind = notification.userInfo?["kind"] as? Kind else { return }
+                
                 guard let publicKey = PublicKey(npub: npub) else { return }
-
+                
                 self?.publishDMEvent(publicKey: publicKey, kind: kind, content: content)
             }
             .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .saveChannelMetadata)
+            .sink { [weak self] notification in
+                guard let channel = notification.userInfo?["channel"] as? Channel else { return }
+                
+                self?.saveChannel(channel)
+            }
+            .store(in: &cancellables)
+    }
+}
+
+// MARK: - Update Channel
+extension Network {
+    func saveChannel(_ channel: Channel) {
+        guard let account = keychainForNostr.account else {
+            os_log("🔥 account is unavailable", log: log, type: .error)
+            return
+        }
+        
+        guard let channelId = channel.creationEvent?.id else { return }
+        
+        channelMetadata[channelId] = channel.metadata
+        
+        do {
+            
+            let metadataKeys = Array(channelMetadata.keys)
+            
+            let tags = metadataKeys.map { key in
+                return try! EventTag(eventId: key)
+            }
+            
+            // Convert channelMetadata dictionary to JSON data using JSONEncoder
+            let jsonData = try JSONEncoder().encode(channelMetadata)
+            
+            // Convert JSON data to a string
+            let content = String(data: jsonData, encoding: .utf8) ?? ""
+            
+            let builder = SetChannelMetadataEvent.Builder()
+                .content(content)
+                .appendTags(contentsOf: tags.map { $0.tag })
+            
+            let event = try builder.build(signedBy: account)
+            
+            self.relayPool?.publishEvent(event)
+        } catch {
+            os_log("🔥 error publishing metadata %@", log: log, type: .error, error.localizedDescription)
+        }
     }
 }
 
@@ -779,7 +903,7 @@ extension Notification.Name {
     static let uploadVideo = Notification.Name("uploadVideo")
     
     // Channels
-    static let updateChannelMetadata = Notification.Name("updateChannelMetadata")
+    static let saveChannelMetadata = Notification.Name("saveChannelMetadata")
     static let subscribeToChannel = Notification.Name("subscribeToChannel")
     static let muteUser = Notification.Name("muteUser")
     

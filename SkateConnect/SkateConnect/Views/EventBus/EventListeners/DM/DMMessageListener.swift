@@ -70,7 +70,15 @@ class DMMessageListener: ObservableObject, EventCreating {
             }
             .store(in: &cancellables)
     }
-
+    
+    deinit {
+        guard let subscriptionId = self.subscriptionId else {
+            os_log("🔥 failed to get subscriptionId", log: log, type: .error)
+            return
+        }
+        EventBus.shared.didReceiveCloseMessagesSubscriptionRequest.send(subscriptionId)
+    }
+    
     func setPublicKey(_ publicKey: PublicKey) {
         self.publicKey = publicKey
     }

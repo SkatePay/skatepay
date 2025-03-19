@@ -201,7 +201,6 @@ class DataManager: ObservableObject {
 
         self.lobby?.upsertIntoLeads(bufferedLead)
         
-        UserDefaults.standard.setValue(lead.channelId, forKey: UserDefaults.Keys.lastVisitedChannelId)
         
         if !pan { 
             return
@@ -211,6 +210,8 @@ class DataManager: ObservableObject {
             return
         }
         
+        UserDefaults.standard.setValue(lead.channelId, forKey: UserDefaults.Keys.lastVisitedChannelId)
+
         if let spot = spot {
             NotificationCenter.default.post(
                 name: .goToSpot,

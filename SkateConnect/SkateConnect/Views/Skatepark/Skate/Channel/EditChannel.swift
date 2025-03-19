@@ -10,8 +10,8 @@ import NostrSDK
 import SwiftUI
 
 struct EditChannel: View, EventCreating {
-    @Environment(\.modelContext) private var context
-    
+    @Environment(\.dismiss) var dismiss
+
     @State private var isInviteCopied = false
     @State private var isEditingName = false
     @State private var isEditingDescription = false
@@ -40,17 +40,6 @@ struct EditChannel: View, EventCreating {
             return encryptedString
         }
         return channelId
-    }
-    
-    private func decodeAbout(_ about: String?) -> String {
-        guard let about = about else { return "" }
-        do {
-            let decoder = JSONDecoder()
-            let decodedStructure = try decoder.decode(AboutStructure.self, from: about.data(using: .utf8)!)
-            return decodedStructure.description
-        } catch {
-            return ""
-        }
     }
     
     private var isChannelOwner: Bool {
@@ -201,31 +190,17 @@ struct EditChannel: View, EventCreating {
                                     }
                             }
                         }
-                        
-                        // MARK: Private Channel Shortcut
-                        if channel.name == "Private Channel" {
-                            let spot = Spot(
-                                name: "Private Channel \(creationEvent.id.suffix(3))",
-                                address: "", state: "", icon: "", note: "",
-                                latitude: AppData().landmarks[0].locationCoordinate.latitude,
-                                longitude: AppData().landmarks[0].locationCoordinate.longitude,
-                                channelId: creationEvent.id
-                            )
-                            
-                            Button("Add to Address Book") {
-                                context.insert(spot)
-                            }
-                        }
                     }
                 }
                 .onAppear {
                     if originalName.isEmpty {
-                        originalName = channel.name
-                        draftName = channel.name
+                        originalName = channel.metadata?.name ?? channel.name
+                        draftName = originalName
                     }
                     
                     if originalDescription.isEmpty {
-                        originalDescription = decodeAbout(channel.about)
+                        let about = channel.metadata?.about ?? channel.about
+                        originalDescription = ChannelHelper.decodeAbout(about)?.description ?? channel.about
                         draftDescription = originalDescription
                     }
                 }
@@ -244,7 +219,9 @@ struct EditChannel: View, EventCreating {
                     .buttonStyle(.borderedProminent)
                     .padding()
                     .alert("Changes Saved", isPresented: $showSaveConfirmation) {
-                        Button("OK", role: .cancel) { }
+                        Button("OK", role: .cancel) {
+                            dismiss()
+                        }
                     }
                 }
             }
@@ -266,13 +243,10 @@ struct EditChannel: View, EventCreating {
     
     // MARK: Save Logic
     private func saveDraftChanges() {
-        print("Saving -> Name: \(draftName), Description: \(draftDescription)")
-        
-        guard let aboutDecoded = channel?.aboutDecoded else {
+        guard let aboutDecoded = channel?.aboutDecoded, let account = keychainForNostr.account else {
+            print("Missing channel metadata or account")
             return
         }
-        
-        var about = originalDescription
         
         let aboutStructure = AboutStructure(
             description: draftDescription,
@@ -280,44 +254,32 @@ struct EditChannel: View, EventCreating {
             note: aboutDecoded.note
         )
         
-        do {
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = .prettyPrinted
-            let data = try encoder.encode(aboutStructure)
-            about = String(data: data, encoding: .utf8) ?? originalDescription
-        } catch {
-            print("Error encoding: \(error)")
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        
+        guard let aboutData = try? encoder.encode(aboutStructure),
+              let aboutJSONString = String(data: aboutData, encoding: .utf8) else {
+            print("Encoding aboutStructure failed")
+            return
         }
         
-        if let account = keychainForNostr.account {
-            do {
-                let metadata = ChannelMetadata(
-                    name: draftName,
-                    about: about,
-                    picture: Constants.PICTURE_RABOTA_TOKEN,
-                    relays: [Constants.RELAY_URL_SKATEPARK])
-                
-                if let event = channel?.creationEvent {
-                    let tag = try EventTag(eventId: event.id)
-                    
-                    let builder = try? SetChannelMetadataEvent.Builder()
-                        .channelMetadata(metadata)
-                        .appendChannelCreateEventTag(tag)
-                    
-                    let event = try builder?.build(signedBy: account)
-                    
-                    NotificationCenter.default.post(
-                        name: .updateChannelMetadata,
-                        object: event
-                    )
-                }
-            } catch {
-                print("Error saving channel metadata: \(error)")
-            }
-        }
+        guard var channel = self.channel else { return }
+        
+        let metadata = ChannelMetadata(
+            name: draftName,
+            about: aboutJSONString,
+            picture: channel.picture,
+            relays: channel.relays
+        )
+          
+        channel.metadata = metadata
+        
+        NotificationCenter.default.post(
+            name: .saveChannelMetadata,
+            object: nil,
+            userInfo: [
+                "channel": channel
+            ]
+        )
     }
-}
-
-#Preview {
-    EditChannel(channel: Channel(name: "", about: "", picture: "", relays: [Constants.RELAY_URL_SKATEPARK], creationEvent: nil))
 }

@@ -23,11 +23,20 @@ class EventBus: ObservableObject {
     let didReceiveChannelSubscriptionRequest = PassthroughSubject<ChannelSubscriptionRequest, Never>()
     
     let didReceiveChannelSubscription = PassthroughSubject<(key: ChannelSubscriptionKey, subscriptionId: String), Never>()
+    
     let didReceiveChannelData = PassthroughSubject<RelayEvent, Never>()
     
     let didReceiveChannelMessagesSubscription = PassthroughSubject<(channelId: String, subscriptionId: String), Never>()
 
     let didReceiveChannelMessage = PassthroughSubject<RelayEvent, Never>()
     
+    typealias ChannelMetadataRequest = (channelId: String, metadata: ChannelMetadata)
+    
+    let didReceiveChannelMetadata = PassthroughSubject<ChannelMetadataRequest, Never>()
+    
     let didReceiveEOSE = PassthroughSubject<RelayResponse, Never>()
+    
+    let didReceiveCloseMetadataSubscriptionRequest = PassthroughSubject<(String, EventKind), Never>()
+    let didReceiveCloseMessagesSubscriptionRequest = PassthroughSubject<String, Never>()
+
 }

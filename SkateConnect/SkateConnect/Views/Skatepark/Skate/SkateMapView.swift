@@ -112,7 +112,7 @@ struct SkateMapView: View {
             buttons: [
                 .default(Text("Open")) {
                     locationManager.panMapToCachedCoordinate(lead.coordinate)
-                    channelViewManager.openChannel(channelId: lead.channelId)
+                    channelViewManager.openChannel(channelId: lead.channelId, invite: lead.note.contains("invite"))
                 },
                 .default(Text("Camera")) {
                     navigation.channelId = lead.channelId
