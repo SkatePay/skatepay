@@ -13,7 +13,7 @@ import SolanaSwift
 import SwiftUI
 import UIKit
 
-enum AssetType: String, CaseIterable {
+enum AssetType: String, CaseIterable, Codable {
     case sol = "SOL"
     case token = "Token"
 }

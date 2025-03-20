@@ -5,6 +5,8 @@
 //  Created by Konstantin Yurchenko, Jr on 10/3/24.
 //
 
+import os
+
 import CryptoKit
 import SwiftUI
 import SolanaSwift
@@ -20,6 +22,8 @@ extension SolanaSwift.Network {
 }
 
 struct ToolBoxView: View {
+    let log = OSLog(subsystem: "SkateConnect", category: "Wallet")
+
     @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var uploadManager: UploadManager
@@ -146,72 +150,7 @@ struct ToolBoxView: View {
 
                                 HStack {
                                     Button("Request") {
-                                        let asset: String
-                                        let symbol: String
-
-                                        switch selectedAssetType {
-                                        case .sol:
-                                            asset = "\(walletManager.network):SOL_NATIVE:SOL"
-                                            symbol = "SOL"
-
-                                        case .token:
-                                            guard
-                                                let tokenKey = selectedTokenKey,
-                                                let token = walletManager.tokens[tokenKey]
-                                            else {
-                                                print("❌ No valid token selected")
-                                                showingRequestPaymentPrompt = false
-                                                return
-                                            }
-                                            asset = "\(walletManager.network):\(token.mintAddress):\(token.symbol)"
-                                            symbol = token.symbol
-                                        }
-
-                                        let address = walletManager.getPublicKey() ?? "UNKNOWN"
-
-                                        print("🧾 Requesting \(amountToRequest) \(symbol) from \(address) [Asset: \(asset)]")
-
-                                        let invoice = Invoice(
-                                            asset: asset,
-                                            amount: amountToRequest,
-                                            address: address
-                                        )
-
-                                        guard let invoiceString = MessageHelper.encryptInvoiceToString(invoice: invoice) else {
-                                            print("❌ Encryption failed for invoice")
-                                            showingRequestPaymentPrompt = false
-                                            return
-                                        }
-
-                                        if let channelId = self.channelId {
-                                            NotificationCenter.default.post(
-                                                name: .publishChannelEvent,
-                                                object: nil,
-                                                userInfo: [
-                                                    "channelId": channelId,
-                                                    "content": "invoice:\(invoiceString)",
-                                                    "kind": Kind.invoice
-                                                ]
-                                            )
-
-                                            print("✅ Invoice posted to channel \(channelId)")
-                                        }
-                                        
-                                        if let npub = self.user?.npub {
-                                            NotificationCenter.default.post(
-                                                name: .publishDMEvent,
-                                                object: nil,
-                                                userInfo: [
-                                                    "npub": npub,
-                                                    "content": "invoice:\(invoiceString)",
-                                                    "kind": Kind.invoice
-                                                ]
-                                            )
-
-                                            print("✅ Invoice posted to DM \(npub)")
-                                        }
-
-                                        showingRequestPaymentPrompt = false
+                                        handleInvoice()
                                     }
                                     .padding()
                                     .background(Color.green)
@@ -265,6 +204,111 @@ struct ToolBoxView: View {
         .cornerRadius(20)
     }
 
+    func handleInvoice() {
+        Task {
+            // 1. Determine Asset and Symbol
+            let (asset, metadata, symbol) = await determineAssetAndSymbol()
+            guard let asset = asset, let metadata = metadata, let symbol = symbol else { return }
+
+            // 2. Get User Address
+            let address = walletManager.getPublicKey() ?? "UNKNOWN"
+            print("🧾 Requesting \(amountToRequest) \(symbol) from \(address) [Asset: \(asset)]")
+
+            // 3. Create and Encrypt Invoice
+            guard let invoiceString = createAndEncryptInvoice(asset: asset, metadata: metadata, address: address) else { return }
+
+            // 4. Post Invoice to Channel (if available)
+            postInvoiceToChannel(invoiceString: invoiceString)
+
+            // 5. Post Invoice to DM (if user available)
+            postInvoiceToDM(invoiceString: invoiceString)
+
+            // 6. Dismiss Prompt
+            showingRequestPaymentPrompt = false
+        }
+    }
+
+    // MARK: - Helper Functions for handleInvoice
+
+    private func determineAssetAndSymbol() async -> (asset: AssetType?, Metadata: String?, symbol: String?) {
+        switch selectedAssetType {
+        case .sol:
+            return (.sol, "\(walletManager.network):SOL_NATIVE:SOL", "SOL")
+
+        case .token:
+            guard
+                let tokenKey = selectedTokenKey,
+                let token = walletManager.tokens[tokenKey]
+            else {
+                os_log("❌ No valid token selected", log: log, type: .error)
+                showingRequestPaymentPrompt = false
+                return (.token, nil, nil)
+            }
+
+            let metadataString: String?
+            do {
+                let encoder = JSONEncoder()
+                let data = try encoder.encode(token)
+                metadataString = String(data: data, encoding: .utf8)
+                if let metadataString = metadataString {
+                    print("Encoded JSON: \(metadataString)")
+                }
+
+            } catch {
+                os_log("❌ Failed to encode TokenMetadata:", log: log, type: .error)
+                showingRequestPaymentPrompt = false
+                return (.token, nil, nil)
+            }
+            
+            return (.token, metadataString, token.symbol)
+        }
+    }
+
+    private func createAndEncryptInvoice(asset: AssetType, metadata: String?, address: String) -> String? {
+        let invoice = Invoice(
+            asset: asset,
+            metadata: metadata,
+            amount: amountToRequest,
+            address: address
+        )
+
+        guard let invoiceString = MessageHelper.encryptInvoiceToString(invoice: invoice) else {
+            print("❌ Encryption failed for invoice")
+            showingRequestPaymentPrompt = false
+            return nil
+        }
+        return invoiceString
+    }
+
+    private func postInvoiceToChannel(invoiceString: String) {
+        if let channelId = self.channelId {
+            NotificationCenter.default.post(
+                name: .publishChannelEvent,
+                object: nil,
+                userInfo: [
+                    "channelId": channelId,
+                    "content": "invoice:\(invoiceString)",
+                    "kind": Kind.invoice
+                ]
+            )
+            print("✅ Invoice posted to channel \(channelId)")
+        }
+    }
+
+    private func postInvoiceToDM(invoiceString: String) {
+        if let npub = self.user?.npub {
+            NotificationCenter.default.post(
+                name: .publishDMEvent,
+                object: nil,
+                userInfo: [
+                    "npub": npub,
+                    "content": "invoice:\(invoiceString)",
+                    "kind": Kind.invoice
+                ]
+            )
+            print("✅ Invoice posted to DM \(npub)")
+        }
+    }
     
     // Async function to post the selected media
     func postSelectedMedia(_ mediaURL: URL) async {

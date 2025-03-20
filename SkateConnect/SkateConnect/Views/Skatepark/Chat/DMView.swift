@@ -239,26 +239,18 @@ private extension DMView {
     private func openWallet() {
         guard let invoice = selectedInvoice else { return }
 
-        let parts = invoice.asset.split(separator: ":").map(String.init)
-        guard parts.count == 3 else {
-            print("❌ Invalid asset format: \(invoice.asset)")
-            return
-        }
-
-        let networkString = parts[0]
-        let mintAddress = parts[1]
-        let _ = parts[2]
-
-        guard let targetNetwork = SolanaSwift.Network(rawValue: networkString) else {
-            print("❌ Invalid network in asset: \(networkString)")
+        // Parse network and mintAddress from metadata
+        let parsed = MessageHelper.parseNetworkAndMint(from: invoice)
+        guard let (targetNetwork, mintAddress) = parsed else {
+            print("❌ Failed to parse network and mintAddress from invoice")
             return
         }
 
         guard let amountDecimal = Double(invoice.amount) else {
-            print("❌ Invalid decimal amount in invoice: \(invoice.amount)")
+            print("❌ Invalid amount format: \(invoice.amount)")
             return
         }
-        
+
         // 🔄 Switch network if needed
         if walletManager.network != targetNetwork {
             walletManager.network = targetNetwork

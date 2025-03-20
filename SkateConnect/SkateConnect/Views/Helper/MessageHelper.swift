@@ -10,6 +10,7 @@ import CryptoKit
 import Foundation
 import MessageKit
 import NostrSDK
+import SolanaSwift
 import UIKit
 
 
@@ -321,54 +322,173 @@ extension MessageHelper {
     
     private static func processInvoiceMessage(_ encryptedString: String, user: MockUser, event: NostrEvent) -> MessageType? {
         guard let invoice = decryptInvoiceFromString(encryptedString: encryptedString) else {
-            print("🔥 Failed to decrypt channel invoice")
-            return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
+            print("🔥 Failed to decrypt invoice string")
+            return fallbackMessage(with: encryptedString, user: user, event: event)
         }
 
-        guard let image = UIImage(named: "user-hub") else {
-            print("🔥 Failed to load invite thumbnail image")
-            return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
+        guard let image = UIImage(named: "solana-sol") else {
+            print("🔥 Failed to load thumbnail image")
+            return fallbackMessage(with: encryptedString, user: user, event: event)
         }
 
-        let urlString = "\(Constants.CHANNEL_URL_SKATEPARK)/\(event.id)?action=invoice"
-        guard let url = URL(string: urlString) else {
-            print("🔥 Failed to generate URL from string: \(urlString)")
-            return MockMessage(text: encryptedString, user: user, messageId: event.id, date: event.createdDate)
+        let invoiceURLString = "\(Constants.CHANNEL_URL_SKATEPARK)/\(event.id)?action=invoice"
+        guard let invoiceURL = URL(string: invoiceURLString) else {
+            print("🔥 Invalid URL: \(invoiceURLString)")
+            return fallbackMessage(with: encryptedString, user: user, event: event)
         }
 
-        let parts = invoice.asset.split(separator: ":").map(String.init)
-        guard parts.count == 3 else {
-            print("🔥 Invalid asset format: expected 3 parts but got \(parts.count) — value: \(invoice.asset)")
-            return MockMessage(text: invoice.asset, user: user, messageId: event.id, date: event.createdDate)
+        // Parse network and symbol based on asset type
+        guard let (network, thumbnailImage, symbol) = parseNetworkAndSymbol(from: invoice) else {
+            print("🔥 Failed to parse network/symbol from metadata")
+            return fallbackMessage(with: invoice.amount, user: user, event: event)
         }
 
-        let network = parts[0]
-        let symbol = parts[2]
-
-        guard let encoded = Invoice.encodeInvoiceToString(invoice) else {
-            print("❌ Failed to encode invoice")
-            return MockMessage(text: invoice.asset, user: user, messageId: event.id, date: event.createdDate)
+        guard let encodedInvoice = Invoice.encodeInvoiceToString(invoice) else {
+            print("❌ Failed to encode invoice to string")
+            return fallbackMessage(with: invoice.amount, user: user, event: event)
         }
 
-        print("📦 Encoded Invoice: \(encoded)")
+        print("📦 Encoded Invoice: \(encodedInvoice)")
+        let invoiceAttrText = NSAttributedString(string: encodedInvoice)
 
-        let invoiceAttributedString = NSAttributedString(string: encoded)
+        let transferTitle = (network == .testnet) ? "🫴 Transfer Request (TESTNET)" : "🫴 Transfer Request"
 
-        var text = "🫴 Transfer Request"
-        
-        if (network == "testnet") {
-            text = "🫴 Transfer Request (TESTNET)"
-        }
-        
         let linkItem = MockLinkItem(
-            text: text,
-            attributedText: invoiceAttributedString,
-            url: url,
+            text: transferTitle,
+            attributedText: invoiceAttrText,
+            url: invoiceURL,
             title: "\(invoice.amount) \(symbol)",
             teaser: invoice.address,
-            thumbnailImage: image
+            thumbnailImage: thumbnailImage ?? image
         )
 
         return MockMessage(linkItem: linkItem, user: user, messageId: event.id, date: event.createdDate)
+    }
+
+    private static func parseNetworkAndSymbol(from invoice: Invoice) -> (SolanaSwift.Network, UIImage?, String)? {
+        switch invoice.asset {
+        case .sol:
+            guard let metadata = invoice.metadata else {
+                print("❌ Missing metadata for SOL")
+                return nil
+            }
+
+            let parts = metadata.split(separator: ":").map(String.init)
+            guard parts.count == 3 else {
+                print("❌ Invalid SOL metadata format, expected 3 parts but got \(parts.count): \(metadata)")
+                return nil
+            }
+
+            guard let network = SolanaSwift.Network(rawValue: parts[0]) else {
+                print("❌ Unknown network string: \(parts[0])")
+                return nil
+            }
+
+            let symbol = parts[2]
+            return (network, nil, symbol)
+
+        case .token:
+            guard let metadataStr = invoice.metadata,
+                  let data = metadataStr.data(using: .utf8) else {
+                print("❌ Missing or invalid metadata for Token")
+                return nil
+            }
+
+            do {
+                let tokenMeta = try JSONDecoder().decode(TokenMetadata.self, from: data)
+                guard let network = network(from: tokenMeta.chainId) else {
+                    return nil
+                }
+                
+                var image: UIImage?
+                
+                guard let fallbackImage = UIImage(named: "solana-sol"), let tokenImage = UIImage(named: "rabota-token-basic") else {
+                    print("🔥 Failed to load thumbnail image")
+                    return nil
+                }
+
+                image = fallbackImage
+
+                if (tokenMeta.logoURI == "https://bafybeihfhf6gu76rvpcqp7vm55hdzqbu6szkrebdf2msnxamffkpvr5poa.ipfs.w3s.link/rabotaTokenBasic.png" || tokenMeta.logoURI == "https://bafybeierdzfqbppjdv36nnhiiyuwdsccag7la6juvzm4c732q2bmfcvice.ipfs.w3s.link/rabotaToken.png") {
+                    image = tokenImage
+                }
+                
+                return (network, image, tokenMeta.symbol)
+
+            } catch {
+                print("❌ Failed to decode Token metadata: \(error)")
+                return nil
+            }
+        }
+    }
+
+    public static func parseNetworkAndMint(from invoice: Invoice) -> (SolanaSwift.Network, String)? {
+        switch invoice.asset {
+        case .sol:
+            guard let metadata = invoice.metadata else {
+                print("❌ Missing metadata for SOL")
+                return nil
+            }
+
+            let parts = metadata.split(separator: ":").map(String.init)
+            guard parts.count == 3 else {
+                print("❌ Invalid SOL metadata format: \(metadata)")
+                return nil
+            }
+
+            guard let network = SolanaSwift.Network(rawValue: parts[0]) else {
+                print("❌ Unknown network string: \(parts[0])")
+                return nil
+            }
+
+            let mintAddress = parts[1]
+            return (network, mintAddress)
+
+        case .token:
+            guard let metadataStr = invoice.metadata,
+                  let data = metadataStr.data(using: .utf8) else {
+                print("❌ Missing or invalid metadata for Token")
+                return nil
+            }
+
+            do {
+                let tokenMeta = try JSONDecoder().decode(TokenMetadata.self, from: data)
+                guard let network = MessageHelper.network(from: tokenMeta.chainId) else {
+                    return nil
+                }
+                return (network, tokenMeta.mintAddress)
+            } catch {
+                print("❌ Failed to decode Token metadata: \(error)")
+                return nil
+            }
+        }
+    }
+    
+    private static func createImage(from logoURI: String?) async -> UIImage? {
+        guard let logoURI = logoURI, let url = URL(string: logoURI) else {
+            return nil
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return UIImage(data: data)
+        } catch {
+            print("Error creating image from \(logoURI): \(error)")
+            return nil
+        }
+    }
+    
+    public static func network(from chainId: Int) -> SolanaSwift.Network? {
+        switch chainId {
+        case 101: return .mainnetBeta
+        case 102: return .testnet
+        default:
+            print("❌ Unknown chainId: \(chainId)")
+            return nil
+        }
+    }
+    
+    private static func fallbackMessage(with text: String, user: MockUser, event: NostrEvent) -> MessageType {
+        return MockMessage(text: text, user: user, messageId: event.id, date: event.createdDate)
     }
 }

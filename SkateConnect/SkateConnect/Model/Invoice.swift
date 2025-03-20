@@ -9,7 +9,8 @@ import UIKit
 import NostrSDK
 
 struct Invoice: Codable {
-    var asset: String
+    var asset: AssetType
+    var metadata: String?
     var amount: String
     var address: String
     var creationEvent: NostrEvent?
