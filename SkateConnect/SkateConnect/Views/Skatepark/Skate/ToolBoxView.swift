@@ -38,12 +38,12 @@ struct ToolBoxView: View {
     
     @State private var selectedAssetType: AssetType = .sol
     
-    private var channelId: String? {
-        navigation.channelId
-    }
-    
-    private var user: User? {
-        navigation.user
+    var channelId: String? // Optional channelId
+    var user: User? // Optional user
+
+    init(channelId: String? = nil, user: User? = nil) {
+        self.channelId = channelId
+        self.user = user
     }
     
     var body: some View {
@@ -225,10 +225,13 @@ struct ToolBoxView: View {
             guard let invoiceString = createAndEncryptInvoice(asset: asset, metadata: metadata, address: address) else { return }
 
             // 4. Post Invoice to Channel (if available)
-            postInvoiceToChannel(invoiceString: invoiceString)
+            if channelId != nil {
+                postInvoiceToChannel(invoiceString: invoiceString)
+            }
 
-            // 5. Post Invoice to DM (if user available)
-            postInvoiceToDM(invoiceString: invoiceString)
+            if user != nil {
+                postInvoiceToDM(invoiceString: invoiceString)
+            }
 
             // 6. Dismiss Prompt
             showingRequestPaymentPrompt = false

@@ -187,15 +187,12 @@ struct ChannelView: View {
                 }
             }
             .sheet(isPresented: $isShowingToolBoxView) {
-                ToolBoxView()
+                ToolBoxView(channelId: channelId)
                     .environmentObject(debugManager)
                     .environmentObject(navigation)
                     .environmentObject(uploadManager)
                     .environmentObject(walletManager)
                     .presentationDetents([.medium])
-                    .onAppear {
-                        navigation.channelId = channelId
-                    }
             }
             .onChange(of: eventListenerForMessages.receivedEOSE) {
                 if eventListenerForMessages.receivedEOSE {
@@ -259,6 +256,7 @@ struct ChannelView: View {
                 }
             }
             .onDisappear {
+                navigation.channelId = nil
                 NotificationCenter.default.removeObserver(self)
             }
             .modifier(IgnoresSafeArea())

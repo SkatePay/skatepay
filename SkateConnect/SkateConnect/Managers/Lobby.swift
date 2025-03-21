@@ -124,6 +124,10 @@ class Lobby: ObservableObject, EventCreating {
                 finalText = "🚪 Spot invite received."
             } else if text.starts(with: "invoice:") {
                 finalText = "🫴 Payment request received."
+            } else if text.starts(with:"nsec") {
+                finalText = "🔑"
+            } else if text.count > 200 {
+                finalText = "📚 Long message received."
             } else {
                 finalText = text
             }

@@ -113,15 +113,12 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
         .navigationBarBackButtonHidden()
         .navigationBarItems(leading: backButton, trailing: actionButtons)
         .sheet(isPresented: $isShowingToolBoxView) {
-            ToolBoxView()
+            ToolBoxView(user: user)
                 .environmentObject(debugManager)
                 .environmentObject(navigation)
                 .environmentObject(uploadManager)
                 .environmentObject(walletManager)
                 .presentationDetents([.medium])
-                .onAppear {
-                    navigation.user = user
-                }
         }
         .actionSheet(isPresented: $showingInviteActionSheet) {
             ActionSheet(
