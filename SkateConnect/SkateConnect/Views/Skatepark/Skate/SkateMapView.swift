@@ -108,7 +108,7 @@ struct SkateMapView: View {
         
         return ActionSheet(
             title: Text("\(lead.name)"),
-            message: Text("Choose an action for this channel."),
+            message: Text("Choose an action for this spot."),
             buttons: [
                 .default(Text("Open")) {
                     locationManager.panMapToCachedCoordinate(lead.coordinate)
@@ -121,7 +121,7 @@ struct SkateMapView: View {
                 .default(Text("See on the Web")) {
                     MainHelper.shareChannel(lead.channelId)
                 },
-                (lead.channel?.creationEvent != nil) ? .default(Text("Copy Invite")) {
+                (lead.channel?.creationEvent != nil) ? .default(Text("Copy invite")) {
                     var inviteString = lead.channelId
                     
                     if let event = lead.channel?.creationEvent {

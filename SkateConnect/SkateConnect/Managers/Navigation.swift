@@ -32,6 +32,7 @@ enum NavigationPathType: Hashable {
     case importIdentity
     case importWallet
     case landmarkDirectory
+    case recoveryPhrase(mnemonic: [String])
     case reportUser(user: User, message: String)
     case restoreData
     case search

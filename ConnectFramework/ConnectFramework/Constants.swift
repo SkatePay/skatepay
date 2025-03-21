@@ -21,6 +21,7 @@ public struct Constants {
     
     public struct SOLANA_MAIN {
         public static let ENDPOINT = "https://mainnet.helius-rpc.com/?api-key=b1016b8c-b125-49e0-8ad0-c2098b03c73e" //"https://api.mainnet-beta.solana.com"
+        public static let RABOTA_INFORMATION_URL = "https://prorobot.ai/token/DaEivka37g83C3QMokZmBsUNsAHoh1tm8HhKh8r4Cen5"
     }
 
     public static let SOLANA_TOKEN_LIST_URL =  "https://raw.githubusercontent.com/SkatePay/token/master/solana.tokenlist.json"

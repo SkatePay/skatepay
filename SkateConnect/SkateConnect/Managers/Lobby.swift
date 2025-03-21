@@ -121,9 +121,9 @@ class Lobby: ObservableObject, EventCreating {
             let finalText: String
 
             if text.starts(with:"channel_invite") {
-                finalText = "🚪 Channel invite pending..."
+                finalText = "🚪 Spot invite received."
             } else if text.starts(with: "invoice:") {
-                finalText = "🫴 Payment request"
+                finalText = "🫴 Payment request received."
             } else {
                 finalText = text
             }

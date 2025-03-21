@@ -60,7 +60,7 @@ struct EditChannel: View, EventCreating {
         VStack {
             if let channel = channel {
                 Form {
-                    Text("📡 Channel Info")
+                    Text("📜 Spot Info")
                     
                     // MARK: Name Section
                     Section("Name") {
@@ -171,7 +171,7 @@ struct EditChannel: View, EventCreating {
                                         }
                                     }
                                     
-                                    Button("Copy channelId") {
+                                    Button("Copy spotId") {
                                         guard let channelId = channel.creationEvent?.id else { return }
                                         UIPasteboard.general.string = channelId
                                     }

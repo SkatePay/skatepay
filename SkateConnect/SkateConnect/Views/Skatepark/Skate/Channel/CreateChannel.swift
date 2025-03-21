@@ -29,7 +29,7 @@ struct CreateChannel: View, EventCreating {
 
     
     var body: some View {
-        Text("📡 Open Channel")
+        Text("🏁 Mark Spot")
         Form {
             Section("Name") {
                 TextField("name", text: $name)

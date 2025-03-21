@@ -237,6 +237,7 @@ struct ContentView: View {
                     
                 case .importWallet:
                     ImportWallet()
+                        .environmentObject(navigation)
                         .environmentObject(walletManager)
                     
                 case .landmarkDirectory:
@@ -253,6 +254,11 @@ struct ContentView: View {
                         .environmentObject(navigation)
                         .environmentObject(network)
                         .environmentObject(uploadManager)
+                        .environmentObject(walletManager)
+                
+                case .recoveryPhrase(let mnemonic):
+                    RecoveryPhraseView(mnemonic: mnemonic)
+                        .environmentObject(navigation)
                         .environmentObject(walletManager)
                     
                 case .restoreData:

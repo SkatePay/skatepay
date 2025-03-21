@@ -126,7 +126,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
         .actionSheet(isPresented: $showingInviteActionSheet) {
             ActionSheet(
                 title: Text("Confirmation"),
-                message: Text("Are you sure you want to join this channel?"),
+                message: Text("Are you sure you want to go to this spot?"),
                 buttons: [
                     .default(Text("Yes")) {
                         openChannelInvite()

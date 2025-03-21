@@ -143,10 +143,17 @@ struct ToolBoxView: View {
                                     }
                                 }
                                 TextField("Amount", text: $amountToRequest)
+                                    .keyboardType(.decimalPad)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .padding(.horizontal)
                                     .disableAutocorrection(true)
                                     .autocapitalization(.none)
+                                    .onChange(of: amountToRequest) {
+                                        let filtered = amountToRequest.filter { "0123456789.".contains($0) }
+                                        if filtered != amountToRequest {
+                                            amountToRequest = filtered
+                                        }
+                                    }
 
                                 HStack {
                                     Button("Request") {

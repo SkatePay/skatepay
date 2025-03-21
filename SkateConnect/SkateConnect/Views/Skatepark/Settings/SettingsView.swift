@@ -93,28 +93,30 @@ struct SettingsView: View {
                                     UIPasteboard.general.string = account.publicKey.npub
                                     showCopyNotification = true
                                 }) {
-                                    Text("Copy npub")
+                                    Text("Copy Public Key")
                                 }
                             
                                 Button(action: {
                                     UIPasteboard.general.string = account.privateKey.nsec
                                     showCopyNotification = true
                                 }) {
-                                    Text("Copy nsec")
+                                    Text("Copy Secret Key")
                                 }
                             
-                                Button(action: {
-                                    UIPasteboard.general.string = account.publicKey.hex
-                                    showCopyNotification = true
-                                }) {
-                                    Text("Copy phex")
-                                }
-                            
-                                Button(action: {
-                                    UIPasteboard.general.string = account.privateKey.hex
-                                    showCopyNotification = true
-                                }) {
-                                    Text("Copy shex")
+                                if debugManager.hasEnabledDebug {
+                                    Button(action: {
+                                        UIPasteboard.general.string = account.publicKey.hex
+                                        showCopyNotification = true
+                                    }) {
+                                        Text("Copy phex")
+                                    }
+                                
+                                    Button(action: {
+                                        UIPasteboard.general.string = account.privateKey.hex
+                                        showCopyNotification = true
+                                    }) {
+                                        Text("Copy shex")
+                                    }
                                 }
                         }
                     } else {

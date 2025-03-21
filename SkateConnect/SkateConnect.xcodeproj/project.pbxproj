@@ -60,6 +60,7 @@
 		C62B84F32CA5D4230086AEE0 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F22CA5D4230086AEE0 /* CameraView.swift */; };
 		C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */; };
 		C634D8702D8A4068005644C3 /* ChannelHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C634D86D2D8A4063005644C3 /* ChannelHelper.swift */; };
+		C634D8722D8E1E37005644C3 /* RecoveryPhraseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C634D8712D8E1E31005644C3 /* RecoveryPhraseView.swift */; };
 		C63DEF482D7B85960058224F /* ChannelEventPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF472D7B85960058224F /* ChannelEventPublisher.swift */; };
 		C63DEF4C2D7BBEB80058224F /* ChannelMetadataListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF4B2D7BBEB80058224F /* ChannelMetadataListener.swift */; };
 		C63DEF4E2D7BBF6B0058224F /* ChannelMessageListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF4D2D7BBF6B0058224F /* ChannelMessageListener.swift */; };
@@ -226,6 +227,7 @@
 		C62B84F22CA5D4230086AEE0 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		C62B84F42CA5E19B0086AEE0 /* VideoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
 		C634D86D2D8A4063005644C3 /* ChannelHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelHelper.swift; sourceTree = "<group>"; };
+		C634D8712D8E1E31005644C3 /* RecoveryPhraseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryPhraseView.swift; sourceTree = "<group>"; };
 		C63DEF472D7B85960058224F /* ChannelEventPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelEventPublisher.swift; sourceTree = "<group>"; };
 		C63DEF4B2D7BBEB80058224F /* ChannelMetadataListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelMetadataListener.swift; sourceTree = "<group>"; };
 		C63DEF4D2D7BBF6B0058224F /* ChannelMessageListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelMessageListener.swift; sourceTree = "<group>"; };
@@ -493,6 +495,7 @@
 		C62501202C93C1340026C334 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
+				C634D8712D8E1E31005644C3 /* RecoveryPhraseView.swift */,
 				C625011D2C93C1340026C334 /* ImportWallet.swift */,
 				C625011E2C93C1340026C334 /* TransferAsset.swift */,
 				C625011F2C93C1340026C334 /* WalletView.swift */,
@@ -1005,6 +1008,7 @@
 				C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */,
 				C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
+				C634D8722D8E1E37005644C3 /* RecoveryPhraseView.swift in Sources */,
 				C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */,
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,

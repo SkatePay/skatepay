@@ -270,7 +270,7 @@ extension MessageHelper {
         )
         
         let linkItem = MockLinkItem(
-            text: "🚪🏃 Channel Invite",
+            text: "🚪🏃 Spot Invite",
             attributedText: inviteAttributedString,
             url: url,
             title: "\(icon) \(channel.name)",

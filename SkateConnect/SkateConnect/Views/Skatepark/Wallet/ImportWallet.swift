@@ -10,6 +10,9 @@ import NostrSDK
 import SolanaSwift
 
 struct ImportWallet: View {
+    @Environment(\.dismiss) var dismiss
+
+    @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var walletManager: WalletManager
     
     @State private var newAlias_Create: String = ""
@@ -24,19 +27,8 @@ struct ImportWallet: View {
             Section("Create New \(walletManager.network) Key") {
                 TextField("Alias", text: $newAlias_Create)
                 Button("Create") {
-                    if !newAlias_Create.isEmpty {
-                        Task {
-                            if let keyPair = try? await KeyPair(network: walletManager.network) {
-                                try? walletManager.keychainForSolana.save(alias: newAlias_Create, account: keyPair, network: walletManager.network)
-                                walletManager.selectedAlias = newAlias_Create
-                                walletManager.refreshAliases()
-                                
-                                walletManager.fetch { isLoading, _ in
-                                    loading = isLoading
-                                }
-                                showingAlert = true
-                            }
-                        }
+                    Task{
+                        await createWallet()
                     }
                 }
                 .disabled(newAlias_Create.isEmpty)
@@ -59,11 +51,24 @@ struct ImportWallet: View {
                 .disabled(newAlias_Import.isEmpty || privateKey.isEmpty)
             }
             .alert("Wallet Imported.", isPresented: $showingAlert) {
-                Button("Ok", role: .cancel) { }
-
+                Button("Ok", role: .cancel) {
+                    dismiss()
+                }
             }
         }
     }
+    
+    func createWallet() async {
+         guard !newAlias_Create.isEmpty else { return }
+         do {
+             let keyPair = try await KeyPair(network: walletManager.network)
+             try walletManager.keychainForSolana.save(alias: newAlias_Create, account: keyPair, network: walletManager.network)
+             walletManager.selectedAlias = newAlias_Create
+             navigation.path.append(NavigationPathType.recoveryPhrase(mnemonic: keyPair.phrase))
+         } catch {
+             print("❌ Error creating wallet:", error)
+         }
+     }
     
     func importWallet() async {
         if newAlias_Import.isEmpty || privateKey.isEmpty {

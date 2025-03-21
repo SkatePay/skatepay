@@ -76,7 +76,7 @@ extension CLLocationCoordinate2D: Codable {
 }
 
 enum ChannelEmoji: String, CaseIterable, Identifiable {
-    case broadcast = "📡"
+    case broadcast = "🏁"
     case content = "🎥"
     case game = "🏆"
     case job = "🧹"

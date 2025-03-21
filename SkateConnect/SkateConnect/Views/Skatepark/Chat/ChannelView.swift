@@ -281,7 +281,7 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-        .confirmationDialog("Channel Invite", isPresented: $showingInviteActionSheet, titleVisibility: .visible) {
+        .confirmationDialog("Spot Invite", isPresented: $showingInviteActionSheet, titleVisibility: .visible) {
             Button("Accept") {
                 openChannelInvite()
             }

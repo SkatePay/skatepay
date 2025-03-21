@@ -93,59 +93,18 @@ struct OverlayView: View {
                     
                     VStack(spacing: 20) {
                         HStack {
-                            Text("Start Channel")
+                            Text("Mark Spot")
                                 .font(.caption)
                                 .foregroundColor(.white)
                             
                             Button(action: {
                                 navigation.path.append(NavigationPathType.createChannel)
                             }) {
-                                Image(systemName: "shareplay")
+                                Image(systemName: "flag.fill")
                                     .foregroundColor(.white)
                                     .padding()
                                     .background(Color.black.opacity(0.7))
                                     .clipShape(Circle())
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        
-                        HStack {
-                            Text("Save Spot")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                            
-                            Button(action: {
-                                Task {
-                                    for mark in stateManager.marks {
-                                        let spot = Spot(
-                                            name: mark.name,
-                                            address: "",
-                                            state: "",
-                                            icon: "",
-                                            note: "private",
-                                            latitude: mark.coordinate.latitude,
-                                            longitude: mark.coordinate.longitude
-                                        )
-                                        context.insert(spot)
-                                        
-                                        NotificationCenter.default.post(
-                                            name: .goToSpot,
-                                            object: spot
-                                        )
-                                    }
-                                }
-                                stateManager.showingAlertForSpotBookmark.toggle()
-                            }) {
-                                Image(systemName: "bookmark.circle.fill")
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .background(Color.black.opacity(0.7))
-                                    .clipShape(Circle())
-                            }
-                            .alert("Spot bookmarked", isPresented: $stateManager.showingAlertForSpotBookmark) {
-                                Button("OK", role: .cancel) {
-                                    stateManager.marks = []
-                                }
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)

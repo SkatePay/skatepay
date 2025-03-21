@@ -22,6 +22,7 @@ struct WalletView: View {
     @State private var error: Error?
     
     @State private var showDropConfirmation = false
+    @State private var showPurgeConfirmation = false
     @State private var aliasToDrop: String? = nil
 
     let saveAction: ()->Void
@@ -68,16 +69,9 @@ struct WalletView: View {
             if (!walletManager.getAliasesForCurrentNetwork().isEmpty) {
                 assetBalance
             }
-
-            Button("Disable Wallet") {
-                Task {
-                    debugManager.resetDebug()
-                    navigation.tab = .settings
-                }
-            }
             
             Button("Purge Keys") {
-                walletManager.purgeAllAccounts()
+                showPurgeConfirmation = true
             }
         }
         .onAppear() {
@@ -86,6 +80,16 @@ struct WalletView: View {
                 self.error = error
             }
         }
+        .alert("Purge keys?",
+               isPresented: $showPurgeConfirmation,
+               actions: {
+            Button("Cancel", role: .cancel) {}
+            Button("Purge", role: .destructive) {
+                walletManager.purgeAllAccounts()
+            }
+        }, message: {
+            Text("Are you sure you want to purge your keys?")
+        })
         .alert("Drop alias?",
                isPresented: $showDropConfirmation,
                actions: {
@@ -209,7 +213,7 @@ private extension WalletView {
                 navigation.path.append(NavigationPathType.importWallet)
             }) {
                 let isEmpty = walletManager.getAliasesForCurrentNetwork().isEmpty
-                Text(isEmpty ? "🔑 Create Keys" : "🔑 Manage Keys")
+                Text(isEmpty ? "🔐 New Account" : "🔑 Manage Keys")
             }
         }
     }
@@ -219,6 +223,14 @@ private extension WalletView {
 private extension WalletView {
     @ViewBuilder
     func tokenContextMenu(for account: SolanaAccount) -> some View {
+        Button(action: {
+            if let url = URL(string: Constants.SOLANA_MAIN.RABOTA_INFORMATION_URL) {
+                openURL(url)
+            }
+        }) {
+            Text("ℹ️ Open Information")
+        }
+        
         Button(action: {
             if let url = URL(string: "https://explorer.solana.com/address/\(account.address)?cluster=\(walletManager.network)") {
                 openURL(url)
@@ -247,14 +259,6 @@ private extension WalletView {
             UIPasteboard.general.string = account.mintAddress
         }) {
             Text("Copy mint address")
-        }
-        
-        Button(action: {
-            if let url = URL(string: "https://github.com/prorobot-ai/token") {
-                openURL(url)
-            }
-        }) {
-            Text("ℹ️ Open Information")
         }
     }
 }
