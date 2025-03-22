@@ -357,7 +357,7 @@ extension MessageHelper {
             text: transferTitle,
             attributedText: invoiceAttrText,
             url: invoiceURL,
-            title: "\(invoice.amount) \(symbol)",
+            title: "\(invoice.amount) $\(symbol)",
             teaser: invoice.address,
             thumbnailImage: thumbnailImage ?? image
         )
