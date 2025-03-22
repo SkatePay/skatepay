@@ -95,7 +95,7 @@ struct SkateMapView: View {
     }
     
     func createActionSheetForLead(_ lead: Lead) -> ActionSheet {
-        let spot = dataManager.findSpotForChannelId(lead.channelId)
+        let spot = dataManager.findSpotsForChannelId(lead.channelId).first
         
         var canBeRemoved = true
         
@@ -108,11 +108,11 @@ struct SkateMapView: View {
         
         return ActionSheet(
             title: Text("\(lead.name)"),
-            message: Text("Choose an action for this channel."),
+            message: Text("Choose an action for this spot."),
             buttons: [
                 .default(Text("Open")) {
                     locationManager.panMapToCachedCoordinate(lead.coordinate)
-                    channelViewManager.openChannel(channelId: lead.channelId)
+                    channelViewManager.openChannel(channelId: lead.channelId, invite: lead.note.contains("invite"))
                 },
                 .default(Text("Camera")) {
                     navigation.channelId = lead.channelId
@@ -121,13 +121,13 @@ struct SkateMapView: View {
                 .default(Text("See on the Web")) {
                     MainHelper.shareChannel(lead.channelId)
                 },
-                (lead.event != nil) ? .default(Text("Copy Invite")) {
+                (lead.channel?.creationEvent != nil) ? .default(Text("Copy invite")) {
                     var inviteString = lead.channelId
                     
-                    if let event = lead.event {
+                    if let event = lead.channel?.creationEvent {
                         if var channel = parseChannel(from: event) {
-                            channel.event = event
-                            if let ecryptedString = encryptChannelInviteToString(channel: channel) {
+                            channel.creationEvent = event
+                            if let ecryptedString = MessageHelper.encryptChannelInviteToString(channel: channel) {
                                 inviteString = ecryptedString
                             }
                         }

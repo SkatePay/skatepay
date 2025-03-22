@@ -12,11 +12,12 @@ import SwiftData
 import CoreLocation
 
 struct Channel: Codable {
-    let name: String
-    let about: String
-    let picture: String
-    let relays: [String]
-    var event: NostrEvent?
+    var name: String
+    var about: String
+    var picture: String
+    var relays: [String]
+    var creationEvent: NostrEvent?
+    var metadata: ChannelMetadata?
 
     var aboutDecoded: AboutStructure? {
         guard let data = about.data(using: .utf8) else { return nil }
@@ -40,7 +41,7 @@ func parseChannel(from event: NostrEvent) -> Channel? {
     do {
         let decoder = JSONDecoder()
         var channel = try decoder.decode(Channel.self, from: data)
-        channel.event = event
+        channel.creationEvent = event
         return channel
     } catch {
         print("Error decoding JSON: \(error)")
@@ -75,7 +76,7 @@ extension CLLocationCoordinate2D: Codable {
 }
 
 enum ChannelEmoji: String, CaseIterable, Identifiable {
-    case broadcast = "📡"
+    case broadcast = "🏁"
     case content = "🎥"
     case game = "🏆"
     case job = "🧹"
@@ -84,6 +85,7 @@ enum ChannelEmoji: String, CaseIterable, Identifiable {
     case note = "📝"
     case idea = "💡"
     case camp = "⛺️"
+    case bank = "🏦"
     
     var id: String { rawValue }
 }

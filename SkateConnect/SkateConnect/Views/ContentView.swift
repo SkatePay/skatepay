@@ -142,6 +142,14 @@ struct ContentView: View {
                         selectedTab: $navigation.tab
                     )
                     
+                    // Settings Tab
+                    TabButton(
+                        tab: .settings,
+                        label: "Settings",
+                        systemImage: "gearshape",
+                        selectedTab: $navigation.tab
+                    )
+                    
                     // Wallet Tab (conditionally shown)
                     if shouldShowWalletView {
                         TabButton(
@@ -151,14 +159,6 @@ struct ContentView: View {
                             selectedTab: $navigation.tab
                         )
                     }
-                    
-                    // Settings Tab
-                    TabButton(
-                        tab: .settings,
-                        label: "Settings",
-                        systemImage: "gearshape",
-                        selectedTab: $navigation.tab
-                    )
                 }
                 .padding(.vertical, 8)
                 .background(Color(.systemBackground))
@@ -191,6 +191,7 @@ struct ContentView: View {
                         .environmentObject(network)
                         .environmentObject(stateManager)
                         .environmentObject(uploadManager)
+                        .environmentObject(walletManager)
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()
                         }
@@ -220,8 +221,11 @@ struct ContentView: View {
                 case .directMessage(user: let user):
                     DMView(user: user)
                         .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(uploadManager)
+                        .environmentObject(walletManager)
                     
                 case .filters:
                     Filters()
@@ -233,6 +237,7 @@ struct ContentView: View {
                     
                 case .importWallet:
                     ImportWallet()
+                        .environmentObject(navigation)
                         .environmentObject(walletManager)
                     
                 case .landmarkDirectory:
@@ -245,8 +250,16 @@ struct ContentView: View {
                 case .reportUser(user: let user, message: let message):
                     DMView(user: user, message: message)
                         .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(uploadManager)
+                        .environmentObject(walletManager)
+                
+                case .recoveryPhrase(let mnemonic):
+                    RecoveryPhraseView(mnemonic: mnemonic)
+                        .environmentObject(navigation)
+                        .environmentObject(walletManager)
                     
                 case .restoreData:
                     RestoreDataView()
@@ -282,7 +295,7 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .subscribeToChannel)) { notification in
             if let channelId = notification.userInfo?["channelId"] as? String {
-                if let spot = dataManager.findSpotForChannelId(channelId) {
+                if let spot = dataManager.findSpotsForChannelId(channelId).first {
                     navigation.coordinate = spot.locationCoordinate
                     locationManager.panMapToCachedCoordinate()
                 }

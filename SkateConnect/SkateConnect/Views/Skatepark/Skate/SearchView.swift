@@ -22,8 +22,8 @@ struct SearchView: View {
     
     var body: some View {
         Form {
-            Section("channel") {
-                TextField("channel", text: $channelId)
+            Section("Spot") {
+                TextField("spotId", text: $channelId)
             }
             
             Section("location") {

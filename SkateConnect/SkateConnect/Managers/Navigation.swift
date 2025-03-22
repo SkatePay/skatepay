@@ -11,18 +11,6 @@ import Foundation
 import NostrSDK
 import SwiftUI
 
-extension Notification.Name {
-    static let goToLandmark = Notification.Name("goToLandmark")
-    static let goToCoordinate = Notification.Name("goToCoordinate")
-    static let markSpot = Notification.Name("markSpot")
-    static let goToSpot = Notification.Name("goToSpot")
-    static let subscribeToChannel = Notification.Name("subscribeToChannel")
-    static let muteUser = Notification.Name("muteUser")
-    static let barcodeScanned = Notification.Name("barcodeScanned")
-    static let uploadImage = Notification.Name("uploadImage")
-    static let uploadVideo = Notification.Name("uploadVideo")
-}
-
 enum Tab {
     case lobby
     case map
@@ -44,6 +32,7 @@ enum NavigationPathType: Hashable {
     case importIdentity
     case importWallet
     case landmarkDirectory
+    case recoveryPhrase(mnemonic: [String])
     case reportUser(user: User, message: String)
     case restoreData
     case search
@@ -67,9 +56,7 @@ class Navigation: ObservableObject {
     @Published var activeView: ActiveView = .other
     
     @Published var channelId: String?
-    @Published var channel: NostrEvent?
-    
-    @Published var selectedUser: User?
+    @Published var user: User?
     
     @Published var landmark: Landmark?
     @Published var coordinate: CLLocationCoordinate2D?

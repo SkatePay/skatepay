@@ -29,7 +29,7 @@ struct CreateChannel: View, EventCreating {
 
     
     var body: some View {
-        Text("📡 Open Channel")
+        Text("🏁 Mark Spot")
         Form {
             Section("Name") {
                 TextField("name", text: $name)
@@ -52,17 +52,21 @@ struct CreateChannel: View, EventCreating {
                 TextField("description", text: $description)
             }
             Button("Create") {
-                var about = description
-                
                 let mark = stateManager.marks[0]
-                let aboutStructure = AboutStructure(description: description, location: mark.coordinate, note: icon)
-                do {
-                    let encoder = JSONEncoder()
-                    encoder.outputFormatting = .prettyPrinted
-                    let data = try encoder.encode(aboutStructure)
-                    about  = String(data: data, encoding: .utf8) ?? description
-                } catch {
-                    print("Error encoding: \(error)")
+                
+                let aboutStructure = AboutStructure(
+                    description: description,
+                    location: mark.coordinate,
+                    note: icon
+                )
+                
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = .prettyPrinted
+                
+                guard let aboutData = try? encoder.encode(aboutStructure),
+                      let about = String(data: aboutData, encoding: .utf8) else {
+                    print("Encoding aboutStructure failed")
+                    return
                 }
                 
                 if let account = keychainForNostr.account {

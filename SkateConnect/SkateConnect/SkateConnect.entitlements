@@ -5,6 +5,8 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:skatepark.chat</string>
+		<string>applinks:skateconnect.app</string>
+		<string>applinks:sk8.chat</string>
 	</array>
 </dict>
 </plist>

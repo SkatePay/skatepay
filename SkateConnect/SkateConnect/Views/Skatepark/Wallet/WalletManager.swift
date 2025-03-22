@@ -5,12 +5,23 @@
 //  Created by Konstantin Yurchenko, Jr on 9/12/24.
 //
 
+import Combine
 import ConnectFramework
 import Foundation
-import SwiftUI
 import NostrSDK
 import SolanaSwift
-import Combine
+import SwiftUI
+import UIKit
+
+enum AssetType: String, CaseIterable, Codable {
+    case sol = "SOL"
+    case token = "Token"
+}
+
+enum AssetSendResult {
+    case success(transactionId: String)
+    case failure(error: Error)
+}
 
 extension UserDefaults {
     var selectedAlias: String {
@@ -44,7 +55,8 @@ class WalletManager: ObservableObject {
     }
     
     @Published var publicKey: String?
-    @Published var aliases: [String] = [] // Add this line
+    @Published var aliases: [String] = []
+    @Published var tokens: [String: TokenMetadata] = [:]
     
     let keychainForSolana = SolanaKeychainStorage()
     
@@ -57,7 +69,8 @@ class WalletManager: ObservableObject {
     
     init() {
         updateApiClient()
-        refreshAliases() // Refresh aliases on initialization
+        refreshAliases()
+        getTokenList()
     }
     
     func getSelectedAccount() -> KeyPair? {
@@ -80,9 +93,9 @@ class WalletManager: ObservableObject {
     // Update the API client based on the selected network
     func updateApiClient() {
         let solanaEndpoints: [APIEndPoint] = [
-            .init(address: ConnectFramework.Constants.SOLANA_MAINNET_ENDPOINT, network: .mainnetBeta),
-            .init(address: ConnectFramework.Constants.SOLANA_TESTNET_ENDPOINT, network: .testnet),
-            .init(address: ConnectFramework.Constants.SOLANA_DEVNET_ENDPOINT, network: .devnet),
+            .init(address: ConnectFramework.Constants.SOLANA_MAIN.ENDPOINT, network: .mainnetBeta),
+            .init(address: ConnectFramework.Constants.SOLANA_TEST.ENDPOINT, network: .testnet),
+            .init(address: ConnectFramework.Constants.SOLANA_DEV.ENDPOINT, network: .devnet),
         ]
         
         // Set the API client based on the selected network
@@ -91,11 +104,11 @@ class WalletManager: ObservableObject {
     }
     
     // Fetch account details (balance, block height, etc.)
-    func fetch(onLoadingStateChange: @escaping (Bool) -> Void) {
+    func fetch(onLoadingStateChange: @escaping (Bool, Error?) -> Void) {
         Task {
             do {
                 await MainActor.run {
-                    onLoadingStateChange(true)
+                    onLoadingStateChange(true, nil)
                 }
                 let height = try await solanaApiClient.getBlockHeight()
                 
@@ -106,7 +119,7 @@ class WalletManager: ObservableObject {
                 let tokenListUrl = Constants.SOLANA_TOKEN_LIST_URL
                 let networkManager = URLSession.shared
                 let tokenRepository = SolanaTokenListRepository(tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager))
-                
+
                 let (amount, (resolved, _)) = try await (
                     solanaApiClient.getBalance(account: owner, commitment: "recent"),
                     solanaApiClient.getAccountBalances(
@@ -118,7 +131,7 @@ class WalletManager: ObservableObject {
                 )
 
                 await MainActor.run {
-                    onLoadingStateChange(false)
+                    onLoadingStateChange(false, nil)
                     
                     blockHeight = height
                     balance = amount
@@ -136,7 +149,58 @@ class WalletManager: ObservableObject {
                         }
                 }
             } catch {
+                onLoadingStateChange(false, error)
                 print("Error fetching account details: \(error)")
+            }
+        }
+    }
+    
+    func fetchAccountDetails(completion: @escaping (Result<[SolanaAccount], Error>) -> Void) {
+        Task {
+            do {
+                let height = try await solanaApiClient.getBlockHeight()
+
+                let owner = keychainForSolana.get(alias: selectedAlias)?.keyPair.publicKey.base58EncodedString ?? ""
+
+                let tokenListUrl = Constants.SOLANA_TOKEN_LIST_URL
+                let networkManager = URLSession.shared
+                let tokenRepository = SolanaTokenListRepository(
+                    tokenListSource: SolanaTokenListSourceImpl(url: tokenListUrl, networkManager: networkManager)
+                )
+
+                let (amount, (resolved, _)) = try await (
+                    solanaApiClient.getBalance(account: owner, commitment: "recent"),
+                    solanaApiClient.getAccountBalances(
+                        for: owner,
+                        withToken2022: true,
+                        tokensRepository: tokenRepository,
+                        commitment: "confirmed"
+                    )
+                )
+
+                let accounts = resolved.compactMap { accountBalance -> SolanaAccount? in
+                    guard let pubKey = accountBalance.pubkey else { return nil }
+                    return SolanaAccount(
+                        address: pubKey,
+                        lamports: accountBalance.lamports ?? 0,
+                        token: accountBalance.token,
+                        minRentExemption: accountBalance.minimumBalanceForRentExemption,
+                        tokenProgramId: accountBalance.tokenProgramId
+                    )
+                }
+
+                // Update state on main thread
+                await MainActor.run {
+                    self.blockHeight = height
+                    self.balance = amount
+                    self.accounts = accounts
+                }
+
+                completion(.success(accounts))
+
+            } catch {
+                print("❌ fetchAccountDetails failed: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -197,6 +261,25 @@ class WalletManager: ObservableObject {
         refreshAliases() // Refresh the list of aliases
     }
     
+    func getTokenList() {
+        let tokenListUrl = Constants.SOLANA_TOKEN_LIST_URL
+        let networkManager = URLSession.shared
+        let tokenRepository = SolanaTokenListRepository(
+            tokenListSource: SolanaTokenListSourceImpl(
+                url: tokenListUrl,
+                networkManager: networkManager
+            )
+        )
+
+        Task {
+            do {
+                self.tokens = try await tokenRepository.all()
+            } catch {
+                print("❌ Failed to fetch token list: \(error)")
+            }
+        }
+    }
+    
     // Format a number for display (e.g., balance)
     static func formatNumber(_ number: UInt64) -> String {
         let formatter = NumberFormatter()
@@ -211,6 +294,77 @@ class WalletManager: ObservableObject {
             return formattedNumber
         } else {
             return "Error formatting number"
+        }
+    }
+    
+    func getPublicKey() -> String? {
+        return keychainForSolana.get(alias: selectedAlias)?.keyPair.publicKey.base58EncodedString
+    }
+}
+
+
+extension WalletManager {    
+    func sendAsset(
+        type: TransferType,
+        to recipientAddress: String,
+        amount: UInt64
+    ) async -> AssetSendResult {
+        do {
+            guard let account = getSelectedAccount() else {
+                return .failure(error: NSError(domain: "WalletManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "No selected account"]))
+            }
+
+            let preparedTransaction: PreparedTransaction
+
+            switch type {
+            case .sol:
+                let minRentExemption = try await solanaApiClient.getMinimumBalanceForRentExemption(dataLength: 0, commitment: "confirmed")
+
+                let feeCalculator = DefaultFeeCalculator(
+                    lamportsPerSignature: 5000,
+                    minRentExemption: minRentExemption
+                )
+
+                let recipientPubKey = try PublicKey(string: recipientAddress)
+                let recipientBalance = try await solanaApiClient.getBalance(account: recipientAddress, commitment: "confirmed")
+
+                let totalLamports: UInt64 = recipientBalance == 0 ? amount + minRentExemption : amount
+
+                let instruction = SystemProgram.transferInstruction(
+                    from: account.publicKey,
+                    to: recipientPubKey,
+                    lamports: totalLamports
+                )
+
+                preparedTransaction = try await blockchainClient.prepareTransaction(
+                    instructions: [instruction],
+                    signers: [account],
+                    feePayer: account.publicKey,
+                    feeCalculator: feeCalculator
+                )
+
+            case .token(let tokenAccount):
+                preparedTransaction = try await blockchainClient
+                    .prepareSendingSPLTokens(
+                        account: account,
+                        mintAddress: tokenAccount.mintAddress,
+                        tokenProgramId: PublicKey(string: tokenAccount.tokenProgramId),
+                        decimals: tokenAccount.decimals,
+                        from: tokenAccount.address,
+                        to: recipientAddress,
+                        amount: amount,
+                        lamportsPerSignature: 5000,
+                        minRentExemption: 0
+                    )
+                    .preparedTransaction
+            }
+
+            let txID = try await blockchainClient.sendTransaction(preparedTransaction: preparedTransaction)
+            return .success(transactionId: txID)
+
+        } catch {
+            print("❌ Error sending asset: \(error)")
+            return .failure(error: error)
         }
     }
 }

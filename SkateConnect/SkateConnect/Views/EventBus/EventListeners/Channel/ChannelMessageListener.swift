@@ -18,6 +18,7 @@ class ChannelMessageListener: ObservableObject {
     @Published var timestamp = Int64(0)
 
     private var dataManager: DataManager?
+    private var debugManager: DebugManager?
     private var account: Keypair?
     
     var channelId: String?
@@ -30,10 +31,16 @@ class ChannelMessageListener: ObservableObject {
     init() {
         self.log = OSLog(subsystem: "SkateConnect", category: "ChannelMessages")
         
-        EventBus.shared.didReceiveChannelMessagesSubscription
+        EventBus.shared.didReceiveChannelSubscription
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (channelId, subscriptionId) in
+            .sink { [weak self] (key, subscriptionId) in
+                let channelId = key.channelId
+                let kind = key.kind
+                
+                if (kind != .channelMessage) { return }
+                
                 if (self?.channelId != channelId) { return }
+                
                 self?.subscriptionId = subscriptionId
                 os_log("🔄 Active message subscription: %{public}@", log: self?.log ?? .default, type: .info, subscriptionId)
             }
@@ -63,8 +70,17 @@ class ChannelMessageListener: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func setDependencies(dataManager: DataManager, account: Keypair) {
+    deinit {
+        guard let subscriptionId = self.subscriptionId else {
+            os_log("🔥 failed to get subscriptionId", log: log, type: .error)
+            return
+        }
+        EventBus.shared.didReceiveCloseMessagesSubscriptionRequest.send(subscriptionId)
+    }
+    
+    func setDependencies(dataManager: DataManager, debugManager: DebugManager, account: Keypair) {
         self.dataManager = dataManager
+        self.debugManager = debugManager
         self.account = account
     }
     
@@ -72,7 +88,6 @@ class ChannelMessageListener: ObservableObject {
         self.channelId = channelId
     }
     
-
     private func processMessage(_ event: NostrEvent) {
         guard let account = self.account else {
             os_log("🔥 Failed to get account", log: log, type: .error)
@@ -85,7 +100,9 @@ class ChannelMessageListener: ObservableObject {
             return
         }
                 
-        if let message = MessageHelper.parseEventIntoMessage(event: event, account: account) {
+        let hasWallet = debugManager?.hasEnabledDebug ?? false
+        
+        if let message = MessageHelper.parseEventIntoMessage(event: event, account: account, hasWallet: hasWallet) {
             if (self.receivedEOSE) {
                 timestamp = event.createdAt
 

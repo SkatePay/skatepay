@@ -60,6 +60,7 @@ struct VideoEditorView: View {
                         .cornerRadius(10)
                 }
                 .padding()
+                .disabled(isUploading)
                 
                 Spacer()
                 

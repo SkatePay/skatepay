@@ -122,7 +122,7 @@ struct SkateConnectApp: App {
                channelIndex + 1 < pathComponents.count {
                 let npub = pathComponents[channelIndex + 1]
                 os_log("⏳ processing npub %@", log: log, type: .info, npub)
-//                navigation.path.append(NavigationPathType.userDetail(npub: npub))
+                navigation.path.append(NavigationPathType.userDetail(npub: npub))
             }
         }
     }

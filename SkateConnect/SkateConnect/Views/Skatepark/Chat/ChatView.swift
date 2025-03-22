@@ -12,13 +12,19 @@ import NostrSDK
 import SwiftUI
 import UIKit
 
+enum ChatAction: String {
+    case invoice
+    case invite
+    case unknown
+}
+
 final class MessageSwiftUIVC: MessagesViewController {
     
     // MARK: - Properties
     
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
-    let onTapLink: (String, String) -> Void
+    let onTapLink: (ChatAction, String, String, Bool) -> Void
     
     var firstTime = false
     
@@ -27,7 +33,7 @@ final class MessageSwiftUIVC: MessagesViewController {
     init(
         onTapAvatar: @escaping (String) -> Void,
         onTapVideo: @escaping (MessageType) -> Void,
-        onTapLink: @escaping (String, String) -> Void
+        onTapLink: @escaping (ChatAction, String, String, Bool) -> Void
     ) {
         self.onTapAvatar = onTapAvatar
         self.onTapVideo = onTapVideo
@@ -54,13 +60,13 @@ final class MessageSwiftUIVC: MessagesViewController {
 
 struct ChatView: UIViewControllerRepresentable {
     var currentUser: MockUser = MockUser(senderId: "000002", displayName: "You")
-
+    
     @Binding var messages: [MessageType]
     @Binding var shouldScrollToBottom: Bool
-        
+    
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
-    let onTapLink: (String, String) -> Void
+    let onTapLink: (ChatAction, String, String, Bool) -> Void
     let onSend: (String) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
@@ -87,11 +93,11 @@ struct ChatView: UIViewControllerRepresentable {
         context.coordinator.updateFirstMessagesOfDay(messages)
         
         context.coordinator.messagesViewController = messagesVC
-
+        
         return messagesVC
     }
     
-    func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {        
+    func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {
         uiViewController.messagesCollectionView.reloadData()
         
         if (shouldScrollToBottom) {
@@ -270,7 +276,7 @@ extension ChatView.Coordinator: MessagesDisplayDelegate {
             return UIColor.darkGray
         }
     }
-
+    
     func detectorAttributes(for detector: DetectorType, and message: MessageType, at indexPath: IndexPath) -> [NSAttributedString.Key: Any] {
         return [
             .foregroundColor: UIColor.label,
@@ -278,7 +284,7 @@ extension ChatView.Coordinator: MessagesDisplayDelegate {
             .underlineColor: UIColor.label
         ]
     }
-
+    
     func enabledDetectors(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> [DetectorType] {
         if case .attributedText(_) = message.kind {
             return [.url]
@@ -311,7 +317,7 @@ extension ChatView.Coordinator: MessageCellDelegate {
             let indexPath = messagesViewController?.messagesCollectionView.indexPath(for: cell),
             let dataSource = messagesViewController?.messagesCollectionView.messagesDataSource
         else { return }
-
+        
         let message = dataSource.messageForItem(at: indexPath, in: messagesViewController!.messagesCollectionView)
         parent.onTapAvatar(message.sender.senderId)
     }
@@ -321,15 +327,31 @@ extension ChatView.Coordinator: MessageCellDelegate {
             let indexPath = messagesViewController?.messagesCollectionView.indexPath(for: cell),
             let dataSource = messagesViewController?.messagesCollectionView.messagesDataSource
         else { return }
-
+        
         let message = dataSource.messageForItem(at: indexPath, in: messagesViewController!.messagesCollectionView)
-
+        
         switch message.kind {
         case .linkPreview(let linkItem):
-            if let channelId = linkItem.url.pathComponents.last, let attributedText = linkItem.attributedText {
-                parent.onTapLink(channelId, attributedText.string)
+            let url = linkItem.url
+            print("🔗 URL: \(url)")
+            
+            // Extract channelId from last path component
+            let channelId = url.pathComponents.last ?? ""
+            
+            // Extract action query param
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            let actionString = components?.queryItems?.first(where: { $0.name == "action" })?.value ?? ""
+            let action = ChatAction(rawValue: actionString) ?? .unknown
+                        
+            print("🆔 Channel ID: \(channelId)")
+            print("🎬 Action: \(action)")
+            
+            let isOwner = currentSender.senderId == message.sender.senderId
+            
+            if !channelId.isEmpty, let attributedText = linkItem.attributedText {
+                parent.onTapLink(action, channelId, attributedText.string, isOwner)
             } else {
-                print("Failed to extract channel ID from link preview")
+                print("❌ Failed to extract channel ID or attributed text")
             }
         default:
             print("Tapped message with no link preview.")

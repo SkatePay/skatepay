@@ -118,14 +118,16 @@ struct RestoreDataView: View {
         prettifiedJSON = ""
     }
     
-    private func prettifyJSON(_ jsonString: String) -> String {
-        guard let jsonData = jsonString.data(using: .utf8),
-              let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
-              let prettyJsonData = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted),
-              let prettyPrintedJson = String(data: prettyJsonData, encoding: .utf8) else {
-            return "Invalid JSON"
-        }
-        return prettyPrintedJson
+
+}
+
+func prettifyJSON(_ jsonString: String) -> String {
+    guard let jsonData = jsonString.data(using: .utf8),
+          let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
+          let prettyJsonData = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted),
+          let prettyPrintedJson = String(data: prettyJsonData, encoding: .utf8) else {
+        return "Invalid JSON"
     }
+    return prettyPrintedJson
 }
 

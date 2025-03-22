@@ -6,13 +6,14 @@
 //
 
 import os
+import Combine
 import ConnectFramework
+import CoreLocation
 import CryptoKit
 import Foundation
 import MessageKit
 import NostrSDK
-import Combine
-import CoreLocation
+import SolanaSwift
 import SwiftData
 import SwiftUI
 import UIKit
@@ -29,6 +30,7 @@ struct ChannelView: View {
     @EnvironmentObject var network: Network
     @EnvironmentObject var stateManager: StateManager
     @EnvironmentObject var uploadManager: UploadManager
+    @EnvironmentObject var walletManager: WalletManager
     
     @StateObject private var eventPublisher = ChannelEventPublisher()
     
@@ -41,21 +43,48 @@ struct ChannelView: View {
     @State var channelId: String
     @State var type = ChannelType.outbound
     
-    // Sheets
+    // Base
+    @State private var selectedChannelId: String? = nil
+    
+    // Toolbox
     @State private var isShowingToolBoxView = false
     
     @State private var showingMediaActionSheet = false
+    @State private var selectedMediaURL: URL?
+
+    // Invite
     @State private var showingInviteActionSheet = false
 
-    // Action State
-    @State private var selectedChannelId: String? = nil
-    @State private var selectedMediaURL: URL?
     @State private var selectedInviteString: String? = nil
+    
+    // Invoice
+    @State private var showingInvoiceActionSheet = false
+    @State private var showingTransactionAlert = false
+    @State private var showingRefusalAlert = false
 
+    @State private var selectedInvoiceString: String? = nil
+    @State private var selectedInvoice: Invoice? = nil
+
+    // Invoice - Asset Transfer
+    @State private var transactionId: String = ""
+    @State private var alertMessage: String = ""
+    
     // View State
     @State private var shouldScrollToBottom = true
 
     var landmarks: [Landmark] = AppData().landmarks
+    
+    private var editChannelView: some View {
+        Group {
+            if let channel = self.eventListenerForMetadata.channel {
+                EditChannel(channel: channel)
+                    .environmentObject(navigation)
+            } else {
+                // Fallback view if channel is nil (optional)
+                EmptyView()
+            }
+        }
+    }
     
     var body: some View {
         VStack {
@@ -75,11 +104,22 @@ struct ChannelView: View {
                     }
                     shouldScrollToBottom = false
                 },
-                onTapLink: { channelId, inviteString in
-                    selectedChannelId = channelId
-                    selectedInviteString = inviteString
+                onTapLink: { action, channelId, dataString, isOwner in
+                    if action == .invite {
+                        selectedInviteString = dataString
+                        showingInviteActionSheet = true
+                    }
                     
-                    showingInviteActionSheet = true
+                    if action == .invoice {
+                        if isOwner {
+                            showingRefusalAlert = true
+                        } else {
+                            setSelectedInvoiceString(dataString)
+                            showingInvoiceActionSheet = true
+                        }
+                    }
+                    
+                    selectedChannelId = channelId
                     shouldScrollToBottom = false
                 },
                 onSend: { text in
@@ -89,10 +129,7 @@ struct ChannelView: View {
             )
             .navigationBarBackButtonHidden()
             .sheet(isPresented: $navigation.isShowingEditChannel) {
-                if let lead = self.eventListenerForMetadata.metadata {
-                    EditChannel(lead: lead, channel: lead.channel)
-                        .environmentObject(navigation)
-                }
+                editChannelView
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -106,27 +143,26 @@ struct ChannelView: View {
                         Button(action: {
                             navigation.isShowingEditChannel.toggle()
                         }) {
-                            if let lead = self.eventListenerForMetadata.metadata {
-                                if let landmark = findLandmark(lead.channelId) {
+
+                             if let channel = eventListenerForMetadata.channel {
+                                if let channelId = channel.creationEvent?.id, let landmark = findLandmark(channelId) {
                                     HStack {
                                         landmark.image
                                             .resizable()
                                             .scaledToFill()
                                             .frame(width: 35, height: 35)
                                             .clipShape(Circle())
-                                        
+
                                         VStack(alignment: .leading, spacing: 0) {
-                                            Text("\(landmark.name)")
+                                            Text(landmark.name)
                                                 .fontWeight(.semibold)
                                                 .font(.headline)
                                         }
                                     }
                                 } else {
-                                    if let channel = lead.channel {
-                                        Text("\(channel.name)")
-                                            .fontWeight(.semibold)
-                                            .font(.headline)
-                                    }
+                                    Text("\(channel.metadata?.name ?? channel.name)\(type == .outbound ? " 👑" : "")")
+                                        .fontWeight(.semibold)
+                                        .font(.headline)
                                 }
                             }
                         }
@@ -137,7 +173,7 @@ struct ChannelView: View {
                         Button(action: {
                             self.isShowingToolBoxView.toggle()
                         }) {
-                            Image(systemName: "network")
+                            Image(systemName: "menucard.fill")
                                 .foregroundColor(.blue)
                         }
                         
@@ -151,13 +187,12 @@ struct ChannelView: View {
                 }
             }
             .sheet(isPresented: $isShowingToolBoxView) {
-                ToolBoxView()
+                ToolBoxView(channelId: channelId)
+                    .environmentObject(debugManager)
                     .environmentObject(navigation)
                     .environmentObject(uploadManager)
+                    .environmentObject(walletManager)
                     .presentationDetents([.medium])
-                    .onAppear {
-                        navigation.channelId = channelId
-                    }
             }
             .onChange(of: eventListenerForMessages.receivedEOSE) {
                 if eventListenerForMessages.receivedEOSE {
@@ -185,7 +220,11 @@ struct ChannelView: View {
                     shouldScrollToBottom = true
 
                     self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                    self.eventListenerForMessages.setDependencies(
+                        dataManager: dataManager,
+                        debugManager: debugManager,
+                        account: account
+                    )
                     self.eventListenerForMessages.reset()
 
                     self.eventPublisher.subscribeToMessagesFor(channelId)
@@ -206,13 +245,18 @@ struct ChannelView: View {
                     self.eventPublisher.subscribeToMetadataFor(channelId) 
 
                     self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(dataManager: dataManager, account: account)
+                    self.eventListenerForMessages.setDependencies(
+                        dataManager: dataManager,
+                        debugManager: debugManager,
+                        account: account
+                    )
                     self.eventListenerForMessages.reset()
                     
                     self.eventPublisher.subscribeToMessagesFor(channelId)
                 }
             }
             .onDisappear {
+                navigation.channelId = nil
                 NotificationCenter.default.removeObserver(self)
             }
             .modifier(IgnoresSafeArea())
@@ -235,7 +279,7 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-        .confirmationDialog("Channel Invite", isPresented: $showingInviteActionSheet, titleVisibility: .visible) {
+        .confirmationDialog("Spot Invite", isPresented: $showingInviteActionSheet, titleVisibility: .visible) {
             Button("Accept") {
                 openChannelInvite()
             }
@@ -247,6 +291,48 @@ struct ChannelView: View {
                 }
             }
             Button("Cancel", role: .cancel) { }
+        }
+        // Invoice
+        .confirmationDialog("Invoice", isPresented: $showingInvoiceActionSheet, titleVisibility: .visible) {
+            Button("Pay") {
+                openWallet()
+            }
+            Button("Copy Address") {
+                if let invoice = selectedInvoice {
+                    UIPasteboard.general.string = invoice.address
+                } else {
+                    UIPasteboard.general.string = "invoice:NOT_AVAILABLE"
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .confirmationDialog("Can't pay your own invoice.", isPresented: $showingRefusalAlert, titleVisibility: .visible) {
+            Button("Okay", role: .cancel) {
+                showingRefusalAlert = false
+            }
+        }
+        .alert(isPresented: $showingTransactionAlert) {
+            Alert(
+                title: Text(transactionId.isEmpty ? "Error" : "Success"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("OK")) {
+                    showingTransactionAlert = true
+                    
+                    if (!transactionId.isEmpty) {
+                        NotificationCenter.default.post(
+                            name: .publishChannelEvent,
+                            object: nil,
+                            userInfo: [
+                                "channelId": channelId,
+                                "content": "🧾 Receipt: https://solscan.io/tx/\(transactionId)?cluster=\(walletManager.network)",
+                                "kind": Kind.message
+                            ]
+                        )
+                    }
+                    
+                    transactionId = ""
+                }
+            )
         }
     }
     
@@ -260,59 +346,87 @@ struct ChannelView: View {
 
         navigation.joinChannel(channelId: channelId)
     }
-    
-    private func createInviteActionSheet() -> ActionSheet {
-        return ActionSheet(
-            title: Text("Confirmation"),
-            message: Text("Are you sure you want to join this channel?"),
-            buttons: [
-                .default(Text("Yes")) {
-                    openChannelInvite()
-                },
-                .default(Text("Copy Invite")) {
-                    
-                    showingInviteActionSheet = false
-                    
-                    if let inviteString = selectedInviteString {
-                        UIPasteboard.general.string = "channel_invite:\(inviteString)"
-                    } else {
-                        UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
-                    }
-                },
-                .cancel(Text("Maybe Later")) {
-                    showingInviteActionSheet = false
-                }
-            ]
-        )
-    }
-    
-    private func createMediaActionSheet(for url: URL?) -> ActionSheet {
-        return ActionSheet(
-            title: Text("Media Options"),
-            message: Text("Choose an action for the media."),
-            buttons: [
-                .default(Text("Play")) {
-                    if let videoURL = url {
-                        navigation.path.append(NavigationPathType.videoPlayer(url: videoURL))
-                    }
-                },
-                .default(Text("Download")) {
-                    if let videoURL = url {
-                        downloadVideo(from: videoURL)
-                    }
-                },
-                .default(Text("Share")) {
-                    if let videoURL = url {
-                        MainHelper.shareVideo(videoURL)
-                    }
-                },
-                .cancel()
-            ]
-        )
-    }
-    
+
     private func downloadVideo(from url: URL) {
         print("Downloading video from \(url)")
+    }
+}
+
+// MARK: - Invoice
+
+private extension ChannelView {
+    func setSelectedInvoiceString(_ invoiceString: String) {
+        selectedInvoiceString = invoiceString
+        selectedInvoice = Invoice.decodeInvoiceFromString(invoiceString)
+    }
+    
+    private func openWallet() {
+        guard let invoice = selectedInvoice else { return }
+
+        // Parse network and mintAddress from metadata
+        let parsed = MessageHelper.parseNetworkAndMint(from: invoice)
+        guard let (targetNetwork, mintAddress) = parsed else {
+            print("❌ Failed to parse network and mintAddress from invoice")
+            return
+        }
+
+        guard let amountDecimal = Double(invoice.amount) else {
+            print("❌ Invalid amount format: \(invoice.amount)")
+            return
+        }
+
+        // 🔄 Switch network if needed
+        if walletManager.network != targetNetwork {
+            walletManager.network = targetNetwork
+            walletManager.updateApiClient()
+            walletManager.refreshAliases()
+        }
+
+        // ⏳ Fetch latest wallet data before proceeding
+        walletManager.fetchAccountDetails { result in
+            switch result {
+            case .success:
+                processInvoicePayment(invoice: invoice, mintAddress: mintAddress, amountDecimal: amountDecimal)
+            case .failure(let error):
+                alertMessage = "❌ Failed to fetch wallet data: \(error)"
+                showingTransactionAlert = true
+            }
+        }
+    }
+    
+    private func processInvoicePayment(invoice: Invoice, mintAddress: String, amountDecimal: Double) {
+        let transferType: TransferType
+        let amountUInt64: UInt64
+
+        if mintAddress == "SOL_NATIVE" {
+            transferType = .sol
+            amountUInt64 = UInt64(amountDecimal * 1_000_000_000)
+        } else {
+            guard let tokenAccount = walletManager.accounts.first(where: { $0.token.mintAddress == mintAddress }) else {
+                alertMessage = "❌ No token account for mint: \(mintAddress)"
+                showingTransactionAlert = true
+                return
+            }
+
+            let factor = pow(10.0, Double(tokenAccount.decimals))
+            amountUInt64 = UInt64(amountDecimal * factor)
+            transferType = .token(tokenAccount)
+        }
+
+        Task {
+            let result = await walletManager.sendAsset(type: transferType, to: invoice.address, amount: amountUInt64)
+
+            await MainActor.run {
+                switch result {
+                case .success(let txId):
+                    transactionId = txId
+                    alertMessage = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
+                case .failure(let error):
+                    alertMessage = "❌ Failed to pay invoice: \(error.localizedDescription)"
+                }
+                showingTransactionAlert = true
+            }
+        }
     }
 }
 

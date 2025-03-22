@@ -80,7 +80,6 @@ class Lobby: ObservableObject, EventCreating {
                     note: spot.note,
                     coordinate: CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude),
                     channelId: spot.channelId,
-                    event: nil,
                     channel: nil,
                     color: MainHelper.convertNoteToColor(note)
                 )
@@ -119,8 +118,20 @@ class Lobby: ObservableObject, EventCreating {
             
             let text = decryptContent(content: event.content, publicKey: publicKey) ?? "..."
             
-            let finalText = text.contains("channel_invite") ? "🚪 Channel invite pending..." : text
+            let finalText: String
 
+            if text.starts(with:"channel_invite") {
+                finalText = "🚪 Spot invite received."
+            } else if text.starts(with: "invoice:") {
+                finalText = "🫴 Payment request received."
+            } else if text.starts(with:"nsec") {
+                finalText = "🔑"
+            } else if text.count > 200 {
+                finalText = "📚 Long message received."
+            } else {
+                finalText = text
+            }
+            
             let activityEvent = ActivityEvent(
                 id: event.id,
                 npub: publicKey.npub,

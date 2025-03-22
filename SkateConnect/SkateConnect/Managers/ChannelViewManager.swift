@@ -26,10 +26,10 @@ class ChannelViewManager: ObservableObject {
     }
     
     func openChannel(channelId: String, invite: Bool = false, deeplink: Bool = false) {
-        if (deeplink || invite) {
-            network?.subscribeToChannelMetadataWhenReady(channelId)
-            network?.subscribeToChannelMessagesWhenReady(channelId)
-        }
+//        if (deeplink || invite) {
+//            network?.subscribeToChannelCreationWhenReady(channelId)
+//            network?.subscribeToChannelMessagesWhenReady(channelId)
+//        }
         
         navigation?.channelId = channelId
         

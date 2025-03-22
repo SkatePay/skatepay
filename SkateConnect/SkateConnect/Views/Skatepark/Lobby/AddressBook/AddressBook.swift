@@ -96,13 +96,13 @@ struct AddressBook: View {
                                 navigation.channelId = channelId
                                 navigation.path.append(NavigationPathType.channel(channelId: channelId))
                             }) {
-                                Text("Open channel")
+                                Text("Open chat")
                             }
                             
                             Button(action: {
                                 UIPasteboard.general.string = spot.channelId
                             }) {
-                                Text("Copy channelId")
+                                Text("Copy spotId")
                             }
                         }
                         
