@@ -20,11 +20,11 @@ struct DeckTrackerView: View {
             // Camera View
             DeckTrackerCamera(
                 capturedImage: $deckImage,
+                captureTrigger: $captureTrigger,
                 onImageCaptured: { image in
                     // Handle the captured skateboard image
                     print("Deck image captured: \(image.size)")
-                },
-                captureTrigger: $captureTrigger
+                }
             )
             .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 12))

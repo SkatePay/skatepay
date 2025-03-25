@@ -35,6 +35,7 @@ extension UserDefaults {
         // Misc
         static let birthday: String = "birthday"
         static let skatedeck: String = "skatedeck"
+        static let spot: String = "spot"
     }
 }
 

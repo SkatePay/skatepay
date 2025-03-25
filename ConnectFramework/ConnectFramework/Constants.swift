@@ -33,6 +33,10 @@ public struct Constants {
     public static let API_URL_SKATEPARK = "https://api.skatepark.chat"
     public static let CHANNEL_URL_SKATEPARK = "https://skatepark.chat/channel"
     public static let S3_BUCKET = "skateconnect"
+    
+    public struct CHANNELS {
+        public static let FAQ = "f40d36e852fa970310bd14b5422e9e0d72ab326df0ad6b3a4ad4154f452f0356"
+    }
 }
 
 public struct Keys {

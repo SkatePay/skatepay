@@ -87,10 +87,27 @@ struct ChannelView: View {
         }
     }
     
+    var readonly: Bool {
+        if let channel = network.getChannel(for: channelId) {
+            guard let creationEvent = channel.creationEvent else { return false }
+            
+            let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+            
+            if isCreator {
+                return false
+            } else {
+                return Constants.CHANNELS.FAQ == channelId
+            }
+        } else {
+            return Constants.CHANNELS.FAQ == channelId
+        }
+    }
+    
     var body: some View {
         VStack {
             ChatView(
                 currentUser: getCurrentUser(),
+                readonly: readonly,
                 messages: $eventListenerForMessages.messages,
                 shouldScrollToBottom: $shouldScrollToBottom,
                 onTapAvatar: { senderId in
@@ -136,6 +153,7 @@ struct ChannelView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     HStack {
                         Button(action: {
+                            navigation.channelId = nil
                             dismiss()
                         }) {
                             Image(systemName: "arrow.left")
@@ -144,7 +162,6 @@ struct ChannelView: View {
                         Button(action: {
                             navigation.isShowingEditChannel.toggle()
                         }) {
-
                              if let channel = eventListenerForMetadata.channel {
                                 if let channelId = channel.creationEvent?.id, let landmark = findLandmark(channelId) {
                                     HStack {
@@ -161,9 +178,11 @@ struct ChannelView: View {
                                         }
                                     }
                                 } else {
-                                    Text("\(channel.metadata?.name ?? channel.name)\(type == .outbound ? " 👑" : "")")
-                                        .fontWeight(.semibold)
-                                        .font(.headline)
+                                    if let title = getTitle(channel: channel) {
+                                        Text(title)
+                                            .fontWeight(.semibold)
+                                            .font(.headline)
+                                    }
                                 }
                             }
                         }
@@ -179,6 +198,7 @@ struct ChannelView: View {
                         }
                         
                         Button(action: {
+                            navigation.channelId = channelId
                             navigation.path.append(NavigationPathType.camera)
                         }) {
                             Image(systemName: "camera.on.rectangle.fill")
@@ -257,7 +277,6 @@ struct ChannelView: View {
                 }
             }
             .onDisappear {
-                navigation.channelId = nil
                 NotificationCenter.default.removeObserver(self)
             }
             .modifier(IgnoresSafeArea())
@@ -438,6 +457,19 @@ private extension ChannelView {
             return MockUser(senderId: account.publicKey.npub, displayName: "You")
         }
         return MockUser(senderId: "000002", displayName: "You")
+    }
+    
+    func getTitle(channel: Channel) -> String? {
+        guard let creationEvent = channel.creationEvent else {
+            return nil 
+        }
+
+        let baseTitle = channel.metadata?.name ?? channel.name
+        let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+        let readOnlyIndicator = readonly ? "ℹ️ " : ""
+        let creatorIndicator = isCreator ? " 👑" : ""
+
+        return "\(readOnlyIndicator)\(baseTitle)\(creatorIndicator)"
     }
 }
 

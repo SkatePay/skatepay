@@ -8,8 +8,60 @@
 import SwiftUI
 import AVFoundation
 
-// Updated Camera View
-struct DeckTrackerCamera: UIViewRepresentable {
+import SwiftUI
+import AVFoundation
+
+struct DeckTrackerCamera: View {
+    @Binding var capturedImage: UIImage?
+    @Binding var captureTrigger: Bool
+    var onImageCaptured: ((UIImage) -> Void)?
+
+    // Computed property to check camera authorization status
+    private var isCameraAuthorized: Bool {
+        AVCaptureDevice.authorizationStatus(for: .video) == .authorized
+    }
+
+    var body: some View {
+        ZStack {
+            if isCameraAuthorized {
+                // Use the renamed DeckTrackerPreview class
+                DeckTrackerPreview(capturedImage: $capturedImage,
+                                   onImageCaptured: onImageCaptured, captureTrigger: $captureTrigger)
+                    .edgesIgnoringSafeArea(.all)
+            } else {
+                disabledView
+            }
+        }
+    }
+    
+    // SwiftUI view for the disabled camera state
+    private var disabledView: some View {
+        VStack {
+            Text("Camera is disabled. Please enable it in your phone's settings.")
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.red)
+                .cornerRadius(8)
+                .transition(.opacity)
+            
+            Button(action: {
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsURL)
+                }
+            }) {
+                Text("Open Settings")
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(8)
+            }
+            .padding(.top, 10)
+        }
+        .padding()
+    }
+}
+
+struct DeckTrackerPreview: UIViewRepresentable {
     @Binding var capturedImage: UIImage?
     var onImageCaptured: ((UIImage) -> Void)?
     @Binding var captureTrigger: Bool
@@ -40,7 +92,6 @@ struct DeckTrackerCamera: UIViewRepresentable {
                 }
                 
                 captureSession.startRunning()
-                
             } catch {
                 print("Camera setup error: \(error)")
             }
@@ -64,10 +115,10 @@ struct DeckTrackerCamera: UIViewRepresentable {
     }
     
     class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
-        var parent: DeckTrackerCamera
+        var parent: DeckTrackerPreview
         var photoOutput: AVCapturePhotoOutput?
         
-        init(parent: DeckTrackerCamera) {
+        init(parent: DeckTrackerPreview) {
             self.parent = parent
         }
         
@@ -77,8 +128,8 @@ struct DeckTrackerCamera: UIViewRepresentable {
         }
         
         func photoOutput(_ output: AVCapturePhotoOutput,
-                        didFinishProcessingPhoto photo: AVCapturePhoto,
-                        error: Error?) {
+                         didFinishProcessingPhoto photo: AVCapturePhoto,
+                         error: Error?) {
             if let error = error {
                 print("Photo capture error: \(error)")
                 return

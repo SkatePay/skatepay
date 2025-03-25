@@ -14,7 +14,7 @@ struct EditChannel: View, EventCreating {
     @Environment(\.dismiss) var dismiss
     
     @EnvironmentObject var dataManager: DataManager
-
+    
     @State private var isInviteCopied = false
     @State private var isEditingName = false
     @State private var isEditingDescription = false
@@ -213,28 +213,6 @@ struct EditChannel: View, EventCreating {
                                 }
                             }
                         }
-                        
-                        if dataManager.isMe(pubkey: creationEvent.pubkey) {
-                            Section("") {
-                                // Add the Publish Spot button
-                                Button(action: {
-                                    if let url = URL(string: "https://skateconnect.app/spot") {
-                                        UIApplication.shared.open(url)
-                                    }
-                                }) {
-                                    HStack {
-                                        Image(systemName: "globe") // Optional icon
-                                        Text("Publish My Spot")
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 8)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
-                                }
-                                .padding(.top, 4)
-                            }
-                        }
                     }
                 }
                 .onAppear {
@@ -271,6 +249,23 @@ struct EditChannel: View, EventCreating {
                     .alert("Changes Saved", isPresented: $showSaveConfirmation) {
                         Button("OK", role: .cancel) {
                             dismiss()
+                        }
+                    }
+                } else {
+                    if let creationEvent = channel.creationEvent, let npub = keychainForNostr.account?.publicKey.npub {
+                        if dataManager.isMe(pubkey: creationEvent.pubkey) {
+                            Button(action: {
+                                if let url = URL(string: "https://skateconnect.app/spot?npub=\(npub)&spot_id=\(creationEvent.id)") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: "globe") // Optional icon
+                                    Text("Publish My Spot")
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .padding()
                         }
                     }
                 }

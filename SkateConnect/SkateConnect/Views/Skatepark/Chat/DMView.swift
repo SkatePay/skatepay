@@ -79,6 +79,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     var body: some View {
         ChatView(
             currentUser: getCurrentUser(),
+            readonly: false,
             messages: $eventListenerForMessages.messages,
             shouldScrollToBottom: $shouldScrollToBottom,
             onTapAvatar: {_ in 

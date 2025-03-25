@@ -60,6 +60,7 @@ final class MessageSwiftUIVC: MessagesViewController {
 
 struct ChatView: UIViewControllerRepresentable {
     var currentUser: MockUser = MockUser(senderId: "000002", displayName: "You")
+    var readonly = false
     
     @Binding var messages: [MessageType]
     @Binding var shouldScrollToBottom: Bool
@@ -84,6 +85,8 @@ struct ChatView: UIViewControllerRepresentable {
         
         messagesVC.messageInputBar.delegate = context.coordinator
         messagesVC.messageInputBar.inputTextView.autocorrectionType = .no
+        
+        messagesVC.messageInputBar.isHidden = readonly
         
         // Configure scrolling behavior
         messagesVC.scrollsToLastItemOnKeyboardBeginsEditing = true

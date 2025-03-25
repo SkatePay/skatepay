@@ -5,6 +5,7 @@
 //  Created by Konstantin Yurchenko, Jr on 3/24/25.
 //
 
+import ConnectFramework
 import SwiftUI
 
 struct ConsoleOverlay: View {
@@ -95,14 +96,16 @@ struct ConsoleOverlay: View {
             )
         }
         
-        // Add other mandatory messages
-        initialMessages.append(contentsOf: [
-            createMessage(
-                text: "⚠️ Mark your first spot.",
-                linkText: "spot",
-                destination: .createChannel
-            )
-        ])
+        if UserDefaults.standard.object(forKey: UserDefaults.Keys.spot) == nil {
+            // Add other mandatory messages
+            initialMessages.append(contentsOf: [
+                createMessage(
+                    text: "⚠️ Mark your first spot.",
+                    linkText: "spot",
+                    destination: .channel(channelId: Constants.CHANNELS.FAQ, invite: false)
+                )
+            ])
+        }
         
         // Check if skatedeck is added
         if UserDefaults.standard.object(forKey: UserDefaults.Keys.skatedeck) == nil {
