@@ -38,8 +38,11 @@ struct SkateView: View {
             SkateMapView()
                 .environmentObject(dataManager)
                 .environmentObject(lobby)
+                .environmentObject(network)
                 .overlay(
                     OverlayView(isInviteCopied: $stateManager.isInviteCopied, isLinkCopied: $stateManager.isLinkCopied)
+                        .environmentObject(apiService)
+                        .environmentObject(network)
                 )
             
             BottomControlsView()

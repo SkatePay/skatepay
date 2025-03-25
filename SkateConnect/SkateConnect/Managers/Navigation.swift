@@ -21,12 +21,15 @@ enum Tab {
 enum NavigationPathType: Hashable {
     case addressBook
     case barcodeScanner
+    case birthday
     case camera
     case channel(channelId: String, invite: Bool = false)
     case connectRelay
     case contacts
     case createChannel
     case createMessage
+    case deckDetails(image: UIImage)
+    case deckTracker
     case directMessage(user: User)
     case filters
     case importIdentity

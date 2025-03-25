@@ -10,9 +10,9 @@ import SwiftData
 
 @Model
 class Foe {
-    @Attribute(.unique) let npub: String
-    let birthday: Date
-    let note: String
+    @Attribute(.unique) var npub: String
+    var birthday: Date
+    var note: String
      
     init(npub: String = "", birthday: Date, note: String = "") {
         self.npub = npub

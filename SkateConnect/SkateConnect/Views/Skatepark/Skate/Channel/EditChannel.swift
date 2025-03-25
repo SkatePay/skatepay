@@ -6,11 +6,14 @@
 //
 
 import ConnectFramework
+import MapKit
 import NostrSDK
 import SwiftUI
 
 struct EditChannel: View, EventCreating {
     @Environment(\.dismiss) var dismiss
+    
+    @EnvironmentObject var dataManager: DataManager
 
     @State private var isInviteCopied = false
     @State private var isEditingName = false
@@ -28,6 +31,7 @@ struct EditChannel: View, EventCreating {
     // Original state (loaded once)
     @State private var originalName: String = ""
     @State private var originalDescription: String = ""
+    @State private var originalLocation: CLLocationCoordinate2D?
     
     init(channel: Channel?) {
         self.channel = channel
@@ -149,6 +153,23 @@ struct EditChannel: View, EventCreating {
                         }
                     }
                     
+                    // MARK: Location Section
+                    if let location = originalLocation {
+                        Section("Location") {
+                            HStack(alignment: .top) {
+                                let locationString = "📍 Location: \(String(format: "%.6f", location.latitude)), \(String(format: "%.6f", location.longitude))"
+                                Text(locationString)
+                                    .font(.body)
+                                    .contextMenu {
+                                        Button("Copy location") {
+                                            UIPasteboard.general.string = locationString
+                                        }
+                                    }
+                                Spacer()
+                            }
+                        }
+                    }
+                    
                     // MARK: Channel ID Section
                     
                     if let creationEvent = channel.creationEvent {
@@ -182,12 +203,36 @@ struct EditChannel: View, EventCreating {
                             // MARK: Owner Info
                             if let publicKeyForMod = PublicKey(hex: creationEvent.pubkey),
                                let npub = keychainForNostr.account?.publicKey.npub {
-                                Text(publicKeyForMod.npub == npub ? "Owner: You" : "Owner: \(MainHelper.friendlyKey(npub: publicKeyForMod.npub))")
-                                    .contextMenu {
-                                        Button("Copy npub") {
-                                            UIPasteboard.general.string = publicKeyForMod.npub
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(publicKeyForMod.npub == npub ? "Owner: You" : "Owner: \(MainHelper.friendlyKey(npub: publicKeyForMod.npub))")
+                                        .contextMenu {
+                                            Button("Copy npub") {
+                                                UIPasteboard.general.string = publicKeyForMod.npub
+                                            }
                                         }
+                                }
+                            }
+                        }
+                        
+                        if dataManager.isMe(pubkey: creationEvent.pubkey) {
+                            Section("") {
+                                // Add the Publish Spot button
+                                Button(action: {
+                                    if let url = URL(string: "https://skateconnect.app/spot") {
+                                        UIApplication.shared.open(url)
                                     }
+                                }) {
+                                    HStack {
+                                        Image(systemName: "globe") // Optional icon
+                                        Text("Publish My Spot")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 8)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                                }
+                                .padding(.top, 4)
                             }
                         }
                     }
@@ -200,7 +245,12 @@ struct EditChannel: View, EventCreating {
                     
                     if originalDescription.isEmpty {
                         let about = channel.metadata?.about ?? channel.about
-                        originalDescription = ChannelHelper.decodeAbout(about)?.description ?? channel.about
+                        
+                        if let decodedAbout = ChannelHelper.decodeAbout(about) {
+                            originalDescription = decodedAbout.description
+                            originalLocation = decodedAbout.location
+                        }
+                        
                         draftDescription = originalDescription
                     }
                 }
@@ -243,7 +293,7 @@ struct EditChannel: View, EventCreating {
     
     // MARK: Save Logic
     private func saveDraftChanges() {
-        guard let aboutDecoded = channel?.aboutDecoded, let account = keychainForNostr.account else {
+        guard let aboutDecoded = channel?.aboutDecoded else {
             print("Missing channel metadata or account")
             return
         }
@@ -271,7 +321,7 @@ struct EditChannel: View, EventCreating {
             picture: channel.picture,
             relays: channel.relays
         )
-          
+        
         channel.metadata = metadata
         
         NotificationCenter.default.post(

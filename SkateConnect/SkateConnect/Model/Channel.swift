@@ -18,13 +18,18 @@ struct Channel: Codable {
     var relays: [String]
     var creationEvent: NostrEvent?
     var metadata: ChannelMetadata?
-
+    
+    var resolvedAbout: String {
+        return metadata?.about ?? about
+    }
+    
     var aboutDecoded: AboutStructure? {
-        guard let data = about.data(using: .utf8) else { return nil }
+        let aboutString = metadata?.about ?? about
+        
+        guard let data = aboutString.data(using: .utf8) else { return nil }
         
         do {
-            let decodedAbout = try JSONDecoder().decode(AboutStructure.self, from: data)
-            return decodedAbout
+            return try JSONDecoder().decode(AboutStructure.self, from: data)
         } catch {
             print("Failed to decode 'about': \(error)")
             return nil

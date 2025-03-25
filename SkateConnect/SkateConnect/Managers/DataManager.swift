@@ -21,16 +21,20 @@ extension UserDefaults {
         static let hasAcknowledgedEULA = "hasAcknowledgedEULA"
         static let hasEnabledDebug = "hasEnabledDebug"
         static let hasRunOnboarding = "hasRunOnboarding"
-
+        
         // Network
         static let hasRequestedOnboardingInfo = "hasRequestedOnboardingInfo"
-
+        
         // Wallet
         static let selectedAlias = "selectedAlias"
         static let network = "network"
         
         // LocationManager
         static let lastVisitedChannelId = "lastVisitedChannelId"
+        
+        // Misc
+        static let birthday: String = "birthday"
+        static let skatedeck: String = "skatedeck"
     }
 }
 
@@ -54,16 +58,16 @@ class AppData {
 @MainActor
 class DataManager: ObservableObject {
     let log = OSLog(subsystem: "SkateConnect", category: "DataManager")
-
+    
     @Published private var lobby: Lobby?
     @Published private var walletManager: WalletManager?
     
     private let modelContainer: ModelContainer
     
     private var cancellables = Set<AnyCancellable>()
-
+    
     let keychainForNostr = NostrKeychainStorage()
-
+    
     init(inMemory: Bool = false) {
         do {
             let config = ModelConfiguration(
@@ -77,22 +81,34 @@ class DataManager: ObservableObject {
                 fatalError("Failed to initialize ModelContainer")
             }
         
+        setupNotificationHandlers()
+    }
+    
+    private func setupNotificationHandlers() {
         NotificationCenter.default.publisher(for: .markSpot)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
-                if let lead = notification.object as? Lead, let log = self?.log {
-                    os_log("⏳ saving spot for channelId [%@]", log: log, type: .info, lead.channelId)
-
-                    self?.saveSpotForLead(lead)
+                guard let self = self else { return }
+                if let lead = notification.object as? Lead {
+                    os_log("⏳ Saving spot for channelId [%@]",
+                           log: self.log,
+                           type: .info,
+                           lead.channelId)
+                    self.saveSpotForLead(lead)
                 }
             }
             .store(in: &cancellables)
         
         NotificationCenter.default.publisher(for: .updateSpot)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
-                if let lead = notification.object as? Lead, let log = self?.log {
-                    os_log("⏳ updating spot for channelId [%@]", log: log, type: .info, lead.channelId)
-
-                    self?.updateSpotForLead(lead)
+                guard let self = self else { return }
+                if let lead = notification.object as? Lead {
+                    os_log("⏳ Updating spot for channelId [%@]",
+                           log: self.log,
+                           type: .info,
+                           lead.channelId)
+                    self.updateSpotForLead(lead)
                 }
             }
             .store(in: &cancellables)
@@ -104,6 +120,10 @@ class DataManager: ObservableObject {
     
     func setLobby(lobby: Lobby) {
         self.lobby = lobby
+    }
+    
+    func isMe(pubkey: String) -> Bool {
+        return keychainForNostr.account?.publicKey.hex == pubkey
     }
     
     func setWalletManager(walletManager: WalletManager) {
@@ -125,18 +145,18 @@ class DataManager: ObservableObject {
     
     func removeSpot(by channelId: String) {
         let spotsToDelete = findSpotsForChannelId(channelId)
-
+        
         for spot in spotsToDelete {
             modelContext.delete(spot)
         }
-
+        
         do {
             try modelContext.save()
             os_log("🗑️ Spot(s) removed for channelId %@", channelId)
-
+            
             let spots = fetchSortedSpots()
             lobby?.setupLeads(spots: spots)
-
+            
         } catch {
             print("❌ Failed to save after deleting spot(s) for channelId \(channelId): \(error)")
         }
@@ -170,7 +190,7 @@ class DataManager: ObservableObject {
     
     func saveSpotForLead(_ lead: Lead, note: String = "", pan: Bool = false) {
         os_log("⏳ saving spot for %@ %@ pan", log: log, type: .info, lead.name, pan ? "with" : "without")
-
+        
         var bufferedLead = lead
         var spot: Spot?
         var skip = false
@@ -190,7 +210,8 @@ class DataManager: ObservableObject {
                 note: lead.icon + ":" + lead.note,
                 latitude: lead.coordinate.latitude,
                 longitude: lead.coordinate.longitude,
-                channelId: lead.channelId
+                channelId: lead.channelId,
+                pubkey: lead.channel?.creationEvent?.pubkey ?? ""
             )
             
             self.insertSpot(newSpot)
@@ -198,11 +219,11 @@ class DataManager: ObservableObject {
             
             spot = newSpot
         }
-
+        
         self.lobby?.upsertIntoLeads(bufferedLead)
         
         
-        if !pan { 
+        if !pan {
             return
         }
         
@@ -211,7 +232,7 @@ class DataManager: ObservableObject {
         }
         
         UserDefaults.standard.setValue(lead.channelId, forKey: UserDefaults.Keys.lastVisitedChannelId)
-
+        
         if let spot = spot {
             NotificationCenter.default.post(
                 name: .goToSpot,
@@ -222,7 +243,7 @@ class DataManager: ObservableObject {
     
     func updateSpotForLead(_ lead: Lead, note: String = "", pan: Bool = false) {
         os_log("⏳ updating spot for %@ %@ pan", log: log, type: .info, lead.name, pan ? "with" : "without")
-
+        
         var bufferedLead = lead
         var spot: Spot?
         var skip = false
@@ -231,37 +252,32 @@ class DataManager: ObservableObject {
             let extractedNote = existingSpot.note.split(separator: ":").last.map(String.init) ?? ""
             bufferedLead.color = MainHelper.convertNoteToColor(extractedNote)
             
-            existingSpot.name = bufferedLead.name
-            
-            print(existingSpot)
-
-            
             // Clone all data before deletion
             let clonedSpot = Spot(
-                name: existingSpot.name,
+                name: bufferedLead.name,
                 address: existingSpot.address,
                 state: existingSpot.state,
                 icon: existingSpot.icon,
                 note: existingSpot.note,
                 isFavorite: existingSpot.isFavorite,
-                latitude: existingSpot.latitude,
-                longitude: existingSpot.longitude,
+                latitude: bufferedLead.coordinate.latitude,
+                longitude: bufferedLead.coordinate.longitude,
                 channelId: existingSpot.channelId,
                 imageName: existingSpot.imageName,
                 createdAt: existingSpot.createdAt ?? Date(),
                 updatedAt: Date()
             )
-
+            
             self.removeSpotForChannelId(lead.channelId)
             self.insertSpot(clonedSpot)
-
+            
             skip = true
             
             spot = clonedSpot
         }
-
+        
         self.lobby?.upsertIntoLeads(bufferedLead)
-                
+        
         if !pan {
             return
         }
@@ -283,10 +299,10 @@ class DataManager: ObservableObject {
             if let spotToRemove = findSpotsForChannelId(channelId).first {
                 modelContext.delete(spotToRemove)
                 try modelContext.save()
-
+                
                 // Re-fetch sorted spots and update the lobby leads
                 let spots = fetchSortedSpots()
-                            
+                
                 self.lobby?.setupLeads(spots: spots)
                 self.lobby?.removeLeadByChannelId(channelId)
                 
@@ -377,7 +393,7 @@ extension DataManager {
         // ✅ Fetch current app version and build dynamically
         let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
         let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
-
+        
         // Fetch all spots, friends, and foes
         let spots = fetchSortedSpots()
         let friends = fetchFriends()
@@ -442,7 +458,7 @@ extension DataManager {
         let v2Components = version2.split(separator: ".").compactMap { Int($0) }
         
         let maxLength = max(v1Components.count, v2Components.count)
-
+        
         for i in 0..<maxLength {
             let v1 = i < v1Components.count ? v1Components[i] : 0
             let v2 = i < v2Components.count ? v2Components[i] : 0
@@ -450,7 +466,7 @@ extension DataManager {
             if v1 > v2 { return 1 }
             if v1 < v2 { return -1 }
         }
-
+        
         return 0
     }
     
@@ -462,7 +478,7 @@ extension DataManager {
         
         do {
             let backupData = try JSONDecoder().decode(BackupData.self, from: jsonData)
-
+            
             // Handle bot import separately
             if backupData.type == "bot_import", let bots = backupData.bots {
                 storeBotsInUserDefaults(bots)
@@ -473,17 +489,17 @@ extension DataManager {
             // ✅ Retrieve current app version and build from Info.plist
             let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
             let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
-
+            
             // ✅ Retrieve backup version and build (default to 1.0/1 if missing)
             let backupVersion = backupData.version ?? "1.0"
             let backupBuild = backupData.build ?? "1"
-
+            
             print("📥 Restoring backup. App Version: \(appVersion) (Build \(appBuild)), Backup Version: \(backupVersion) (Build \(backupBuild))")
-
+            
             // ✅ Compare versions dynamically
             let versionComparison = compareVersions(appVersion, backupVersion)
             let buildComparison = compareVersions(appBuild, backupBuild)
-
+            
             if versionComparison > 0 || (versionComparison == 0 && buildComparison > 0) {
                 os_log("⚠️ Older backup detected (\(backupVersion) Build \(backupBuild)). Performing necessary migrations...")
             } else if versionComparison < 0 || (versionComparison == 0 && buildComparison < 0) {
@@ -508,12 +524,13 @@ extension DataManager {
                     longitude: codableSpot.longitude,
                     channelId: codableSpot.channelId,
                     imageName: codableSpot.imageName,
+                    pubkey: codableSpot.pubkey,
                     createdAt: codableSpot.createdAt,
                     updatedAt: codableSpot.updatedAt
                 )
                 modelContext.insert(spot)
             }
-
+            
             // Restore friends (Convert CodableFriend to Friend)
             for codableFriend in backupData.friends ?? [] {
                 let friend = Friend(
@@ -522,7 +539,7 @@ extension DataManager {
                     npub: codableFriend.npub,
                     note: codableFriend.note
                 )
-
+                
                 // Restore crypto addresses
                 friend.cryptoAddresses = codableFriend.cryptoAddresses.map { codableCrypto in
                     CryptoAddress(
@@ -531,10 +548,10 @@ extension DataManager {
                         network: codableCrypto.network
                     )
                 }
-
+                
                 modelContext.insert(friend)
             }
-
+            
             // Restore foes (Convert CodableFoe to Foe)
             for codableFoe in backupData.foes ?? [] {
                 let foe = Foe(
@@ -544,7 +561,7 @@ extension DataManager {
                 )
                 modelContext.insert(foe)
             }
-
+            
             // Restore Solana key pairs
             let solanaStorage = SolanaKeychainStorage()
             
@@ -557,7 +574,7 @@ extension DataManager {
                 
                 try solanaStorage.save(alias: walletData.alias, account: keyPair, network: walletData.network)
             }
-
+            
             if let bots = backupData.bots {
                 storeBotsInUserDefaults(bots)
             }
@@ -569,7 +586,7 @@ extension DataManager {
                     try nostrStorage.save(keypair)
                 }
             }
-
+            
             // Save the SwiftData context
             try modelContext.save()
             return true
@@ -588,7 +605,7 @@ extension DataManager {
             print("Failed to store bots in UserDefaults: \(error)")
         }
     }
-
+    
     func loadBotsFromUserDefaults() -> [CodableBot] {
         let defaults = UserDefaults.standard
         guard let data = defaults.data(forKey: "importedBots") else { return [] }
@@ -604,7 +621,7 @@ extension DataManager {
     
     func resetData() {
         keychainForNostr.clear()
-
+        
         walletManager?.purgeAllAccounts()
         
         do {

@@ -78,6 +78,7 @@ struct ChannelView: View {
         Group {
             if let channel = self.eventListenerForMetadata.channel {
                 EditChannel(channel: channel)
+                    .environmentObject(dataManager)
                     .environmentObject(navigation)
             } else {
                 // Fallback view if channel is nil (optional)

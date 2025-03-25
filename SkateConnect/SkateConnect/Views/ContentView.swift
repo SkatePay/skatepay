@@ -177,7 +177,11 @@ struct ContentView: View {
                 case .barcodeScanner:
                     BarcodeScanner()
                         .environmentObject(navigation)
-                    
+               
+                case .birthday:
+                    BirthdayView()
+                        .environmentObject(navigation)
+                
                 case .camera:
                     CameraView()
                         .environmentObject(navigation)
@@ -217,6 +221,14 @@ struct ContentView: View {
                         .environmentObject(navigation)
                         .environmentObject(network)
                         .navigationTitle("Direct Message")
+                   
+                case .deckDetails(let image):
+                    DeckDetailsView(deckImage: image)
+                        .environmentObject(network)
+                    
+                case .deckTracker:
+                    DeckTrackerView()
+                        .environmentObject(network)
                     
                 case .directMessage(user: let user):
                     DMView(user: user)
@@ -284,7 +296,6 @@ struct ContentView: View {
                     
                 case .videoPlayer(let url):
                     VideoPreviewView(url: url)
-        
                 }
             }
         }

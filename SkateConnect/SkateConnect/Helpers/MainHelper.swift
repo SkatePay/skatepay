@@ -95,7 +95,7 @@ class MainHelper {
         case "invite":
             color = Color(uiColor: UIColor.systemIndigo)
         case "public":
-            color = Color(uiColor: UIColor.systemOrange)
+            color = Color(uiColor: UIColor.systemGray)
         case "private":
             color = .purple
         default:
@@ -122,7 +122,7 @@ class MainHelper {
                     name: channel.name,
                     icon: icon,
                     note: note,
-                    coordinate: decodedStructure.location,
+                    coordinate: coordinate,
                     channelId: event.id,
                     channel: channel,
                     color: color

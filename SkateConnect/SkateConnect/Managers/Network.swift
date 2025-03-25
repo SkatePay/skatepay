@@ -307,7 +307,11 @@ extension Network {
         switch relay.state {
         case .connected:
             os_log("🚀 network connected", log: log, type: .info)
-            self.connected = true
+            
+            DispatchQueue.main.async {
+                self.connected = true
+            }
+            
             self.processFavorites()
             self.processSubscriptionBuffers()
             self.requestOnboardingInfo()
@@ -321,7 +325,9 @@ extension Network {
                 return
             }
             
-            self.connected = false
+            DispatchQueue.main.async {
+                self.connected = false
+            }
             
             if error.localizedDescription.contains("Socket is not connected") {
                 self.connect()
@@ -871,6 +877,13 @@ extension Network {
         } catch {
             os_log("🔥 error publishing metadata %@", log: log, type: .error, error.localizedDescription)
         }
+    }
+}
+
+// Public helpers
+extension Network {
+    func getChannel(for channelId: String) -> Channel? {
+        return channelCreation[channelId]
     }
 }
 
