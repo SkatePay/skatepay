@@ -63,6 +63,7 @@ struct ContentView: View {
     @EnvironmentObject private var network: Network
     @EnvironmentObject private var stateManager: StateManager
     @EnvironmentObject private var uploadManager: UploadManager
+    @EnvironmentObject private var videoDowloader: VideoDownloader
     @EnvironmentObject private var walletManager: WalletManager
     
     @StateObject private var store = HostStore()
@@ -195,6 +196,7 @@ struct ContentView: View {
                         .environmentObject(network)
                         .environmentObject(stateManager)
                         .environmentObject(uploadManager)
+                        .environmentObject(videoDowloader)
                         .environmentObject(walletManager)
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()

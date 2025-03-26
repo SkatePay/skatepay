@@ -30,6 +30,7 @@ struct ChannelView: View {
     @EnvironmentObject var network: Network
     @EnvironmentObject var stateManager: StateManager
     @EnvironmentObject var uploadManager: UploadManager
+    @EnvironmentObject var videoDownloader: VideoDownloader
     @EnvironmentObject var walletManager: WalletManager
     
     @StateObject private var eventPublisher = ChannelEventPublisher()
@@ -75,7 +76,10 @@ struct ChannelView: View {
     
     // View State
     @State private var shouldScrollToBottom = true
-
+    
+    // Download
+    @State private var showingDownloadAlert = false
+    
     var landmarks: [Landmark] = AppData().landmarks
     
     private var editChannelView: some View {
@@ -275,21 +279,21 @@ struct ChannelView: View {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .muteUser)) { _ in
-                if let account = keychainForNostr.account {
-                    self.eventListenerForMetadata.setChannelId(channelId)
-                    
-                    self.eventPublisher.subscribeToMetadataFor(channelId) 
+                guard let account = keychainForNostr.account else { return }
+                
+                self.eventListenerForMetadata.setChannelId(channelId)
+                
+                self.eventPublisher.subscribeToMetadataFor(channelId)
 
-                    self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(
-                        dataManager: dataManager,
-                        debugManager: debugManager,
-                        account: account
-                    )
-                    self.eventListenerForMessages.reset()
-                    
-                    self.eventPublisher.subscribeToMessagesFor(channelId)
-                }
+                self.eventListenerForMessages.setChannelId(channelId)
+                self.eventListenerForMessages.setDependencies(
+                    dataManager: dataManager,
+                    debugManager: debugManager,
+                    account: account
+                )
+                self.eventListenerForMessages.reset()
+                
+                self.eventPublisher.subscribeToMessagesFor(channelId)
             }
             .onDisappear {
                 NotificationCenter.default.removeObserver(self)
@@ -341,14 +345,31 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-        .confirmationDialog("Message", isPresented: $showingMessageActionSheet, titleVisibility: .visible) {
-            Button("Delete") {
-                print("DELETE")
-                deleteEvent()
+        .confirmationDialog(
+            "Message Actions",
+            isPresented: $showingMessageActionSheet,
+            titleVisibility: .visible
+        ) {
+            if let messageId = selectedMessageId,
+               let event = eventListenerForMessages.events[messageId] {
+                
+                if dataManager.isMe(pubkey: event.pubkey) {
+                    Button("Delete", role: .destructive) {  // Note: .destructive for delete
+                        deleteEvent(event)
+                    }
+                } else {
+                    Button("Mute User", role: .destructive) {  // Muting is also destructive
+                        print("muting user")
+                        // Add actual mute logic here
+                    }
+                }
+                
+                Button("Cancel", role: .cancel) {
+                    showingMessageActionSheet = false
+                }
             }
-            Button("Cancel", role: .cancel) {
-                showingMessageActionSheet = false
-            }
+        } message: {
+            Text("Select one")
         }
         // Alerts
         .confirmationDialog("Can't pay your own invoice.", isPresented: $showingRefusalAlert, titleVisibility: .visible) {
@@ -379,6 +400,14 @@ struct ChannelView: View {
                 }
             )
         }
+        .alert(isPresented: $showingDownloadAlert) {
+            Alert(
+                title: Text("Downloading..."),
+                dismissButton: .default(Text("OK")) {
+                    showingDownloadAlert = false
+                }
+            )
+        }
     }
     
     // MARK: Blacklist
@@ -394,13 +423,34 @@ struct ChannelView: View {
 
     private func downloadVideo(from url: URL) {
         print("Downloading video from \(url)")
+        
+        videoDownloader.downloadVideo(from: url) { loading, _ in
+            showingDownloadAlert = loading
+        }
     }
     
-    private func deleteEvent() {
-        guard let messageId = selectedMessageId else { return }
-        if let event = eventListenerForMessages.events[messageId] {
-            network.deleteEvent(event)
-        }
+    private func deleteEvent(_ event: NostrEvent) {
+        network.deleteEvent(event)
+        refresh()
+    }
+    
+    // This method only works properly cleanup after deletion.
+    private func refresh() {
+        guard let account = keychainForNostr.account else { return }
+        
+        self.eventListenerForMetadata.setChannelId(channelId)
+        
+        self.eventPublisher.subscribeToMetadataFor(channelId)
+
+        self.eventListenerForMessages.setChannelId(channelId)
+        self.eventListenerForMessages.setDependencies(
+            dataManager: dataManager,
+            debugManager: debugManager,
+            account: account
+        )
+        self.eventListenerForMessages.reset()
+        
+        self.eventPublisher.subscribeToMessagesFor(channelId)
     }
 }
 
