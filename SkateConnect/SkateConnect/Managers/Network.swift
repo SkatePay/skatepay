@@ -734,12 +734,12 @@ extension Network {
     
     func publishDMEvent(publicKey: PublicKey, kind: Kind = .message, content: String) {
         guard let account = keychainForNostr.account else {
-            os_log("🔥 account is unavailable", log: log, type: .error)
+            os_log(" account is unavailable", log: log, type: .error)
             return
         }
         
         do {
-            let contentStructure = ContentStructure(content: content, kind: .message)
+            let contentStructure = ContentStructure(content: content, kind: kind)
             let jsonData = try JSONEncoder().encode(contentStructure)
             let content = String(data: jsonData, encoding: .utf8) ?? content
             

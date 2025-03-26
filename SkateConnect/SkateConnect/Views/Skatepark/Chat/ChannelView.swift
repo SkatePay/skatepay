@@ -161,9 +161,6 @@ struct ChannelView: View {
                 }
             )
             .navigationBarBackButtonHidden()
-            .sheet(isPresented: $navigation.isShowingEditChannel) {
-                editChannelView
-            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     HStack {
@@ -221,6 +218,9 @@ struct ChannelView: View {
                         }
                     }
                 }
+            }
+            .sheet(isPresented: $navigation.isShowingEditChannel) {
+                editChannelView
             }
             .sheet(isPresented: $isShowingToolBoxView) {
                 ToolBoxView(channelId: channelId)
@@ -405,7 +405,6 @@ struct ChannelView: View {
 }
 
 // MARK: - Invoice
-
 private extension ChannelView {
     func setSelectedInvoiceString(_ invoiceString: String) {
         selectedInvoiceString = invoiceString
@@ -514,8 +513,3 @@ struct IgnoresSafeArea: ViewModifier {
         }
     }
 }
-
-#Preview {
-    ChannelView(channelId: "")
-}
-

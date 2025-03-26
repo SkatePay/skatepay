@@ -29,6 +29,7 @@ struct DeckDetailsView: View {
     @State private var purchaseDate = Date()
     @State private var notes: String = ""
     @State private var showingDeleteAlert = false
+    @State private var isUploading = false
     
     // For width selection
     private let deckWidths = Array(stride(from: 7.5, through: 9.0, by: 0.125))
@@ -123,7 +124,9 @@ struct DeckDetailsView: View {
             Task {
                 let channelId = Constants.CHANNELS.DECKS
                 
-                try await uploadManager.uploadImage(imageURL: fileURL, channelId: channelId)
+                try await uploadManager.uploadImage(imageURL: fileURL, channelId: channelId, npub: nil) { isLoading, _ in
+                    isUploading = isLoading
+                }
                 
                 let filename = fileURL.lastPathComponent
                 let assetURL = "https://\(Constants.S3_BUCKET).s3.us-west-2.amazonaws.com/\(filename)"

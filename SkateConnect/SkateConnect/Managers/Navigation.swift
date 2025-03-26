@@ -101,14 +101,17 @@ class Navigation: ObservableObject {
         )
     }
     
-    func completeUpload(imageURL: URL) {
+    func completeUpload(imageURL: URL, userInfo: [String: Any] = [:]) {
+        var userInfo = userInfo
         let filename = imageURL.lastPathComponent
         let assetURL = "https://\(Constants.S3_BUCKET).s3.us-west-2.amazonaws.com/\(filename)"
-        
+
+        userInfo["assetURL"] = assetURL
+
         NotificationCenter.default.post(
-            name: .uploadImage,
+            name: UploadNotification.Image,
             object: self,
-            userInfo: ["assetURL": assetURL]
+            userInfo: userInfo
         )
     }
 }

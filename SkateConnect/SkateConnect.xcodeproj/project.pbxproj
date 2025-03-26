@@ -76,6 +76,7 @@
 		C640CE702D92251F00F8298A /* DeckTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE6F2D92251A00F8298A /* DeckTrackerView.swift */; };
 		C640CE722D9226DE00F8298A /* DeckDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE712D9226D600F8298A /* DeckDetailsView.swift */; };
 		C640CE742D92290000F8298A /* BirthdayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE732D9228F800F8298A /* BirthdayView.swift */; };
+		C640CE792D9483C600F8298A /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE762D9483C300F8298A /* Notifications.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
 		C662BD502D86A6A000BD6E58 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C662BD4F2D86A6A000BD6E58 /* NostrSDK */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
@@ -250,6 +251,7 @@
 		C640CE6F2D92251A00F8298A /* DeckTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckTrackerView.swift; sourceTree = "<group>"; };
 		C640CE712D9226D600F8298A /* DeckDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckDetailsView.swift; sourceTree = "<group>"; };
 		C640CE732D9228F800F8298A /* BirthdayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdayView.swift; sourceTree = "<group>"; };
+		C640CE762D9483C300F8298A /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
 		C66AFE852CA61C76000CD716 /* AWS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AWS.swift; sourceTree = "<group>"; };
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
@@ -398,6 +400,7 @@
 		C62500F42C93C1340026C334 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE762D9483C300F8298A /* Notifications.swift */,
 				C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */,
 				C6F4959B2C93CF350006FBF0 /* CircleImage.swift */,
 				C62500F22C93C1340026C334 /* FavoriteButton.swift */,
@@ -1050,6 +1053,7 @@
 				C640CE6B2D91DBEF00F8298A /* ConsoleOverlay.swift in Sources */,
 				C634D8722D8E1E37005644C3 /* RecoveryPhraseView.swift in Sources */,
 				C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */,
+				C640CE792D9483C600F8298A /* Notifications.swift in Sources */,
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
 				C640CE742D92290000F8298A /* BirthdayView.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
