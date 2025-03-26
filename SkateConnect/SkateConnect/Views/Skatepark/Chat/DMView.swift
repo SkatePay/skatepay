@@ -83,7 +83,6 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
             messages: $eventListenerForMessages.messages,
             shouldScrollToBottom: $shouldScrollToBottom,
             onTapAvatar: {_ in 
-                print("Avatar tapped")
                 shouldScrollToBottom = false
             },
             onTapVideo: handleVideoTap,
@@ -104,6 +103,9 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 
                 selectedChannelId = channelId
                 shouldScrollToBottom = false
+            },
+            onTapMessage: { message in
+                print(message)
             },
             onSend: { text in
                 guard let publicKey = PublicKey(npub: user.npub) else { return }

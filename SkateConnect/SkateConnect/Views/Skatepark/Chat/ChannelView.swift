@@ -46,19 +46,23 @@ struct ChannelView: View {
     // Base
     @State private var selectedChannelId: String? = nil
     
+    
+    // Action Sheets
+    @State private var showingMediaActionSheet = false
+    @State private var showingInviteActionSheet = false
+    @State private var showingInvoiceActionSheet = false
+    @State private var showingMessageActionSheet = false
+    
+    @State private var selectedMessageId: String? = nil
+    
     // Toolbox
     @State private var isShowingToolBoxView = false
-    
-    @State private var showingMediaActionSheet = false
     @State private var selectedMediaURL: URL?
 
     // Invite
-    @State private var showingInviteActionSheet = false
-
     @State private var selectedInviteString: String? = nil
     
     // Invoice
-    @State private var showingInvoiceActionSheet = false
     @State private var showingTransactionAlert = false
     @State private var showingRefusalAlert = false
 
@@ -120,6 +124,12 @@ struct ChannelView: View {
                         self.selectedMediaURL = URL(string: videoURLString)
                         showingMediaActionSheet = true
                     }
+                    
+                    if case MessageKind.photo(_) = message.kind {
+                        showingMessageActionSheet = true
+                        selectedMessageId = message.messageId
+                    }
+                                                    
                     shouldScrollToBottom = false
                 },
                 onTapLink: { action, channelId, dataString, isOwner in
@@ -139,6 +149,11 @@ struct ChannelView: View {
                     
                     selectedChannelId = channelId
                     shouldScrollToBottom = false
+                },
+                onTapMessage: { message in
+                    print(message)
+                    showingMessageActionSheet = true
+                    selectedMessageId = message.messageId
                 },
                 onSend: { text in
                     network.publishChannelEvent(channelId: channelId, content: text)
@@ -281,6 +296,7 @@ struct ChannelView: View {
             }
             .modifier(IgnoresSafeArea())
         }
+        // Action Sheets
         .confirmationDialog("Media Options", isPresented: $showingMediaActionSheet, titleVisibility: .visible) {
             Button("Play") {
                 if let videoURL = selectedMediaURL {
@@ -312,7 +328,6 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-        // Invoice
         .confirmationDialog("Invoice", isPresented: $showingInvoiceActionSheet, titleVisibility: .visible) {
             Button("Pay") {
                 openWallet()
@@ -326,6 +341,16 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
+        .confirmationDialog("Message", isPresented: $showingMessageActionSheet, titleVisibility: .visible) {
+            Button("Delete") {
+                print("DELETE")
+                deleteEvent()
+            }
+            Button("Cancel", role: .cancel) {
+                showingMessageActionSheet = false
+            }
+        }
+        // Alerts
         .confirmationDialog("Can't pay your own invoice.", isPresented: $showingRefusalAlert, titleVisibility: .visible) {
             Button("Okay", role: .cancel) {
                 showingRefusalAlert = false
@@ -369,6 +394,13 @@ struct ChannelView: View {
 
     private func downloadVideo(from url: URL) {
         print("Downloading video from \(url)")
+    }
+    
+    private func deleteEvent() {
+        guard let messageId = selectedMessageId else { return }
+        if let event = eventListenerForMessages.events[messageId] {
+            network.deleteEvent(event)
+        }
     }
 }
 

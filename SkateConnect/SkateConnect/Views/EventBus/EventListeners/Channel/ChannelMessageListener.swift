@@ -14,6 +14,7 @@ import os
 @MainActor
 class ChannelMessageListener: ObservableObject {
     @Published var messages: [MessageType] = []
+    @Published var events: [String : NostrEvent] = [:]
     @Published var receivedEOSE = false
     @Published var timestamp = Int64(0)
 
@@ -65,7 +66,7 @@ class ChannelMessageListener: ObservableObject {
                     return
                 }
             
-                self?.processMessage(event.event)
+                self?.processEvent(event.event)
             }
             .store(in: &cancellables)
     }
@@ -88,7 +89,7 @@ class ChannelMessageListener: ObservableObject {
         self.channelId = channelId
     }
     
-    private func processMessage(_ event: NostrEvent) {
+    private func processEvent(_ event: NostrEvent) {
         guard let account = self.account else {
             os_log("🔥 Failed to get account", log: log, type: .error)
             return
@@ -111,10 +112,13 @@ class ChannelMessageListener: ObservableObject {
                 messages.insert(message, at: 0)
             }
         }
+        
+        self.events[event.id] = event
     }
     
     func reset() {
         messages.removeAll()
+        events.removeAll()
         receivedEOSE = false
     }
 }

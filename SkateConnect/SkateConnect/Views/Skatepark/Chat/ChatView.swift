@@ -25,6 +25,7 @@ final class MessageSwiftUIVC: MessagesViewController {
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
     let onTapLink: (ChatAction, String, String, Bool) -> Void
+    let onTapMessage: (MessageType) -> Void
     
     var firstTime = false
     
@@ -33,11 +34,13 @@ final class MessageSwiftUIVC: MessagesViewController {
     init(
         onTapAvatar: @escaping (String) -> Void,
         onTapVideo: @escaping (MessageType) -> Void,
-        onTapLink: @escaping (ChatAction, String, String, Bool) -> Void
+        onTapLink: @escaping (ChatAction, String, String, Bool) -> Void,
+        onTapMessage: @escaping (MessageType) -> Void
     ) {
         self.onTapAvatar = onTapAvatar
         self.onTapVideo = onTapVideo
         self.onTapLink = onTapLink
+        self.onTapMessage = onTapMessage
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -68,13 +71,15 @@ struct ChatView: UIViewControllerRepresentable {
     let onTapAvatar: (String) -> Void
     let onTapVideo: (MessageType) -> Void
     let onTapLink: (ChatAction, String, String, Bool) -> Void
+    let onTapMessage: (MessageType) -> Void
     let onSend: (String) -> Void
     
     func makeUIViewController(context: Context) -> MessagesViewController {
         let messagesVC = MessageSwiftUIVC(
             onTapAvatar: onTapAvatar,
             onTapVideo: onTapVideo,
-            onTapLink: onTapLink
+            onTapLink: onTapLink,
+            onTapMessage: onTapMessage
         )
         
         // Set delegates for MessageKit
@@ -358,6 +363,7 @@ extension ChatView.Coordinator: MessageCellDelegate {
             }
         default:
             print("Tapped message with no link preview.")
+            parent.onTapMessage(message)
         }
     }
     

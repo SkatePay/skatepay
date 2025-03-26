@@ -841,7 +841,7 @@ extension Network {
     }
 }
 
-// MARK: - Update Channel
+// MARK: - Channel
 extension Network {
     func saveChannel(_ channel: Channel) {
         guard let account = keychainForNostr.account else {
@@ -876,6 +876,23 @@ extension Network {
             self.relayPool?.publishEvent(event)
         } catch {
             os_log("🔥 error publishing metadata %@", log: log, type: .error, error.localizedDescription)
+        }
+    }
+    
+    func deleteEvent(_ event: NostrEvent) {
+        guard let account = keychainForNostr.account else {
+            os_log("🔥 account is unavailable", log: log, type: .error)
+            return
+        }
+        
+        do {
+            let deletionEvent = try delete(
+                events: [event],
+                signedBy: account
+            )
+            self.relayPool?.publishEvent(deletionEvent)
+        } catch {
+            os_log("🔥 error deleting message %@", log: log, type: .error, error.localizedDescription)
         }
     }
 }
