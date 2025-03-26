@@ -8,15 +8,11 @@
 import SwiftUI
 import AVFoundation
 
-import SwiftUI
-import AVFoundation
-
 struct DeckTrackerCamera: View {
     @Binding var capturedImage: UIImage?
     @Binding var captureTrigger: Bool
-    var onImageCaptured: ((UIImage) -> Void)?
+    var onImageCaptured: ((UIImage, URL) -> Void)?
 
-    // Computed property to check camera authorization status
     private var isCameraAuthorized: Bool {
         AVCaptureDevice.authorizationStatus(for: .video) == .authorized
     }
@@ -24,17 +20,18 @@ struct DeckTrackerCamera: View {
     var body: some View {
         ZStack {
             if isCameraAuthorized {
-                // Use the renamed DeckTrackerPreview class
-                DeckTrackerPreview(capturedImage: $capturedImage,
-                                   onImageCaptured: onImageCaptured, captureTrigger: $captureTrigger)
-                    .edgesIgnoringSafeArea(.all)
+                DeckTrackerPreview(
+                    capturedImage: $capturedImage,
+                    onImageCaptured: onImageCaptured,
+                    captureTrigger: $captureTrigger
+                )
+                .edgesIgnoringSafeArea(.all)
             } else {
                 disabledView
             }
         }
     }
-    
-    // SwiftUI view for the disabled camera state
+
     private var disabledView: some View {
         VStack {
             Text("Camera is disabled. Please enable it in your phone's settings.")
@@ -43,7 +40,7 @@ struct DeckTrackerCamera: View {
                 .background(Color.red)
                 .cornerRadius(8)
                 .transition(.opacity)
-            
+
             Button(action: {
                 if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(settingsURL)
@@ -63,45 +60,56 @@ struct DeckTrackerCamera: View {
 
 struct DeckTrackerPreview: UIViewRepresentable {
     @Binding var capturedImage: UIImage?
-    var onImageCaptured: ((UIImage) -> Void)?
+    var onImageCaptured: ((UIImage, URL) -> Void)?
     @Binding var captureTrigger: Bool
-    
+
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: UIScreen.main.bounds)
         view.backgroundColor = .black
-        
+
         let captureSession = AVCaptureSession()
         captureSession.sessionPreset = .photo
-        
-        if let captureDevice = AVCaptureDevice.default(for: .video) {
-            do {
-                let input = try AVCaptureDeviceInput(device: captureDevice)
-                if captureSession.canAddInput(input) {
-                    captureSession.addInput(input)
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let captureDevice = AVCaptureDevice.default(for: .video) {
+                do {
+                    let input = try AVCaptureDeviceInput(device: captureDevice)
+                    if captureSession.canAddInput(input) {
+                        captureSession.addInput(input)
+                    }
+
+                    DispatchQueue.main.async {
+                        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+                        previewLayer.frame = view.bounds
+                        previewLayer.videoGravity = .resizeAspectFill
+
+                        // Handle orientation
+                        if let connection = previewLayer.connection {
+                            if connection.isVideoRotationAngleSupported(90) {
+                                connection.videoRotationAngle = 90
+                            }
+                        }
+
+                        view.layer.addSublayer(previewLayer)
+                    }
+
+                    let photoOutput = AVCapturePhotoOutput()
+                    if captureSession.canAddOutput(photoOutput) {
+                        captureSession.addOutput(photoOutput)
+                        context.coordinator.photoOutput = photoOutput
+                    }
+
+                    captureSession.startRunning()
+                } catch {
+                    print("Camera setup error: \(error)")
                 }
-                
-                let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-                previewLayer.frame = view.bounds
-                previewLayer.videoGravity = .resizeAspectFill
-                view.layer.addSublayer(previewLayer)
-                
-                let photoOutput = AVCapturePhotoOutput()
-                if captureSession.canAddOutput(photoOutput) {
-                    captureSession.addOutput(photoOutput)
-                    context.coordinator.photoOutput = photoOutput
-                }
-                
-                captureSession.startRunning()
-            } catch {
-                print("Camera setup error: \(error)")
             }
         }
-        
+
         return view
     }
-    
+
     func updateUIView(_ uiView: UIView, context: Context) {
-        // Trigger photo capture when the binding changes
         if captureTrigger {
             context.coordinator.capturePhoto()
             DispatchQueue.main.async {
@@ -109,11 +117,11 @@ struct DeckTrackerPreview: UIViewRepresentable {
             }
         }
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
     }
-    
+
     class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
         var parent: DeckTrackerPreview
         var photoOutput: AVCapturePhotoOutput?
@@ -123,13 +131,23 @@ struct DeckTrackerPreview: UIViewRepresentable {
         }
         
         func capturePhoto() {
-            let settings = AVCapturePhotoSettings()
-            photoOutput?.capturePhoto(with: settings, delegate: self)
+            guard let photoOutput = photoOutput else { return }
+            
+            var photoSettings = AVCapturePhotoSettings()
+            photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+            photoSettings.photoQualityPrioritization = .quality
+            
+            if photoOutput.availablePhotoCodecTypes.contains(.hevc) {
+                photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
+                photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+            }
+            
+            photoOutput.capturePhoto(with: photoSettings, delegate: self)
         }
         
         func photoOutput(_ output: AVCapturePhotoOutput,
-                         didFinishProcessingPhoto photo: AVCapturePhoto,
-                         error: Error?) {
+                        didFinishProcessingPhoto photo: AVCapturePhoto,
+                        error: Error?) {
             if let error = error {
                 print("Photo capture error: \(error)")
                 return
@@ -140,9 +158,23 @@ struct DeckTrackerPreview: UIViewRepresentable {
                 return
             }
             
-            DispatchQueue.main.async {
-                self.parent.capturedImage = image
-                self.parent.onImageCaptured?(image)
+            let tempDirectory = FileManager.default.temporaryDirectory
+            let fileName = "deck_photo_\(UUID().uuidString).jpg"
+            let fileURL = tempDirectory.appendingPathComponent(fileName)
+            
+            do {
+                try imageData.write(to: fileURL)
+                print("Photo saved to temporary file: \(fileURL)")
+                
+                DispatchQueue.main.async {
+                    self.parent.capturedImage = image
+                    self.parent.onImageCaptured?(image, fileURL)
+                }
+            } catch {
+                print("Error saving photo to file: \(error)")
+                DispatchQueue.main.async {
+                    self.parent.capturedImage = image
+                }
             }
         }
     }

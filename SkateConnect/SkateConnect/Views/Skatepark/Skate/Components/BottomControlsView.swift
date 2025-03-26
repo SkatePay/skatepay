@@ -65,6 +65,16 @@ struct BottomControlsView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
+            
+            Button(action: {
+                navigation.path.append(NavigationPathType.deckTracker)
+            }) {
+                Text("🛹")
+                    .padding(8)
+                    .background(Color.gray)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
         }
         .padding()
     }

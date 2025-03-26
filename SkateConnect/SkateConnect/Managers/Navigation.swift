@@ -28,7 +28,7 @@ enum NavigationPathType: Hashable {
     case contacts
     case createChannel
     case createMessage
-    case deckDetails(image: UIImage)
+    case deckDetails(image: UIImage, fileURL: URL)
     case deckTracker
     case directMessage(user: User)
     case filters

@@ -13,6 +13,7 @@ struct DeckTrackerView: View {
     @EnvironmentObject var navigation: Navigation
     
     @State private var deckImage: UIImage?
+    @State private var fileURL: URL?
     @State private var captureTrigger = false
     
     var body: some View {
@@ -21,11 +22,15 @@ struct DeckTrackerView: View {
             DeckTrackerCamera(
                 capturedImage: $deckImage,
                 captureTrigger: $captureTrigger,
-                onImageCaptured: { image in
-                    // Handle the captured skateboard image
-                    print("Deck image captured: \(image.size)")
+                onImageCaptured: { image, fileURL in
+                    print("Captured image: \(image.size)")
+                    print("Saved to: \(fileURL.path)")
+                    
+                    self.fileURL = fileURL
                 }
             )
+            // Maintain a portrait aspect ratio even if scaled down
+            .aspectRatio(3/4, contentMode: .fit)
             .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding()
@@ -45,20 +50,23 @@ struct DeckTrackerView: View {
                     .cornerRadius(10)
             }
             .padding()
-            .disabled(deckImage != nil) // Disable if we already have an image
+            .disabled(deckImage != nil) // Disable if image already exists
             
             // Preview and Continue
             if let deckImage = deckImage {
                 VStack {
+                    // Rotate the captured image 90° for landscape presentation
                     Image(uiImage: deckImage)
                         .resizable()
                         .scaledToFit()
+                        .rotationEffect(.degrees(90))
                         .frame(height: 200)
                         .padding()
                     
                     Button("Continue") {
-                        // Process the captured deck image
-                        navigation.path.append(NavigationPathType.deckDetails(image: deckImage))
+                        if let fileURL = self.fileURL {
+                            navigation.path.append(NavigationPathType.deckDetails(image: deckImage, fileURL: fileURL))
+                        }
                     }
                     .buttonStyle(.borderedProminent)
                     .padding()

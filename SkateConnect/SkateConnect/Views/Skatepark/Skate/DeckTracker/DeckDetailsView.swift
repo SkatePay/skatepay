@@ -5,13 +5,24 @@
 //  Created by Konstantin Yurchenko, Jr on 3/24/25.
 //
 
+import os
+
+import ConnectFramework
 import SwiftUI
+import UIKit
 
 struct DeckDetailsView: View {
+    let log = OSLog(subsystem: "SkateConnect", category: "DeckTracker")
+
     @Environment(\.dismiss) private var dismiss
+    
     @EnvironmentObject var navigation: Navigation
+    @EnvironmentObject var network: Network
+    @EnvironmentObject var uploadManager: UploadManager
     
     let deckImage: UIImage
+    let fileURL: URL
+    
     @State private var deckName: String = ""
     @State private var deckBrand: String = ""
     @State private var deckWidth: Double = 8.0
@@ -29,6 +40,7 @@ struct DeckDetailsView: View {
                 Image(uiImage: deckImage)
                     .resizable()
                     .scaledToFit()
+                    .rotationEffect(.degrees(90))
                     .frame(maxWidth: .infinity)
                     .frame(height: 200)
                     .cornerRadius(8)
@@ -40,7 +52,7 @@ struct DeckDetailsView: View {
                     .padding(.vertical, 8)
             }
             
-            // Section 2: Basic Info
+            // Rest of your existing code remains the same...
             Section(header: Text("Deck Information")) {
                 TextField("Deck Name", text: $deckName)
                 TextField("Brand", text: $deckBrand)
@@ -54,13 +66,11 @@ struct DeckDetailsView: View {
                 DatePicker("Purchase Date", selection: $purchaseDate, displayedComponents: .date)
             }
             
-            // Section 3: Additional Notes
             Section(header: Text("Notes")) {
                 TextEditor(text: $notes)
                     .frame(minHeight: 100)
             }
             
-            // Section 4: Danger Zone
             Section {
                 Button(role: .destructive) {
                     showingDeleteAlert = true
@@ -94,8 +104,9 @@ struct DeckDetailsView: View {
     }
     
     private func saveDeck() {
-        let newDeck = SkateboardDeck(
+        var newDeck = SkateboardDeck(
             id: UUID(),
+            imageURL: nil,
             image: deckImage,
             name: deckName,
             brand: deckBrand,
@@ -104,26 +115,49 @@ struct DeckDetailsView: View {
             notes: notes,
             createdAt: Date()
         )
+                
+        if let newDeckJsonString = newDeck.toJSONString() {
+            UserDefaults.standard.set(newDeckJsonString, forKey: UserDefaults.Keys.skatedeck)
+            os_log("✔️ saving deck: %@ %@", log: log, type: .info, newDeckJsonString, fileURL.absoluteString)
+            
+            Task {
+                let channelId = Constants.CHANNELS.DECKS
+                
+                try await uploadManager.uploadImage(imageURL: fileURL, channelId: channelId)
+                
+                let filename = fileURL.lastPathComponent
+                let assetURL = "https://\(Constants.S3_BUCKET).s3.us-west-2.amazonaws.com/\(filename)"
+                                
+                network.publishChannelEvent(channelId: channelId,
+                                            kind: .photo,
+                                            content: assetURL)
+                
+                
+                newDeck.imageURL = URL(string: assetURL)
+                network.publishChannelEvent(channelId: channelId,
+                                            kind: .message,
+                                            content: newDeckJsonString)
+            }
+        }
         
-        UserDefaults.standard.set(newDeck.toJSONString(), forKey: UserDefaults.Keys.skatedeck)
-        
-        // Navigate back or to another appropriate view
-        navigation.path.removeLast()
+        navigation.path.removeLast(2)
     }
     
     private func deleteDeck() {
         // TODO: Delete from your data model
-        // DataStore.shared.removeDeck(deckId)
+        // For example, remove the deck from your data store
         
         // Navigate back
         navigation.path.removeLast()
     }
 }
 
-// Model for your skateboard deck
+import UIKit
+
 struct SkateboardDeck: Identifiable, Codable {
     let id: UUID
-    let image: UIImage  // Not codable, marked as transient
+    var imageURL: URL?  // For remote image storage
+    var image: UIImage  // Transient property for UI use
     let name: String
     let brand: String
     let width: Double
@@ -132,13 +166,14 @@ struct SkateboardDeck: Identifiable, Codable {
     let createdAt: Date
     
     private enum CodingKeys: String, CodingKey {
-        case id, name, brand, width, purchaseDate, notes, createdAt
-        // Exclude image
+        case id, imageURL, name, brand, width, purchaseDate, notes, createdAt
+        // Exclude image from coding
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
+        imageURL = try container.decodeIfPresent(URL.self, forKey: .imageURL)
         name = try container.decode(String.self, forKey: .name)
         brand = try container.decode(String.self, forKey: .brand)
         width = try container.decode(Double.self, forKey: .width)
@@ -146,14 +181,15 @@ struct SkateboardDeck: Identifiable, Codable {
         notes = try container.decode(String.self, forKey: .notes)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         
-        // Provide default image
+        // Provide a default image when decoding
         image = UIImage(systemName: "photo")!
     }
     
-    // Regular init for non-decoding use
-    init(id: UUID, image: UIImage, name: String, brand: String, width: Double,
+    // Regular initializer for creating new decks
+    init(id: UUID, imageURL: URL? = nil, image: UIImage, name: String, brand: String, width: Double,
          purchaseDate: Date, notes: String, createdAt: Date) {
         self.id = id
+        self.imageURL = imageURL
         self.image = image
         self.name = name
         self.brand = brand
@@ -172,8 +208,8 @@ extension SkateboardDeck {
         let purchaseDateString = dateFormatter.string(from: purchaseDate)
         let createdAtString = dateFormatter.string(from: createdAt)
         
-        // Create dictionary with serializable types only
-        let deckData: [String: Any] = [
+        // Create a dictionary with serializable types only
+        var deckData: [String: Any] = [
             "id": id.uuidString,
             "name": name,
             "brand": brand,
@@ -183,6 +219,11 @@ extension SkateboardDeck {
             "createdAt": createdAtString
         ]
         
+        // Add imageURL if present
+        if let imageURL = imageURL {
+            deckData["imageURL"] = imageURL.absoluteString
+        }
+        
         do {
             let data = try JSONSerialization.data(withJSONObject: deckData, options: .prettyPrinted)
             return String(data: data, encoding: .utf8)
@@ -191,10 +232,22 @@ extension SkateboardDeck {
             return nil
         }
     }
-}
-#Preview {
-    NavigationStack {
-        DeckDetailsView(deckImage: UIImage(systemName: "photo")!)
-            .environmentObject(Navigation())
+    
+    func loadImageFromURL(completion: @escaping (UIImage?) -> Void) {
+        guard let imageURL = imageURL else {
+            completion(nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: imageURL) { data, _, error in
+            if let data = data, let downloadedImage = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    completion(downloadedImage)
+                }
+            } else {
+                print("Error downloading image: \(error?.localizedDescription ?? "Unknown error")")
+                completion(nil)
+            }
+        }.resume()
     }
 }

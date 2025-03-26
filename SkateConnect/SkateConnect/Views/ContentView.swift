@@ -222,9 +222,11 @@ struct ContentView: View {
                         .environmentObject(network)
                         .navigationTitle("Direct Message")
                    
-                case .deckDetails(let image):
-                    DeckDetailsView(deckImage: image)
+                case .deckDetails(let image, let fileURL):
+                    DeckDetailsView(deckImage: image, fileURL: fileURL)
+                        .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(uploadManager)
                     
                 case .deckTracker:
                     DeckTrackerView()
