@@ -133,13 +133,13 @@ struct DeckDetailsView: View {
                                 
                 network.publishChannelEvent(channelId: channelId,
                                             kind: .photo,
-                                            content: assetURL)
+                                            text: assetURL)
                 
                 
                 newDeck.imageURL = URL(string: assetURL)
                 network.publishChannelEvent(channelId: channelId,
                                             kind: .message,
-                                            content: newDeckJsonString)
+                                            text: newDeckJsonString)
             }
         }
         

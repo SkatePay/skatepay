@@ -58,14 +58,13 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     
     // Invoice
     @State private var showingInvoiceActionSheet = false
-    @State private var showingTransactionAlert = false
     @State private var showingRefusalAlert = false
     
     @State private var selectedInvoiceString: String? = nil
     @State private var selectedInvoice: Invoice? = nil
     
     // Invoice - Asset Transfer
-    @State private var transactionId: String = ""
+    @State private var activeAlert: ActiveAlert? = nil
     @State private var alertMessage: String = ""
     
     // View State
@@ -109,7 +108,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
             },
             onSend: { text in
                 guard let publicKey = PublicKey(npub: user.npub) else { return }
-                network.publishDMEvent(publicKey: publicKey, content: text)
+                network.publishDMEvent(publicKey: publicKey, text: text)
                 shouldScrollToBottom = true
             }
         )
@@ -165,7 +164,7 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 if let npub = notification.userInfo?["npub"] as? String {
                     guard let publicKey = PublicKey(npub: npub) else { return }
                     
-                    network.publishDMEvent(publicKey: publicKey, kind: .photo, content: assetURL)
+                    network.publishDMEvent(publicKey: publicKey, kind: .photo, text: assetURL)
                 } else {
                     os_log("⚠️ Warning: Received uploadImage notification without npub.", log: log, type: .error)
                 }
@@ -218,27 +217,38 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 showingRefusalAlert = false
             }
         }
-        .alert(isPresented: $showingTransactionAlert) {
-            Alert(
-                title: Text(transactionId.isEmpty ? "Error" : "Success"),
-                message: Text(alertMessage),
-                dismissButton: .default(Text("OK")) {
-                    if (!transactionId.isEmpty) {
-                        NotificationCenter.default.post(
-                            name: .publishDMEvent,
-                            object: nil,
-                            userInfo: [
-                                "npub": user.npub,
-                                "content": "🧾 Receipt: https://solscan.io/tx/\(transactionId)?cluster=\(walletManager.network)",
-                                "kind": Kind.message
-                            ]
-                        )
+        .alert(item: $activeAlert) { alertType in // alertType is the non-nil ActiveAlert value
+            switch alertType {
+            case .transaction(let title, let message, let txId):
+                return Alert(
+                    title: Text(title),
+                    message: Text(message),
+                    dismissButton: .default(Text("OK")) {
+                        // Action on dismiss specific to transaction alert
+                        print("Transaction Alert OK tapped")
+                        if let confirmedTxId = txId, !confirmedTxId.isEmpty {
+                            NotificationCenter.default.post(
+                                name: .publishDMEvent,
+                                object: nil,
+                                userInfo: [
+                                    "npub": user.npub,
+                                    "content": "🧾 Receipt: https://solscan.io/tx/\(confirmedTxId)?cluster=\(walletManager.network)",
+                                    "kind": Kind.message
+                                ]
+                            )
+                        }
                     }
-                    
-                    transactionId = ""
-                    showingTransactionAlert = true
-                }
-            )
+                )
+            case .downloading:
+                return Alert(
+                    title: Text("Downloading..."),
+                    // Add message if desired
+                    dismissButton: .default(Text("OK")) {
+                        // Action on dismiss specific to download alert (if any)
+                        print("Download Alert OK tapped")
+                    }
+                )
+            }
         }
     }
 }
@@ -342,8 +352,8 @@ private extension DMView {
             case .success:
                 processInvoicePayment(invoice: invoice, mintAddress: mintAddress, amountDecimal: amountDecimal)
             case .failure(let error):
-                alertMessage = "❌ Failed to fetch wallet data: \(error)"
-                showingTransactionAlert = true
+                self.alertMessage = "❌ Failed to fetch wallet data: \(error)"
+                self.activeAlert = .transaction(title: "Error", message: alertMessage, txId: "")
             }
         }
     }
@@ -358,7 +368,7 @@ private extension DMView {
         } else {
             guard let tokenAccount = walletManager.accounts.first(where: { $0.token.mintAddress == mintAddress }) else {
                 alertMessage = "❌ No token account for mint: \(mintAddress)"
-                showingTransactionAlert = true
+                self.activeAlert = .transaction(title: "Error", message: alertMessage, txId: "")
                 return
             }
             
@@ -369,16 +379,23 @@ private extension DMView {
         
         Task {
             let result = await walletManager.sendAsset(type: transferType, to: invoice.address, amount: amountUInt64)
-            
-            await MainActor.run {
+           
+            DispatchQueue.main.async {
+                var alertTitle = ""
+                var alertMsg = ""
+                var finalTxId: String? = nil // Store txId specifically for the alert case
+
                 switch result {
                 case .success(let txId):
-                    transactionId = txId
-                    alertMessage = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
+                    alertTitle = "Success"
+                    alertMsg = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
+                    finalTxId = txId
                 case .failure(let error):
-                    alertMessage = "❌ Failed to pay invoice: \(error.localizedDescription)"
+                     alertTitle = "Error"
+                     alertMsg = "❌ Failed to pay invoice: \(error.localizedDescription)"
                 }
-                showingTransactionAlert = true
+
+                self.activeAlert = .transaction(title: alertTitle, message: alertMsg, txId: finalTxId)
             }
         }
     }

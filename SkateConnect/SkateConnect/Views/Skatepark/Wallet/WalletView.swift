@@ -232,19 +232,11 @@ private extension WalletView {
         }
         
         Button(action: {
-            if let url = URL(string: "https://explorer.solana.com/address/\(account.address)?cluster=\(walletManager.network)") {
-                openURL(url)
-            }
-        }) {
-            Text("🔎 Open explorer")
-        }
-        
-        Button(action: {
             if let url = URL(string: "https://solscan.io/address/\(account.address)?cluster=\(walletManager.network)") {
                 openURL(url)
             }
         }) {
-            Text("🔎 Open solscan address")
+            Text("🔎 Address Activity")
         }
         
         Button(action: {
@@ -252,13 +244,13 @@ private extension WalletView {
                 openURL(url)
             }
         }) {
-            Text("🔎 Open solscan mint")
+            Text("🔎 Mint Activity")
         }
         
         Button(action: {
             UIPasteboard.general.string = account.mintAddress
         }) {
-            Text("Copy mint address")
+            Text("Copy Mint Address")
         }
     }
 }

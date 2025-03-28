@@ -98,8 +98,19 @@ struct AddressBook: View {
                             let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
 
                             if let jsonString = coordinateToJSONString(coordinate) {
+                                UserDefaults.standard.set(jsonString, forKey: UserDefaults.Keys.coordinates)
+                            } else {
+                                print("Failed to copy coordinate to clipboard")
+                            }
+                        }) {
+                            Text("Set Home")
+                        }
+                        
+                        Button(action: {
+                            let coordinate = CLLocationCoordinate2D(latitude: spot.latitude, longitude: spot.longitude)
+
+                            if let jsonString = coordinateToJSONString(coordinate) {
                                 UIPasteboard.general.string = jsonString
-                                print("Coordinate copied to clipboard: \(jsonString)")
                             } else {
                                 print("Failed to copy coordinate to clipboard")
                             }

@@ -24,8 +24,11 @@ enum Kind: String, Codable {
 }
 
 struct ContentStructure: Codable {
-    let content: String
     let kind: Kind
+    let text: String?
+    
+    // Legacy as of 03/28/2025
+    let content: String
 }
 
 enum ContentType {
@@ -118,25 +121,26 @@ class MessageHelper {
         
         do {
             let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: content.data(using: .utf8)!)
-            text = decodedStructure.content
+            
+            text = decodedStructure.text ?? decodedStructure.content
             
             switch decodedStructure.kind {
             case .video:
                 // Convert .mov to .jpg for the thumbnail
-                let urlString = decodedStructure.content.replacingOccurrences(of: ".mov", with: ".jpg")
+                let urlString = text.replacingOccurrences(of: ".mov", with: ".jpg")
                 if let url = URL(string: urlString) {
                     return .video(url)
                 } else {
                     print("Invalid video thumbnail URL string: \(urlString)")
-                    return .text(decodedStructure.content) // Fallback to text
+                    return .text(text) // Fallback to text
                 }
                 
             case .photo:
-                if let url = URL(string: decodedStructure.content) {
+                if let url = URL(string: text) {
                     return .photo(url)
                 } else {
-                    print("Invalid photo URL string: \(decodedStructure.content)")
-                    return .text(decodedStructure.content) // Fallback to text
+                    print("Invalid photo URL string: \(text)")
+                    return .text(text) // Fallback to text
                 }
                 
             case .subscriber:

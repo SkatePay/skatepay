@@ -65,7 +65,7 @@ struct ImportIdentity: View {
                         return
                     }
                     
-                    account = Keypair(nsec: privateKey)
+                    account = Keypair(nsec: privateKey) ?? Keypair(hex: privateKey)
 
                     do {
                         self.lobby.clear()
