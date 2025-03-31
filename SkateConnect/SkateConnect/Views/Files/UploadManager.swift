@@ -14,7 +14,6 @@ import Foundation
 class UploadManager: ObservableObject {
     let log = OSLog(subsystem: "SkateConnect", category: "UploadManager")
 
-    @Published var isUploading = false
     @Published private var navigation: Navigation?
     @Published var videoURL: URL?
 
@@ -36,82 +35,138 @@ class UploadManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    // MARK: - Upload Files
-    func uploadFiles(imageURL: URL) async throws {
+    func uploadFiles(imageURL: URL, onLoadingStateChange: @escaping (Bool, Error?) -> Void) async throws {
         os_log("⏳ uploading files", log: log, type: .info)
 
-        guard let channelId = navigation?.channelId else {
-            os_log("🛑 Error: Channel ID is nil.", log: log, type: .error)
+        let channelId = navigation?.channelId
+        let npub = navigation?.user?.npub
+
+        guard channelId != nil || npub != nil else {
+            os_log("🛑 Error: Neither Channel ID nor npub is available from navigation. Cannot determine S3 tag.", log: log, type: .error)
+            await MainActor.run { onLoadingStateChange(false, UploadError.missingTaggingInfo) }
             return
         }
-        
-        do {
-            try await uploadImage(imageURL: imageURL, channelId: channelId)
-            
-            guard let videoURL = videoURL  else {
-                os_log("🛑 Error: videoURL is nil.", log: log, type: .error)
-                return
-            }
-            
-            try await uploadVideo(videoURL: videoURL, channelId: channelId)
 
-        } catch {
-            os_log("🔥 Upload failed: %@", log: self.log, type: .error, error.localizedDescription)
-            throw error
+        guard let videoURL = self.videoURL else {
+            os_log("🛑 Error: videoURL is nil.", log: log, type: .error)
+            await MainActor.run { onLoadingStateChange(false, UploadError.missingVideoURL) }
+            return
         }
 
-        NotificationCenter.default.post(
-            name: .didFinishUpload,
-            object: nil
-        )
-    }
-    
-    // Upload image to S3
-    func uploadImage(imageURL: URL, channelId: String = "") async throws {
-        os_log("⏳ uploading image [%@] [%@]", log: log, type: .info, imageURL.absoluteString, channelId)
+        do {
+            try await uploadImage(
+                imageURL: imageURL,
+                channelId: channelId,
+                npub: npub,
+                onLoadingStateChange: onLoadingStateChange
+            )
 
+            try await uploadVideo(
+                videoURL: videoURL,
+                channelId: channelId,
+                npub: npub,
+                onLoadingStateChange: onLoadingStateChange
+            )
+
+            NotificationCenter.default.post(
+                name: .didFinishUpload,
+                object: nil
+            )
+            os_log("✔️ Both image and video uploads finished successfully.", log: log, type: .info)
+
+        } catch {
+            os_log("🔥 Upload sequence failed: %@", log: self.log, type: .error, error.localizedDescription)
+            throw error
+        }
+    }
+
+
+    func uploadImage(imageURL: URL, channelId: String?, npub: String?, onLoadingStateChange: @escaping (Bool, Error?) -> Void) async throws {
         guard let keys = keychainForAws.keys else {
             os_log("🛑 can't get aws keychain", log: log, type: .info)
             return
         }
 
-        isUploading = true
-        
+        var tags: [String] = []
+        if let channelId = channelId {
+            os_log("⏳ uploading image [%@] for channelId=[%@]", log: log, type: .info, imageURL.absoluteString, channelId)
+            tags.append("channel=\(channelId)")
+        }
+        if let npub = npub {
+            os_log("⏳ uploading image [%@] for npub=[%@]", log: log, type: .info, imageURL.absoluteString, npub)
+            tags.append("user=\(npub)")
+        }
+
+        let tagging = tags.joined(separator: "&")
+
+        guard !tagging.isEmpty else {
+             os_log("🛑 Error: No channelId or npub provided for tagging.", log: log, type: .error)
+             await MainActor.run { onLoadingStateChange(false, UploadError.missingTaggingInfo) }
+             return
+        }
+
+        await MainActor.run {
+            onLoadingStateChange(true, nil)
+        }
+
         do {
             let serviceHandler = try await S3ServiceHandler(
                 region: "us-west-2",
                 accessKeyId: keys.S3_ACCESS_KEY_ID,
                 secretAccessKey: keys.S3_SECRET_ACCESS_KEY
             )
-            
+
             let objName = imageURL.lastPathComponent
             try await serviceHandler.uploadFile(
                 bucket: Constants.S3_BUCKET,
                 key: objName,
                 fileUrl: imageURL,
-                tagging: channelId.isEmpty ? "" : "channel=\(channelId)"
+                tagging: tagging
             )
-            
-            isUploading = false
+
+            await MainActor.run {
+                onLoadingStateChange(false, nil)
+            }
+
             os_log("✔️ image uploaded to S3: %@", log: log, type: .info, objName)
         } catch {
             os_log("🔥 upload failed: %@", log: self.log, type: .info, error.localizedDescription)
-            isUploading = false
+
+            await MainActor.run {
+                onLoadingStateChange(false, error)
+            }
 
             throw error
         }
     }
-    
-    // Upload video to S3
-    func uploadVideo(videoURL: URL, channelId: String = "") async throws {
-        os_log("⏳ uploading video [%@] [%@]", log: log, type: .info, videoURL.absoluteString, channelId)
-        
+
+
+    func uploadVideo(videoURL: URL, channelId: String?, npub: String?, onLoadingStateChange: @escaping (Bool, Error?) -> Void) async throws {
         guard let keys = keychainForAws.keys else {
             os_log("🛑 can't get aws keychain", log: log, type: .info)
             return
         }
-        
-        isUploading = true
+
+        var tags: [String] = []
+        if let channelId = channelId {
+            os_log("⏳ uploading video [%@] for channelId=[%@]", log: log, type: .info, videoURL.absoluteString, channelId)
+            tags.append("channel=\(channelId)")
+        }
+        if let npub = npub {
+            os_log("⏳ uploading video [%@] for npub=[%@]", log: log, type: .info, videoURL.absoluteString, npub)
+            tags.append("user=\(npub)")
+        }
+        let tagging = tags.joined(separator: "&")
+
+        guard !tagging.isEmpty else {
+            os_log("🛑 Error: No channelId or npub provided for tagging.", log: log, type: .error)
+            await MainActor.run { onLoadingStateChange(false, UploadError.missingTaggingInfo) }
+            return
+       }
+
+        await MainActor.run {
+            onLoadingStateChange(true, nil)
+        }
 
         do {
             let serviceHandler = try await S3ServiceHandler(
@@ -119,20 +174,27 @@ class UploadManager: ObservableObject {
                 accessKeyId: keys.S3_ACCESS_KEY_ID,
                 secretAccessKey: keys.S3_SECRET_ACCESS_KEY
             )
-            
+
             let objName = videoURL.lastPathComponent
             try await serviceHandler.uploadFile(
                 bucket: Constants.S3_BUCKET,
                 key: objName,
                 fileUrl: videoURL,
-                tagging: channelId.isEmpty ? "" : "channel=\(channelId)"
+                tagging: tagging
             )
-            isUploading = false
+
+            await MainActor.run {
+                onLoadingStateChange(false, nil)
+            }
+
             os_log("✔️ video uploaded to S3: %@", log: log, type: .info, objName)
 
         } catch {
             os_log("🔥 upload failed: %@", log: self.log, type: .info, error.localizedDescription)
-            isUploading = false
+
+            await MainActor.run {
+                onLoadingStateChange(false, error)
+            }
 
             throw error
         }
@@ -150,3 +212,6 @@ class UploadManager: ObservableObject {
         return (json as! [String: String])["token"]!
     }
 }
+
+
+enum UploadError: Error { case missingTaggingInfo, missingVideoURL }

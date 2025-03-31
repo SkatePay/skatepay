@@ -150,22 +150,18 @@ struct VideoEditorView: View {
     }
     
     // MARK: - Upload Video and Image
-    func postVideoAndImage() async {
-        isUploading = true
-        uploadManager.isUploading = true
-        
+    func postVideoAndImage() async {        
         do {
             if let currentFrame = currentFrame, let imageURL = saveImageToDisk(image: currentFrame) {
-                try await uploadManager.uploadFiles(imageURL: imageURL)
+                try await uploadManager.uploadFiles(imageURL: imageURL) { isLoading, _ in
+                    isUploading = isLoading
+                }
             } else {
                 showError(message: "Failed to save image for upload.")
             }
         } catch {
             showError(message: "Upload failed: \(error.localizedDescription)")
         }
-        
-        isUploading = false
-        uploadManager.isUploading = false
     }
     
     // MARK: - Show Error Alert

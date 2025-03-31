@@ -24,6 +24,7 @@ struct SkateConnectApp: App {
     @StateObject private var navigation = Navigation()
     @StateObject private var stateManager = StateManager()
     @StateObject private var uploadManager = UploadManager()
+    @StateObject private var videoDownloader = VideoDownloader()
     @StateObject private var walletManager = WalletManager()
     
     @StateObject private var network: Network = Network()
@@ -58,6 +59,7 @@ struct SkateConnectApp: App {
                     .environmentObject(network)
                     .environmentObject(stateManager)
                     .environmentObject(uploadManager)
+                    .environmentObject(videoDownloader)
                     .environmentObject(walletManager)
                     .onAppear {
                         apiService.setDataManager(dataManager: dataManager)

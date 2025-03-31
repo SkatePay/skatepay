@@ -17,7 +17,7 @@ import UIKit
 
 struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     let log = OSLog(subsystem: "SkateConnect", category: "DMView")
-
+    
     @Environment(\.dismiss) private var dismiss
     
     @EnvironmentObject var dataManager: DataManager
@@ -30,13 +30,13 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     @StateObject private var eventPublisher = DMEventPublisher()
     
     @StateObject private var eventListenerForMessages = DMMessageListener()
-
+    
     // Credentials
     private let keychainForNostr = NostrKeychainStorage()
-
+    
     private var user: User
     private var message: String
-
+    
     // Sheets
     @State private var isShowingCameraView = false
     @State private var isShowingVideoPlayer = false
@@ -50,27 +50,26 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     // Action State
     @State private var selectedChannelId: String?
     @State private var selectedMediaURL: URL?
-
+    
     // Invite
     @State private var selectedInviteString: String? = nil
     
     @State private var showingInviteActionSheet = false
-
+    
     // Invoice
     @State private var showingInvoiceActionSheet = false
-    @State private var showingTransactionAlert = false
     @State private var showingRefusalAlert = false
-
+    
     @State private var selectedInvoiceString: String? = nil
     @State private var selectedInvoice: Invoice? = nil
     
     // Invoice - Asset Transfer
-    @State private var transactionId: String = ""
+    @State private var activeAlert: ActiveAlert? = nil
     @State private var alertMessage: String = ""
-
+    
     // View State
     @State private var shouldScrollToBottom = true
-
+    
     init(user: User, message: String = "") {
         self.user = user
         self.message = message
@@ -79,10 +78,10 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     var body: some View {
         ChatView(
             currentUser: getCurrentUser(),
+            readonly: false,
             messages: $eventListenerForMessages.messages,
             shouldScrollToBottom: $shouldScrollToBottom,
-            onTapAvatar: {_ in 
-                print("Avatar tapped")
+            onTapAvatar: {_ in
                 shouldScrollToBottom = false
             },
             onTapVideo: handleVideoTap,
@@ -104,9 +103,12 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 selectedChannelId = channelId
                 shouldScrollToBottom = false
             },
+            onTapMessage: { message in
+                print(message)
+            },
             onSend: { text in
                 guard let publicKey = PublicKey(npub: user.npub) else { return }
-                network.publishDMEvent(publicKey: publicKey, content: text)
+                network.publishDMEvent(publicKey: publicKey, text: text)
                 shouldScrollToBottom = true
             }
         )
@@ -119,30 +121,6 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 .environmentObject(uploadManager)
                 .environmentObject(walletManager)
                 .presentationDetents([.medium])
-        }
-        .actionSheet(isPresented: $showingInviteActionSheet) {
-            ActionSheet(
-                title: Text("Confirmation"),
-                message: Text("Are you sure you want to go to this spot?"),
-                buttons: [
-                    .default(Text("Yes")) {
-                        openChannelInvite()
-                    },
-                    .default(Text("Copy Invite")) {
-                        
-                        showingInviteActionSheet = false
-                        
-                        if let inviteString = selectedInviteString {
-                            UIPasteboard.general.string = "channel_invite:\(inviteString)"
-                        } else {
-                            UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
-                        }
-                    },
-                    .cancel(Text("Maybe Later")) {
-                        showingInviteActionSheet = false
-                    }
-                ]
-            )
         }
         .onChange(of: eventListenerForMessages.receivedEOSE) {
             if eventListenerForMessages.receivedEOSE {
@@ -181,8 +159,46 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 self.eventPublisher.subscribeToUserWithPublicKey(publicKey)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: UploadNotification.Image)) { notification in
+            if let assetURL = notification.userInfo?["assetURL"] as? String {
+                if let npub = notification.userInfo?["npub"] as? String {
+                    guard let publicKey = PublicKey(npub: npub) else { return }
+                    
+                    network.publishDMEvent(publicKey: publicKey, kind: .photo, text: assetURL)
+                } else {
+                    os_log("⚠️ Warning: Received uploadImage notification without npub.", log: log, type: .error)
+                }
+            }
+        }
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self)
+        }
         .modifier(IgnoresSafeArea())
-        // Invoice
+        // Action Sheets
+        .actionSheet(isPresented: $showingInviteActionSheet) {
+            ActionSheet(
+                title: Text("Confirmation"),
+                message: Text("Are you sure you want to go to this spot?"),
+                buttons: [
+                    .default(Text("Yes")) {
+                        openChannelInvite()
+                    },
+                    .default(Text("Copy Invite")) {
+                        
+                        showingInviteActionSheet = false
+                        
+                        if let inviteString = selectedInviteString {
+                            UIPasteboard.general.string = "channel_invite:\(inviteString)"
+                        } else {
+                            UIPasteboard.general.string = "channel_invite:NOT_AVAILABLE"
+                        }
+                    },
+                    .cancel(Text("Maybe Later")) {
+                        showingInviteActionSheet = false
+                    }
+                ]
+            )
+        }
         .confirmationDialog("Invoice", isPresented: $showingInvoiceActionSheet, titleVisibility: .visible) {
             Button("Pay") {
                 openWallet()
@@ -201,127 +217,43 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 showingRefusalAlert = false
             }
         }
-        .alert(isPresented: $showingTransactionAlert) {
-            Alert(
-                title: Text(transactionId.isEmpty ? "Error" : "Success"),
-                message: Text(alertMessage),
-                dismissButton: .default(Text("OK")) {
-                    if (!transactionId.isEmpty) {
-                        NotificationCenter.default.post(
-                            name: .publishDMEvent,
-                            object: nil,
-                            userInfo: [
-                                "npub": user.npub,
-                                "content": "🧾 Receipt: https://solscan.io/tx/\(transactionId)?cluster=\(walletManager.network)",
-                                "kind": Kind.message
-                            ]
-                        )
+        .alert(item: $activeAlert) { alertType in // alertType is the non-nil ActiveAlert value
+            switch alertType {
+            case .transaction(let title, let message, let txId):
+                return Alert(
+                    title: Text(title),
+                    message: Text(message),
+                    dismissButton: .default(Text("OK")) {
+                        // Action on dismiss specific to transaction alert
+                        print("Transaction Alert OK tapped")
+                        if let confirmedTxId = txId, !confirmedTxId.isEmpty {
+                            NotificationCenter.default.post(
+                                name: .publishDMEvent,
+                                object: nil,
+                                userInfo: [
+                                    "npub": user.npub,
+                                    "content": "🧾 Receipt: https://solscan.io/tx/\(confirmedTxId)?cluster=\(walletManager.network)",
+                                    "kind": Kind.message
+                                ]
+                            )
+                        }
                     }
-                    
-                    transactionId = ""
-                    showingTransactionAlert = true
-                }
-            )
-        }
-    }
-}
-
-// MARK: - Invoice
-private extension DMView {
-    func setSelectedInvoiceString(_ invoiceString: String) {
-        selectedInvoiceString = invoiceString
-        selectedInvoice = Invoice.decodeInvoiceFromString(invoiceString)
-    }
-    
-    private func openWallet() {
-        guard let invoice = selectedInvoice else { return }
-
-        // Parse network and mintAddress from metadata
-        let parsed = MessageHelper.parseNetworkAndMint(from: invoice)
-        guard let (targetNetwork, mintAddress) = parsed else {
-            print("❌ Failed to parse network and mintAddress from invoice")
-            return
-        }
-
-        guard let amountDecimal = Double(invoice.amount) else {
-            print("❌ Invalid amount format: \(invoice.amount)")
-            return
-        }
-
-        // 🔄 Switch network if needed
-        if walletManager.network != targetNetwork {
-            walletManager.network = targetNetwork
-            walletManager.updateApiClient()
-            walletManager.refreshAliases()
-        }
-
-        // ⏳ Fetch latest wallet data
-        walletManager.fetchAccountDetails { result in
-            switch result {
-            case .success:
-                processInvoicePayment(invoice: invoice, mintAddress: mintAddress, amountDecimal: amountDecimal)
-            case .failure(let error):
-                alertMessage = "❌ Failed to fetch wallet data: \(error)"
-                showingTransactionAlert = true
-            }
-        }
-    }
-    
-    private func processInvoicePayment(invoice: Invoice, mintAddress: String, amountDecimal: Double) {
-        let transferType: TransferType
-        let amountUInt64: UInt64
-
-        if mintAddress == "SOL_NATIVE" {
-            transferType = .sol
-            amountUInt64 = UInt64(amountDecimal * 1_000_000_000)
-        } else {
-            guard let tokenAccount = walletManager.accounts.first(where: { $0.token.mintAddress == mintAddress }) else {
-                alertMessage = "❌ No token account for mint: \(mintAddress)"
-                showingTransactionAlert = true
-                return
-            }
-
-            let factor = pow(10.0, Double(tokenAccount.decimals))
-            amountUInt64 = UInt64(amountDecimal * factor)
-            transferType = .token(tokenAccount)
-        }
-
-        Task {
-            let result = await walletManager.sendAsset(type: transferType, to: invoice.address, amount: amountUInt64)
-
-            await MainActor.run {
-                switch result {
-                case .success(let txId):
-                    transactionId = txId
-                    alertMessage = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
-                case .failure(let error):
-                    alertMessage = "❌ Failed to pay invoice: \(error.localizedDescription)"
-                }
-                showingTransactionAlert = true
+                )
+            case .downloading:
+                return Alert(
+                    title: Text("Downloading..."),
+                    // Add message if desired
+                    dismissButton: .default(Text("OK")) {
+                        // Action on dismiss specific to download alert (if any)
+                        print("Download Alert OK tapped")
+                    }
+                )
             }
         }
     }
 }
 
-// MARK: - Helpers
-private extension DMView {
-    private var connected: Bool {
-        network.relayPool?.relays.contains { $0.url == URL(string: user.relayUrl) } ?? false
-    }
-
-    func formatName() -> String {
-        dataManager.findFriend(user.npub)?.name ?? MainHelper.friendlyKey(npub: user.npub)
-    }
-    
-    func getCurrentUser() -> MockUser {
-        if let account = keychainForNostr.account {
-            return MockUser(senderId: account.publicKey.npub, displayName: "You")
-        }
-        return MockUser(senderId: "000002", displayName: "You")
-    }
-}
-
-// MARK: - UI
+// MARK: - UI Components
 private extension DMView {
     private var backButton: some View {
         HStack {
@@ -347,7 +279,7 @@ private extension DMView {
             }
         }
     }
-
+    
     private var actionButtons: some View {
         HStack(spacing: 16) {
             HStack(spacing: 16) {
@@ -359,7 +291,7 @@ private extension DMView {
                 }
                 
                 Button(action: {
-//                    navigation.path.append(NavigationPathType.camera)
+                    //                    navigation.path.append(NavigationPathType.camera)
                 }) {
                     Image(systemName: "camera.on.rectangle.fill")
                         .foregroundColor(.blue)
@@ -367,13 +299,13 @@ private extension DMView {
             }
         }
     }
-
+    
     private func openChannelInvite() {
         guard let channelId = selectedChannelId else { return }
-
+        
         navigation.joinChannel(channelId: channelId)
     }
-
+    
     private func handleVideoTap(message: MessageType) {
         if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
             let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
@@ -384,6 +316,105 @@ private extension DMView {
         shouldScrollToBottom = false
     }
 }
-#Preview {
-    DMView(user: AppData().users[0])
+
+// MARK: - Invoice
+private extension DMView {
+    func setSelectedInvoiceString(_ invoiceString: String) {
+        selectedInvoiceString = invoiceString
+        selectedInvoice = Invoice.decodeInvoiceFromString(invoiceString)
+    }
+    
+    private func openWallet() {
+        guard let invoice = selectedInvoice else { return }
+        
+        // Parse network and mintAddress from metadata
+        let parsed = MessageHelper.parseNetworkAndMint(from: invoice)
+        guard let (targetNetwork, mintAddress) = parsed else {
+            print("❌ Failed to parse network and mintAddress from invoice")
+            return
+        }
+        
+        guard let amountDecimal = Double(invoice.amount) else {
+            print("❌ Invalid amount format: \(invoice.amount)")
+            return
+        }
+        
+        // 🔄 Switch network if needed
+        if walletManager.network != targetNetwork {
+            walletManager.network = targetNetwork
+            walletManager.updateApiClient()
+            walletManager.refreshAliases()
+        }
+        
+        // ⏳ Fetch latest wallet data
+        walletManager.fetchAccountDetails { result in
+            switch result {
+            case .success:
+                processInvoicePayment(invoice: invoice, mintAddress: mintAddress, amountDecimal: amountDecimal)
+            case .failure(let error):
+                self.alertMessage = "❌ Failed to fetch wallet data: \(error)"
+                self.activeAlert = .transaction(title: "Error", message: alertMessage, txId: "")
+            }
+        }
+    }
+    
+    private func processInvoicePayment(invoice: Invoice, mintAddress: String, amountDecimal: Double) {
+        let transferType: TransferType
+        let amountUInt64: UInt64
+        
+        if mintAddress == "SOL_NATIVE" {
+            transferType = .sol
+            amountUInt64 = UInt64(amountDecimal * 1_000_000_000)
+        } else {
+            guard let tokenAccount = walletManager.accounts.first(where: { $0.token.mintAddress == mintAddress }) else {
+                alertMessage = "❌ No token account for mint: \(mintAddress)"
+                self.activeAlert = .transaction(title: "Error", message: alertMessage, txId: "")
+                return
+            }
+            
+            let factor = pow(10.0, Double(tokenAccount.decimals))
+            amountUInt64 = UInt64(amountDecimal * factor)
+            transferType = .token(tokenAccount)
+        }
+        
+        Task {
+            let result = await walletManager.sendAsset(type: transferType, to: invoice.address, amount: amountUInt64)
+           
+            DispatchQueue.main.async {
+                var alertTitle = ""
+                var alertMsg = ""
+                var finalTxId: String? = nil // Store txId specifically for the alert case
+
+                switch result {
+                case .success(let txId):
+                    alertTitle = "Success"
+                    alertMsg = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
+                    finalTxId = txId
+                case .failure(let error):
+                     alertTitle = "Error"
+                     alertMsg = "❌ Failed to pay invoice: \(error.localizedDescription)"
+                }
+
+                self.activeAlert = .transaction(title: alertTitle, message: alertMsg, txId: finalTxId)
+            }
+        }
+    }
+}
+
+// MARK: - Helpers
+private extension DMView {
+    private var connected: Bool {
+        network.relayPool?.relays.contains { $0.url == URL(string: user.relayUrl) } ?? false
+    }
+    
+    func formatName() -> String {
+        dataManager.findFriend(user.npub)?.name ?? MainHelper.friendlyKey(npub: user.npub)
+    }
+    
+    func getCurrentUser() -> MockUser {
+        if let account = keychainForNostr.account {
+            return MockUser(senderId: account.publicKey.npub, displayName: "You")
+        }
+        return MockUser(senderId: "000002", displayName: "You")
+    }
 }

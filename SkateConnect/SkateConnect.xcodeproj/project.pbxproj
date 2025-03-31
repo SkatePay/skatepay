@@ -68,6 +68,16 @@
 		C63DEF562D7BD48D0058224F /* DMEventPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF552D7BD48D0058224F /* DMEventPublisher.swift */; };
 		C63DEF582D7D1DAD0058224F /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63DEF572D7D1DAD0058224F /* CameraViewModel.swift */; };
 		C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */; };
+		C640CE652D91DA0700F8298A /* TickerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE642D91DA0200F8298A /* TickerOverlay.swift */; };
+		C640CE672D91DA4F00F8298A /* NotificationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE662D91DA4B00F8298A /* NotificationOverlay.swift */; };
+		C640CE692D91DA7300F8298A /* MarkControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE682D91DA6700F8298A /* MarkControls.swift */; };
+		C640CE6B2D91DBEF00F8298A /* ConsoleOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE6A2D91DBEA00F8298A /* ConsoleOverlay.swift */; };
+		C640CE6E2D9223AD00F8298A /* DeckTrackerCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE6D2D9223AA00F8298A /* DeckTrackerCamera.swift */; };
+		C640CE702D92251F00F8298A /* DeckTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE6F2D92251A00F8298A /* DeckTrackerView.swift */; };
+		C640CE722D9226DE00F8298A /* DeckDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE712D9226D600F8298A /* DeckDetailsView.swift */; };
+		C640CE742D92290000F8298A /* BirthdayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE732D9228F800F8298A /* BirthdayView.swift */; };
+		C640CE792D9483C600F8298A /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE762D9483C300F8298A /* Notifications.swift */; };
+		C640CE7B2D94C02700F8298A /* VideoDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE7A2D94C02100F8298A /* VideoDownloader.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
 		C662BD502D86A6A000BD6E58 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C662BD4F2D86A6A000BD6E58 /* NostrSDK */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
@@ -105,7 +115,6 @@
 		C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC045D2CB47AAB003FCA1B /* FilePicker.swift */; };
 		C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04602CB47DFA003FCA1B /* UploadManager.swift */; };
 		C6DC04642CB4B930003FCA1B /* InputBarAccessoryView in Frameworks */ = {isa = PBXBuildFile; productRef = C6DC04632CB4B930003FCA1B /* InputBarAccessoryView */; };
-		C6DC04682CB5B720003FCA1B /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04672CB5B720003FCA1B /* UI.swift */; };
 		C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC04692CB5BA00003FCA1B /* StateManager.swift */; };
 		C6DC046E2CB5FD69003FCA1B /* ChannelViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046D2CB5FD69003FCA1B /* ChannelViewManager.swift */; };
 		C6DC04702CB75010003FCA1B /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC046F2CB75010003FCA1B /* QRCodeView.swift */; };
@@ -235,6 +244,16 @@
 		C63DEF552D7BD48D0058224F /* DMEventPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMEventPublisher.swift; sourceTree = "<group>"; };
 		C63DEF572D7D1DAD0058224F /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
 		C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHelper.swift; sourceTree = "<group>"; };
+		C640CE642D91DA0200F8298A /* TickerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerOverlay.swift; sourceTree = "<group>"; };
+		C640CE662D91DA4B00F8298A /* NotificationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationOverlay.swift; sourceTree = "<group>"; };
+		C640CE682D91DA6700F8298A /* MarkControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkControls.swift; sourceTree = "<group>"; };
+		C640CE6A2D91DBEA00F8298A /* ConsoleOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleOverlay.swift; sourceTree = "<group>"; };
+		C640CE6D2D9223AA00F8298A /* DeckTrackerCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckTrackerCamera.swift; sourceTree = "<group>"; };
+		C640CE6F2D92251A00F8298A /* DeckTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckTrackerView.swift; sourceTree = "<group>"; };
+		C640CE712D9226D600F8298A /* DeckDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckDetailsView.swift; sourceTree = "<group>"; };
+		C640CE732D9228F800F8298A /* BirthdayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdayView.swift; sourceTree = "<group>"; };
+		C640CE762D9483C300F8298A /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		C640CE7A2D94C02100F8298A /* VideoDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDownloader.swift; sourceTree = "<group>"; };
 		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
 		C66AFE852CA61C76000CD716 /* AWS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AWS.swift; sourceTree = "<group>"; };
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
@@ -265,7 +284,6 @@
 		C6D1F2DF2C9FC52A00FF428F /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
 		C6DC045D2CB47AAB003FCA1B /* FilePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePicker.swift; sourceTree = "<group>"; };
 		C6DC04602CB47DFA003FCA1B /* UploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadManager.swift; sourceTree = "<group>"; };
-		C6DC04672CB5B720003FCA1B /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
 		C6DC04692CB5BA00003FCA1B /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
 		C6DC046D2CB5FD69003FCA1B /* ChannelViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelViewManager.swift; sourceTree = "<group>"; };
 		C6DC046F2CB75010003FCA1B /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
@@ -384,6 +402,7 @@
 		C62500F42C93C1340026C334 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE762D9483C300F8298A /* Notifications.swift */,
 				C63FD2DE2D7A7A75005ACFDB /* MessageHelper.swift */,
 				C6F4959B2C93CF350006FBF0 /* CircleImage.swift */,
 				C62500F22C93C1340026C334 /* FavoriteButton.swift */,
@@ -469,6 +488,9 @@
 		C62501172C93C1340026C334 /* Skate */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE732D9228F800F8298A /* BirthdayView.swift */,
+				C640CE6C2D92235C00F8298A /* DeckTracker */,
+				C640CE612D91D9C100F8298A /* Overlay */,
 				C6A3DCEB2D46A81F0095A994 /* Components */,
 				C66AFE8D2CA749B3000CD716 /* Map */,
 				C62501072C93C1340026C334 /* Channel */,
@@ -596,6 +618,28 @@
 			path = DM;
 			sourceTree = "<group>";
 		};
+		C640CE612D91D9C100F8298A /* Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				C640CE6A2D91DBEA00F8298A /* ConsoleOverlay.swift */,
+				C6A3DCE92D46A7240095A994 /* OverlayView.swift */,
+				C640CE682D91DA6700F8298A /* MarkControls.swift */,
+				C640CE662D91DA4B00F8298A /* NotificationOverlay.swift */,
+				C640CE642D91DA0200F8298A /* TickerOverlay.swift */,
+			);
+			path = Overlay;
+			sourceTree = "<group>";
+		};
+		C640CE6C2D92235C00F8298A /* DeckTracker */ = {
+			isa = PBXGroup;
+			children = (
+				C640CE712D9226D600F8298A /* DeckDetailsView.swift */,
+				C640CE6F2D92251A00F8298A /* DeckTrackerView.swift */,
+				C640CE6D2D9223AA00F8298A /* DeckTrackerCamera.swift */,
+			);
+			path = DeckTracker;
+			sourceTree = "<group>";
+		};
 		C642B2142C97854A001022DF /* EULA */ = {
 			isa = PBXGroup;
 			children = (
@@ -624,6 +668,7 @@
 		C66AFE8A2CA63749000CD716 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE7A2D94C02100F8298A /* VideoDownloader.swift */,
 				C6C94AE62CA885B1008ECA86 /* Lobby.swift */,
 				C62500D42C93C11A0026C334 /* DataManager.swift */,
 				C66AFE8B2CA63755000CD716 /* Navigation.swift */,
@@ -668,8 +713,6 @@
 		C6A3DCEB2D46A81F0095A994 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				C6DC04672CB5B720003FCA1B /* UI.swift */,
-				C6A3DCE92D46A7240095A994 /* OverlayView.swift */,
 				C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */,
 			);
 			path = Components;
@@ -993,6 +1036,8 @@
 				C625015F2C93C1340026C334 /* ContentView.swift in Sources */,
 				C625014B2C93C1340026C334 /* SpotDetail.swift in Sources */,
 				C66FDBFA2D87AADA001BDF73 /* Invoice.swift in Sources */,
+				C640CE7B2D94C02700F8298A /* VideoDownloader.swift in Sources */,
+				C640CE692D91DA7300F8298A /* MarkControls.swift in Sources */,
 				C62501512C93C1340026C334 /* LobbyView.swift in Sources */,
 				C62501672C93C1340026C334 /* Friend.swift in Sources */,
 				C62500E52C93C1250026C334 /* Date+Extensions.swift in Sources */,
@@ -1002,15 +1047,19 @@
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
+				C640CE652D91DA0700F8298A /* TickerOverlay.swift in Sources */,
 				C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C63DEF562D7BD48D0058224F /* DMEventPublisher.swift in Sources */,
 				C6DC04612CB47DFA003FCA1B /* UploadManager.swift in Sources */,
 				C6DC046A2CB5BA00003FCA1B /* StateManager.swift in Sources */,
 				C62500DF2C93C1210026C334 /* TokenPrice.swift in Sources */,
+				C640CE6B2D91DBEF00F8298A /* ConsoleOverlay.swift in Sources */,
 				C634D8722D8E1E37005644C3 /* RecoveryPhraseView.swift in Sources */,
 				C62B84F52CA5E19B0086AEE0 /* VideoPreviewView.swift in Sources */,
+				C640CE792D9483C600F8298A /* Notifications.swift in Sources */,
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
+				C640CE742D92290000F8298A /* BirthdayView.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
 				C62B08A92D8152F10071777B /* CameraPreview.swift in Sources */,
 				C62501572C93C1340026C334 /* SkateView.swift in Sources */,
@@ -1019,9 +1068,11 @@
 				C625015B2C93C1340026C334 /* ImportIdentity.swift in Sources */,
 				C66AFE862CA61C76000CD716 /* AWS.swift in Sources */,
 				C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */,
+				C640CE702D92251F00F8298A /* DeckTrackerView.swift in Sources */,
 				C61E6D9B2D4C574D001EDA11 /* RestoreDataView.swift in Sources */,
 				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,
 				C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */,
+				C640CE6E2D9223AD00F8298A /* DeckTrackerCamera.swift in Sources */,
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
 				C625013A2C93C1340026C334 /* NostrKeyInput.swift in Sources */,
 				C6D1F2D92C9FBDBA00FF428F /* LocationManager.swift in Sources */,
@@ -1029,9 +1080,9 @@
 				C66AFE992CA7B8A6000CD716 /* VideoEditorView.swift in Sources */,
 				C62501582C93C1340026C334 /* NostrKeychainStorage.swift in Sources */,
 				C63DEF4C2D7BBEB80058224F /* ChannelMetadataListener.swift in Sources */,
-				C6DC04682CB5B720003FCA1B /* UI.swift in Sources */,
 				C625014F2C93C1340026C334 /* Contacts.swift in Sources */,
 				C625016E2C93C1340026C334 /* User.swift in Sources */,
+				C640CE672D91DA4F00F8298A /* NotificationOverlay.swift in Sources */,
 				C66E09672C96583800C9F8F1 /* SampleData.swift in Sources */,
 				C625013D2C93C1340026C334 /* MapView.swift in Sources */,
 				C6F495A12C93D3C10006FBF0 /* WalletManager.swift in Sources */,
@@ -1049,6 +1100,7 @@
 				C63DEF582D7D1DAD0058224F /* CameraViewModel.swift in Sources */,
 				C62500DC2C93C1210026C334 /* AnyToken.swift in Sources */,
 				C6D1F2E02C9FC52A00FF428F /* ScannerView.swift in Sources */,
+				C640CE722D9226DE00F8298A /* DeckDetailsView.swift in Sources */,
 				C6C94AE92CA8D731008ECA86 /* API.swift in Sources */,
 				C69018B52D432DC500A3CDD8 /* EULAManager.swift in Sources */,
 				C62501532C93C1340026C334 /* LandmarkDirectory.swift in Sources */,
@@ -1257,7 +1309,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1298,7 +1350,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

@@ -63,6 +63,7 @@ struct ContentView: View {
     @EnvironmentObject private var network: Network
     @EnvironmentObject private var stateManager: StateManager
     @EnvironmentObject private var uploadManager: UploadManager
+    @EnvironmentObject private var videoDowloader: VideoDownloader
     @EnvironmentObject private var walletManager: WalletManager
     
     @StateObject private var store = HostStore()
@@ -177,7 +178,11 @@ struct ContentView: View {
                 case .barcodeScanner:
                     BarcodeScanner()
                         .environmentObject(navigation)
-                    
+               
+                case .birthday:
+                    BirthdayView()
+                        .environmentObject(navigation)
+                
                 case .camera:
                     CameraView()
                         .environmentObject(navigation)
@@ -191,6 +196,7 @@ struct ContentView: View {
                         .environmentObject(network)
                         .environmentObject(stateManager)
                         .environmentObject(uploadManager)
+                        .environmentObject(videoDowloader)
                         .environmentObject(walletManager)
                         .onDisappear {
                             locationManager.panMapToCachedCoordinate()
@@ -217,6 +223,16 @@ struct ContentView: View {
                         .environmentObject(navigation)
                         .environmentObject(network)
                         .navigationTitle("Direct Message")
+                   
+                case .deckDetails(let image, let fileURL):
+                    DeckDetailsView(deckImage: image, fileURL: fileURL)
+                        .environmentObject(navigation)
+                        .environmentObject(network)
+                        .environmentObject(uploadManager)
+                    
+                case .deckTracker:
+                    DeckTrackerView()
+                        .environmentObject(network)
                     
                 case .directMessage(user: let user):
                     DMView(user: user)
@@ -284,7 +300,6 @@ struct ContentView: View {
                     
                 case .videoPlayer(let url):
                     VideoPreviewView(url: url)
-        
                 }
             }
         }

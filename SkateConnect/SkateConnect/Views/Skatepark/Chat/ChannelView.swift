@@ -18,9 +18,24 @@ import SwiftData
 import SwiftUI
 import UIKit
 
+
+enum ActiveAlert: Identifiable {
+    case transaction(title: String, message: String, txId: String?)
+    case downloading
+    
+    var id: String {
+        switch self {
+        case .transaction(let title, _, _):
+            return "transaction_\(title)"
+        case .downloading:
+            return "downloading"
+        }
+    }
+}
+
 struct ChannelView: View {
     let log = OSLog(subsystem: "SkateConnect", category: "ChannelVIew")
-
+    
     @Environment(\.dismiss) private var dismiss
     
     @EnvironmentObject var dataManager: DataManager
@@ -30,54 +45,56 @@ struct ChannelView: View {
     @EnvironmentObject var network: Network
     @EnvironmentObject var stateManager: StateManager
     @EnvironmentObject var uploadManager: UploadManager
+    @EnvironmentObject var videoDownloader: VideoDownloader
     @EnvironmentObject var walletManager: WalletManager
     
     @StateObject private var eventPublisher = ChannelEventPublisher()
     
     @StateObject private var eventListenerForMessages = ChannelMessageListener()
     @StateObject private var eventListenerForMetadata = ChannelMetadataListener()
-
+    
     // Credentials
     let keychainForNostr = NostrKeychainStorage()
-
+    
     @State var channelId: String
     @State var type = ChannelType.outbound
     
     // Base
     @State private var selectedChannelId: String? = nil
     
+    // Action Sheets
+    @State private var showingMediaActionSheet = false
+    @State private var showingInviteActionSheet = false
+    @State private var showingInvoiceActionSheet = false
+    @State private var showingMessageActionSheet = false
+    
+    @State private var selectedMessageId: String? = nil
+    
     // Toolbox
     @State private var isShowingToolBoxView = false
-    
-    @State private var showingMediaActionSheet = false
     @State private var selectedMediaURL: URL?
-
+    
     // Invite
-    @State private var showingInviteActionSheet = false
-
     @State private var selectedInviteString: String? = nil
     
     // Invoice
-    @State private var showingInvoiceActionSheet = false
-    @State private var showingTransactionAlert = false
-    @State private var showingRefusalAlert = false
-
     @State private var selectedInvoiceString: String? = nil
     @State private var selectedInvoice: Invoice? = nil
-
-    // Invoice - Asset Transfer
-    @State private var transactionId: String = ""
+    @State private var showingRefusalAlert = false
+    
+    @State private var activeAlert: ActiveAlert? = nil
     @State private var alertMessage: String = ""
     
     // View State
     @State private var shouldScrollToBottom = true
-
+    
     var landmarks: [Landmark] = AppData().landmarks
     
     private var editChannelView: some View {
         Group {
             if let channel = self.eventListenerForMetadata.channel {
                 EditChannel(channel: channel)
+                    .environmentObject(dataManager)
                     .environmentObject(navigation)
             } else {
                 // Fallback view if channel is nil (optional)
@@ -86,10 +103,27 @@ struct ChannelView: View {
         }
     }
     
+    var readonly: Bool {
+        if let channel = network.getChannel(for: channelId) {
+            guard let creationEvent = channel.creationEvent else { return false }
+            
+            let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+            
+            if isCreator {
+                return false
+            } else {
+                return Constants.CHANNELS.FAQ == channelId
+            }
+        } else {
+            return Constants.CHANNELS.FAQ == channelId
+        }
+    }
+    
     var body: some View {
         VStack {
             ChatView(
                 currentUser: getCurrentUser(),
+                readonly: readonly,
                 messages: $eventListenerForMessages.messages,
                 shouldScrollToBottom: $shouldScrollToBottom,
                 onTapAvatar: { senderId in
@@ -102,6 +136,12 @@ struct ChannelView: View {
                         self.selectedMediaURL = URL(string: videoURLString)
                         showingMediaActionSheet = true
                     }
+                    
+                    if case MessageKind.photo(_) = message.kind {
+                        showingMessageActionSheet = true
+                        selectedMessageId = message.messageId
+                    }
+                    
                     shouldScrollToBottom = false
                 },
                 onTapLink: { action, channelId, dataString, isOwner in
@@ -122,19 +162,22 @@ struct ChannelView: View {
                     selectedChannelId = channelId
                     shouldScrollToBottom = false
                 },
+                onTapMessage: { message in
+                    print(message)
+                    showingMessageActionSheet = true
+                    selectedMessageId = message.messageId
+                },
                 onSend: { text in
-                    network.publishChannelEvent(channelId: channelId, content: text)
+                    network.publishChannelEvent(channelId: channelId, text: text)
                     shouldScrollToBottom = true
                 }
             )
             .navigationBarBackButtonHidden()
-            .sheet(isPresented: $navigation.isShowingEditChannel) {
-                editChannelView
-            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     HStack {
                         Button(action: {
+                            navigation.channelId = nil
                             dismiss()
                         }) {
                             Image(systemName: "arrow.left")
@@ -143,8 +186,7 @@ struct ChannelView: View {
                         Button(action: {
                             navigation.isShowingEditChannel.toggle()
                         }) {
-
-                             if let channel = eventListenerForMetadata.channel {
+                            if let channel = eventListenerForMetadata.channel {
                                 if let channelId = channel.creationEvent?.id, let landmark = findLandmark(channelId) {
                                     HStack {
                                         landmark.image
@@ -152,7 +194,7 @@ struct ChannelView: View {
                                             .scaledToFill()
                                             .frame(width: 35, height: 35)
                                             .clipShape(Circle())
-
+                                        
                                         VStack(alignment: .leading, spacing: 0) {
                                             Text(landmark.name)
                                                 .fontWeight(.semibold)
@@ -160,9 +202,11 @@ struct ChannelView: View {
                                         }
                                     }
                                 } else {
-                                    Text("\(channel.metadata?.name ?? channel.name)\(type == .outbound ? " 👑" : "")")
-                                        .fontWeight(.semibold)
-                                        .font(.headline)
+                                    if let title = getTitle(channel: channel) {
+                                        Text(title)
+                                            .fontWeight(.semibold)
+                                            .font(.headline)
+                                    }
                                 }
                             }
                         }
@@ -178,6 +222,7 @@ struct ChannelView: View {
                         }
                         
                         Button(action: {
+                            navigation.channelId = channelId
                             navigation.path.append(NavigationPathType.camera)
                         }) {
                             Image(systemName: "camera.on.rectangle.fill")
@@ -185,6 +230,9 @@ struct ChannelView: View {
                         }
                     }
                 }
+            }
+            .sheet(isPresented: $navigation.isShowingEditChannel) {
+                editChannelView
             }
             .sheet(isPresented: $isShowingToolBoxView) {
                 ToolBoxView(channelId: channelId)
@@ -211,14 +259,14 @@ struct ChannelView: View {
                     self.eventListenerForMetadata.reset()
                     
                     self.eventPublisher.subscribeToMetadataFor(channelId)
-
+                    
                     if (self.eventListenerForMessages.receivedEOSE) {
                         shouldScrollToBottom = false
                         return
                     }
                     
                     shouldScrollToBottom = true
-
+                    
                     self.eventListenerForMessages.setChannelId(channelId)
                     self.eventListenerForMessages.setDependencies(
                         dataManager: dataManager,
@@ -226,7 +274,7 @@ struct ChannelView: View {
                         account: account
                     )
                     self.eventListenerForMessages.reset()
-
+                    
                     self.eventPublisher.subscribeToMessagesFor(channelId)
                 }
             }
@@ -234,33 +282,67 @@ struct ChannelView: View {
                 if let assetURL = notification.userInfo?["assetURL"] as? String {
                     network.publishChannelEvent(channelId: channelId,
                                                 kind: .photo,
-                                                content: assetURL
+                                                text: assetURL
                     )
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .muteUser)) { _ in
-                if let account = keychainForNostr.account {
-                    self.eventListenerForMetadata.setChannelId(channelId)
-                    
-                    self.eventPublisher.subscribeToMetadataFor(channelId) 
-
-                    self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(
-                        dataManager: dataManager,
-                        debugManager: debugManager,
-                        account: account
-                    )
-                    self.eventListenerForMessages.reset()
-                    
-                    self.eventPublisher.subscribeToMessagesFor(channelId)
-                }
+                guard let account = keychainForNostr.account else { return }
+                
+                self.eventListenerForMetadata.setChannelId(channelId)
+                
+                self.eventPublisher.subscribeToMetadataFor(channelId)
+                
+                self.eventListenerForMessages.setChannelId(channelId)
+                self.eventListenerForMessages.setDependencies(
+                    dataManager: dataManager,
+                    debugManager: debugManager,
+                    account: account
+                )
+                self.eventListenerForMessages.reset()
+                
+                self.eventPublisher.subscribeToMessagesFor(channelId)
             }
             .onDisappear {
-                navigation.channelId = nil
                 NotificationCenter.default.removeObserver(self)
             }
             .modifier(IgnoresSafeArea())
         }
+        .alert(item: $activeAlert) { alertType in // alertType is the non-nil ActiveAlert value
+            switch alertType {
+            case .transaction(let title, let message, let txId):
+                return Alert(
+                    title: Text(title),
+                    message: Text(message),
+                    dismissButton: .default(Text("OK")) {
+                        // Action on dismiss specific to transaction alert
+                        print("Transaction Alert OK tapped")
+                        if let confirmedTxId = txId, !confirmedTxId.isEmpty {
+                            // Post notification only if txId was valid
+                            NotificationCenter.default.post(
+                                name: .publishChannelEvent,
+                                object: nil,
+                                userInfo: [
+                                    "channelId": channelId,
+                                    "content": "🧾 Receipt: https://solscan.io/tx/\(confirmedTxId)?cluster=\(walletManager.network)",
+                                    "kind": Kind.message // Ensure Kind.message is defined
+                                ]
+                            )
+                        }
+                    }
+                )
+            case .downloading:
+                return Alert(
+                    title: Text("Downloading..."),
+                    // Add message if desired
+                    dismissButton: .default(Text("OK")) {
+                        // Action on dismiss specific to download alert (if any)
+                        print("Download Alert OK tapped")
+                    }
+                )
+            }
+        }
+        // Action Sheets
         .confirmationDialog("Media Options", isPresented: $showingMediaActionSheet, titleVisibility: .visible) {
             Button("Play") {
                 if let videoURL = selectedMediaURL {
@@ -292,7 +374,6 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-        // Invoice
         .confirmationDialog("Invoice", isPresented: $showingInvoiceActionSheet, titleVisibility: .visible) {
             Button("Pay") {
                 openWallet()
@@ -306,33 +387,30 @@ struct ChannelView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
+        .confirmationDialog("Message Actions", isPresented: $showingMessageActionSheet, titleVisibility: .visible) {
+            if let messageId = selectedMessageId,
+               let event = eventListenerForMessages.events[messageId] {
+                
+                if dataManager.isMe(pubkey: event.pubkey) {
+                    Button("Delete", role: .destructive) {  // Note: .destructive for delete
+                        deleteEvent(event)
+                    }
+                } else {
+                    Button("Mute User", role: .destructive) {  // Muting is also destructive
+                        print("muting user")
+                        // Add actual mute logic here
+                    }
+                }
+                
+                Button("Cancel", role: .cancel) {
+                    showingMessageActionSheet = false
+                }
+            }
+        }
         .confirmationDialog("Can't pay your own invoice.", isPresented: $showingRefusalAlert, titleVisibility: .visible) {
             Button("Okay", role: .cancel) {
                 showingRefusalAlert = false
             }
-        }
-        .alert(isPresented: $showingTransactionAlert) {
-            Alert(
-                title: Text(transactionId.isEmpty ? "Error" : "Success"),
-                message: Text(alertMessage),
-                dismissButton: .default(Text("OK")) {
-                    showingTransactionAlert = true
-                    
-                    if (!transactionId.isEmpty) {
-                        NotificationCenter.default.post(
-                            name: .publishChannelEvent,
-                            object: nil,
-                            userInfo: [
-                                "channelId": channelId,
-                                "content": "🧾 Receipt: https://solscan.io/tx/\(transactionId)?cluster=\(walletManager.network)",
-                                "kind": Kind.message
-                            ]
-                        )
-                    }
-                    
-                    transactionId = ""
-                }
-            )
         }
     }
     
@@ -343,17 +421,46 @@ struct ChannelView: View {
     
     private func openChannelInvite() {
         guard let channelId = selectedChannelId else { return }
-
+        
         navigation.joinChannel(channelId: channelId)
     }
-
+    
     private func downloadVideo(from url: URL) {
         print("Downloading video from \(url)")
+        
+        videoDownloader.downloadVideo(from: url) { loading, _ in
+            if (loading) {
+                self.activeAlert = .downloading
+            }
+        }
+    }
+    
+    private func deleteEvent(_ event: NostrEvent) {
+        network.deleteEvent(event)
+        refresh()
+    }
+    
+    // This method only works properly cleanup after deletion.
+    private func refresh() {
+        guard let account = keychainForNostr.account else { return }
+        
+        self.eventListenerForMetadata.setChannelId(channelId)
+        
+        self.eventPublisher.subscribeToMetadataFor(channelId)
+        
+        self.eventListenerForMessages.setChannelId(channelId)
+        self.eventListenerForMessages.setDependencies(
+            dataManager: dataManager,
+            debugManager: debugManager,
+            account: account
+        )
+        self.eventListenerForMessages.reset()
+        
+        self.eventPublisher.subscribeToMessagesFor(channelId)
     }
 }
 
 // MARK: - Invoice
-
 private extension ChannelView {
     func setSelectedInvoiceString(_ invoiceString: String) {
         selectedInvoiceString = invoiceString
@@ -362,26 +469,26 @@ private extension ChannelView {
     
     private func openWallet() {
         guard let invoice = selectedInvoice else { return }
-
+        
         // Parse network and mintAddress from metadata
         let parsed = MessageHelper.parseNetworkAndMint(from: invoice)
         guard let (targetNetwork, mintAddress) = parsed else {
             print("❌ Failed to parse network and mintAddress from invoice")
             return
         }
-
+        
         guard let amountDecimal = Double(invoice.amount) else {
             print("❌ Invalid amount format: \(invoice.amount)")
             return
         }
-
+        
         // 🔄 Switch network if needed
         if walletManager.network != targetNetwork {
             walletManager.network = targetNetwork
             walletManager.updateApiClient()
             walletManager.refreshAliases()
         }
-
+        
         // ⏳ Fetch latest wallet data before proceeding
         walletManager.fetchAccountDetails { result in
             switch result {
@@ -389,7 +496,7 @@ private extension ChannelView {
                 processInvoicePayment(invoice: invoice, mintAddress: mintAddress, amountDecimal: amountDecimal)
             case .failure(let error):
                 alertMessage = "❌ Failed to fetch wallet data: \(error)"
-                showingTransactionAlert = true
+                self.activeAlert = .transaction(title: "Error", message: alertMessage, txId: "")
             }
         }
     }
@@ -397,34 +504,41 @@ private extension ChannelView {
     private func processInvoicePayment(invoice: Invoice, mintAddress: String, amountDecimal: Double) {
         let transferType: TransferType
         let amountUInt64: UInt64
-
+        
         if mintAddress == "SOL_NATIVE" {
             transferType = .sol
             amountUInt64 = UInt64(amountDecimal * 1_000_000_000)
         } else {
             guard let tokenAccount = walletManager.accounts.first(where: { $0.token.mintAddress == mintAddress }) else {
                 alertMessage = "❌ No token account for mint: \(mintAddress)"
-                showingTransactionAlert = true
+                self.activeAlert = .transaction(title: "Error", message: alertMessage, txId: "")
                 return
             }
-
+            
             let factor = pow(10.0, Double(tokenAccount.decimals))
             amountUInt64 = UInt64(amountDecimal * factor)
             transferType = .token(tokenAccount)
         }
-
+        
         Task {
             let result = await walletManager.sendAsset(type: transferType, to: invoice.address, amount: amountUInt64)
+           
+            DispatchQueue.main.async {
+                var alertTitle = ""
+                var alertMsg = ""
+                var finalTxId: String? = nil // Store txId specifically for the alert case
 
-            await MainActor.run {
                 switch result {
                 case .success(let txId):
-                    transactionId = txId
-                    alertMessage = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
+                    alertTitle = "Success"
+                    alertMsg = "✅ Invoice paid, txn ID: \(txId.prefix(8))"
+                    finalTxId = txId
                 case .failure(let error):
-                    alertMessage = "❌ Failed to pay invoice: \(error.localizedDescription)"
+                     alertTitle = "Error"
+                     alertMsg = "❌ Failed to pay invoice: \(error.localizedDescription)"
                 }
-                showingTransactionAlert = true
+
+                self.activeAlert = .transaction(title: alertTitle, message: alertMsg, txId: finalTxId)
             }
         }
     }
@@ -438,19 +552,23 @@ private extension ChannelView {
         }
         return MockUser(senderId: "000002", displayName: "You")
     }
+    
+    func getTitle(channel: Channel) -> String? {
+        guard let creationEvent = channel.creationEvent else {
+            return nil
+        }
+        
+        let baseTitle = channel.metadata?.name ?? channel.name
+        let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+        let readOnlyIndicator = readonly ? "ℹ️ " : ""
+        let creatorIndicator = isCreator ? " 👑" : ""
+        
+        return "\(readOnlyIndicator)\(baseTitle)\(creatorIndicator)"
+    }
 }
 
 struct IgnoresSafeArea: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 14.0, *) {
-            content.ignoresSafeArea(.keyboard, edges: .bottom)
-        } else {
-            content
-        }
+        content.ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
-
-#Preview {
-    ChannelView(channelId: "")
-}
-

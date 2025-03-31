@@ -70,37 +70,35 @@ struct CameraView: View {
             VStack {
                 Spacer()
 
-                if !uploadManager.isUploading {
-                    if cameraViewModel.hasCameraAccess && cameraViewModel.cameraReady {
-                        HStack {
-                            Spacer()
+                if cameraViewModel.hasCameraAccess && cameraViewModel.cameraReady {
+                    HStack {
+                        Spacer()
 
-                            if cameraViewModel.isRecording {
-                                Text("REC")
-                                    .foregroundColor(.red)
-                                    .font(.caption)
-                                    .padding(5)
-                                    .background(Circle().fill(Color.black.opacity(0.7)))
-                                    .padding()
-                            }
-
-                            // Record Button
-                            Button(action: {
-                                if cameraViewModel.isRecording {
-                                    cameraViewModel.stopRecording()
-                                } else {
-                                    cameraViewModel.startRecording()
-                                }
-                            }) {
-                                Circle()
-                                    .strokeBorder(cameraViewModel.isRecording ? Color.red : Color.white, lineWidth: 5)
-                                    .frame(width: 70, height: 70)
-                            }
-                            .padding()
-                            .disabled(!cameraViewModel.cameraReady)
-
-                            Spacer()
+                        if cameraViewModel.isRecording {
+                            Text("REC")
+                                .foregroundColor(.red)
+                                .font(.caption)
+                                .padding(5)
+                                .background(Circle().fill(Color.black.opacity(0.7)))
+                                .padding()
                         }
+
+                        // Record Button
+                        Button(action: {
+                            if cameraViewModel.isRecording {
+                                cameraViewModel.stopRecording()
+                            } else {
+                                cameraViewModel.startRecording()
+                            }
+                        }) {
+                            Circle()
+                                .strokeBorder(cameraViewModel.isRecording ? Color.red : Color.white, lineWidth: 5)
+                                .frame(width: 70, height: 70)
+                        }
+                        .padding()
+                        .disabled(!cameraViewModel.cameraReady)
+
+                        Spacer()
                     }
                 }
             }
@@ -135,26 +133,20 @@ struct CameraView: View {
                 VStack {
                     Spacer()
 
-                    if uploadManager.isUploading {
-                        ProgressView("Uploading...")
-                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                            .padding()
-                    } else {
-                        HStack {
-                            Spacer()
+                    HStack {
+                        Spacer()
 
-                            Button(action: {
-                                cameraViewModel.showingPreview = true
-                            }) {
-                                Text("✂️ Edit")
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .background(Capsule().fill(Color.blue))
-                            }
-                            .padding(.trailing)
+                        Button(action: {
+                            cameraViewModel.showingPreview = true
+                        }) {
+                            Text("✂️ Edit")
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Capsule().fill(Color.blue))
                         }
-                        .padding(.bottom, 40)
+                        .padding(.trailing)
                     }
+                    .padding(.bottom, 40)
                 }
                 .sheet(isPresented: $cameraViewModel.showingPreview) {
                     VideoEditorView(

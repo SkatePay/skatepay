@@ -270,7 +270,7 @@ extension Network {
         
         do {
             let text = "I'm online."
-            let contentStructure = ContentStructure(content: text, kind: .hidden)
+            let contentStructure = ContentStructure(kind: .hidden, text: text, content: text)
             let jsonData = try JSONEncoder().encode(contentStructure)
             let content = String(data: jsonData, encoding: .utf8) ?? text
             
@@ -307,7 +307,11 @@ extension Network {
         switch relay.state {
         case .connected:
             os_log("🚀 network connected", log: log, type: .info)
-            self.connected = true
+            
+            DispatchQueue.main.async {
+                self.connected = true
+            }
+            
             self.processFavorites()
             self.processSubscriptionBuffers()
             self.requestOnboardingInfo()
@@ -321,7 +325,9 @@ extension Network {
                 return
             }
             
-            self.connected = false
+            DispatchQueue.main.async {
+                self.connected = false
+            }
             
             if error.localizedDescription.contains("Socket is not connected") {
                 self.connect()
@@ -701,17 +707,17 @@ extension Network {
 
 // MARK: - Publishers
 extension Network {
-    func publishChannelEvent(channelId: String, kind: Kind = .message, content: String) {
+    func publishChannelEvent(channelId: String, kind: Kind = .message, text: String) {
         guard let account = keychainForNostr.account else {
             os_log("🔥 account is unavailable", log: log, type: .error)
             return
         }
         
         do {
-            let contentStructure = ContentStructure(content: content, kind: kind)
+            let contentStructure = ContentStructure(kind: kind, text: text, content: text)
             let encoder = JSONEncoder()
             let data = try encoder.encode(contentStructure)
-            let contentString = String(data: data, encoding: .utf8) ?? content
+            let contentString = String(data: data, encoding: .utf8) ?? text
             
             let event = try createChannelMessageEvent(
                 withContent: contentString,
@@ -726,16 +732,16 @@ extension Network {
         }
     }
     
-    func publishDMEvent(publicKey: PublicKey, kind: Kind = .message, content: String) {
+    func publishDMEvent(publicKey: PublicKey, kind: Kind = .message, text: String) {
         guard let account = keychainForNostr.account else {
             os_log("🔥 account is unavailable", log: log, type: .error)
             return
         }
         
         do {
-            let contentStructure = ContentStructure(content: content, kind: .message)
+            let contentStructure = ContentStructure(kind: kind, text: text, content: text)
             let jsonData = try JSONEncoder().encode(contentStructure)
-            let content = String(data: jsonData, encoding: .utf8) ?? content
+            let content = String(data: jsonData, encoding: .utf8) ?? text
             
             let directMessage = try legacyEncryptedDirectMessage(
                 withContent: content,
@@ -748,15 +754,15 @@ extension Network {
         }
     }
     
-    func publishVideoEvent(channelId: String, kind: Kind = .message, content: String) {
+    func publishVideoEvent(channelId: String, kind: Kind = .message, text: String) {
         guard let account = keychainForNostr.account else {
             os_log("🔥 account is unavailable", log: log, type: .error)
             return
         }
         
         do {
-            let contentStructure = ContentStructure(content: content, kind: kind)
-            let encodedContent = String(data: try JSONEncoder().encode(contentStructure), encoding: .utf8) ?? content
+            let contentStructure = ContentStructure(kind: kind, text: text, content: text)
+            let encodedContent = String(data: try JSONEncoder().encode(contentStructure), encoding: .utf8) ?? text
             
             let event = try createChannelMessageEvent(
                 withContent: encodedContent,
@@ -799,7 +805,7 @@ extension Network {
             .sink { [weak self] notification in
                 guard let assetURL = notification.userInfo?["assetURL"] as? String,
                       let channelId = notification.userInfo?["channelId"] as? String else { return }
-                self?.publishVideoEvent(channelId: channelId, kind: .video, content: assetURL)
+                self?.publishVideoEvent(channelId: channelId, kind: .video, text: assetURL)
             }
             .store(in: &cancellables)
         
@@ -808,7 +814,7 @@ extension Network {
                 guard let channelId = notification.userInfo?["channelId"] as? String,
                       let content = notification.userInfo?["content"] as? String,
                       let kind = notification.userInfo?["kind"] as? Kind else { return }
-                self?.publishChannelEvent(channelId: channelId, kind: kind, content: content)
+                self?.publishChannelEvent(channelId: channelId, kind: kind, text: content)
                 
             }
             .store(in: &cancellables)
@@ -821,7 +827,7 @@ extension Network {
                 
                 guard let publicKey = PublicKey(npub: npub) else { return }
                 
-                self?.publishDMEvent(publicKey: publicKey, kind: kind, content: content)
+                self?.publishDMEvent(publicKey: publicKey, kind: kind, text: content)
             }
             .store(in: &cancellables)
         
@@ -835,7 +841,7 @@ extension Network {
     }
 }
 
-// MARK: - Update Channel
+// MARK: - Channel
 extension Network {
     func saveChannel(_ channel: Channel) {
         guard let account = keychainForNostr.account else {
@@ -871,6 +877,30 @@ extension Network {
         } catch {
             os_log("🔥 error publishing metadata %@", log: log, type: .error, error.localizedDescription)
         }
+    }
+    
+    func deleteEvent(_ event: NostrEvent) {
+        guard let account = keychainForNostr.account else {
+            os_log("🔥 account is unavailable", log: log, type: .error)
+            return
+        }
+        
+        do {
+            let deletionEvent = try delete(
+                events: [event],
+                signedBy: account
+            )
+            self.relayPool?.publishEvent(deletionEvent)
+        } catch {
+            os_log("🔥 error deleting message %@", log: log, type: .error, error.localizedDescription)
+        }
+    }
+}
+
+// Public helpers
+extension Network {
+    func getChannel(for channelId: String) -> Channel? {
+        return channelCreation[channelId]
     }
 }
 

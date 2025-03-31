@@ -10,9 +10,9 @@ import SwiftData
 
 @Model
 class Friend {
-    @Attribute(.unique) let name: String
-    let birthday: Date
-    let npub: String
+    @Attribute(.unique) var name: String
+    var birthday: Date
+    var npub: String
     var note: String
     @Relationship(deleteRule: .cascade) var cryptoAddresses: [CryptoAddress] = []
      

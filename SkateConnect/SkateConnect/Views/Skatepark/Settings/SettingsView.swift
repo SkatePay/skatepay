@@ -156,6 +156,11 @@ struct SettingsView: View {
                     Button("📲 Import Data") {
                         navigation.path.append(NavigationPathType.restoreData)
                     }
+                    Button("Reset Onboarding") {
+                        UserDefaults.standard.removeObject(forKey: UserDefaults.Keys.birthday)
+                        UserDefaults.standard.removeObject(forKey: UserDefaults.Keys.spot)
+                        UserDefaults.standard.removeObject(forKey: UserDefaults.Keys.skatedeck)
+                    }
                 }
                 
                 Button("Reset App") {

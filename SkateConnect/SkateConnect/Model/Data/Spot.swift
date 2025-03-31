@@ -11,21 +11,18 @@ import SwiftData
 import CoreLocation
 
 @Model
-class Spot {
+final class Spot {
     var name: String
     var address: String
     var state: String
-
     var icon: String
     var note: String
-
     var isFavorite: Bool
     var imageName: String
-
     var latitude: Double
     var longitude: Double
     var channelId: String
-
+    var pubkey: String?
     var createdAt: Date?
     var updatedAt: Date?
 
@@ -40,19 +37,21 @@ class Spot {
         longitude: Double = 33.987164,
         channelId: String = "",
         imageName: String = "",
+        pubkey: String? = nil, 
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
         self.name = name
         self.address = address
         self.state = state
-        self.isFavorite = isFavorite
         self.icon = icon
         self.note = note
+        self.isFavorite = isFavorite
         self.latitude = latitude
         self.longitude = longitude
         self.channelId = channelId
         self.imageName = imageName
+        self.pubkey = pubkey
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -65,13 +64,19 @@ class Spot {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
-    // Update function to refresh `updatedAt` timestamp
-    func updateSpot(name: String? = nil, address: String? = nil, state: String? = nil, note: String? = nil) {
+    func updateSpot(
+        name: String? = nil,
+        address: String? = nil,
+        state: String? = nil,
+        note: String? = nil,
+        pubkey: String? = nil
+    ) {
         if let name = name { self.name = name }
         if let address = address { self.address = address }
         if let state = state { self.state = state }
         if let note = note { self.note = note }
-        self.updatedAt = Date() // Refresh timestamp on update
+        if let pubkey = pubkey { self.pubkey = pubkey }
+        self.updatedAt = Date()
     }
 }
 
@@ -86,10 +91,10 @@ struct CodableSpot: Codable {
     let longitude: Double
     let channelId: String
     let imageName: String
+    let pubkey: String?  // Now optional
     let createdAt: Date
     let updatedAt: Date
 
-    // Convert Spot to CodableSpot
     init(spot: Spot) {
         self.name = spot.name
         self.address = spot.address
@@ -101,11 +106,11 @@ struct CodableSpot: Codable {
         self.longitude = spot.longitude
         self.channelId = spot.channelId
         self.imageName = spot.imageName
+        self.pubkey = spot.pubkey  // Handles optional automatically
         self.createdAt = spot.createdAt ?? Date()
         self.updatedAt = spot.updatedAt ?? Date()
     }
 
-    // Custom Decoder for backward compatibility
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decode(String.self, forKey: .name)
@@ -118,9 +123,15 @@ struct CodableSpot: Codable {
         longitude = try container.decode(Double.self, forKey: .longitude)
         channelId = try container.decode(String.self, forKey: .channelId)
         imageName = try container.decode(String.self, forKey: .imageName)
-
-        // Provide defaults if fields are missing
+        pubkey = try container.decodeIfPresent(String.self, forKey: .pubkey)  // Optional decoding
         createdAt = (try? container.decode(Date.self, forKey: .createdAt)) ?? Date()
         updatedAt = (try? container.decode(Date.self, forKey: .updatedAt)) ?? Date()
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case name, address, state, icon, note, isFavorite
+        case latitude, longitude, channelId, imageName, pubkey
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
     }
 }

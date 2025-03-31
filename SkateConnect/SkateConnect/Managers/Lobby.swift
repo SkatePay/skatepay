@@ -105,7 +105,7 @@ class Lobby: ObservableObject, EventCreating {
             )
             
             let decodedStructure = try JSONDecoder().decode(ContentStructure.self, from: decryptedText.data(using: .utf8)!)
-            return decodedStructure.content
+            return decodedStructure.text ?? decodedStructure.content
         } catch {
             print("Decryption failed: \(error.localizedDescription)")
             return nil

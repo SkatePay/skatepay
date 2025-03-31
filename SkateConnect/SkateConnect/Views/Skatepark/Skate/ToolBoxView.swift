@@ -22,8 +22,8 @@ extension SolanaSwift.Network {
 }
 
 struct ToolBoxView: View {
-    let log = OSLog(subsystem: "SkateConnect", category: "Wallet")
-
+    let log = OSLog(subsystem: "SkateConnect", category: "ToolBox")
+    
     @EnvironmentObject var debugManager: DebugManager
     @EnvironmentObject var navigation: Navigation
     @EnvironmentObject var uploadManager: UploadManager
@@ -36,11 +36,13 @@ struct ToolBoxView: View {
     @State private var amountToRequest: String = ""
     @State var selectedTokenKey: String?
     
+    @State private var isUploading = false
+
     @State private var selectedAssetType: AssetType = .sol
     
-    var channelId: String? // Optional channelId
-    var user: User? // Optional user
-
+    var channelId: String?
+    var user: User?
+    
     init(channelId: String? = nil, user: User? = nil) {
         self.channelId = channelId
         self.user = user
@@ -62,8 +64,9 @@ struct ToolBoxView: View {
                         VStack {
                             Image(systemName: "photo.on.rectangle")
                                 .resizable()
+                                .aspectRatio(contentMode: .fit)
                                 .frame(width: 40, height: 40)
-                                .foregroundColor(.green)
+                                .foregroundColor(.orange)
                             Text("Add File")
                                 .font(.caption)
                         }
@@ -79,17 +82,18 @@ struct ToolBoxView: View {
                             VStack {
                                 Image(systemName: "creditcard")
                                     .resizable()
+                                    .aspectRatio(contentMode: .fit)
                                     .frame(width: 40, height: 40)
                                     .foregroundColor(.green)
-                                Text("Request Payment")
+                                Text("Request Crypto")
                                     .font(.caption)
                             }
                         }
                         .sheet(isPresented: $showingRequestPaymentPrompt) {
                             VStack(spacing: 20) {
-                                Text("Request Payment")
+                                Text("Request Crypto")
                                     .font(.headline)
-
+                                
                                 List {
                                     // Network Picker
                                     Section("Network") {
@@ -154,7 +158,7 @@ struct ToolBoxView: View {
                                             amountToRequest = filtered
                                         }
                                     }
-
+                                
                                 HStack {
                                     Button("Request") {
                                         handleInvoice()
@@ -163,7 +167,7 @@ struct ToolBoxView: View {
                                     .background(Color.green)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
-
+                                    
                                     Button("Cancel") {
                                         showingRequestPaymentPrompt = false
                                     }
@@ -183,21 +187,27 @@ struct ToolBoxView: View {
             Spacer()
             
             if let mediaURL = selectedMediaURL {
-                Text("Selected Media: \(mediaURL.lastPathComponent)")
-                    .padding(.top, 10)
-                
-                Button(action: {
-                    Task {
-                        await postSelectedMedia(mediaURL)
+                    Text("Selected Media: \(mediaURL.lastPathComponent)")
+                        .padding(10)
+                    
+                    Button(action: {
+                        Task {
+                            await postSelectedMedia(mediaURL)
+                        }
+                    }) {
+                        Text("Upload Media")
+                            .font(.headline)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
                     }
-                }) {
-                    Text("Upload Media")
-                        .font(.headline)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
+                    .disabled(isUploading)
+            }
+            
+            if isUploading {
+                ProgressView("Uploading...")
+                    .padding()
             }
         }
         .onAppear {
@@ -210,41 +220,41 @@ struct ToolBoxView: View {
         .background(Color(UIColor.systemBackground))
         .cornerRadius(20)
     }
-
+    
     func handleInvoice() {
         Task {
             // 1. Determine Asset and Symbol
             let (asset, metadata, symbol) = await determineAssetAndSymbol()
             guard let asset = asset, let metadata = metadata, let symbol = symbol else { return }
-
+            
             // 2. Get User Address
             let address = walletManager.getPublicKey() ?? "UNKNOWN"
             print("🧾 Requesting \(amountToRequest) \(symbol) from \(address) [Asset: \(asset)]")
-
+            
             // 3. Create and Encrypt Invoice
             guard let invoiceString = createAndEncryptInvoice(asset: asset, metadata: metadata, address: address) else { return }
-
+            
             // 4. Post Invoice to Channel (if available)
             if channelId != nil {
                 postInvoiceToChannel(invoiceString: invoiceString)
             }
-
+            
             if user != nil {
                 postInvoiceToDM(invoiceString: invoiceString)
             }
-
+            
             // 6. Dismiss Prompt
             showingRequestPaymentPrompt = false
         }
     }
-
+    
     // MARK: - Helper Functions for handleInvoice
-
+    
     private func determineAssetAndSymbol() async -> (asset: AssetType?, Metadata: String?, symbol: String?) {
         switch selectedAssetType {
         case .sol:
             return (.sol, "\(walletManager.network):SOL_NATIVE:SOL", "SOL")
-
+            
         case .token:
             guard
                 let tokenKey = selectedTokenKey,
@@ -254,7 +264,7 @@ struct ToolBoxView: View {
                 showingRequestPaymentPrompt = false
                 return (.token, nil, nil)
             }
-
+            
             let metadataString: String?
             do {
                 let encoder = JSONEncoder()
@@ -263,7 +273,7 @@ struct ToolBoxView: View {
                 if let metadataString = metadataString {
                     print("Encoded JSON: \(metadataString)")
                 }
-
+                
             } catch {
                 os_log("❌ Failed to encode TokenMetadata:", log: log, type: .error)
                 showingRequestPaymentPrompt = false
@@ -273,7 +283,7 @@ struct ToolBoxView: View {
             return (.token, metadataString, token.symbol)
         }
     }
-
+    
     private func createAndEncryptInvoice(asset: AssetType, metadata: String?, address: String) -> String? {
         let invoice = Invoice(
             asset: asset,
@@ -281,7 +291,7 @@ struct ToolBoxView: View {
             amount: amountToRequest,
             address: address
         )
-
+        
         guard let invoiceString = MessageHelper.encryptInvoiceToString(invoice: invoice) else {
             print("❌ Encryption failed for invoice")
             showingRequestPaymentPrompt = false
@@ -289,7 +299,7 @@ struct ToolBoxView: View {
         }
         return invoiceString
     }
-
+    
     private func postInvoiceToChannel(invoiceString: String) {
         if let channelId = self.channelId {
             NotificationCenter.default.post(
@@ -304,7 +314,7 @@ struct ToolBoxView: View {
             print("✅ Invoice posted to channel \(channelId)")
         }
     }
-
+    
     private func postInvoiceToDM(invoiceString: String) {
         if let npub = self.user?.npub {
             NotificationCenter.default.post(
@@ -320,48 +330,93 @@ struct ToolBoxView: View {
         }
     }
     
-    // Async function to post the selected media
-    func postSelectedMedia(_ mediaURL: URL) async {
-        // Call the upload function from cameraViewModel or handle the media upload here
-        print("Uploading media from URL: \(mediaURL)")
-        
-        // Determine if the file is an image or video using UTType
-        let fileType = UTType(filenameExtension: mediaURL.pathExtension)
-
-        // Channel Upload
-        if let channelId = self.channelId {
-            do {
-                if let fileType = fileType {
-                    if fileType.conforms(to: .image) {
-                        print("Detected image file")
-                        // Upload the image
-                        try await uploadManager.uploadImage(imageURL: mediaURL, channelId: channelId)
-                        navigation.completeUpload(imageURL: mediaURL)
-                        
-                    } else if fileType.conforms(to: .movie) {
-                        print("Detected video file")
-                        // Upload the video
-                        try await uploadManager.uploadVideo(videoURL: mediaURL, channelId: channelId)
-                        
-                        navigation.completeUpload(videoURL: mediaURL)
-                    } else {
-                        print("Unsupported file type")
-                    }
-                } else {
-                    print("Unable to determine file type")
-                }
-            } catch {
-                print("Error uploading media: \(error)")
-            }
-        }
-    }
-    
-    /// Checks if the user has a wallet
     func hasWallet() -> Bool {
         return debugManager.hasEnabledDebug
     }
 }
 
-#Preview {
-    ToolBoxView()
+extension ToolBoxView {
+    func postSelectedMedia(_ mediaURL: URL) async {
+        os_log("⏳ Preparing to upload media: %@", log: log, type: .info, mediaURL.absoluteString)
+
+        let currentChannelId = self.channelId
+        let currentNpub = self.user?.npub
+
+        guard currentChannelId != nil || currentNpub != nil else {
+            os_log("🛑 Error: Neither channelId nor user npub is available. Cannot proceed with upload.", log: log, type: .error)
+            // Consider updating UI state, e.g., self.isUploading = false
+            return
+        }
+
+        guard let fileType = UTType(filenameExtension: mediaURL.pathExtension) else {
+            os_log("🛑 Unable to determine file type for: %@", log: log, type: .error, mediaURL.pathExtension)
+            return
+        }
+
+        // Define handler to update loading state and log errors
+        let loadingStateHandler: (Bool, Error?) -> Void = { isLoading, error in
+           Task { @MainActor in // Ensure UI updates on main thread
+                self.isUploading = isLoading
+                if let error = error {
+                    // Error occurred during upload process (reported by uploadManager)
+                    os_log("🛑 Upload failed: %@", log: log, type: .error, error.localizedDescription)
+                    // Optionally update UI further based on error
+                }
+            }
+        }
+
+        do {
+            if fileType.conforms(to: .image) {
+                os_log("⏳ Uploading image for channelId=[%@], npub=[%@]", log: log, type: .info, currentChannelId ?? "nil", currentNpub ?? "nil")
+                try await uploadManager.uploadImage(
+                    imageURL: mediaURL,
+                    channelId: currentChannelId,
+                    npub: currentNpub,
+                    onLoadingStateChange: loadingStateHandler
+                )
+                
+                os_log("✔️ Image upload successful: %@", log: log, type: .info, mediaURL.lastPathComponent)
+
+                var userInfo: [String: Any] = [:]
+
+                // Only add "npub" if currentNpub is not nil
+                if let npub = currentNpub {
+                    userInfo["npub"] = npub
+                }
+
+                // Only add "channelId" if currentChannelId is not nil
+                if let channelId = currentChannelId {
+                    userInfo["channelId"] = channelId
+                }
+
+                navigation.completeUpload(imageURL: mediaURL, userInfo: userInfo)
+            } else if fileType.conforms(to: .movie) {
+                os_log("⏳ Uploading video for channelId=[%@], npub=[%@]", log: log, type: .info, currentChannelId ?? "nil", currentNpub ?? "nil")
+                try await uploadManager.uploadVideo(
+                    videoURL: mediaURL,
+                    channelId: currentChannelId,
+                    npub: currentNpub,
+                    onLoadingStateChange: loadingStateHandler
+                )
+                os_log("✔️ Video upload successful: %@", log: log, type: .info, mediaURL.lastPathComponent)
+                
+                navigation.completeUpload(videoURL: mediaURL)
+
+            } else {
+                os_log("🛑 Unsupported file type: %@", log: log, type: .error, fileType.identifier)
+                // Maybe set isUploading = false here if it was set true previously
+            }
+        } catch {
+            // Catch errors thrown directly by uploadManager methods (e.g., setup errors)
+            // or errors during the await itself.
+            os_log("🛑 Upload execution failed: %@", log: log, type: .error, error.localizedDescription)
+            // Ensure loading state is false if an error is caught here
+             Task { @MainActor in
+                 if self.isUploading {
+                     self.isUploading = false
+                 }
+             }
+             // Optionally display an error message to the user
+        }
+    }
 }

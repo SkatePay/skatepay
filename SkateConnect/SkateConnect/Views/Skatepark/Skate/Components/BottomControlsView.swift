@@ -21,7 +21,17 @@ struct BottomControlsView: View {
     var body: some View {
         HStack(spacing: 20) {
             Button(action: {
-                panMapToCachedCoordinate(landmarks[0].locationCoordinate)
+                // Check if coordinates exist in UserDefaults
+                if let jsonString = UserDefaults.standard.string(forKey: UserDefaults.Keys.coordinates) {
+                    // If coordinates exist, convert and use them
+                    guard let coordinates = convertStringToCoordinate(jsonString) else { return }
+                    
+                    panMapToCachedCoordinate(coordinates)
+                } else {
+                    // If coordinates don't exist, use the first landmark's coordinates
+                    let coordinate = landmarks[0].locationCoordinate
+                    panMapToCachedCoordinate(coordinate)
+                }
             }) {
                 Text("🏛️")
                     .font(.headline)
@@ -62,6 +72,16 @@ struct BottomControlsView: View {
                 Text("🔎")
                     .padding(8)
                     .background(Color.purple)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+            
+            Button(action: {
+                navigation.path.append(NavigationPathType.deckTracker)
+            }) {
+                Text("🛹")
+                    .padding(8)
+                    .background(Color.gray)
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
