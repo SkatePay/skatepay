@@ -31,7 +31,7 @@
 		C62501492C93C1340026C334 /* ProfileSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501032C93C1340026C334 /* ProfileSummary.swift */; };
 		C625014A2C93C1340026C334 /* ChannelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501052C93C1340026C334 /* ChannelView.swift */; };
 		C625014B2C93C1340026C334 /* SpotDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501062C93C1340026C334 /* SpotDetail.swift */; };
-		C625014C2C93C1340026C334 /* UserDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501082C93C1340026C334 /* UserDetail.swift */; };
+		C625014C2C93C1340026C334 /* UserDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501082C93C1340026C334 /* UserDetails.swift */; };
 		C625014D2C93C1340026C334 /* UserItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501092C93C1340026C334 /* UserItem.swift */; };
 		C625014E2C93C1340026C334 /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625010A2C93C1340026C334 /* UserRow.swift */; };
 		C625014F2C93C1340026C334 /* Contacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625010C2C93C1340026C334 /* Contacts.swift */; };
@@ -78,6 +78,10 @@
 		C640CE742D92290000F8298A /* BirthdayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE732D9228F800F8298A /* BirthdayView.swift */; };
 		C640CE792D9483C600F8298A /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE762D9483C300F8298A /* Notifications.swift */; };
 		C640CE7B2D94C02700F8298A /* VideoDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE7A2D94C02100F8298A /* VideoDownloader.swift */; };
+		C640CE832D9CA30000F8298A /* NotesListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE822D9CA2F900F8298A /* NotesListener.swift */; };
+		C640CE852D9CA89300F8298A /* NotesPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE842D9CA89300F8298A /* NotesPublisher.swift */; };
+		C640CE872D9CB4DD00F8298A /* SkateboardDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE862D9CB4D600F8298A /* SkateboardDeck.swift */; };
+		C640CE892D9CB63900F8298A /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE882D9CB63700F8298A /* Note.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
 		C662BD502D86A6A000BD6E58 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C662BD4F2D86A6A000BD6E58 /* NostrSDK */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
@@ -206,7 +210,7 @@
 		C62501032C93C1340026C334 /* ProfileSummary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSummary.swift; sourceTree = "<group>"; };
 		C62501052C93C1340026C334 /* ChannelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChannelView.swift; sourceTree = "<group>"; };
 		C62501062C93C1340026C334 /* SpotDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotDetail.swift; sourceTree = "<group>"; };
-		C62501082C93C1340026C334 /* UserDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDetail.swift; sourceTree = "<group>"; };
+		C62501082C93C1340026C334 /* UserDetails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDetails.swift; sourceTree = "<group>"; };
 		C62501092C93C1340026C334 /* UserItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserItem.swift; sourceTree = "<group>"; };
 		C625010A2C93C1340026C334 /* UserRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRow.swift; sourceTree = "<group>"; };
 		C625010C2C93C1340026C334 /* Contacts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Contacts.swift; sourceTree = "<group>"; };
@@ -254,6 +258,10 @@
 		C640CE732D9228F800F8298A /* BirthdayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdayView.swift; sourceTree = "<group>"; };
 		C640CE762D9483C300F8298A /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		C640CE7A2D94C02100F8298A /* VideoDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDownloader.swift; sourceTree = "<group>"; };
+		C640CE822D9CA2F900F8298A /* NotesListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesListener.swift; sourceTree = "<group>"; };
+		C640CE842D9CA89300F8298A /* NotesPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesPublisher.swift; sourceTree = "<group>"; };
+		C640CE862D9CB4D600F8298A /* SkateboardDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateboardDeck.swift; sourceTree = "<group>"; };
+		C640CE882D9CB63700F8298A /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
 		C66AFE852CA61C76000CD716 /* AWS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AWS.swift; sourceTree = "<group>"; };
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
@@ -453,7 +461,7 @@
 		C625010B2C93C1340026C334 /* Users */ = {
 			isa = PBXGroup;
 			children = (
-				C62501082C93C1340026C334 /* UserDetail.swift */,
+				C62501082C93C1340026C334 /* UserDetails.swift */,
 				C62501092C93C1340026C334 /* UserItem.swift */,
 				C625010A2C93C1340026C334 /* UserRow.swift */,
 			);
@@ -568,6 +576,8 @@
 		C62501362C93C1340026C334 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE882D9CB63700F8298A /* Note.swift */,
+				C640CE862D9CB4D600F8298A /* SkateboardDeck.swift */,
 				C625012F2C93C1340026C334 /* Data */,
 				C62501312C93C1340026C334 /* Host.swift */,
 				C62501322C93C1340026C334 /* HostStore.swift */,
@@ -597,6 +607,7 @@
 			children = (
 				C63DEF472D7B85960058224F /* ChannelEventPublisher.swift */,
 				C63DEF552D7BD48D0058224F /* DMEventPublisher.swift */,
+				C640CE842D9CA89300F8298A /* NotesPublisher.swift */,
 			);
 			path = EventPublishers;
 			sourceTree = "<group>";
@@ -638,6 +649,14 @@
 				C640CE6D2D9223AA00F8298A /* DeckTrackerCamera.swift */,
 			);
 			path = DeckTracker;
+			sourceTree = "<group>";
+		};
+		C640CE812D9CA2EF00F8298A /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				C640CE822D9CA2F900F8298A /* NotesListener.swift */,
+			);
+			path = Notes;
 			sourceTree = "<group>";
 		};
 		C642B2142C97854A001022DF /* EULA */ = {
@@ -730,6 +749,7 @@
 		C6DC5B412D7B75A90036998F /* EventListeners */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE812D9CA2EF00F8298A /* Notes */,
 				C63DEF522D7BD42A0058224F /* DM */,
 				C63DEF512D7BD41F0058224F /* Channel */,
 			);
@@ -1061,16 +1081,19 @@
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
 				C640CE742D92290000F8298A /* BirthdayView.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
+				C640CE892D9CB63900F8298A /* Note.swift in Sources */,
 				C62B08A92D8152F10071777B /* CameraPreview.swift in Sources */,
 				C62501572C93C1340026C334 /* SkateView.swift in Sources */,
+				C640CE832D9CA30000F8298A /* NotesListener.swift in Sources */,
 				C66FDC012D893BA6001BDF73 /* DebugView.swift in Sources */,
 				C62501492C93C1340026C334 /* ProfileSummary.swift in Sources */,
 				C625015B2C93C1340026C334 /* ImportIdentity.swift in Sources */,
 				C66AFE862CA61C76000CD716 /* AWS.swift in Sources */,
 				C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */,
+				C640CE872D9CB4DD00F8298A /* SkateboardDeck.swift in Sources */,
 				C640CE702D92251F00F8298A /* DeckTrackerView.swift in Sources */,
 				C61E6D9B2D4C574D001EDA11 /* RestoreDataView.swift in Sources */,
-				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,
+				C625014C2C93C1340026C334 /* UserDetails.swift in Sources */,
 				C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */,
 				C640CE6E2D9223AD00F8298A /* DeckTrackerCamera.swift in Sources */,
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
@@ -1117,6 +1140,7 @@
 				C6DC5B402D7B74210036998F /* EventBus.swift in Sources */,
 				C62500E42C93C1250026C334 /* Color+hex.swift in Sources */,
 				C6A3DCF52D4AA5EB0095A994 /* EditCryptoAddressesView.swift in Sources */,
+				C640CE852D9CA89300F8298A /* NotesPublisher.swift in Sources */,
 				C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */,
 				C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */,
 				C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */,
@@ -1309,7 +1333,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1350,7 +1374,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

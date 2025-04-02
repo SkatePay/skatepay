@@ -290,7 +290,7 @@ struct ContentView: View {
                     
                 case .userDetail(let npub):
                     let user = MainHelper.getUser(npub: npub)
-                    UserDetail(user: user)
+                    UserDetails(user: user)
                         .environmentObject(navigation)
                         .environmentObject(network)
 

@@ -22,6 +22,8 @@ import UIKit
 enum ActiveAlert: Identifiable {
     case transaction(title: String, message: String, txId: String?)
     case downloading
+    case report(npub: String)
+    case park
     
     var id: String {
         switch self {
@@ -29,6 +31,10 @@ enum ActiveAlert: Identifiable {
             return "transaction_\(title)"
         case .downloading:
             return "downloading"
+        case .report(let npub):
+            return "report_\(npub)"
+        case .park:
+            return "park"
         }
     }
 }
@@ -253,30 +259,33 @@ struct ChannelView: View {
                 }
             }
             .onAppear {
-                if let account = keychainForNostr.account {
-                    self.eventListenerForMetadata.setChannelType(type)
-                    self.eventListenerForMetadata.setChannelId(channelId)
-                    self.eventListenerForMetadata.reset()
-                    
-                    self.eventPublisher.subscribeToMetadataFor(channelId)
-                    
-                    if (self.eventListenerForMessages.receivedEOSE) {
-                        shouldScrollToBottom = false
-                        return
-                    }
-                    
-                    shouldScrollToBottom = true
-                    
-                    self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(
-                        dataManager: dataManager,
-                        debugManager: debugManager,
-                        account: account
-                    )
-                    self.eventListenerForMessages.reset()
-                    
-                    self.eventPublisher.subscribeToMessagesFor(channelId)
+                guard let account = keychainForNostr.account else {
+                    os_log("🔥 can't get account", log: log, type: .error)
+                    return
                 }
+                
+                self.eventListenerForMetadata.setChannelType(type)
+                self.eventListenerForMetadata.setChannelId(channelId)
+                self.eventListenerForMetadata.reset()
+                
+                self.eventPublisher.subscribeToMetadataFor(channelId)
+                
+                if (self.eventListenerForMessages.receivedEOSE) {
+                    shouldScrollToBottom = false
+                    return
+                }
+                
+                shouldScrollToBottom = true
+                
+                self.eventListenerForMessages.setChannelId(channelId)
+                self.eventListenerForMessages.setDependencies(
+                    dataManager: dataManager,
+                    debugManager: debugManager,
+                    account: account
+                )
+                self.eventListenerForMessages.reset()
+                
+                self.eventPublisher.subscribeToMessagesFor(channelId)
             }
             .onReceive(NotificationCenter.default.publisher(for: .uploadImage)) { notification in
                 if let assetURL = notification.userInfo?["assetURL"] as? String {
@@ -340,6 +349,10 @@ struct ChannelView: View {
                         print("Download Alert OK tapped")
                     }
                 )
+            case .report(npub: _):
+                return Alert(title: Text(""))
+            case .park:
+                return Alert(title: Text(""))
             }
         }
         // Action Sheets
