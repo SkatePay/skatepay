@@ -48,7 +48,7 @@ public struct Keys {
 
 public struct ProRobot {
     public static let HELP_URL_SKATEPAY = "https://prorobot.ai/en/articles/prorobot-the-robot-friendly-blockchain-pioneering-the-future-of-robotics"
-    public static let HELP_URL_SKATECONNECT = "https://support.skatepark.chat"
+    public static let HELP_URL_SKATECONNECT = "https://skateconnect.app"
 }
 
 public func hasWallet() -> Bool {
