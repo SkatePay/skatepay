@@ -107,6 +107,7 @@
 		C69B6C332DAB3DC100011120 /* MetadataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */; };
 		C69B6C382DAB3EAA00011120 /* MetadataListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C362DAB3EAA00011120 /* MetadataListener.swift */; };
 		C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C392DAB486300011120 /* UserMetadata.swift */; };
+		C69B6C3C2DAC4B1300011120 /* DeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C3B2DAC4B1000011120 /* DeckView.swift */; };
 		C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCE92D46A7240095A994 /* OverlayView.swift */; };
 		C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */; };
 		C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */; };
@@ -283,6 +284,7 @@
 		C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataPublisher.swift; sourceTree = "<group>"; };
 		C69B6C362DAB3EAA00011120 /* MetadataListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataListener.swift; sourceTree = "<group>"; };
 		C69B6C392DAB486300011120 /* UserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadata.swift; sourceTree = "<group>"; };
+		C69B6C3B2DAC4B1000011120 /* DeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckView.swift; sourceTree = "<group>"; };
 		C6A3DCE92D46A7240095A994 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomControlsView.swift; sourceTree = "<group>"; };
 		C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateMapView.swift; sourceTree = "<group>"; };
@@ -467,6 +469,7 @@
 		C625010B2C93C1340026C334 /* Users */ = {
 			isa = PBXGroup;
 			children = (
+				C69B6C3B2DAC4B1000011120 /* DeckView.swift */,
 				C62501082C93C1340026C334 /* UserDetails.swift */,
 				C62501092C93C1340026C334 /* UserItem.swift */,
 				C625010A2C93C1340026C334 /* UserRow.swift */,
@@ -1086,6 +1089,7 @@
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
+				C69B6C3C2DAC4B1300011120 /* DeckView.swift in Sources */,
 				C640CE652D91DA0700F8298A /* TickerOverlay.swift in Sources */,
 				C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */,
 				C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */,
