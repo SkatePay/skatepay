@@ -286,13 +286,24 @@ struct ChannelView: View {
                 
                 self.eventPublisher.subscribeToMessagesFor(channelId)
             }
-            .onReceive(NotificationCenter.default.publisher(for: .uploadImage)) { notification in
-                if let assetURL = notification.userInfo?["assetURL"] as? String {
-                    network.publishChannelEvent(channelId: channelId,
-                                                kind: .photo,
-                                                text: assetURL
-                    )
+            .onReceive(NotificationCenter.default.publisher(for: UploadNotification.Image)) { notification in
+                // Check if source is "toolbox"
+                guard let source = notification.userInfo?["source"] as? String,
+                      source == SourceType.toolbox.rawValue else {
+                    os_log("🛑 Ignoring notification: source is not toolbox", log: log, type: .debug)
+                    return
                 }
+                
+                // Proceed with processing the assetURL
+                guard let assetURL = notification.userInfo?["assetURL"] as? String else {
+                    os_log("⚠️ Missing assetURL in uploadImage notification", log: log, type: .error)
+                    return
+                }
+                
+                network.publishChannelEvent(channelId: channelId,
+                                            kind: .photo,
+                                            text: assetURL)
+                os_log("✅ Published channel event with assetURL: %{public}@", log: log, type: .info, assetURL)
             }
             .onReceive(NotificationCenter.default.publisher(for: .muteUser)) { _ in
                 guard let account = keychainForNostr.account else { return }

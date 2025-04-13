@@ -700,8 +700,6 @@ extension Network {
             processedEvents.insert(event.event.id)
         }
 
-        os_log("📊: %{public}@", log: log, type: .debug, String(describing: event.event.kind.rawValue))
-
         // Dispatch event based on kind and subscription status
         switch (eventKind, isSubscribedEvent) {
         // Subscribed events

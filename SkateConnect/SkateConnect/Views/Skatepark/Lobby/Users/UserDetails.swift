@@ -36,8 +36,9 @@ struct UserDetails: View {
     @State private var selectedMediaURL: URL? = nil
     
     @State private var isUploading = false
-    @State private var remoteImage: UIImage? // Store the fetched image
-    @State private var isLoadingImage = false // Track image loading state
+    @State private var remoteImage: UIImage?
+    @State private var isLoadingImage = false
+    @State private var pendingUsername: String?
 
     @StateObject private var eventPublisherForMetadata = MetadataPublisher()
     @StateObject private var eventPublisherForNotes = NotesPublisher()
@@ -56,7 +57,7 @@ struct UserDetails: View {
     
     // Computed property to get the display username
     private var displayUsername: String {
-        eventListenerForMetadata.metadata?.name ?? user.name
+        pendingUsername ?? eventListenerForMetadata.metadata?.name ?? user.name
     }
     
     // Load image from URL asynchronously
@@ -102,6 +103,7 @@ struct UserDetails: View {
             pictureUrl = URL(string: pictureUrlString)
         }
         
+        pendingUsername = newUsername
         network.saveMetadata(name: newUsername, pictureURL: pictureUrl)
     }
     
@@ -191,6 +193,13 @@ struct UserDetails: View {
                 .disabled(!isEditing)
                 .padding(.top)
                 
+                if isUploading {
+                    Text("Saving...")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                        .padding(.top, 4)
+                }
+
                 // Modified username section
                 VStack(spacing: 4) {
                     HStack {
@@ -268,8 +277,9 @@ struct UserDetails: View {
                 }
             }
         }
-        .navigationTitle(isEditing ? "Edit Profile" : user.name)
+        .navigationTitle(isEditing ? "Edit Profile" : displayUsername)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(isUploading)
         .toolbar {
             if dataManager.isMe(npub: user.npub) {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -283,7 +293,7 @@ struct UserDetails: View {
                         } else {
                             Button("Edit") {
                                 isEditing = true
-                                editedUsername = eventListenerForMetadata.metadata?.name ?? user.name
+                                editedUsername = displayUsername
                                 selectedImage = nil
                             }
                         }
@@ -308,6 +318,24 @@ struct UserDetails: View {
         .sheet(isPresented: $showingImagePicker) {
             FilePicker(selectedMediaURL: $selectedMediaURL)
         }
+        .onChange(of: selectedMediaURL) { _, newURL in
+            if let url = newURL {
+                Task {
+                    do {
+                        let (data, _) = try await URLSession.shared.data(from: url)
+                        if let uiImage = UIImage(data: data) {
+                            await MainActor.run {
+                                selectedImage = uiImage
+                            }
+                        } else {
+                            os_log("🔥 Failed to create UIImage from selected URL: %{public}@", log: log, type: .error, url.absoluteString)
+                        }
+                    } catch {
+                        os_log("🔥 Error loading selected image: %{public}@", log: log, type: .error, error.localizedDescription)
+                    }
+                }
+            }
+        }
         .onAppear() {
             guard let publicKey = PublicKey(npub: user.npub) else {
                 os_log("🔥 can't get user account", log: log, type: .error)
@@ -331,6 +359,11 @@ struct UserDetails: View {
             
             isFavorite = isFriend()
             editedUsername = user.name // Initialize on appear
+        }
+        .onChange(of: eventListenerForMetadata.metadata?.name) { _, newName in
+                 if let newName = newName, newName == pendingUsername {
+                     pendingUsername = nil // Clear pending username once async update confirms
+                 }
         }
         .onChange(of: eventListenerForMetadata.metadata?.picture) { _, newPictureUrl in
             if let pictureUrl = newPictureUrl {
@@ -488,7 +521,8 @@ extension UserDetails {
                 var userInfo: [String: Any] = [:]
 
                 userInfo["npub"] = currentNpub
-
+                userInfo["source"] = SourceType.details.rawValue
+                
                 navigation.completeUpload(imageURL: mediaURL, userInfo: userInfo)
             } else {
                 os_log("🛑 Unsupported file type: %@", log: log, type: .error, fileType.identifier)
