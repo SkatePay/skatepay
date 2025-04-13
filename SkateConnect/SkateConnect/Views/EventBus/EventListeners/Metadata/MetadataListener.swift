@@ -1,8 +1,8 @@
 //
-//  NotesListener.swift
+//  MetadataListener.swift
 //  SkateConnect
 //
-//  Created by Konstantin Yurchenko, Jr on 4/1/25.
+//  Created by Konstantin Yurchenko, Jr on 4/11/25.
 //
 
 import Combine
@@ -11,15 +11,10 @@ import MessageKit
 import NostrSDK
 import os
 
-enum NoteType {
-    case deck(SkateboardDeck)
-    case unknown // Or other message types you handle
-}
-
-class NotesListener: ObservableObject, EventCreating {
+class MetadataListener: ObservableObject, EventCreating {
     private let log = OSLog(subsystem: "SkateConnect", category: "EventProcessing")
 
-    @Published var notesFromDeckTracker: [NoteType] = []
+    @Published var metadata: UserMetadata?
     @Published var receivedEOSE = false
     @Published var timestamp = Int64(0)
     
@@ -30,14 +25,10 @@ class NotesListener: ObservableObject, EventCreating {
     var publicKey: PublicKey?
     var subscriptionId: String?
     
-    
     public var cancellables = Set<AnyCancellable>()
-    
-    private let deckTrackerNoteKind = "DeckTracker"
-    
+        
     init() {
-
-        EventBus.shared.didReceiveNotesSubscription
+        EventBus.shared.didReceiveMetadataSubscription
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (publicKey, subscriptionId) in
                 
@@ -46,7 +37,7 @@ class NotesListener: ObservableObject, EventCreating {
                 }
                 
                 self?.subscriptionId = subscriptionId
-                os_log("🔄 didReceiveNotesSubscription: %{public}@", log: self?.log ?? .default, type: .info, subscriptionId)
+                os_log("🔄 didReceiveMetadataSubscription: %{public}@", log: self?.log ?? .default, type: .info, subscriptionId)
             }
             .store(in: &cancellables)
         
@@ -70,10 +61,10 @@ class NotesListener: ObservableObject, EventCreating {
             }
             .store(in: &cancellables)
         
-        EventBus.shared.didReceiveNote
+        EventBus.shared.didReceiveMetadata
             .receive(on: DispatchQueue.main)
             .sink { [weak self] event in
-                self?.processNote(event.event)
+                self?.processMetadata(event.event)
             }
             .store(in: &cancellables)
     }
@@ -97,59 +88,39 @@ class NotesListener: ObservableObject, EventCreating {
         self.account = account
     }
     
-    private func processEventIntoNote(_ event: NostrEvent) -> NoteType? {
+    private func processEventIntoMetadata(_ event: NostrEvent) -> UserMetadata? {
         os_log("⏳ Processing event content: %@", log: log, type: .debug, event.content)
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
-        guard let noteData = event.content.data(using: .utf8) else {
+        guard let data = event.content.data(using: .utf8) else {
             os_log("❌ Failed to convert event content string to Data", log: log, type: .error)
             return nil
         }
 
-        let note: Note
+        let metadata: UserMetadata
         do {
-            note = try decoder.decode(Note.self, from: noteData)
+            metadata = try decoder.decode(UserMetadata.self, from: data)
         } catch {
             os_log("❌ Failed to decode outer Note JSON: %@", log: log, type: .error, String(describing: error))
             return nil
         }
-
-        guard note.kind == deckTrackerNoteKind else {
-            os_log("⏩ Skipping event: Note kind is '%@', expected '%@'", log: log, type: .debug, note.kind, deckTrackerNoteKind)
-            return nil
-        }
         
-        guard let deckData = note.text.data(using: .utf8) else {
-            os_log("❌ Failed to convert note text string (deck JSON) to Data", log: log, type: .error)
-            return nil
-        }
-
-        do {
-            let skateboardDeck = try decoder.decode(SkateboardDeck.self, from: deckData)
-            os_log("✔️ Successfully decoded SkateboardDeck: Name '%@', Width %.3f", log: log, type: .info, skateboardDeck.name, skateboardDeck.width)
-            return .deck(skateboardDeck)
-
-        } catch {
-            os_log("❌ Failed to decode inner SkateboardDeck JSON: %@", log: log, type: .error, String(describing: error))
-            return nil
-        }
+        return metadata
     }
     
-    private func processNote(_ event: NostrEvent) {
-        if let note = processEventIntoNote(event) {
+    private func processMetadata(_ event: NostrEvent) {
+        if let metadata = processEventIntoMetadata(event) {
             if (self.receivedEOSE) {
                 timestamp = event.createdAt
-//                notesFromDeckTracker.append(message)
             } else {
-                notesFromDeckTracker.insert(note, at: 0)
+                self.metadata = metadata
             }
         }
     }
     
     func reset() {
-        notesFromDeckTracker.removeAll()
         receivedEOSE = false
     }
 }

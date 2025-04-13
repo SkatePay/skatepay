@@ -24,6 +24,7 @@ enum SubscriptionType {
     case channel
     case directMessage
     case note
+    case metadata
 }
 
 struct ChannelSubscriptionKey: Hashable {
@@ -48,6 +49,8 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     private var channelMetadata: [String: ChannelMetadata] = [:]
     
     private var favoriteChannelSubscriptions = Set<String>()
+    
+    private var metadataSubscriptions = Set<String>()
     //
     
     // Channels
@@ -58,6 +61,8 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
     private var userMessagesSubscriptions = [String: Subscription]()
     
     private var userNotesSubscriptions = [String: Subscription]()
+    
+    private var userMetadataSubscriptions = [String: Subscription]()
     
     private var subscriptionIdToEntity = [String: String]() // Reverse lookup
     
@@ -119,6 +124,13 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] publicKey in
                 self?.subscribeToUserWhenReady(publicKey)
+            }
+            .store(in: &cancellables)
+        
+        EventBus.shared.didReceiveMetadataSubscriptionRequest
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] publicKey in
+                self?.subscribeToUserMetadata(publicKey: publicKey)
             }
             .store(in: &cancellables)
         
@@ -218,6 +230,7 @@ class Network: ObservableObject, RelayDelegate, EventCreating {
         
         favoriteChannelSubscriptions.removeAll()
         favoriteUserSubscriptions.removeAll()
+        metadataSubscriptions.removeAll()
         
         processedEvents.removeAll()
         
@@ -281,8 +294,8 @@ extension Network {
         
         if account == nil {
             os_log("🔥 can't get account", log: log, type: .error)
-            account = createIdentity() // ✅ Assign the new identity
-            processFavorites()
+            account = self.createIdentity() // ✅ Assign the new identity
+            self.subscribeToFavoriteEvents()
         }
         
         guard let validAccount = account else {
@@ -339,10 +352,12 @@ extension Network {
                 self.connected = true
             }
             
-            self.processFavorites()
+            self.subscribeToMetadataEvents()
+            self.subscribeToFavoriteEvents()
             self.processSubscriptionBuffers()
             self.requestOnboardingInfo()
             self.processDeeplinkAction()
+            
         case .notConnected:
             os_log("⏳ reconnecting to relay: %@", log: log, type: .info, relay.url.absoluteString)
         case .error(let error):
@@ -384,6 +399,10 @@ extension Network {
                 return
             }
             
+            if (self.metadataSubscriptions.contains(subscriptionId)) {
+                return
+            }
+            
             os_log("📩 EOSE received %@", log: self.log, type: .info, subscriptionId)
             
             EventBus.shared.didReceiveEOSE.send(response)
@@ -391,7 +410,7 @@ extension Network {
     }
 }
 
-// MARK: - Favorite Subscriptions
+// MARK: - User Subscriptions
 extension Network {
     private var filterForMyChannels: Filter? {
         guard let account = keychainForNostr.account else {
@@ -404,7 +423,7 @@ extension Network {
         return filter
     }
     
-    private var filterForIncomingDirectMessages: Filter? {
+    private var filterForMyDirectMessages: Filter? {
         guard let account = keychainForNostr.account else {
             return nil
         }
@@ -414,7 +433,17 @@ extension Network {
         return filter
     }
     
-    func processFavorites() {
+    private var filterForMyMetadata: Filter? {
+        guard let account = keychainForNostr.account else {
+            return nil
+        }
+        let filter = Filter(authors: [account.publicKey.hex], kinds: [
+            EventKind.metadata.rawValue
+        ])
+        return filter
+    }
+    
+    func subscribeToFavoriteEvents() {
         os_log("⏳ processing favorites", log: log, type: .info)
         
         guard let pool = self.relayPool else {
@@ -437,13 +466,34 @@ extension Network {
         
         favoriteUserSubscriptions.forEach { pool.closeSubscription(with: $0) }
         
-        if let filter = filterForIncomingDirectMessages {
+        if let filter = filterForMyDirectMessages {
             guard let subscriptionId = subscribeIfNeeded(filter) else {
                 os_log("🔥 error subscribinmg", log: log, type: .error)
                 return
             }
             favoriteUserSubscriptions.insert(subscriptionId)
             os_log("✔️ favorite users subscription: %@", log: log, type: .info, subscriptionId)
+        }
+    }
+    
+    func subscribeToMetadataEvents() {
+        os_log("⏳ processing metadata", log: log, type: .info)
+
+        guard let pool = self.relayPool else {
+            os_log("🔥 relay pool is unavailable", log: log, type: .error)
+            return
+        }
+        
+        metadataSubscriptions.forEach { pool.closeSubscription(with: $0) }
+        
+        if let filter = filterForMyMetadata {
+            guard let subscriptionId = subscribeIfNeeded(filter) else {
+                os_log("🔥 error subscribing", log: log, type: .error)
+                return
+            }
+            
+            metadataSubscriptions.insert(subscriptionId)
+            os_log("✔️ metadata subscription: %@", log: log, type: .info, subscriptionId)
         }
     }
     
@@ -636,33 +686,63 @@ extension Network {
 // MARK: - Event Handlers
 extension Network {
     private func handleRelayEvent(_ event: RelayEvent) {
-        if (favoriteUserSubscriptions.contains(event.subscriptionId) || favoriteChannelSubscriptions.contains(event.subscriptionId)) {
-            if (!processedEvents.contains(event.event.id)) {
-                processedEvents.insert(event.event.id)
-                
-                switch event.event.kind {
-                case .legacyEncryptedDirectMessage: handleDirectMessage(event)
-                case .channelCreation: handleChannelCreation(event)
-                case .channelMetadata: handleChannelMetadataForOutbound(event)
-                case .channelMessage: handleChannelMessage(event)
-                default: return
-                }
-            } else {
-                os_log("🛑 dropping event", log: log, type: .info)
-                // Will address in 1.7, need a better way to snooze previosly processed events
+        
+        let eventKind = EventKind(rawValue: event.event.kind.rawValue)
+    
+        let isSubscribedEvent = isSubscribed(event.subscriptionId)
+        
+        if (isSubscribedEvent) {
+            if processedEvents.contains(event.event.id) {
+                os_log("🛑 Dropping duplicate event ID: %{public}@", log: log, type: .debug, event.event.id)
+                return
             }
-        } else {
-            switch event.event.kind {
-            case .textNote: EventBus.shared.didReceiveNote.send(event)
-            case .legacyEncryptedDirectMessage: EventBus.shared.didReceiveDMMessage.send(event)
-            case .channelCreation: EventBus.shared.didReceiveChannelData.send(event)
-            case .channelMetadata: handleChannelMetadata(event)
-            case .channelMessage: EventBus.shared.didReceiveChannelMessage.send(event)
-            default: return
-            }
+            
+            processedEvents.insert(event.event.id)
+        }
+
+        os_log("📊: %{public}@", log: log, type: .debug, String(describing: event.event.kind.rawValue))
+
+        // Dispatch event based on kind and subscription status
+        switch (eventKind, isSubscribedEvent) {
+        // Subscribed events
+        case (.metadata, true):
+            handleUserMetadata(event)
+        case (.legacyEncryptedDirectMessage, true):
+            handleDirectMessage(event)
+        case (.channelCreation, true):
+            handleChannelCreation(event)
+        case (.channelMetadata, true):
+            handleChannelMetadataForOutbound(event)
+        case (.channelMessage, true):
+            handleChannelMessage(event)
+            
+        // Non-subscribed events
+        case (.metadata, false):
+            EventBus.shared.didReceiveMetadata.send(event)
+        case (.textNote, false):
+            EventBus.shared.didReceiveNote.send(event)
+        case (.legacyEncryptedDirectMessage, false):
+            EventBus.shared.didReceiveDMMessage.send(event)
+        case (.channelCreation, false):
+            EventBus.shared.didReceiveChannelData.send(event)
+        case (.channelMetadata, false):
+            handleChannelMetadata(event)
+        case (.channelMessage, false):
+            EventBus.shared.didReceiveChannelMessage.send(event)
+            
+        // Unhandled combinations
+        default:
+            os_log("🛑 Ignoring event kind: %{public}d, subscribed: %{public}d", log: log, type: .debug, eventKind.rawValue, isSubscribedEvent)
         }
     }
-    
+
+    // Helper to check subscription status
+    private func isSubscribed(_ subscriptionId: String) -> Bool {
+        return favoriteUserSubscriptions.contains(subscriptionId) ||
+               favoriteChannelSubscriptions.contains(subscriptionId) ||
+               metadataSubscriptions.contains(subscriptionId)
+    }
+
     private func handleChannelCreation(_ event: RelayEvent) {
         let channelId = event.event.id
         
@@ -735,8 +815,39 @@ extension Network {
 
 // MARK: - Personal Data
 extension Network {
+    func subscribeToUserMetadata(publicKey: PublicKey) {
+        os_log("⏳ subscribing to user [%@] metadata", log: log, type: .info, publicKey.npub)
+
+        // Messages
+        if let subscription = userMetadataSubscriptions[publicKey.hex] {
+            os_log("🔄 Resubscribing to user notes: %@ with existing subscription: %@", log: log, type: .info, publicKey.hex, subscription.id)
+            relayPool?.closeSubscription(with: subscription.id)
+            userMetadataSubscriptions.removeValue(forKey: publicKey.hex)
+            subscriptionIdToEntity.removeValue(forKey: subscription.id)
+        }
+        
+        let filter = Filter(authors: [publicKey.hex], kinds: [
+            EventKind.metadata.rawValue
+        ])
+        
+        guard let filter = filter else {
+            return
+        }
+        
+        if let subscriptionId = subscribeIfNeeded(filter) {
+            EventBus.shared.didReceiveMetadataSubscription.send((publicKey, subscriptionId))
+
+            let subscription = Subscription(id: subscriptionId, type: .metadata)
+            
+            userMetadataSubscriptions[publicKey.hex] = subscription
+            subscriptionIdToEntity[subscriptionId] = publicKey.hex
+        
+            os_log("✔️ Subscribed to user metadata %@ with subscriptionId %@", log: log, type: .info, publicKey.hex, subscriptionId)
+        }
+    }
+    
     func subscribeToUserNotes(publicKey: PublicKey) {
-        os_log("⏳ setting up subscription to user [%@]", log: log, type: .info, publicKey.npub)
+        os_log("⏳ subscribing to user [%@] notes", log: log, type: .info, publicKey.npub)
 
         // Messages
         if let subscription = userNotesSubscriptions[publicKey.hex] {
@@ -767,31 +878,8 @@ extension Network {
     }
     
     private func handleUserMetadata(_ event: RelayEvent) {
-        guard let data = event.event.content.data(using: .utf8) else {
-            os_log("🔥 failed to parse data", log: log, type: .error)
-            return
-        }
-        
-        do {
-            let decoder = JSONDecoder()
-            let newMetadata = try decoder.decode([String: ChannelMetadata].self, from: data)
-            
-            self.channelMetadata.merge(newMetadata) { (_, new) in new }
-            
-            for (channelId, metadata) in self.channelMetadata {
-                if var channel = self.channelCreation[channelId]{
-                    channel.metadata = metadata
-                    self.channelCreation[channelId] = channel
-                    MainHelper.updateLead(for: channel)
-                }
-                
-                EventBus.shared.didReceiveChannelMetadata.send((channelId: channelId, metadata: metadata))
-            }
-        } catch {
-            os_log("🔥 decoding error: %@", log: log, type: .error, error.localizedDescription)
-        }
+        os_log( "🔥 received user metadata", log: log, type: .debug)
     }
-    
 }
 
 // MARK: - Publishers
@@ -987,15 +1075,22 @@ extension Network {
 }
 
 extension Network {
-    func saveMetadata(text: String) {
+    func saveMetadata(name: String? = nil, pictureURL: URL? = nil) {
         guard let account = keychainForNostr.account else {
             os_log("🔥 account is unavailable", log: log, type: .error)
             return
         }
         
         do {
-            let builder = try MetadataEvent.Builder()
-                .about(text)
+            let builder = MetadataEvent.Builder()
+            
+            if let name = name {
+                _ = try builder.name(name)
+            }
+            
+            if let pictureURL = pictureURL {
+                _ = try builder.pictureURL(pictureURL)
+            }
             
             let event = try builder.build(signedBy: account)
             

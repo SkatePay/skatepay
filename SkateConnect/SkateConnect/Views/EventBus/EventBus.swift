@@ -10,6 +10,12 @@ import NostrSDK
 
 class EventBus: ObservableObject {
     static let shared = EventBus()
+    // Metadata
+    let didReceiveMetadataSubscriptionRequest = PassthroughSubject<PublicKey, Never>()
+    
+    let didReceiveMetadataSubscription = PassthroughSubject<(publicKey: PublicKey, subscriptionId: String), Never>()
+    let didReceiveMetadata = PassthroughSubject<RelayEvent, Never>()
+    
     // Notes
     let didReceiveNotesSubscriptionRequest = PassthroughSubject<PublicKey, Never>()
 

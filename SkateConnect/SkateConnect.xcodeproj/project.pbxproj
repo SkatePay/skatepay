@@ -104,6 +104,9 @@
 		C66FDBFA2D87AADA001BDF73 /* Invoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66FDBF92D87AADA001BDF73 /* Invoice.swift */; };
 		C66FDC012D893BA6001BDF73 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66FDC002D893BA0001BDF73 /* DebugView.swift */; };
 		C69018B52D432DC500A3CDD8 /* EULAManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69018B42D432DC500A3CDD8 /* EULAManager.swift */; };
+		C69B6C332DAB3DC100011120 /* MetadataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */; };
+		C69B6C382DAB3EAA00011120 /* MetadataListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C362DAB3EAA00011120 /* MetadataListener.swift */; };
+		C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C392DAB486300011120 /* UserMetadata.swift */; };
 		C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCE92D46A7240095A994 /* OverlayView.swift */; };
 		C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */; };
 		C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */; };
@@ -277,6 +280,9 @@
 		C66FDBF92D87AADA001BDF73 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
 		C66FDC002D893BA0001BDF73 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
 		C69018B42D432DC500A3CDD8 /* EULAManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAManager.swift; sourceTree = "<group>"; };
+		C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataPublisher.swift; sourceTree = "<group>"; };
+		C69B6C362DAB3EAA00011120 /* MetadataListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataListener.swift; sourceTree = "<group>"; };
+		C69B6C392DAB486300011120 /* UserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadata.swift; sourceTree = "<group>"; };
 		C6A3DCE92D46A7240095A994 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomControlsView.swift; sourceTree = "<group>"; };
 		C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateMapView.swift; sourceTree = "<group>"; };
@@ -577,6 +583,7 @@
 			isa = PBXGroup;
 			children = (
 				C640CE882D9CB63700F8298A /* Note.swift */,
+				C69B6C392DAB486300011120 /* UserMetadata.swift */,
 				C640CE862D9CB4D600F8298A /* SkateboardDeck.swift */,
 				C625012F2C93C1340026C334 /* Data */,
 				C62501312C93C1340026C334 /* Host.swift */,
@@ -608,6 +615,7 @@
 				C63DEF472D7B85960058224F /* ChannelEventPublisher.swift */,
 				C63DEF552D7BD48D0058224F /* DMEventPublisher.swift */,
 				C640CE842D9CA89300F8298A /* NotesPublisher.swift */,
+				C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */,
 			);
 			path = EventPublishers;
 			sourceTree = "<group>";
@@ -729,6 +737,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		C69B6C372DAB3EAA00011120 /* Metadata */ = {
+			isa = PBXGroup;
+			children = (
+				C69B6C362DAB3EAA00011120 /* MetadataListener.swift */,
+			);
+			path = Metadata;
+			sourceTree = "<group>";
+		};
 		C6A3DCEB2D46A81F0095A994 /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -750,6 +766,7 @@
 			isa = PBXGroup;
 			children = (
 				C640CE812D9CA2EF00F8298A /* Notes */,
+				C69B6C372DAB3EAA00011120 /* Metadata */,
 				C63DEF522D7BD42A0058224F /* DM */,
 				C63DEF512D7BD41F0058224F /* Channel */,
 			);
@@ -1053,6 +1070,7 @@
 				C62501682C93C1340026C334 /* Spot.swift in Sources */,
 				C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */,
 				C625015A2C93C1340026C334 /* ConnectRelay.swift in Sources */,
+				C69B6C332DAB3DC100011120 /* MetadataPublisher.swift in Sources */,
 				C625015F2C93C1340026C334 /* ContentView.swift in Sources */,
 				C625014B2C93C1340026C334 /* SpotDetail.swift in Sources */,
 				C66FDBFA2D87AADA001BDF73 /* Invoice.swift in Sources */,
@@ -1064,10 +1082,12 @@
 				C625014D2C93C1340026C334 /* UserItem.swift in Sources */,
 				C62501482C93C1340026C334 /* ProfileHost.swift in Sources */,
 				C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */,
+				C69B6C382DAB3EAA00011120 /* MetadataListener.swift in Sources */,
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
 				C640CE652D91DA0700F8298A /* TickerOverlay.swift in Sources */,
+				C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */,
 				C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C63DEF562D7BD48D0058224F /* DMEventPublisher.swift in Sources */,

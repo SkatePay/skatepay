@@ -291,8 +291,11 @@ struct ContentView: View {
                 case .userDetail(let npub):
                     let user = MainHelper.getUser(npub: npub)
                     UserDetails(user: user)
+                        .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(uploadManager)
 
                 case .transferAsset(let transferType):
                     TransferAsset(transferType: transferType)

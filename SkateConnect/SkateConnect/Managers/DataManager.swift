@@ -126,6 +126,10 @@ class DataManager: ObservableObject {
         self.lobby = lobby
     }
     
+    func isMe(npub: String) -> Bool {
+        return keychainForNostr.account?.publicKey.npub == npub
+    }
+    
     func isMe(pubkey: String) -> Bool {
         return keychainForNostr.account?.publicKey.hex == pubkey
     }

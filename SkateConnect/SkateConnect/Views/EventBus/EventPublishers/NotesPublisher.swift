@@ -16,7 +16,7 @@ import NostrSDK
 class NotesPublisher: ObservableObject {
     let log = OSLog(subsystem: "SkateConnect", category: "NotesPublisher")
     
-    public func subscribeToNotesWithPublicKey(_ publicKey: PublicKey) {
+    public func subscribeFor(_ publicKey: PublicKey) {
         os_log("⏳ requesting subscription to notes for [%{public}@]", log: log, type: .info, publicKey.npub)
 
         EventBus.shared.didReceiveNotesSubscriptionRequest.send(publicKey)
