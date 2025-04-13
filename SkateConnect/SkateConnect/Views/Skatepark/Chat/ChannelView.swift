@@ -69,7 +69,6 @@ struct ChannelView: View {
     @State private var selectedChannelId: String? = nil
     
     // Action Sheets
-    @State private var showingMediaActionSheet = false
     @State private var showingInviteActionSheet = false
     @State private var showingInvoiceActionSheet = false
     @State private var showingMessageActionSheet = false
@@ -78,7 +77,6 @@ struct ChannelView: View {
     
     // Toolbox
     @State private var isShowingToolBoxView = false
-    @State private var selectedMediaURL: URL?
     
     // Invite
     @State private var selectedInviteString: String? = nil
@@ -139,8 +137,9 @@ struct ChannelView: View {
                 onTapVideo: { message in
                     if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
                         let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-                        self.selectedMediaURL = URL(string: videoURLString)
-                        showingMediaActionSheet = true
+                        guard let videoURL = URL(string: videoURLString) else { return }
+                        
+                        navigation.path.append(NavigationPathType.videoPlayer(url: videoURL))
                     }
                     
                     if case MessageKind.photo(_) = message.kind {
@@ -354,25 +353,6 @@ struct ChannelView: View {
             case .park:
                 return Alert(title: Text(""))
             }
-        }
-        // Action Sheets
-        .confirmationDialog("Media Options", isPresented: $showingMediaActionSheet, titleVisibility: .visible) {
-            Button("Play") {
-                if let videoURL = selectedMediaURL {
-                    navigation.path.append(NavigationPathType.videoPlayer(url: videoURL))
-                }
-            }
-            Button("Download") {
-                if let videoURL = selectedMediaURL {
-                    downloadVideo(from: videoURL)
-                }
-            }
-            Button("Share") {
-                if let videoURL = selectedMediaURL {
-                    MainHelper.shareVideo(videoURL)
-                }
-            }
-            Button("Cancel", role: .cancel) { }
         }
         .confirmationDialog("Spot Invite", isPresented: $showingInviteActionSheet, titleVisibility: .visible) {
             Button("Accept") {
