@@ -52,9 +52,9 @@ struct SkateMapView: View {
                         let color = lead == highlightedLead ? Color.green : lead.color
                         
                         ZStack {
-                            Circle()
-                                .foregroundStyle(color.opacity(0.5))
-                                .frame(width: 80, height: 80)
+//                            Circle()
+//                                .foregroundStyle(color.opacity(0.5))
+//                                .frame(width: 80, height: 80)
                             
                             Text(lead.icon)
                                 .font(.system(size: 24))

@@ -153,6 +153,7 @@ struct CameraView: View {
                         url: uploadManager.videoURL,
                         cameraViewModel: cameraViewModel
                     )
+                    .environmentObject(navigation)
                     .environmentObject(uploadManager)
                 }
             }

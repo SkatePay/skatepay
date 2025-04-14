@@ -16,6 +16,8 @@ struct RecoveryPhraseView: View {
 
     let mnemonic: [String]
     
+    @State private var showCopyNotification = false
+
     var body: some View {
         VStack(spacing: 20) {
             Text("Recovery Phrase")
@@ -52,6 +54,7 @@ struct RecoveryPhraseView: View {
                 Button {
                     let phraseString = mnemonic.joined(separator: " ")
                     UIPasteboard.general.string = phraseString
+                    showCopyNotification = true
                 } label: {
                     Label("Copy", systemImage: "doc.on.doc")
                         .font(.body)
@@ -68,5 +71,26 @@ struct RecoveryPhraseView: View {
             .padding(.bottom, 40)
         }
         .navigationBarHidden(true)
+        .overlay(
+            Group {
+                if showCopyNotification {
+                    Text("Copied to clipboard!")
+                        .padding()
+                        .background(Color.orange.opacity(1))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .transition(.opacity)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    showCopyNotification = false
+                                }
+                            }
+                        }
+                }
+            }
+            .animation(.easeInOut, value: showCopyNotification),
+            alignment: .center
+        )
     }
 }

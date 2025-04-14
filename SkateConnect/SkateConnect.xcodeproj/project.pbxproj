@@ -109,7 +109,7 @@
 		C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C392DAB486300011120 /* UserMetadata.swift */; };
 		C69B6C3C2DAC4B1300011120 /* DeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C3B2DAC4B1000011120 /* DeckView.swift */; };
 		C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCE92D46A7240095A994 /* OverlayView.swift */; };
-		C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */; };
+		C6A3DCED2D46A83A0095A994 /* FloatingOverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */; };
 		C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */; };
 		C6A3DCF12D47EF590095A994 /* DebugManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCF02D47EF590095A994 /* DebugManager.swift */; };
 		C6A3DCF32D4AA4EC0095A994 /* CryptoAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */; };
@@ -286,7 +286,7 @@
 		C69B6C392DAB486300011120 /* UserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadata.swift; sourceTree = "<group>"; };
 		C69B6C3B2DAC4B1000011120 /* DeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckView.swift; sourceTree = "<group>"; };
 		C6A3DCE92D46A7240095A994 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
-		C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomControlsView.swift; sourceTree = "<group>"; };
+		C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingOverlayButton.swift; sourceTree = "<group>"; };
 		C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateMapView.swift; sourceTree = "<group>"; };
 		C6A3DCF02D47EF590095A994 /* DebugManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugManager.swift; sourceTree = "<group>"; };
 		C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAddress.swift; sourceTree = "<group>"; };
@@ -751,7 +751,7 @@
 		C6A3DCEB2D46A81F0095A994 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */,
+				C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1061,7 +1061,7 @@
 				C625016C2C93C1340026C334 /* Landmark.swift in Sources */,
 				C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */,
 				C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */,
-				C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */,
+				C6A3DCED2D46A83A0095A994 /* FloatingOverlayButton.swift in Sources */,
 				C62501472C93C1340026C334 /* ProfileEditor.swift in Sources */,
 				C625016D2C93C1340026C334 /* Profile.swift in Sources */,
 				C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */,

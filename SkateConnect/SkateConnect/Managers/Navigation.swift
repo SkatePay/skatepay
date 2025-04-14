@@ -99,6 +99,8 @@ class Navigation: ObservableObject {
             object: self,
             userInfo: ["channelId": channelId, "assetURL": assetURL]
         )
+        
+        self.channelId = nil
     }
     
     func completeUpload(imageURL: URL, userInfo: [String: Any] = [:]) {

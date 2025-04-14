@@ -198,7 +198,7 @@ struct SettingsView: View {
                 if showCopyNotification {
                     Text("Copied to clipboard!")
                         .padding()
-                        .background(Color.orange.opacity(0.75))
+                        .background(Color.orange.opacity(1))
                         .foregroundColor(.white)
                         .cornerRadius(8)
                         .transition(.opacity)
