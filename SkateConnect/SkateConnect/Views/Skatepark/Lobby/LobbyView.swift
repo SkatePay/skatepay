@@ -24,6 +24,8 @@ struct LobbyView: View {
     
     @State private var isShowingProfile = false
     @State private var isShowingAlert = false
+    
+    @State private var users: [User] = []
         
     let keychainForNostr = NostrKeychainStorage()
     
@@ -34,13 +36,6 @@ struct LobbyView: View {
     var body: some View {
         VStack {
             List {
-                let bots = loadBotsFromUserDefaults()
-                let botUsers = bots.map { bot in
-                    MainHelper.getUser(npub: bot.npub)
-                }
-                
-                let users = [MainHelper.getUser(npub: modelData.users[0].npub)] + botUsers
-                
                 UserRow(users: users)
                     .environmentObject(navigation)
                 
@@ -84,6 +79,20 @@ struct LobbyView: View {
             if !defaults.bool(forKey: UserDefaults.Keys.hasRunOnboarding) {
                 isShowingAlert = true
             }
+            
+            let bots = loadBotsFromUserDefaults()
+            let botUsers = bots.map { bot in
+                MainHelper.getUser(npub: bot.npub, name: nil)
+            }
+            
+            users = [MainHelper.getUser(npub: modelData.users[0].npub, name: nil)]
+            
+            if let account = keychainForNostr.account {
+                let user = MainHelper.getUser(npub: account.publicKey.npub, name: "You")
+                users.append(user)
+            }
+            
+            users += botUsers
         }
         .alert("🧑‍🏫 Instructions", isPresented: $isShowingAlert) {
             Button("Got it!", role: .cancel) {

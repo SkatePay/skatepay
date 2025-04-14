@@ -126,7 +126,7 @@ struct SkateMapView: View {
         if let channel = network.getChannel(for: lead.channelId) {
             if let creationEvent = channel.creationEvent {
                 if ["invite", "public"].allSatisfy({ !lead.note.contains($0) }),
-                   dataManager.isMe(pubkey: creationEvent.pubkey) {
+                   navigation.isMe(pubkey: creationEvent.pubkey) {
                     buttons.append(.default(Text("Move")) {
                         highlightedLead = lead
                     })

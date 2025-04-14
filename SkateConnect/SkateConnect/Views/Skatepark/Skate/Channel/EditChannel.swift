@@ -13,7 +13,7 @@ import SwiftUI
 struct EditChannel: View, EventCreating {
     @Environment(\.dismiss) var dismiss
     
-    @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var navigation: Navigation
     
     @State private var isInviteCopied = false
     @State private var isEditingName = false
@@ -253,7 +253,7 @@ struct EditChannel: View, EventCreating {
                     }
                 } else {
                     if let creationEvent = channel.creationEvent, let npub = keychainForNostr.account?.publicKey.npub {
-                        if dataManager.isMe(pubkey: creationEvent.pubkey) {
+                        if navigation.isMe(pubkey: creationEvent.pubkey) {
                             Button(action: {
                                 if let url = URL(string: "https://skateconnect.app/spot?npub=\(npub)&spot_id=\(creationEvent.id)") {
                                     UIApplication.shared.open(url)

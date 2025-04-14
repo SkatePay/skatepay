@@ -9,7 +9,10 @@ import SwiftUI
 import os
 
 struct DeckView: View {
+    @EnvironmentObject private var navigation: Navigation
+
     var notes: [NoteType] = []
+    var user: User?
     
     @State private var showZoomedImage = false
     @State private var zoomItem: ZoomItem?
@@ -177,6 +180,22 @@ struct DeckView: View {
                 .onAppear {
                     os_log("⚠️ No notes available in DeckView", log: log, type: .debug)
                 }
+            
+            if let user = self.user {
+                if (navigation.isMe(npub: user.npub)) {
+                    Button(action: {
+                        navigation.path.append(NavigationPathType.deckTracker)
+                    }) {
+                        HStack {
+                            Image(systemName: "skateboard.fill") // Optional icon
+                            Text("Add Deck")
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .frame(maxWidth: .infinity, alignment: .center) // Center the button
+                    .padding()
+                }
+            }
         }
     }
 }

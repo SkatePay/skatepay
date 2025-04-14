@@ -98,7 +98,6 @@ struct ChannelView: View {
         Group {
             if let channel = self.eventListenerForMetadata.channel {
                 EditChannel(channel: channel)
-                    .environmentObject(dataManager)
                     .environmentObject(navigation)
             } else {
                 // Fallback view if channel is nil (optional)
@@ -111,7 +110,7 @@ struct ChannelView: View {
         if let channel = network.getChannel(for: channelId) {
             guard let creationEvent = channel.creationEvent else { return false }
             
-            let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+            let isCreator = navigation.isMe(pubkey: creationEvent.pubkey)
             
             if isCreator {
                 return false
@@ -395,7 +394,7 @@ struct ChannelView: View {
             if let messageId = selectedMessageId,
                let event = eventListenerForMessages.events[messageId] {
                 
-                if dataManager.isMe(pubkey: event.pubkey) {
+                if navigation.isMe(pubkey: event.pubkey) {
                     Button("Delete", role: .destructive) {  // Note: .destructive for delete
                         deleteEvent(event)
                     }
@@ -563,7 +562,7 @@ private extension ChannelView {
         }
         
         let baseTitle = channel.metadata?.name ?? channel.name
-        let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+        let isCreator = navigation.isMe(pubkey: creationEvent.pubkey)
         let readOnlyIndicator = readonly ? "ℹ️ " : ""
         let creatorIndicator = isCreator ? " 👑" : ""
         

@@ -66,6 +66,16 @@ class Navigation: ObservableObject {
                                 
     @Published var isShowingEditChannel = false
         
+    let keychainForNostr = NostrKeychainStorage()
+
+    func isMe(npub: String) -> Bool {
+        return keychainForNostr.account?.publicKey.npub == npub
+    }
+    
+    func isMe(pubkey: String) -> Bool {
+        return keychainForNostr.account?.publicKey.hex == pubkey
+    }
+    
     var isLocationUpdatePaused: Bool {
         return isShowingEditChannel
     }

@@ -28,7 +28,7 @@ struct UserDetails: View {
     @State private var isDebugging = false
     @State private var showingConnector = false
     @State private var isFavorite: Bool = false
-    @State private var selectedSectionTag: Int = 1
+    @State private var selectedSectionTag: Int = 0
     @State private var isEditing: Bool = false
     @State private var editedUsername: String
     @State private var showingImagePicker = false
@@ -281,7 +281,7 @@ struct UserDetails: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(isUploading)
         .toolbar {
-            if dataManager.isMe(npub: user.npub) {
+            if navigation.isMe(npub: user.npub) {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if !isSupport() {
                         if isEditing {
@@ -379,11 +379,11 @@ struct UserDetails: View {
         }
         .onChange(of: eventListenerForNotes.receivedEOSE) { _, eoseReceived in
             var showDeckPage = false
-            if eoseReceived {
-                if let firstNote = self.eventListenerForNotes.notesFromDeckTracker.first, case .deck(_) = firstNote {
-                    showDeckPage = true
-                }
+
+            if !isSupport() {
+                showDeckPage = true
             }
+            
             self.selectedSectionTag = showDeckPage ? 0 : 1
         }
         .onChange(of: isFavorite) { _, newValue in
@@ -475,7 +475,10 @@ struct UserDetails: View {
             Text("Tracked Deck")
                 .font(.title3)
                 .fontWeight(.semibold)
-            DeckView(notes: self.eventListenerForNotes.notesFromDeckTracker)
+            if (eventListenerForNotes.receivedEOSE) {
+                DeckView(notes: self.eventListenerForNotes.notesFromDeckTracker, user: user)
+                    .environmentObject(navigation)
+            }
             Spacer()
         }
         .padding(.horizontal)
