@@ -108,6 +108,7 @@
 		C69B6C382DAB3EAA00011120 /* MetadataListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C362DAB3EAA00011120 /* MetadataListener.swift */; };
 		C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C392DAB486300011120 /* UserMetadata.swift */; };
 		C69B6C3C2DAC4B1300011120 /* DeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C3B2DAC4B1000011120 /* DeckView.swift */; };
+		C69B6C402DADD26800011120 /* AppVersionChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C3F2DADD26800011120 /* AppVersionChecker.swift */; };
 		C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCE92D46A7240095A994 /* OverlayView.swift */; };
 		C6A3DCED2D46A83A0095A994 /* FloatingOverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */; };
 		C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */; };
@@ -285,6 +286,7 @@
 		C69B6C362DAB3EAA00011120 /* MetadataListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataListener.swift; sourceTree = "<group>"; };
 		C69B6C392DAB486300011120 /* UserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadata.swift; sourceTree = "<group>"; };
 		C69B6C3B2DAC4B1000011120 /* DeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckView.swift; sourceTree = "<group>"; };
+		C69B6C3F2DADD26800011120 /* AppVersionChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionChecker.swift; sourceTree = "<group>"; };
 		C6A3DCE92D46A7240095A994 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingOverlayButton.swift; sourceTree = "<group>"; };
 		C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateMapView.swift; sourceTree = "<group>"; };
@@ -821,6 +823,7 @@
 				C62501362C93C1340026C334 /* Model */,
 				C6DDD72B2C936DAF000BE2A4 /* Preview Content */,
 				C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */,
+				C69B6C3F2DADD26800011120 /* AppVersionChecker.swift */,
 				C62501232C93C1340026C334 /* Views */,
 			);
 			path = SkateConnect;
@@ -1137,6 +1140,7 @@
 				C62500DD2C93C1210026C334 /* SolanaAccount.swift in Sources */,
 				C625014A2C93C1340026C334 /* ChannelView.swift in Sources */,
 				C6A3DCF12D47EF590095A994 /* DebugManager.swift in Sources */,
+				C69B6C402DADD26800011120 /* AppVersionChecker.swift in Sources */,
 				C62501502C93C1340026C334 /* CreateMessage.swift in Sources */,
 				C66AFE922CA7812C000CD716 /* Network.swift in Sources */,
 				C63DEF482D7B85960058224F /* ChannelEventPublisher.swift in Sources */,

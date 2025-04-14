@@ -9,10 +9,13 @@ import os
 import ConnectFramework
 import SwiftUI
 
-
 @main
 struct SkateConnectApp: App {
     @State private var modelData = AppData()
+    
+    @State private var showUpdateAlert = false
+    @State private var appStoreVersion = ""
+    @State private var appStoreURL: URL?
 
     @StateObject private var apiService = API()
     @StateObject private var channelViewManager = ChannelViewManager()
@@ -69,6 +72,21 @@ struct SkateConnectApp: App {
                         dataManager.setLobby(lobby: lobby)
                         dataManager.setWalletManager(walletManager: walletManager)
                         uploadManager.setNavigation(navigation: navigation)
+                        
+                        // Check for app updates on launch
+                        Task {
+                            await checkForAppUpdate()
+                        }
+                    }
+                    .alert("Update Available", isPresented: $showUpdateAlert) {
+                        Button("Update") {
+                            if let url = appStoreURL {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        Button("Later", role: .cancel) {}
+                    } message: {
+                        Text("Version \(appStoreVersion) is available. Please update for the latest features and bug fixes.")
                     }
             } else {
                 EULAView()
@@ -87,11 +105,41 @@ struct SkateConnectApp: App {
                     .onAppear {
                         channelViewManager.setNavigation(navigation: navigation)
                         channelViewManager.setNetwork(network: network)
+                        
+                        // Check for app updates even during EULA
+                        Task {
+                            await checkForAppUpdate()
+                        }
+                    }
+                    .alert("Update Available", isPresented: $showUpdateAlert) {
+                        Button("Update") {
+                            if let url = appStoreURL {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        Button("Later", role: .cancel) {}
+                    } message: {
+                        Text("Version \(appStoreVersion) is available. Please update for the latest features and bug fixes.")
                     }
             }
         }
     }
     
+    private func checkForAppUpdate() async {
+        do {
+            let (needsUpdate, version, url) = try await AppVersionChecker.checkForUpdate()
+            if needsUpdate {
+                await MainActor.run {
+                    appStoreVersion = version
+                    appStoreURL = url
+                    showUpdateAlert = true
+                }
+            }
+        } catch {
+            os_log("Version check failed: %@", log: log, type: .error, error.localizedDescription)
+        }
+    }
+        
     // Handle the deep linking for video and channel
     func handleDeepLink(_ url: URL) {
         os_log("🔗 Deep link received: %@", log: log, type: .info, url.absoluteString)
