@@ -19,7 +19,7 @@ class MainHelper {
     
     static func getUser(npub: String, name: String?) -> User {
         var user = User(
-            id: 1,
+            id: Int.random(in: 1000..<Int.max),
             name: name ?? friendlyKey(npub: npub),
             npub: npub,
             solanaAddress: "SolanaAddress1...",

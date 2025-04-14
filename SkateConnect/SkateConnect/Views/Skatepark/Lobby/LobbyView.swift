@@ -73,26 +73,30 @@ struct LobbyView: View {
                 .environment(modelData)
                 .environmentObject(network)
         }
-        .onAppear() {
+        .onAppear {
             let defaults = UserDefaults.standard
             
             if !defaults.bool(forKey: UserDefaults.Keys.hasRunOnboarding) {
                 isShowingAlert = true
             }
             
+            var supportUsers: [User] = []
+            var currentUser: [User] = []
+            var botUsers: [User] = []
+            
+            let supportUser = MainHelper.getUser(npub: modelData.users[0].npub, name: nil)
+            supportUsers = [supportUser]
+            
             let bots = loadBotsFromUserDefaults()
-            let botUsers = bots.map { bot in
+            botUsers = bots.map { bot in
                 MainHelper.getUser(npub: bot.npub, name: nil)
             }
             
-            users = [MainHelper.getUser(npub: modelData.users[0].npub, name: nil)]
-            
             if let account = keychainForNostr.account {
-                let user = MainHelper.getUser(npub: account.publicKey.npub, name: "You")
-                users.append(user)
+                currentUser = [MainHelper.getUser(npub: account.publicKey.npub, name: "You")]
             }
             
-            users += botUsers
+            users = supportUsers + currentUser + botUsers
         }
         .alert("🧑‍🏫 Instructions", isPresented: $isShowingAlert) {
             Button("Got it!", role: .cancel) {
