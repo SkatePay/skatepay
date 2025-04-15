@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum SourceType: String {
+    case toolbox = "toolbox"
+    case details = "details"
+}
+
 enum UploadNotification {
     case uploadImage(String, String?, String?) // imageIdentifier, channelId, npub
     case uploadVideo(String, String?, String?) // videoIdentifier, channelId, npub

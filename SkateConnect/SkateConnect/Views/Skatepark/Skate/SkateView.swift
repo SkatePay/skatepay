@@ -44,10 +44,6 @@ struct SkateView: View {
                         .environmentObject(apiService)
                         .environmentObject(network)
                 )
-            
-            BottomControlsView()
-                .environmentObject(locationManager)
-                .environmentObject(navigation)
         }
         .onReceive(NotificationCenter.default.publisher(for: .goToCoordinate)) { _ in
             if let locationCoordinate = navigation.coordinate {

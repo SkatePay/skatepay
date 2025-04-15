@@ -289,10 +289,13 @@ struct ContentView: View {
                         .navigationBarTitle("🎯 Explore Network 🕸️")
                     
                 case .userDetail(let npub):
-                    let user = MainHelper.getUser(npub: npub)
-                    UserDetail(user: user)
+                    let user = MainHelper.getUser(npub: npub, name: nil)
+                    UserDetails(user: user)
+                        .environmentObject(dataManager)
+                        .environmentObject(debugManager)
                         .environmentObject(navigation)
                         .environmentObject(network)
+                        .environmentObject(uploadManager)
 
                 case .transferAsset(let transferType):
                     TransferAsset(transferType: transferType)

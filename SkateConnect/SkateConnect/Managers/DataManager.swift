@@ -126,10 +126,6 @@ class DataManager: ObservableObject {
         self.lobby = lobby
     }
     
-    func isMe(pubkey: String) -> Bool {
-        return keychainForNostr.account?.publicKey.hex == pubkey
-    }
-    
     func setWalletManager(walletManager: WalletManager) {
         self.walletManager = walletManager
     }

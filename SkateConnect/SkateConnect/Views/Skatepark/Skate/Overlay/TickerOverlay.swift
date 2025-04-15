@@ -53,7 +53,7 @@ struct TickerOverlay: View {
             return error.localizedDescription
         }
         
-        return apiService.isLoading ? "Loading..." : " 🟢 Welcome to SkateConnect – Let's Skate! ℹ️ Say 'Hi' in HQ if you see this."
+        return apiService.isLoading ? "Loading..." : " 🟢 Welcome to 🌐 SkateConnect 🛹 – Let's Skate! ℹ️ Please read FAQ to get started."
     }
 }
 

@@ -44,9 +44,6 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
     // Toolbox
     @State private var isShowingToolBoxView = false
     
-    @State private var showAlertForReporting = false
-    @State private var showAlertForAddingPark = false
-    
     // Action State
     @State private var selectedChannelId: String?
     @State private var selectedMediaURL: URL?
@@ -158,6 +155,16 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                 
                 self.eventPublisher.subscribeToUserWithPublicKey(publicKey)
             }
+            
+            if (message.isEmpty) {
+                return
+            }
+
+            if (message.contains("request")) {
+                self.activeAlert = .park
+            } else {
+                self.activeAlert = .report(npub: message)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UploadNotification.Image)) { notification in
             if let assetURL = notification.userInfo?["assetURL"] as? String {
@@ -246,6 +253,48 @@ struct DMView: View, LegacyDirectMessageEncrypting, EventCreating {
                     dismissButton: .default(Text("OK")) {
                         // Action on dismiss specific to download alert (if any)
                         print("Download Alert OK tapped")
+                    }
+                )
+            case .report(let npub):
+                return Alert(
+                    title: Text("Confirm Report"),
+                    message: Text("Do you want to continue with the report on \(MainHelper.friendlyKey(npub: message))?"),
+                    primaryButton: .cancel(Text("No")) {
+                        print("Cancel Download tapped")
+                    },
+                    secondaryButton: .default(Text("Yes")) {
+                        let text = "Hi, I would like to report \(MainHelper.friendlyKey(npub: npub))."
+                        
+                        NotificationCenter.default.post(
+                            name: .publishDMEvent,
+                            object: nil,
+                            userInfo: [
+                                "npub": AppData().users[0].npub,
+                                "content": text,
+                                "kind": Kind.message
+                            ]
+                        )
+                    }
+                )
+            case .park:
+                return Alert(
+                    title: Text("Confirm Park Request"),
+                    message: Text("Do you want to see your park on SkateConnect?"),
+                    primaryButton: .cancel(Text("No")) {
+                        print("Cancel Download tapped")
+                    },
+                    secondaryButton: .default(Text("Yes")) {
+                        let text = "Hi, I would like to add my park to your directory. Please tell me how to do that."
+                        
+                        NotificationCenter.default.post(
+                            name: .publishDMEvent,
+                            object: nil,
+                            userInfo: [
+                                "npub": AppData().users[0].npub,
+                                "content": text,
+                                "kind": Kind.message
+                            ]
+                        )
                     }
                 )
             }

@@ -388,6 +388,8 @@ extension ToolBoxView {
                 if let channelId = currentChannelId {
                     userInfo["channelId"] = channelId
                 }
+                
+                userInfo["source"] = SourceType.toolbox.rawValue
 
                 navigation.completeUpload(imageURL: mediaURL, userInfo: userInfo)
             } else if fileType.conforms(to: .movie) {

@@ -31,7 +31,7 @@
 		C62501492C93C1340026C334 /* ProfileSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501032C93C1340026C334 /* ProfileSummary.swift */; };
 		C625014A2C93C1340026C334 /* ChannelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501052C93C1340026C334 /* ChannelView.swift */; };
 		C625014B2C93C1340026C334 /* SpotDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501062C93C1340026C334 /* SpotDetail.swift */; };
-		C625014C2C93C1340026C334 /* UserDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501082C93C1340026C334 /* UserDetail.swift */; };
+		C625014C2C93C1340026C334 /* UserDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501082C93C1340026C334 /* UserDetails.swift */; };
 		C625014D2C93C1340026C334 /* UserItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62501092C93C1340026C334 /* UserItem.swift */; };
 		C625014E2C93C1340026C334 /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625010A2C93C1340026C334 /* UserRow.swift */; };
 		C625014F2C93C1340026C334 /* Contacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C625010C2C93C1340026C334 /* Contacts.swift */; };
@@ -78,6 +78,10 @@
 		C640CE742D92290000F8298A /* BirthdayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE732D9228F800F8298A /* BirthdayView.swift */; };
 		C640CE792D9483C600F8298A /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE762D9483C300F8298A /* Notifications.swift */; };
 		C640CE7B2D94C02700F8298A /* VideoDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE7A2D94C02100F8298A /* VideoDownloader.swift */; };
+		C640CE832D9CA30000F8298A /* NotesListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE822D9CA2F900F8298A /* NotesListener.swift */; };
+		C640CE852D9CA89300F8298A /* NotesPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE842D9CA89300F8298A /* NotesPublisher.swift */; };
+		C640CE872D9CB4DD00F8298A /* SkateboardDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE862D9CB4D600F8298A /* SkateboardDeck.swift */; };
+		C640CE892D9CB63900F8298A /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640CE882D9CB63700F8298A /* Note.swift */; };
 		C642B2182C978571001022DF /* EULAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642B2172C978571001022DF /* EULAView.swift */; };
 		C662BD502D86A6A000BD6E58 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C662BD4F2D86A6A000BD6E58 /* NostrSDK */; };
 		C668FC492C967A9600612BEA /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C668FC482C967A9600612BEA /* SolanaSwift */; };
@@ -100,8 +104,13 @@
 		C66FDBFA2D87AADA001BDF73 /* Invoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66FDBF92D87AADA001BDF73 /* Invoice.swift */; };
 		C66FDC012D893BA6001BDF73 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66FDC002D893BA0001BDF73 /* DebugView.swift */; };
 		C69018B52D432DC500A3CDD8 /* EULAManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69018B42D432DC500A3CDD8 /* EULAManager.swift */; };
+		C69B6C332DAB3DC100011120 /* MetadataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */; };
+		C69B6C382DAB3EAA00011120 /* MetadataListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C362DAB3EAA00011120 /* MetadataListener.swift */; };
+		C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C392DAB486300011120 /* UserMetadata.swift */; };
+		C69B6C3C2DAC4B1300011120 /* DeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C3B2DAC4B1000011120 /* DeckView.swift */; };
+		C69B6C402DADD26800011120 /* AppVersionChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B6C3F2DADD26800011120 /* AppVersionChecker.swift */; };
 		C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCE92D46A7240095A994 /* OverlayView.swift */; };
-		C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */; };
+		C6A3DCED2D46A83A0095A994 /* FloatingOverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */; };
 		C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */; };
 		C6A3DCF12D47EF590095A994 /* DebugManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCF02D47EF590095A994 /* DebugManager.swift */; };
 		C6A3DCF32D4AA4EC0095A994 /* CryptoAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */; };
@@ -206,7 +215,7 @@
 		C62501032C93C1340026C334 /* ProfileSummary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSummary.swift; sourceTree = "<group>"; };
 		C62501052C93C1340026C334 /* ChannelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChannelView.swift; sourceTree = "<group>"; };
 		C62501062C93C1340026C334 /* SpotDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotDetail.swift; sourceTree = "<group>"; };
-		C62501082C93C1340026C334 /* UserDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDetail.swift; sourceTree = "<group>"; };
+		C62501082C93C1340026C334 /* UserDetails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDetails.swift; sourceTree = "<group>"; };
 		C62501092C93C1340026C334 /* UserItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserItem.swift; sourceTree = "<group>"; };
 		C625010A2C93C1340026C334 /* UserRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRow.swift; sourceTree = "<group>"; };
 		C625010C2C93C1340026C334 /* Contacts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Contacts.swift; sourceTree = "<group>"; };
@@ -254,6 +263,10 @@
 		C640CE732D9228F800F8298A /* BirthdayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdayView.swift; sourceTree = "<group>"; };
 		C640CE762D9483C300F8298A /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		C640CE7A2D94C02100F8298A /* VideoDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDownloader.swift; sourceTree = "<group>"; };
+		C640CE822D9CA2F900F8298A /* NotesListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesListener.swift; sourceTree = "<group>"; };
+		C640CE842D9CA89300F8298A /* NotesPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesPublisher.swift; sourceTree = "<group>"; };
+		C640CE862D9CB4D600F8298A /* SkateboardDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateboardDeck.swift; sourceTree = "<group>"; };
+		C640CE882D9CB63700F8298A /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		C642B2172C978571001022DF /* EULAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAView.swift; sourceTree = "<group>"; };
 		C66AFE852CA61C76000CD716 /* AWS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AWS.swift; sourceTree = "<group>"; };
 		C66AFE8B2CA63755000CD716 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
@@ -269,8 +282,13 @@
 		C66FDBF92D87AADA001BDF73 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
 		C66FDC002D893BA0001BDF73 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
 		C69018B42D432DC500A3CDD8 /* EULAManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EULAManager.swift; sourceTree = "<group>"; };
+		C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataPublisher.swift; sourceTree = "<group>"; };
+		C69B6C362DAB3EAA00011120 /* MetadataListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataListener.swift; sourceTree = "<group>"; };
+		C69B6C392DAB486300011120 /* UserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadata.swift; sourceTree = "<group>"; };
+		C69B6C3B2DAC4B1000011120 /* DeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckView.swift; sourceTree = "<group>"; };
+		C69B6C3F2DADD26800011120 /* AppVersionChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionChecker.swift; sourceTree = "<group>"; };
 		C6A3DCE92D46A7240095A994 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
-		C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomControlsView.swift; sourceTree = "<group>"; };
+		C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingOverlayButton.swift; sourceTree = "<group>"; };
 		C6A3DCEE2D46A8F40095A994 /* SkateMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkateMapView.swift; sourceTree = "<group>"; };
 		C6A3DCF02D47EF590095A994 /* DebugManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugManager.swift; sourceTree = "<group>"; };
 		C6A3DCF22D4AA4EC0095A994 /* CryptoAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAddress.swift; sourceTree = "<group>"; };
@@ -453,7 +471,8 @@
 		C625010B2C93C1340026C334 /* Users */ = {
 			isa = PBXGroup;
 			children = (
-				C62501082C93C1340026C334 /* UserDetail.swift */,
+				C69B6C3B2DAC4B1000011120 /* DeckView.swift */,
+				C62501082C93C1340026C334 /* UserDetails.swift */,
 				C62501092C93C1340026C334 /* UserItem.swift */,
 				C625010A2C93C1340026C334 /* UserRow.swift */,
 			);
@@ -568,6 +587,9 @@
 		C62501362C93C1340026C334 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE882D9CB63700F8298A /* Note.swift */,
+				C69B6C392DAB486300011120 /* UserMetadata.swift */,
+				C640CE862D9CB4D600F8298A /* SkateboardDeck.swift */,
 				C625012F2C93C1340026C334 /* Data */,
 				C62501312C93C1340026C334 /* Host.swift */,
 				C62501322C93C1340026C334 /* HostStore.swift */,
@@ -597,6 +619,8 @@
 			children = (
 				C63DEF472D7B85960058224F /* ChannelEventPublisher.swift */,
 				C63DEF552D7BD48D0058224F /* DMEventPublisher.swift */,
+				C640CE842D9CA89300F8298A /* NotesPublisher.swift */,
+				C69B6C322DAB3DC100011120 /* MetadataPublisher.swift */,
 			);
 			path = EventPublishers;
 			sourceTree = "<group>";
@@ -638,6 +662,14 @@
 				C640CE6D2D9223AA00F8298A /* DeckTrackerCamera.swift */,
 			);
 			path = DeckTracker;
+			sourceTree = "<group>";
+		};
+		C640CE812D9CA2EF00F8298A /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				C640CE822D9CA2F900F8298A /* NotesListener.swift */,
+			);
+			path = Notes;
 			sourceTree = "<group>";
 		};
 		C642B2142C97854A001022DF /* EULA */ = {
@@ -710,10 +742,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		C69B6C372DAB3EAA00011120 /* Metadata */ = {
+			isa = PBXGroup;
+			children = (
+				C69B6C362DAB3EAA00011120 /* MetadataListener.swift */,
+			);
+			path = Metadata;
+			sourceTree = "<group>";
+		};
 		C6A3DCEB2D46A81F0095A994 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				C6A3DCEC2D46A83A0095A994 /* BottomControlsView.swift */,
+				C6A3DCEC2D46A83A0095A994 /* FloatingOverlayButton.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -730,6 +770,8 @@
 		C6DC5B412D7B75A90036998F /* EventListeners */ = {
 			isa = PBXGroup;
 			children = (
+				C640CE812D9CA2EF00F8298A /* Notes */,
+				C69B6C372DAB3EAA00011120 /* Metadata */,
 				C63DEF522D7BD42A0058224F /* DM */,
 				C63DEF512D7BD41F0058224F /* Channel */,
 			);
@@ -781,6 +823,7 @@
 				C62501362C93C1340026C334 /* Model */,
 				C6DDD72B2C936DAF000BE2A4 /* Preview Content */,
 				C6DDD7232C936DAE000BE2A4 /* SkateConnectApp.swift */,
+				C69B6C3F2DADD26800011120 /* AppVersionChecker.swift */,
 				C62501232C93C1340026C334 /* Views */,
 			);
 			path = SkateConnect;
@@ -1021,7 +1064,7 @@
 				C625016C2C93C1340026C334 /* Landmark.swift in Sources */,
 				C66E09712C96597A00C9F8F1 /* MockSocket.swift in Sources */,
 				C6DDD7242C936DAE000BE2A4 /* SkateConnectApp.swift in Sources */,
-				C6A3DCED2D46A83A0095A994 /* BottomControlsView.swift in Sources */,
+				C6A3DCED2D46A83A0095A994 /* FloatingOverlayButton.swift in Sources */,
 				C62501472C93C1340026C334 /* ProfileEditor.swift in Sources */,
 				C625016D2C93C1340026C334 /* Profile.swift in Sources */,
 				C6A3DCEA2D46A7240095A994 /* OverlayView.swift in Sources */,
@@ -1033,6 +1076,7 @@
 				C62501682C93C1340026C334 /* Spot.swift in Sources */,
 				C66E09702C96597A00C9F8F1 /* MockMessage.swift in Sources */,
 				C625015A2C93C1340026C334 /* ConnectRelay.swift in Sources */,
+				C69B6C332DAB3DC100011120 /* MetadataPublisher.swift in Sources */,
 				C625015F2C93C1340026C334 /* ContentView.swift in Sources */,
 				C625014B2C93C1340026C334 /* SpotDetail.swift in Sources */,
 				C66FDBFA2D87AADA001BDF73 /* Invoice.swift in Sources */,
@@ -1044,10 +1088,13 @@
 				C625014D2C93C1340026C334 /* UserItem.swift in Sources */,
 				C62501482C93C1340026C334 /* ProfileHost.swift in Sources */,
 				C66E09722C96597A00C9F8F1 /* MockUser.swift in Sources */,
+				C69B6C382DAB3EAA00011120 /* MetadataListener.swift in Sources */,
 				C625016A2C93C1340026C334 /* Host.swift in Sources */,
 				C62501452C93C1340026C334 /* AddressBook.swift in Sources */,
 				C6DCF4792C951B7700CA21ED /* SearchView.swift in Sources */,
+				C69B6C3C2DAC4B1300011120 /* DeckView.swift in Sources */,
 				C640CE652D91DA0700F8298A /* TickerOverlay.swift in Sources */,
+				C69B6C3A2DAB486300011120 /* UserMetadata.swift in Sources */,
 				C63FD2DF2D7A7A75005ACFDB /* MessageHelper.swift in Sources */,
 				C6F4959F2C93D34E0006FBF0 /* SettingsView.swift in Sources */,
 				C63DEF562D7BD48D0058224F /* DMEventPublisher.swift in Sources */,
@@ -1061,16 +1108,19 @@
 				C6DCF46F2C93E32F00CA21ED /* Filters.swift in Sources */,
 				C640CE742D92290000F8298A /* BirthdayView.swift in Sources */,
 				C62500E62C93C1250026C334 /* Sequence+asyncMap.swift in Sources */,
+				C640CE892D9CB63900F8298A /* Note.swift in Sources */,
 				C62B08A92D8152F10071777B /* CameraPreview.swift in Sources */,
 				C62501572C93C1340026C334 /* SkateView.swift in Sources */,
+				C640CE832D9CA30000F8298A /* NotesListener.swift in Sources */,
 				C66FDC012D893BA6001BDF73 /* DebugView.swift in Sources */,
 				C62501492C93C1340026C334 /* ProfileSummary.swift in Sources */,
 				C625015B2C93C1340026C334 /* ImportIdentity.swift in Sources */,
 				C66AFE862CA61C76000CD716 /* AWS.swift in Sources */,
 				C6C94AEB2CA8DAE8008ECA86 /* AwsKeychainStorage.swift in Sources */,
+				C640CE872D9CB4DD00F8298A /* SkateboardDeck.swift in Sources */,
 				C640CE702D92251F00F8298A /* DeckTrackerView.swift in Sources */,
 				C61E6D9B2D4C574D001EDA11 /* RestoreDataView.swift in Sources */,
-				C625014C2C93C1340026C334 /* UserDetail.swift in Sources */,
+				C625014C2C93C1340026C334 /* UserDetails.swift in Sources */,
 				C6DC045E2CB47AAB003FCA1B /* FilePicker.swift in Sources */,
 				C640CE6E2D9223AD00F8298A /* DeckTrackerCamera.swift in Sources */,
 				C625015C2C93C1340026C334 /* ImportWallet.swift in Sources */,
@@ -1090,6 +1140,7 @@
 				C62500DD2C93C1210026C334 /* SolanaAccount.swift in Sources */,
 				C625014A2C93C1340026C334 /* ChannelView.swift in Sources */,
 				C6A3DCF12D47EF590095A994 /* DebugManager.swift in Sources */,
+				C69B6C402DADD26800011120 /* AppVersionChecker.swift in Sources */,
 				C62501502C93C1340026C334 /* CreateMessage.swift in Sources */,
 				C66AFE922CA7812C000CD716 /* Network.swift in Sources */,
 				C63DEF482D7B85960058224F /* ChannelEventPublisher.swift in Sources */,
@@ -1117,6 +1168,7 @@
 				C6DC5B402D7B74210036998F /* EventBus.swift in Sources */,
 				C62500E42C93C1250026C334 /* Color+hex.swift in Sources */,
 				C6A3DCF52D4AA5EB0095A994 /* EditCryptoAddressesView.swift in Sources */,
+				C640CE852D9CA89300F8298A /* NotesPublisher.swift in Sources */,
 				C6D1F2DE2C9FC50900FF428F /* BarcodeScanner.swift in Sources */,
 				C6DCF4732C94000F00CA21ED /* EditChannel.swift in Sources */,
 				C6A3DCEF2D46A8F40095A994 /* SkateMapView.swift in Sources */,
@@ -1309,7 +1361,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1350,7 +1402,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = ninja.skate.SkateConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

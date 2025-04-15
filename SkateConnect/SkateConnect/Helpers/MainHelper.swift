@@ -17,10 +17,10 @@ class MainHelper {
         return npub == AppData().getSupport().npub
     }
     
-    static func getUser(npub: String) -> User {
+    static func getUser(npub: String, name: String?) -> User {
         var user = User(
-            id: 1,
-            name: friendlyKey(npub: npub),
+            id: Int.random(in: 1000..<Int.max),
+            name: name ?? friendlyKey(npub: npub),
             npub: npub,
             solanaAddress: "SolanaAddress1...",
             relayUrl: Constants.RELAY_URL_SKATEPARK,

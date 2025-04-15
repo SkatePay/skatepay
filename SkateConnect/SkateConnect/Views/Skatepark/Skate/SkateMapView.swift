@@ -52,9 +52,9 @@ struct SkateMapView: View {
                         let color = lead == highlightedLead ? Color.green : lead.color
                         
                         ZStack {
-                            Circle()
-                                .foregroundStyle(color.opacity(0.5))
-                                .frame(width: 80, height: 80)
+//                            Circle()
+//                                .foregroundStyle(color.opacity(0.5))
+//                                .frame(width: 80, height: 80)
                             
                             Text(lead.icon)
                                 .font(.system(size: 24))
@@ -126,7 +126,7 @@ struct SkateMapView: View {
         if let channel = network.getChannel(for: lead.channelId) {
             if let creationEvent = channel.creationEvent {
                 if ["invite", "public"].allSatisfy({ !lead.note.contains($0) }),
-                   dataManager.isMe(pubkey: creationEvent.pubkey) {
+                   navigation.isMe(pubkey: creationEvent.pubkey) {
                     buttons.append(.default(Text("Move")) {
                         highlightedLead = lead
                     })

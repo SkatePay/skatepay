@@ -33,8 +33,8 @@ struct WalletView: View {
         List {
             Section("Network") {
                  Picker("Network", selection: $walletManager.network) {
-                     Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta)
                      Text("Testnet").tag(SolanaSwift.Network.testnet)
+                     Text("Mainnet").tag(SolanaSwift.Network.mainnetBeta)
                  }
                  .onChange(of: walletManager.network) {
                      walletManager.updateApiClient()
@@ -72,6 +72,13 @@ struct WalletView: View {
             
             Button("Purge Keys") {
                 showPurgeConfirmation = true
+            }
+            Button("Information") {
+                Task {
+                    if let url = URL(string: ProRobot.HELP_URL_SOLANA) {
+                        openURL(url)
+                    }
+                }
             }
         }
         .onAppear() {

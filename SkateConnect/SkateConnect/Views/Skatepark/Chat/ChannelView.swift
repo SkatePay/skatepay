@@ -22,6 +22,8 @@ import UIKit
 enum ActiveAlert: Identifiable {
     case transaction(title: String, message: String, txId: String?)
     case downloading
+    case report(npub: String)
+    case park
     
     var id: String {
         switch self {
@@ -29,6 +31,10 @@ enum ActiveAlert: Identifiable {
             return "transaction_\(title)"
         case .downloading:
             return "downloading"
+        case .report(let npub):
+            return "report_\(npub)"
+        case .park:
+            return "park"
         }
     }
 }
@@ -63,7 +69,6 @@ struct ChannelView: View {
     @State private var selectedChannelId: String? = nil
     
     // Action Sheets
-    @State private var showingMediaActionSheet = false
     @State private var showingInviteActionSheet = false
     @State private var showingInvoiceActionSheet = false
     @State private var showingMessageActionSheet = false
@@ -72,7 +77,6 @@ struct ChannelView: View {
     
     // Toolbox
     @State private var isShowingToolBoxView = false
-    @State private var selectedMediaURL: URL?
     
     // Invite
     @State private var selectedInviteString: String? = nil
@@ -94,7 +98,6 @@ struct ChannelView: View {
         Group {
             if let channel = self.eventListenerForMetadata.channel {
                 EditChannel(channel: channel)
-                    .environmentObject(dataManager)
                     .environmentObject(navigation)
             } else {
                 // Fallback view if channel is nil (optional)
@@ -107,7 +110,7 @@ struct ChannelView: View {
         if let channel = network.getChannel(for: channelId) {
             guard let creationEvent = channel.creationEvent else { return false }
             
-            let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+            let isCreator = navigation.isMe(pubkey: creationEvent.pubkey)
             
             if isCreator {
                 return false
@@ -133,8 +136,9 @@ struct ChannelView: View {
                 onTapVideo: { message in
                     if case MessageKind.video(let media) = message.kind, let imageUrl = media.url {
                         let videoURLString = imageUrl.absoluteString.replacingOccurrences(of: ".jpg", with: ".mov")
-                        self.selectedMediaURL = URL(string: videoURLString)
-                        showingMediaActionSheet = true
+                        guard let videoURL = URL(string: videoURLString) else { return }
+                        
+                        navigation.path.append(NavigationPathType.videoPlayer(url: videoURL))
                     }
                     
                     if case MessageKind.photo(_) = message.kind {
@@ -253,38 +257,52 @@ struct ChannelView: View {
                 }
             }
             .onAppear {
-                if let account = keychainForNostr.account {
-                    self.eventListenerForMetadata.setChannelType(type)
-                    self.eventListenerForMetadata.setChannelId(channelId)
-                    self.eventListenerForMetadata.reset()
-                    
-                    self.eventPublisher.subscribeToMetadataFor(channelId)
-                    
-                    if (self.eventListenerForMessages.receivedEOSE) {
-                        shouldScrollToBottom = false
-                        return
-                    }
-                    
-                    shouldScrollToBottom = true
-                    
-                    self.eventListenerForMessages.setChannelId(channelId)
-                    self.eventListenerForMessages.setDependencies(
-                        dataManager: dataManager,
-                        debugManager: debugManager,
-                        account: account
-                    )
-                    self.eventListenerForMessages.reset()
-                    
-                    self.eventPublisher.subscribeToMessagesFor(channelId)
+                guard let account = keychainForNostr.account else {
+                    os_log("🔥 can't get account", log: log, type: .error)
+                    return
                 }
+                
+                self.eventListenerForMetadata.setChannelType(type)
+                self.eventListenerForMetadata.setChannelId(channelId)
+                self.eventListenerForMetadata.reset()
+                
+                self.eventPublisher.subscribeToMetadataFor(channelId)
+                
+                if (self.eventListenerForMessages.receivedEOSE) {
+                    shouldScrollToBottom = false
+                    return
+                }
+                
+                shouldScrollToBottom = true
+                
+                self.eventListenerForMessages.setChannelId(channelId)
+                self.eventListenerForMessages.setDependencies(
+                    dataManager: dataManager,
+                    debugManager: debugManager,
+                    account: account
+                )
+                self.eventListenerForMessages.reset()
+                
+                self.eventPublisher.subscribeToMessagesFor(channelId)
             }
-            .onReceive(NotificationCenter.default.publisher(for: .uploadImage)) { notification in
-                if let assetURL = notification.userInfo?["assetURL"] as? String {
-                    network.publishChannelEvent(channelId: channelId,
-                                                kind: .photo,
-                                                text: assetURL
-                    )
+            .onReceive(NotificationCenter.default.publisher(for: UploadNotification.Image)) { notification in
+                // Check if source is "toolbox"
+                guard let source = notification.userInfo?["source"] as? String,
+                      source == SourceType.toolbox.rawValue else {
+                    os_log("🛑 Ignoring notification: source is not toolbox", log: log, type: .debug)
+                    return
                 }
+                
+                // Proceed with processing the assetURL
+                guard let assetURL = notification.userInfo?["assetURL"] as? String else {
+                    os_log("⚠️ Missing assetURL in uploadImage notification", log: log, type: .error)
+                    return
+                }
+                
+                network.publishChannelEvent(channelId: channelId,
+                                            kind: .photo,
+                                            text: assetURL)
+                os_log("✅ Published channel event with assetURL: %{public}@", log: log, type: .info, assetURL)
             }
             .onReceive(NotificationCenter.default.publisher(for: .muteUser)) { _ in
                 guard let account = keychainForNostr.account else { return }
@@ -340,26 +358,11 @@ struct ChannelView: View {
                         print("Download Alert OK tapped")
                     }
                 )
+            case .report(npub: _):
+                return Alert(title: Text(""))
+            case .park:
+                return Alert(title: Text(""))
             }
-        }
-        // Action Sheets
-        .confirmationDialog("Media Options", isPresented: $showingMediaActionSheet, titleVisibility: .visible) {
-            Button("Play") {
-                if let videoURL = selectedMediaURL {
-                    navigation.path.append(NavigationPathType.videoPlayer(url: videoURL))
-                }
-            }
-            Button("Download") {
-                if let videoURL = selectedMediaURL {
-                    downloadVideo(from: videoURL)
-                }
-            }
-            Button("Share") {
-                if let videoURL = selectedMediaURL {
-                    MainHelper.shareVideo(videoURL)
-                }
-            }
-            Button("Cancel", role: .cancel) { }
         }
         .confirmationDialog("Spot Invite", isPresented: $showingInviteActionSheet, titleVisibility: .visible) {
             Button("Accept") {
@@ -391,7 +394,7 @@ struct ChannelView: View {
             if let messageId = selectedMessageId,
                let event = eventListenerForMessages.events[messageId] {
                 
-                if dataManager.isMe(pubkey: event.pubkey) {
+                if navigation.isMe(pubkey: event.pubkey) {
                     Button("Delete", role: .destructive) {  // Note: .destructive for delete
                         deleteEvent(event)
                     }
@@ -559,7 +562,7 @@ private extension ChannelView {
         }
         
         let baseTitle = channel.metadata?.name ?? channel.name
-        let isCreator = dataManager.isMe(pubkey: creationEvent.pubkey)
+        let isCreator = navigation.isMe(pubkey: creationEvent.pubkey)
         let readOnlyIndicator = readonly ? "ℹ️ " : ""
         let creatorIndicator = isCreator ? " 👑" : ""
         

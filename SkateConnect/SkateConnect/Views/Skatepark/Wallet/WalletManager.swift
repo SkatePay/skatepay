@@ -35,7 +35,7 @@ extension UserDefaults {
                let network = SolanaSwift.Network(rawValue: rawValue) {
                 return network
             }
-            return .testnet // Default value
+            return .mainnetBeta // Default value
         }
         set { set(newValue.rawValue, forKey: Keys.network) }
     }

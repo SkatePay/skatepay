@@ -10,7 +10,18 @@ import NostrSDK
 
 class EventBus: ObservableObject {
     static let shared = EventBus()
+    // Metadata
+    let didReceiveMetadataSubscriptionRequest = PassthroughSubject<PublicKey, Never>()
     
+    let didReceiveMetadataSubscription = PassthroughSubject<(publicKey: PublicKey, subscriptionId: String), Never>()
+    let didReceiveMetadata = PassthroughSubject<RelayEvent, Never>()
+    
+    // Notes
+    let didReceiveNotesSubscriptionRequest = PassthroughSubject<PublicKey, Never>()
+
+    let didReceiveNotesSubscription = PassthroughSubject<(publicKey: PublicKey, subscriptionId: String), Never>()
+    let didReceiveNote = PassthroughSubject<RelayEvent, Never>()
+
     // DM
     let didReceiveDMSubscriptionRequest = PassthroughSubject<PublicKey, Never>()
     let didReceiveDMSubscription = PassthroughSubject<(publicKey: PublicKey, subscriptionId: String), Never>()
@@ -39,4 +50,5 @@ class EventBus: ObservableObject {
     let didReceiveCloseMetadataSubscriptionRequest = PassthroughSubject<(String, EventKind), Never>()
     let didReceiveCloseMessagesSubscriptionRequest = PassthroughSubject<String, Never>()
 
+    let didReceiveCloseSubscriptionRequest = PassthroughSubject<String, Never>()
 }
